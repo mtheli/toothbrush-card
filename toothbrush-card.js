@@ -2,7 +2,6 @@ import { LitElement, html, css } from 'https://cdn.jsdelivr.net/gh/lit/dist@2/al
 
 class ToothbrushCard extends LitElement {
 
-    // Getter und Setter für 'hass' (Home Assistant State Object)
     set hass(hass) {
         this._hass = hass;
         this.requestUpdate();
@@ -12,10 +11,11 @@ class ToothbrushCard extends LitElement {
         return this._hass;
     }
 
-    // --- Timer für flüssige Sekunden-Aktualisierung ---
+    /*
+     * Timer to update the display periodically
+     */
     connectedCallback() {
         super.connectedCallback();
-        // Aktualisiert die Karte jede Sekunde, um den Timer zu aktualisieren
         if (!this._interval) {
             this._interval = setInterval(() => this.requestUpdate(), 1000);
         }
@@ -31,12 +31,11 @@ class ToothbrushCard extends LitElement {
 
     setConfig(config) {
         if (!config.device_id) {
-            throw new Error('Bitte das Device in der Konfiguration angeben.');
+            throw new Error('Please specify your toothbrush device.');
         }
 
         this.config = {
-            // BITTE PFAD PRÜFEN UND GGf. ANPASSEN!
-            image_path: '/local/tutor/toothbrush_images/', 
+            image_path: '/local/toothbrush-card/images/', 
             ...config
         };
     }
@@ -45,12 +44,16 @@ class ToothbrushCard extends LitElement {
         return 4; 
     }
 
-    // Hilfsfunktion zur Zuweisung des Dateinamens und der CSS-Klasse basierend auf dem Sektor
+    /*
+     * Helper function to calculate the proper image and css class for the currently active sector 
+     * @param {*} the sector string from the device
+     * @returns 
+     */
     _getSectorData(sector) {
         let fileName = null;
         let cssClass = ''; 
 
-        // Mapping basierend auf den typischen Oral-B Sektor-Nummern (1-4 angenommen)
+        
         switch (sector) {
             case 'sector_3': 
             case 'sector 3': 
@@ -77,7 +80,6 @@ class ToothbrushCard extends LitElement {
                 cssClass = 'active-sector';
                 break;
             case 'success': 
-                // success.png (muss jetzt in der gleichen Größe existieren)
                 fileName = 'success.png'; 
                 cssClass = 'active-sector';
                 break;
@@ -139,6 +141,7 @@ class ToothbrushCard extends LitElement {
         const imagePath = config.image_path;
         const { fileName: activeFileName, cssClass: activeCssClass } = this._getSectorData(sector);
 
+        // rendering the html
         return html`
             <ha-card>
                 <div class="card-content">
@@ -196,35 +199,41 @@ class ToothbrushCard extends LitElement {
      * See: https://pictogrammers.com/library/mdi/ 
      */
     getBatteryIcon(level, is_charging) {
-        // Sicherstellen, dass der Level eine Zahl ist
+        // parsing battery level string to int
         const batteryLevel = parseInt(level, 10);
 
-        // 1. Ladezustand prüfen
+        // determine if charging is active
         if (is_charging === true) {
             return 'mdi:battery-charging';
         }
 
-        // 2. Alarm und niedriger Zustand prüfen
+        // battery level less than or equal 5% is alert
         if (batteryLevel <= 5) {
             return 'mdi:battery-alert-variant-outline';
         }
 
-        // 3. Normalen Zustand in 10er-Schritte umwandeln
+        // calculate level 
         const roundedLevel = Math.min(100, Math.ceil(batteryLevel / 10) * 10);
 
-        // Spezialfall: 0 oder kleiner als 10
+        // battery level is less then 10%
         if (roundedLevel === 0) {
             return 'mdi:battery-outline';
         } 
 
+        // battery level is greater than 90%
         if (roundedLevel === 100) {
             return 'mdi:battery';
         }
 
-        // Icon-String zurückgeben (z.B. 'mdi:battery-80')
+        // return icon name e.g. 'mdi:battery-80'
         return `mdi:battery-${roundedLevel}`;
     }
 
+    /**
+     * Format duraction 
+     * @param {*} seconds 
+     * @returns 
+     */
     _formatTime(seconds) {
         const secs = parseInt(seconds);
         if (isNaN(secs) || secs < 0) return '00:00';
@@ -233,8 +242,7 @@ class ToothbrushCard extends LitElement {
         const remainingSeconds = secs % 60;
         
         const padSeconds = (num) => num.toString().padStart(2, '0');
-        
-        // Die Minutenzahl wird direkt in einen String konvertiert (kein padStart für Minuten)
+
         const formattedMinutes = minutes.toString(); 
         
         return `${formattedMinutes}:${padSeconds(remainingSeconds)}`;
@@ -385,5 +393,5 @@ window.customCards = window.customCards || [];
 window.customCards.push({
     type: "toothbrush-card",
     name: "Toothbrush Card",
-    description: "A custom card made by me!" // optional
+    description: "A custom card to display the status of your toothbrush." 
 });
