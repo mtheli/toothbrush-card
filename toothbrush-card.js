@@ -4,6 +4,12 @@ class ToothbrushCard extends LitElement {
 
     set hass(hass) {
         this._hass = hass;
+
+        // determinig all required entitys (if not already done)
+        if (!this._entityIds && this.config?.device_id) {
+            this._entityIds = this._findAndMapEntitiesInConfig(hass, this.config.device_id);
+        }
+
         this.requestUpdate();
     }
 
@@ -31,44 +37,48 @@ class ToothbrushCard extends LitElement {
 
     setConfig(config) {
         if (!config.device_id) {
-            throw new Error('Please specify your toothbrush device.');
+            throw new Error('Please enter the device id');
         }
-
-        this.config = {
-            image_path: '/local/toothbrush-card/images/', 
-            ...config
-        };
+        
+        // remember config
+        this.config = config;
+        
+        // lazy init (if not already done by set hass)
+        if (this._hass && !this._entityIds) {
+            this._entityIds = this._findAndMapEntitiesInConfig(this._hass, config.device_id);
+        } 
     }
 
     getCardSize() {
         return 4; 
     }
 
-_getSectorData(sector) {
+    _getSectorData(sector) {
         const allSectors = ['lower_left', 'lower_right', 'upper_left', 'upper_right'];
 
         // helper function to determine the active sector
         const getActiveIndex = (input) => {
             switch (input) {
-                case 'sector_1': case 'sector 1': case '1': return 0; // Unten Links
-                case 'sector_2': case 'sector 2': case '2': return 1; // Unten Rechts
-                case 'sector_3': case 'sector 3': case '3': return 2; // Oben Links
-                case 'sector_4': case 'sector 4': case '4': return 3; // Oben Rechts
+                case 'sector_1': case 'sector 1': case '1': return 0; 
+                case 'sector_2': case 'sector 2': case '2': return 1; 
+                case 'sector_3': case 'sector 3': case '3': return 2; 
+                case 'sector_4': case 'sector 4': case '4': return 3; 
                 default: return -1;
             }
         };
 
+        // determine the currently active sector
         const activeIndex = getActiveIndex(sector);
 
-        // 1. Das Ergebnis-Objekt vorbereiten
+        // Preparing the result object
         const sectorClassMaps = {
-            lower_left: { cleaned: false, cleaning: false },
+            lower_left:  { cleaned: false, cleaning: false },
             lower_right: { cleaned: false, cleaning: false },
-            upper_left: { cleaned: false, cleaning: false },
+            upper_left:  { cleaned: false, cleaning: false },
             upper_right: { cleaned: false, cleaning: false }
         };
 
-        // 2. Fall: "success"
+        // success: all sectors are cleaned
         if (sector === 'success') {
             allSectors.forEach(sectorName => {
                 sectorClassMaps[sectorName].cleaned = true;
@@ -76,67 +86,123 @@ _getSectorData(sector) {
             return sectorClassMaps;
         }
 
-        // 3. Fall: Kein Match (alles bleibt 'false')
+        // unknown: all sectors remain unclean
         if (activeIndex === -1) {
             return sectorClassMaps;
         }
 
-        // 4. Fall: Es gibt einen Match (Sektoren durchlaufen)
+        // in progress: mark previously passed sectors as clean
         allSectors.forEach((sectorName, index) => {
             if (index < activeIndex) {
                 sectorClassMaps[sectorName].cleaned = true;
             } else if (index === activeIndex) {
                 sectorClassMaps[sectorName].cleaning = true;
             }
-            // 'else' (index > activeIndex) bleibt alles 'false'
         });
 
         return sectorClassMaps;
     }
-    
+
+
+    /**
+     * Searching for all needed entities.
+     * 
+     * @param {Object} hass the home assistant object
+     * @param {string} deviceId the device id
+     * @returns {Object} 
+     */
+    _findAndMapEntitiesInConfig(hass, deviceId) {
+        const entityKeys = {
+            sector: null, duration: null, mode: null, pressure: null, 
+            battery: null, status: null, base_entity: null 
+        };
+        
+        // getting all known entities
+        const allEntities = hass.entities;
+
+        // searching for entities that belong to the device
+        for (const entityId in allEntities) {
+            const entity = allEntities[entityId];
+            if (entity.device_id !== deviceId) {
+                continue;
+            }
+
+            // getting the entity state and device-lcass
+            const state = hass.states[entityId];
+            const deviceClass = state?.attributes?.device_class;
+
+            // determine entity type based on translation-key (see /workspaces/ha-core/homeassistant/components/oralb/sensor.py)
+            if (entity.translation_key === 'sector') {
+                entityKeys.sector = entity.entity_id;
+            } else if (entity.translation_key === 'mode') {
+                entityKeys.mode = entity.entity_id;
+            } else if (entity.translation_key === 'pressure') {
+                entityKeys.pressure = entity.entity_id;
+            } else if (entity.translation_key === 'toothbrush_state') {
+                entityKeys.status = entity.entity_id;
+            }
+
+            // determine entity type based on device-class
+            if (deviceClass) {
+                if (entityKeys.battery === null && deviceClass === 'battery') {
+                    entityKeys.battery = entity.entity_id;
+                } else if (entityKeys.duration === null && deviceClass === 'duration') {
+                    entityKeys.duration = entity.entity_id;
+                }
+            }
+
+            // fallback for the status object
+            if (entityKeys.status === null && entityKeys.base_entity === null) {
+                if (!entity.entity_id.includes('_') || entity.entity_id.endsWith(deviceId)) {
+                    entityKeys.base_entity = entity.entity_id;
+                }
+            }
+        }
+        
+        // Status-ID finalisieren
+        if (entityKeys.status !== null) {
+            entityKeys.base_entity = entityKeys.status;
+            entityKeys.status = null; 
+        }
+
+        return entityKeys;
+    }
+        
     render() {
         const hass = this._hass;
         const config = this.config;
         
-        if (!hass || !config) {
-            return html``;
+        // Sicherstellen, dass die Konfiguration und die IDs vorhanden sind
+        if (!hass || !config || !this._entityIds) {
+            // Falls _hass vorhanden, aber _entityIds null ist (was nicht passieren sollte),
+            // versuchen Sie das Mapping noch einmal. Sonst leere Card zeigen.
+            if (hass && config?.device_id) {
+                this._entityIds = this._findAndMapEntitiesInConfig(hass, config.device_id);
+            } else {
+                return html`
+                    <ha-card class="toothbrush-error">
+                        Geräte-ID fehlt oder Home Assistant Daten werden geladen...
+                    </ha-card>`;
+            }
         }
 
         // getting the device and name
         const device = hass.devices[config.device_id];
         const deviceName = device.name;
 
-        // searching for proper entities
-        const allEntities = this.hass.entities;
+        // finding all neccessary sensors
+        const entityIds = this._entityIds; // Abruf der gespeicherten IDs
 
-        // searching for device entities
-        var status;
-        var sector;
-        var duration;
-        var mode;
-        var pressure;
-        var batteryLevel;
-
-        for (const entityId in allEntities) {
-            const entity = allEntities[entityId];
-            if (entity.device_id === config.device_id) {
-                const entity_id = entity.entity_id;
-
-                if(entity_id.endsWith("sector")) {
-                    sector = this.hass.states[entity_id]?.state || 'no_sector';
-                } else if (entity_id.endsWith("duration")) {
-                    duration = this.hass.states[entity_id]?.state || 0;
-                } else if (entity_id.endsWith("brushing_mode")) {
-                    mode = this.hass.states[entity_id]?.state || 'N/A';
-                } else if (entity_id.endsWith("pressure")) {
-                    pressure = this.hass.states[entity_id]?.state || 'N/A';
-                } else if (entity_id.endsWith("battery")) {
-                    batteryLevel = this.hass.states[entity_id]?.state || 0;
-                } else {
-                    status = this.hass.states[entity_id]?.state || 'unknown';
-                }                
-            }
-        }
+        // Zustandswerte direkt über die gespeicherte Map abrufen
+        const sector = entityIds.sector ? hass.states[entityIds.sector]?.state || 'no_sector' : 'no_sector';
+        const duration = entityIds.duration ? hass.states[entityIds.duration]?.state || 0 : 0;
+        const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
+        const pressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
+        const batteryLevel = entityIds.battery ? hass.states[entityIds.battery]?.state || 0 : 0;
+        
+        // Status (nutzt die Base/Status-Entität)
+        const statusEntityId = entityIds.base_entity;
+        const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
 
         // getting the battery status
         const batteryIsCharging = (status=="charging");
