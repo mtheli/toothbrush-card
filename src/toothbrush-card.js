@@ -1,6 +1,7 @@
 import { LitElement, html, css, unsafeCSS } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ToothSVG } from './toothbrush-svg.js';
+import { MODE_ICONS } from './icons.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
 export class ToothbrushCard extends LitElement {
@@ -215,10 +216,13 @@ export class ToothbrushCard extends LitElement {
         // Zustandswerte direkt über die gespeicherte Map abrufen
         const sector = entityIds.sector ? hass.states[entityIds.sector]?.state || 'no_sector' : 'no_sector';
         const duration = entityIds.duration ? hass.states[entityIds.duration]?.state || 0 : 0;
-        const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
         const pressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
         const batteryLevel = entityIds.battery ? hass.states[entityIds.battery]?.state || 0 : 0;
-        
+
+        // mode
+        const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
+        const modeIcon = this._getModeIcon(mode);
+
         // Status (nutzt die Base/Status-Entität)
         const statusEntityId = entityIds.base_entity;
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
@@ -257,7 +261,10 @@ export class ToothbrushCard extends LitElement {
                     <div class="stats-container">
                         <div class="stat-item" @click="${() => this._showMoreInfo(entityIds.mode)}">
                             <span class="label">Modus:</span>
-                            <span class="value mode">${mode}</span>
+                            <div class="mode-container">
+                                <ha-icon class="value mode-icon" .icon="${modeIcon}"></ha-icon> 
+                                <span class="value mode-level">${mode}</span>
+                            </div>
                         </div>
                         <div class="stat-item" @click="${() => this._showMoreInfo(entityIds.battery)}">
                             <span class="label">Batterie:</span>
@@ -312,6 +319,13 @@ export class ToothbrushCard extends LitElement {
 
         // return icon name e.g. 'mdi:battery-80'
         return `mdi:battery-${roundedLevel}`;
+    }
+
+    // Innerhalb Ihrer LitElement Card-Klasse
+    _getModeIcon(mode) {
+        const cleanMode = String(mode).toLowerCase().replace(/ /g, '_');
+        
+        return MODE_ICONS[cleanMode] || MODE_ICONS.default;
     }
 
     /**

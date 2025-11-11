@@ -1103,8 +1103,26 @@ const $14f43deeb4b831cc$export$d760b013da4dfa06 = (sectorClassData)=>(0, $f58f44
 `;
 
 
+const $30975d4056a61496$export$1e083828221390e5 = {
+    "daily_clean": "mdi:repeat-once",
+    "deep_clean": "mdi:water",
+    "gum_care": "mdi:tooth-outline",
+    "intense": "mdi:shape-circle-plus",
+    "massage": "mdi:spa",
+    "off": "mdi:power",
+    "sensitive": "mdi:feather",
+    "settings": "mdi:cog-outline",
+    "super_sensitive": "mdi:feather",
+    "tongue_cleaning": "mdi:gate-and",
+    "turbo": "mdi:car-turbocharger",
+    "whiten": "mdi:shimmer",
+    "whitening": "mdi:shimmer",
+    "default": "mdi:brush-variant"
+};
+
+
 var $72134a97c3fcf0ed$exports = {};
-$72134a97c3fcf0ed$exports = ".card-content {\n  text-align: center;\n  flex-direction: column;\n  gap: 15px;\n  padding: 16px;\n  display: flex;\n}\n\n.title {\n  margin: 0 0 10px;\n  font-size: 1.2em;\n}\n\n.image-stack {\n  width: 100%;\n  margin: 0 auto;\n  padding-bottom: 75%;\n  position: relative;\n}\n\n.tooth-image {\n  object-fit: contain;\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n}\n\n.base-image, .active-sector {\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n}\n\n.status-overlay, .time-overlay, .pressure-overlay {\n  color: var(--primary-text-color);\n  cursor: pointer;\n  font-weight: 500;\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\n.status-overlay {\n  text-transform: capitalize;\n  color: var(--secondary-text-color);\n  font-size: 1.1em;\n  top: 30%;\n}\n\n.battery-container {\n  align-items: center;\n  gap: 4px;\n  display: inline-flex;\n}\n\n.battery-icon {\n  display: inline-block;\n  transform: rotate(90deg);\n}\n\n.time-overlay {\n  font-size: 56px;\n  font-weight: var(--ha-font-weight-normal);\n  font-family: var(--ha-font-family-body);\n  align-items: center;\n  gap: 5px;\n  display: flex;\n  top: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.time-overlay ha-icon {\n  --mdc-icon-size: 1.2em;\n}\n\n.pressure-overlay {\n  align-items: center;\n  gap: 5px;\n  font-size: 1.1em;\n  font-weight: 700;\n  display: flex;\n  top: 65%;\n}\n\n.pressure-overlay ha-icon {\n  --mdc-icon-size: 1.2em;\n}\n\n.stats-container {\n  border-top: 1px solid var(--divider-color);\n  justify-content: space-around;\n  width: 100%;\n  padding-top: 10px;\n  display: flex;\n}\n\n.stat-item {\n  flex-direction: column;\n  flex-basis: 45%;\n  align-items: center;\n  font-size: .9em;\n  display: flex;\n}\n\n.label {\n  color: var(--secondary-text-color);\n  font-weight: 500;\n}\n\n.value {\n  color: var(--primary-text-color);\n  margin-top: 4px;\n  font-size: 1.1em;\n  font-weight: 700;\n}\n\n.surfaces {\n  fill: #fff;\n  stroke: #000;\n  stroke-width: 1px;\n  transition: fill .5s;\n}\n\n.plaque {\n  fill: #e3dbdb;\n  fill-rule: evenodd;\n  stroke: none;\n  stroke-width: .75px;\n}\n\n@keyframes blinkTooth {\n  0%, 100% {\n    fill: #fff;\n  }\n\n  50% {\n    fill: #aee4ff;\n  }\n}\n\n@keyframes blinkPlaque {\n  0%, 100% {\n    fill: #e3dbdb;\n  }\n\n  50% {\n    fill: #aee4ff;\n  }\n}\n\n.cleaning .surfaces {\n  stroke: #ccc;\n  stroke-width: 3px;\n  filter: url(\"#shadow\");\n  animation: 1s ease-in-out infinite blinkTooth;\n}\n\n.cleaning .plaque {\n  stroke: none;\n  stroke-width: .75px;\n  filter: url(\"#shadow\");\n  animation: 1s ease-in-out infinite blinkPlaque;\n}\n\n.cleaned .surfaces {\n  fill: #fff;\n}\n\n.cleaned .plaque {\n  fill: none;\n}\n";
+$72134a97c3fcf0ed$exports = ".card-content {\n  text-align: center;\n  flex-direction: column;\n  gap: 15px;\n  padding: 16px;\n  display: flex;\n}\n\n.title {\n  margin: 0 0 10px;\n  font-size: 1.2em;\n}\n\n.image-stack {\n  width: 100%;\n  margin: 0 auto;\n  padding-bottom: 75%;\n  position: relative;\n}\n\n.tooth-image {\n  object-fit: contain;\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n}\n\n.base-image, .active-sector {\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n}\n\n.status-overlay, .time-overlay, .pressure-overlay {\n  color: var(--primary-text-color);\n  cursor: pointer;\n  font-weight: 500;\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\n.status-overlay {\n  text-transform: capitalize;\n  color: var(--secondary-text-color);\n  font-size: 1.1em;\n  top: 30%;\n}\n\n.battery-container {\n  align-items: center;\n  gap: 4px;\n  display: inline-flex;\n}\n\n.battery-icon {\n  display: inline-block;\n  transform: rotate(90deg);\n}\n\n.time-overlay {\n  font-size: 56px;\n  font-weight: var(--ha-font-weight-normal);\n  font-family: var(--ha-font-family-body);\n  align-items: center;\n  gap: 5px;\n  display: flex;\n  top: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.time-overlay ha-icon {\n  --mdc-icon-size: 1.2em;\n}\n\n.pressure-overlay {\n  align-items: center;\n  gap: 5px;\n  font-size: 1.1em;\n  font-weight: 700;\n  display: flex;\n  top: 65%;\n}\n\n.pressure-overlay ha-icon {\n  --mdc-icon-size: 1.2em;\n}\n\n.stats-container {\n  border-top: 1px solid var(--divider-color);\n  justify-content: space-around;\n  width: 100%;\n  padding-top: 10px;\n  display: flex;\n}\n\n.mode-container {\n  align-items: center;\n  gap: 4px;\n  display: flex;\n}\n\n.mode-icon {\n  --mdc-icon-size: 20px;\n  color: var(--primary-color);\n}\n\n.mode-level {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 1.1em;\n  font-weight: 500;\n}\n\n.stat-item {\n  cursor: pointer;\n  flex-direction: column;\n  align-items: center;\n  display: flex;\n}\n\n.stat-item .label {\n  color: var(--secondary-text-color);\n  margin-bottom: 2px;\n  font-size: .8em;\n}\n\n.surfaces {\n  fill: #fff;\n  stroke: #000;\n  stroke-width: 1px;\n  transition: fill .5s;\n}\n\n.plaque {\n  fill: #e3dbdb;\n  fill-rule: evenodd;\n  stroke: none;\n  stroke-width: .75px;\n}\n\n@keyframes blinkTooth {\n  0%, 100% {\n    fill: #fff;\n  }\n\n  50% {\n    fill: #aee4ff;\n  }\n}\n\n@keyframes blinkPlaque {\n  0%, 100% {\n    fill: #e3dbdb;\n  }\n\n  50% {\n    fill: #aee4ff;\n  }\n}\n\n.cleaning .surfaces {\n  stroke: #ccc;\n  stroke-width: 3px;\n  filter: url(\"#shadow\");\n  animation: 1s ease-in-out infinite blinkTooth;\n}\n\n.cleaning .plaque {\n  stroke: none;\n  stroke-width: .75px;\n  filter: url(\"#shadow\");\n  animation: 1s ease-in-out infinite blinkPlaque;\n}\n\n.cleaned .surfaces {\n  fill: #fff;\n}\n\n.cleaned .plaque {\n  fill: none;\n}\n";
 
 
 class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$export$3f2f9f5909897157) {
@@ -1290,9 +1308,11 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
         // Zustandswerte direkt über die gespeicherte Map abrufen
         const sector = entityIds.sector ? hass.states[entityIds.sector]?.state || 'no_sector' : 'no_sector';
         const duration = entityIds.duration ? hass.states[entityIds.duration]?.state || 0 : 0;
-        const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
         const pressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
         const batteryLevel = entityIds.battery ? hass.states[entityIds.battery]?.state || 0 : 0;
+        // mode
+        const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
+        const modeIcon = this._getModeIcon(mode);
         // Status (nutzt die Base/Status-Entität)
         const statusEntityId = entityIds.base_entity;
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
@@ -1328,7 +1348,10 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
                     <div class="stats-container">
                         <div class="stat-item" @click="${()=>this._showMoreInfo(entityIds.mode)}">
                             <span class="label">Modus:</span>
-                            <span class="value mode">${mode}</span>
+                            <div class="mode-container">
+                                <ha-icon class="value mode-icon" .icon="${modeIcon}"></ha-icon> 
+                                <span class="value mode-level">${mode}</span>
+                            </div>
                         </div>
                         <div class="stat-item" @click="${()=>this._showMoreInfo(entityIds.battery)}">
                             <span class="label">Batterie:</span>
@@ -1366,6 +1389,11 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
         if (roundedLevel === 100) return 'mdi:battery';
         // return icon name e.g. 'mdi:battery-80'
         return `mdi:battery-${roundedLevel}`;
+    }
+    // Innerhalb Ihrer LitElement Card-Klasse
+    _getModeIcon(mode) {
+        const cleanMode = String(mode).toLowerCase().replace(/ /g, '_');
+        return (0, $30975d4056a61496$export$1e083828221390e5)[cleanMode] || (0, $30975d4056a61496$export$1e083828221390e5).default;
     }
     /**
      * Format duraction 
