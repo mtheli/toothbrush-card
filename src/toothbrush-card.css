@@ -42,7 +42,6 @@
     cursor: pointer;
 }
 
-/* 1. STATUS (Oben) */
 .status-overlay {
     top: 30%; /* Position oben in den Zähnen */
     font-size: 1.1em;
@@ -61,7 +60,6 @@
     display: inline-block;
 }
 
-/* 2. COUNTDOWN (Mitte/Groß) */
 .time-overlay {
     top: 50%; /* Vertikal zentriert */
     transform: translate(-50%, -50%); /* Korrigiert die Zentrierung */
@@ -97,23 +95,42 @@
     padding-top: 10px;
     border-top: 1px solid var(--divider-color);
 }
+
+/* Stellt Icon und Text nebeneinander (wie .battery-container) */
+.mode-container {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Kleiner Abstand zwischen Icon und Text */
+}
+
+/* Passt das Icon an die Größe des Batterie-Icons an */
+.mode-icon {
+    /* Setzt die Größe des Icons, oft kleiner als die Haupt-Ha-Icon */
+    --mdc-icon-size: 20px; 
+    color: var(--primary-color); 
+}
+
+/* Der Wert (der Modus-Name) sollte fett sein, wie der Batteriewert (85%) */
+.mode-level {
+    font-size: 1.1em; /* Kann etwas kleiner sein als der Batteriewert */
+    font-weight: 500; /* Halb-fett */
+    color: var(--primary-text-color);
+    text-transform: capitalize; /* Stellt sicher, dass es gut aussieht */
+}
+
+/* WICHTIG: Korrigieren Sie .stat-item, um Label und Wert vertikal zu stapeln */
 .stat-item {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 0.9em;
-    /* Platz für nur 2 Elemente */
-    flex-basis: 45%; 
+    flex-direction: column; /* Stapelt Label über Wert/Container */
+    align-items: center; /* Zentriert den gesamten Block */
+    cursor: pointer;
 }
-.label {
-    font-weight: 500;
+
+/* Der Label-Text ("Modus:", "Batterie:") */
+.stat-item .label {
+    font-size: 0.8em;
     color: var(--secondary-text-color);
-}
-.value {
-    font-weight: 700;
-    color: var(--primary-text-color);
-    font-size: 1.1em;
-    margin-top: 4px;
+    margin-bottom: 2px;
 }
 
 .surfaces {
