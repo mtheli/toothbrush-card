@@ -1,0 +1,164 @@
+.card-content {
+    padding: 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.title {
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+}
+.image-stack {
+    position: relative;
+    width: 100%;
+    /* Seitenverhältnis der base.png */
+    padding-bottom: 75%; 
+    margin: 0 auto;
+}
+.tooth-image {
+    position: absolute;
+    object-fit: contain; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.base-image, .active-sector {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Basis-Klasse für alle Overlays im Bildstapel */
+.status-overlay, .time-overlay, .pressure-overlay {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* Horizontal zentrieren */
+    color: var(--primary-text-color);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* 1. STATUS (Oben) */
+.status-overlay {
+    top: 30%; /* Position oben in den Zähnen */
+    font-size: 1.1em;
+    text-transform: capitalize;
+    color: var(--secondary-text-color);
+}
+
+.battery-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.battery-icon {
+    transform: rotate(90deg);
+    display: inline-block;
+}
+
+/* 2. COUNTDOWN (Mitte/Groß) */
+.time-overlay {
+    top: 50%; /* Vertikal zentriert */
+    transform: translate(-50%, -50%); /* Korrigiert die Zentrierung */
+    display: flex;
+    align-items: center; 
+    gap: 5px; 
+    font-size: 56px; 
+    font-weight: var(--ha-font-weight-normal);
+    font-family: var(--ha-font-family-body);
+}
+.time-overlay ha-icon {
+    --mdc-icon-size: 1.2em; 
+}
+
+/* 3. DRUCK (Unten) */
+.pressure-overlay {
+    top: 65%; /* Position unten in den Zähnen */
+    font-size: 1.1em;
+    font-weight: 700;
+    
+    display: flex; /* Für das Icon */
+    align-items: center;
+    gap: 5px;
+}
+.pressure-overlay ha-icon {
+    --mdc-icon-size: 1.2em;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid var(--divider-color);
+}
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.9em;
+    /* Platz für nur 2 Elemente */
+    flex-basis: 45%; 
+}
+.label {
+    font-weight: 500;
+    color: var(--secondary-text-color);
+}
+.value {
+    font-weight: 700;
+    color: var(--primary-text-color);
+    font-size: 1.1em;
+    margin-top: 4px;
+}
+
+.surfaces {
+    fill:white;
+    stroke:black;
+    stroke-width:1;
+    transition:fill 0.5s ease;
+}
+
+.plaque {
+    fill:#e3dbdb;
+    fill-rule:evenodd;
+    stroke:none;
+    stroke-width:0.75;
+}
+
+@keyframes blinkTooth {
+    0%, 100% { fill: white; }
+    50% { fill: #aee4ff; } 
+}
+
+@keyframes blinkPlaque {
+    0%, 100% { fill: #e3dbdb; }
+    50% { fill: #aee4ff; } 
+}
+
+/* Zahn-Stil und Animation */
+.cleaning .surfaces {
+    stroke: #ccc;
+    stroke-width: 3;
+    filter: url(#shadow);
+    animation: blinkTooth 1s infinite ease-in-out;
+}
+
+.cleaning .plaque {
+    stroke:none;
+    stroke-width:0.75;
+    filter: url(#shadow);
+    animation: blinkPlaque 1s infinite ease-in-out;
+}
+
+.cleaned .surfaces {
+    fill: white;
+}
+
+.cleaned .plaque {
+    fill: none;
+}
