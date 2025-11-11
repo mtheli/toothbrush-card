@@ -2,5 +2,5 @@
     "name": "Toothbrush Card",
     "render_readme": false,
     "filename": "toothbrush-card.js",
-    "content_in_root": true
+    "content_in_root": false
   }
