@@ -1303,7 +1303,7 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
         // getting the device and name
         const device = hass.devices[config.device_id];
         const deviceName = device.name;
-        // finding all neccessary sensors
+        // getting all neccessary sensors
         const entityIds = this._entityIds; // Abruf der gespeicherten IDs
         // Zustandswerte direkt über die gespeicherte Map abrufen
         const sector = entityIds.sector ? hass.states[entityIds.sector]?.state || 'no_sector' : 'no_sector';
@@ -1318,8 +1318,8 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
         // getting the battery status
         const batteryIsCharging = status == "charging";
-        const batteryIconName = this.getBatteryIcon(batteryLevel, batteryIsCharging);
-        const batteryIconColor = this.getBatteryColor(batteryLevel);
+        const batteryIconName = this._getBatteryIcon(batteryLevel, batteryIsCharging);
+        const batteryIconColor = this._getBatteryColor(batteryLevel);
         const sectorClassData = this._getSectorData(sector);
         // rendering the html
         return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
@@ -1366,7 +1366,7 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
             </ha-card>
         `;
     }
-    getBatteryColor(level) {
+    _getBatteryColor(level) {
         if (level <= 15) return 'red';
         if (level <= 30) return 'orange';
         return 'var(--paper-item-icon-color)';
@@ -1374,7 +1374,7 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
     /**
      * Determine the proper image for battery 
      * See: https://pictogrammers.com/library/mdi/ 
-     */ getBatteryIcon(level, is_charging) {
+     */ _getBatteryIcon(level, is_charging) {
         // parsing battery level string to int
         const batteryLevel = parseInt(level, 10);
         // determine if charging is active
