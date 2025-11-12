@@ -253,20 +253,20 @@ export class ToothbrushCard extends LitElement {
 
                         <div class="pressure-overlay" @click="${() => this._showMoreInfo(entityIds.pressure)}">
                             <ha-icon icon="mdi:tooth-outline"></ha-icon>
-                            Druck: ${pressure}
+                            Pressure: ${pressure}
                         </div>
                     </div>
 
                     <div class="stats-container">
                         <div class="stat-item" @click="${() => this._showMoreInfo(entityIds.mode)}">
-                            <span class="label">Modus:</span>
+                            <span class="label">Mode:</span>
                             <div class="mode-container">
                                 <ha-icon class="value mode-icon" .icon="${modeIcon}"></ha-icon> 
                                 <span class="value mode-level">${mode}</span>
                             </div>
                         </div>
                         <div class="stat-item" @click="${() => this._showMoreInfo(entityIds.battery)}">
-                            <span class="label">Batterie:</span>
+                            <span class="label">Battery:</span>
                             <div class="battery-container">
                                 <ha-icon class="value battery-icon" icon="${batteryIconName}" style="color: ${batteryIconColor}"></ha-icon>
                                 <span class="value battery-level">${batteryLevel}%</span>
