@@ -210,7 +210,7 @@ export class ToothbrushCard extends LitElement {
         const device = hass.devices[config.device_id];
         const deviceName = device.name;
 
-        // finding all neccessary sensors
+        // getting all neccessary sensors
         const entityIds = this._entityIds; // Abruf der gespeicherten IDs
 
         // Zustandswerte direkt über die gespeicherte Map abrufen
@@ -229,8 +229,8 @@ export class ToothbrushCard extends LitElement {
 
         // getting the battery status
         const batteryIsCharging = (status=="charging");
-        const batteryIconName = this.getBatteryIcon(batteryLevel, batteryIsCharging);
-        const batteryIconColor = this.getBatteryColor(batteryLevel);
+        const batteryIconName = this._getBatteryIcon(batteryLevel, batteryIsCharging);
+        const batteryIconColor = this._getBatteryColor(batteryLevel);
         
         const sectorClassData = this._getSectorData(sector);
 
@@ -280,7 +280,7 @@ export class ToothbrushCard extends LitElement {
         `;
     }
 
-    getBatteryColor(level) {
+    _getBatteryColor(level) {
         if (level <= 15) return 'red';
         if (level <= 30) return 'orange';
         return 'var(--paper-item-icon-color)'; 
@@ -290,7 +290,7 @@ export class ToothbrushCard extends LitElement {
      * Determine the proper image for battery 
      * See: https://pictogrammers.com/library/mdi/ 
      */
-    getBatteryIcon(level, is_charging) {
+    _getBatteryIcon(level, is_charging) {
         // parsing battery level string to int
         const batteryLevel = parseInt(level, 10);
 
