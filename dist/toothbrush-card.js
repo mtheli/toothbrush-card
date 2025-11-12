@@ -6,18 +6,18 @@ function $parcel$interopDefault(a) {
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const $def2de46b9306e8a$var$t = globalThis, $def2de46b9306e8a$export$b4d10f6001c083c2 = $def2de46b9306e8a$var$t.ShadowRoot && (void 0 === $def2de46b9306e8a$var$t.ShadyCSS || $def2de46b9306e8a$var$t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, $def2de46b9306e8a$var$s = Symbol(), $def2de46b9306e8a$var$o = new WeakMap;
-class $def2de46b9306e8a$export$505d1e8739bad805 {
+ */ const $06bdd16cbb4a41b3$var$t = globalThis, $06bdd16cbb4a41b3$export$b4d10f6001c083c2 = $06bdd16cbb4a41b3$var$t.ShadowRoot && (void 0 === $06bdd16cbb4a41b3$var$t.ShadyCSS || $06bdd16cbb4a41b3$var$t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, $06bdd16cbb4a41b3$var$s = Symbol(), $06bdd16cbb4a41b3$var$o = new WeakMap;
+class $06bdd16cbb4a41b3$export$505d1e8739bad805 {
     constructor(t, e, o){
-        if (this._$cssResult$ = !0, o !== $def2de46b9306e8a$var$s) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+        if (this._$cssResult$ = !0, o !== $06bdd16cbb4a41b3$var$s) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
         this.cssText = t, this.t = e;
     }
     get styleSheet() {
         let t = this.o;
         const s = this.t;
-        if ($def2de46b9306e8a$export$b4d10f6001c083c2 && void 0 === t) {
+        if ($06bdd16cbb4a41b3$export$b4d10f6001c083c2 && void 0 === t) {
             const e = void 0 !== s && 1 === s.length;
-            e && (t = $def2de46b9306e8a$var$o.get(s)), void 0 === t && ((this.o = t = new CSSStyleSheet).replaceSync(this.cssText), e && $def2de46b9306e8a$var$o.set(s, t));
+            e && (t = $06bdd16cbb4a41b3$var$o.get(s)), void 0 === t && ((this.o = t = new CSSStyleSheet).replaceSync(this.cssText), e && $06bdd16cbb4a41b3$var$o.set(s, t));
         }
         return t;
     }
@@ -25,23 +25,23 @@ class $def2de46b9306e8a$export$505d1e8739bad805 {
         return this.cssText;
     }
 }
-const $def2de46b9306e8a$export$8d80f9cac07cdb3 = (t)=>new $def2de46b9306e8a$export$505d1e8739bad805("string" == typeof t ? t : t + "", void 0, $def2de46b9306e8a$var$s), $def2de46b9306e8a$export$dbf350e5966cf602 = (t, ...e)=>{
+const $06bdd16cbb4a41b3$export$8d80f9cac07cdb3 = (t)=>new $06bdd16cbb4a41b3$export$505d1e8739bad805("string" == typeof t ? t : t + "", void 0, $06bdd16cbb4a41b3$var$s), $06bdd16cbb4a41b3$export$dbf350e5966cf602 = (t, ...e)=>{
     const o = 1 === t.length ? t[0] : e.reduce((e, s, o)=>e + ((t)=>{
             if (!0 === t._$cssResult$) return t.cssText;
             if ("number" == typeof t) return t;
             throw Error("Value passed to 'css' function must be a 'css' function result: " + t + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
         })(s) + t[o + 1], t[0]);
-    return new $def2de46b9306e8a$export$505d1e8739bad805(o, t, $def2de46b9306e8a$var$s);
-}, $def2de46b9306e8a$export$2ca4a66ec4cecb90 = (s, o)=>{
-    if ($def2de46b9306e8a$export$b4d10f6001c083c2) s.adoptedStyleSheets = o.map((t)=>t instanceof CSSStyleSheet ? t : t.styleSheet);
+    return new $06bdd16cbb4a41b3$export$505d1e8739bad805(o, t, $06bdd16cbb4a41b3$var$s);
+}, $06bdd16cbb4a41b3$export$2ca4a66ec4cecb90 = (s, o)=>{
+    if ($06bdd16cbb4a41b3$export$b4d10f6001c083c2) s.adoptedStyleSheets = o.map((t)=>t instanceof CSSStyleSheet ? t : t.styleSheet);
     else for (const e of o){
-        const o = document.createElement("style"), n = $def2de46b9306e8a$var$t.litNonce;
+        const o = document.createElement("style"), n = $06bdd16cbb4a41b3$var$t.litNonce;
         void 0 !== n && o.setAttribute("nonce", n), o.textContent = e.cssText, s.appendChild(o);
     }
-}, $def2de46b9306e8a$export$ee69dfd951e24778 = $def2de46b9306e8a$export$b4d10f6001c083c2 ? (t)=>t : (t)=>t instanceof CSSStyleSheet ? ((t)=>{
+}, $06bdd16cbb4a41b3$export$ee69dfd951e24778 = $06bdd16cbb4a41b3$export$b4d10f6001c083c2 ? (t)=>t : (t)=>t instanceof CSSStyleSheet ? ((t)=>{
         let e = "";
         for (const s of t.cssRules)e += s.cssText;
-        return $def2de46b9306e8a$export$8d80f9cac07cdb3(e);
+        return $06bdd16cbb4a41b3$export$8d80f9cac07cdb3(e);
     })(t) : t;
 
 
@@ -49,11 +49,11 @@ const $def2de46b9306e8a$export$8d80f9cac07cdb3 = (t)=>new $def2de46b9306e8a$expo
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const { is: $19fe8e3abedf4df0$var$i, defineProperty: $19fe8e3abedf4df0$var$e, getOwnPropertyDescriptor: $19fe8e3abedf4df0$var$h, getOwnPropertyNames: $19fe8e3abedf4df0$var$r, getOwnPropertySymbols: $19fe8e3abedf4df0$var$o, getPrototypeOf: $19fe8e3abedf4df0$var$n } = Object, $19fe8e3abedf4df0$var$a = globalThis, $19fe8e3abedf4df0$var$c = $19fe8e3abedf4df0$var$a.trustedTypes, $19fe8e3abedf4df0$var$l = $19fe8e3abedf4df0$var$c ? $19fe8e3abedf4df0$var$c.emptyScript : "", $19fe8e3abedf4df0$var$p = $19fe8e3abedf4df0$var$a.reactiveElementPolyfillSupport, $19fe8e3abedf4df0$var$d = (t, s)=>t, $19fe8e3abedf4df0$export$7312b35fbf521afb = {
+ */ const { is: $375b48187e686ca2$var$i, defineProperty: $375b48187e686ca2$var$e, getOwnPropertyDescriptor: $375b48187e686ca2$var$h, getOwnPropertyNames: $375b48187e686ca2$var$r, getOwnPropertySymbols: $375b48187e686ca2$var$o, getPrototypeOf: $375b48187e686ca2$var$n } = Object, $375b48187e686ca2$var$a = globalThis, $375b48187e686ca2$var$c = $375b48187e686ca2$var$a.trustedTypes, $375b48187e686ca2$var$l = $375b48187e686ca2$var$c ? $375b48187e686ca2$var$c.emptyScript : "", $375b48187e686ca2$var$p = $375b48187e686ca2$var$a.reactiveElementPolyfillSupport, $375b48187e686ca2$var$d = (t, s)=>t, $375b48187e686ca2$export$7312b35fbf521afb = {
     toAttribute (t, s) {
         switch(s){
             case Boolean:
-                t = t ? $19fe8e3abedf4df0$var$l : null;
+                t = t ? $375b48187e686ca2$var$l : null;
                 break;
             case Object:
             case Array:
@@ -80,16 +80,16 @@ const $def2de46b9306e8a$export$8d80f9cac07cdb3 = (t)=>new $def2de46b9306e8a$expo
         }
         return i;
     }
-}, $19fe8e3abedf4df0$export$53a6892c50694894 = (t, s)=>!$19fe8e3abedf4df0$var$i(t, s), $19fe8e3abedf4df0$var$b = {
+}, $375b48187e686ca2$export$53a6892c50694894 = (t, s)=>!$375b48187e686ca2$var$i(t, s), $375b48187e686ca2$var$b = {
     attribute: !0,
     type: String,
-    converter: $19fe8e3abedf4df0$export$7312b35fbf521afb,
+    converter: $375b48187e686ca2$export$7312b35fbf521afb,
     reflect: !1,
     useDefault: !1,
-    hasChanged: $19fe8e3abedf4df0$export$53a6892c50694894
+    hasChanged: $375b48187e686ca2$export$53a6892c50694894
 };
-Symbol.metadata ??= Symbol("metadata"), $19fe8e3abedf4df0$var$a.litPropertyMetadata ??= new WeakMap;
-class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
+Symbol.metadata ??= Symbol("metadata"), $375b48187e686ca2$var$a.litPropertyMetadata ??= new WeakMap;
+class $375b48187e686ca2$export$c7c07a37856565d extends HTMLElement {
     static addInitializer(t) {
         this._$Ei(), (this.l ??= []).push(t);
     }
@@ -98,14 +98,14 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
             ...this._$Eh.keys()
         ];
     }
-    static createProperty(t, s = $19fe8e3abedf4df0$var$b) {
+    static createProperty(t, s = $375b48187e686ca2$var$b) {
         if (s.state && (s.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(t) && ((s = Object.create(s)).wrapped = !0), this.elementProperties.set(t, s), !s.noAccessor) {
             const i = Symbol(), h = this.getPropertyDescriptor(t, i, s);
-            void 0 !== h && $19fe8e3abedf4df0$var$e(this.prototype, t, h);
+            void 0 !== h && $375b48187e686ca2$var$e(this.prototype, t, h);
         }
     }
     static getPropertyDescriptor(t, s, i) {
-        const { get: e, set: r } = $19fe8e3abedf4df0$var$h(this.prototype, t) ?? {
+        const { get: e, set: r } = $375b48187e686ca2$var$h(this.prototype, t) ?? {
             get () {
                 return this[s];
             },
@@ -124,21 +124,21 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
         };
     }
     static getPropertyOptions(t) {
-        return this.elementProperties.get(t) ?? $19fe8e3abedf4df0$var$b;
+        return this.elementProperties.get(t) ?? $375b48187e686ca2$var$b;
     }
     static _$Ei() {
-        if (this.hasOwnProperty($19fe8e3abedf4df0$var$d("elementProperties"))) return;
-        const t = $19fe8e3abedf4df0$var$n(this);
+        if (this.hasOwnProperty($375b48187e686ca2$var$d("elementProperties"))) return;
+        const t = $375b48187e686ca2$var$n(this);
         t.finalize(), void 0 !== t.l && (this.l = [
             ...t.l
         ]), this.elementProperties = new Map(t.elementProperties);
     }
     static finalize() {
-        if (this.hasOwnProperty($19fe8e3abedf4df0$var$d("finalized"))) return;
-        if (this.finalized = !0, this._$Ei(), this.hasOwnProperty($19fe8e3abedf4df0$var$d("properties"))) {
+        if (this.hasOwnProperty($375b48187e686ca2$var$d("finalized"))) return;
+        if (this.finalized = !0, this._$Ei(), this.hasOwnProperty($375b48187e686ca2$var$d("properties"))) {
             const t = this.properties, s = [
-                ...$19fe8e3abedf4df0$var$r(t),
-                ...$19fe8e3abedf4df0$var$o(t)
+                ...$375b48187e686ca2$var$r(t),
+                ...$375b48187e686ca2$var$o(t)
             ];
             for (const i of s)this.createProperty(i, t[i]);
         }
@@ -158,8 +158,8 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
         const i = [];
         if (Array.isArray(s)) {
             const e = new Set(s.flat(1 / 0).reverse());
-            for (const s of e)i.unshift((0, $def2de46b9306e8a$export$ee69dfd951e24778)(s));
-        } else void 0 !== s && i.push((0, $def2de46b9306e8a$export$ee69dfd951e24778)(s));
+            for (const s of e)i.unshift((0, $06bdd16cbb4a41b3$export$ee69dfd951e24778)(s));
+        } else void 0 !== s && i.push((0, $06bdd16cbb4a41b3$export$ee69dfd951e24778)(s));
         return i;
     }
     static _$Eu(t, s) {
@@ -185,7 +185,7 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
     }
     createRenderRoot() {
         const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-        return (0, $def2de46b9306e8a$export$2ca4a66ec4cecb90)(t, this.constructor.elementStyles), t;
+        return (0, $06bdd16cbb4a41b3$export$2ca4a66ec4cecb90)(t, this.constructor.elementStyles), t;
     }
     connectedCallback() {
         this.renderRoot ??= this.createRenderRoot(), this.enableUpdating(!0), this._$EO?.forEach((t)=>t.hostConnected?.());
@@ -200,7 +200,7 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
     _$ET(t, s) {
         const i = this.constructor.elementProperties.get(t), e = this.constructor._$Eu(t, i);
         if (void 0 !== e && !0 === i.reflect) {
-            const h = (void 0 !== i.converter?.toAttribute ? i.converter : $19fe8e3abedf4df0$export$7312b35fbf521afb).toAttribute(s, i.type);
+            const h = (void 0 !== i.converter?.toAttribute ? i.converter : $375b48187e686ca2$export$7312b35fbf521afb).toAttribute(s, i.type);
             this._$Em = t, null == h ? this.removeAttribute(e) : this.setAttribute(e, h), this._$Em = null;
         }
     }
@@ -209,7 +209,7 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
         if (void 0 !== e && this._$Em !== e) {
             const t = i.getPropertyOptions(e), h = "function" == typeof t.converter ? {
                 fromAttribute: t.converter
-            } : void 0 !== t.converter?.fromAttribute ? t.converter : $19fe8e3abedf4df0$export$7312b35fbf521afb;
+            } : void 0 !== t.converter?.fromAttribute ? t.converter : $375b48187e686ca2$export$7312b35fbf521afb;
             this._$Em = e;
             const r = h.fromAttribute(s, t.type);
             this[e] = r ?? this._$Ej?.get(e) ?? r, this._$Em = null;
@@ -218,7 +218,7 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
     requestUpdate(t, s, i) {
         if (void 0 !== t) {
             const e = this.constructor, h = this[t];
-            if (i ??= e.getPropertyOptions(t), !((i.hasChanged ?? $19fe8e3abedf4df0$export$53a6892c50694894)(h, s) || i.useDefault && i.reflect && h === this._$Ej?.get(t) && !this.hasAttribute(e._$Eu(t, i)))) return;
+            if (i ??= e.getPropertyOptions(t), !((i.hasChanged ?? $375b48187e686ca2$export$53a6892c50694894)(h, s) || i.useDefault && i.reflect && h === this._$Ej?.get(t) && !this.hasAttribute(e._$Eu(t, i)))) return;
             this.C(t, s, i);
         }
         !1 === this.isUpdatePending && (this._$ES = this._$EP());
@@ -283,107 +283,107 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
     updated(t) {}
     firstUpdated(t) {}
 }
-$19fe8e3abedf4df0$export$c7c07a37856565d.elementStyles = [], $19fe8e3abedf4df0$export$c7c07a37856565d.shadowRootOptions = {
+$375b48187e686ca2$export$c7c07a37856565d.elementStyles = [], $375b48187e686ca2$export$c7c07a37856565d.shadowRootOptions = {
     mode: "open"
-}, $19fe8e3abedf4df0$export$c7c07a37856565d[$19fe8e3abedf4df0$var$d("elementProperties")] = new Map, $19fe8e3abedf4df0$export$c7c07a37856565d[$19fe8e3abedf4df0$var$d("finalized")] = new Map, $19fe8e3abedf4df0$var$p?.({
-    ReactiveElement: $19fe8e3abedf4df0$export$c7c07a37856565d
-}), ($19fe8e3abedf4df0$var$a.reactiveElementVersions ??= []).push("2.1.1");
+}, $375b48187e686ca2$export$c7c07a37856565d[$375b48187e686ca2$var$d("elementProperties")] = new Map, $375b48187e686ca2$export$c7c07a37856565d[$375b48187e686ca2$var$d("finalized")] = new Map, $375b48187e686ca2$var$p?.({
+    ReactiveElement: $375b48187e686ca2$export$c7c07a37856565d
+}), ($375b48187e686ca2$var$a.reactiveElementVersions ??= []).push("2.1.1");
 
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const $f58f44579a4747ac$var$t = globalThis, $f58f44579a4747ac$var$i = $f58f44579a4747ac$var$t.trustedTypes, $f58f44579a4747ac$var$s = $f58f44579a4747ac$var$i ? $f58f44579a4747ac$var$i.createPolicy("lit-html", {
+ */ const $d33ef1320595a3ac$var$t = globalThis, $d33ef1320595a3ac$var$i = $d33ef1320595a3ac$var$t.trustedTypes, $d33ef1320595a3ac$var$s = $d33ef1320595a3ac$var$i ? $d33ef1320595a3ac$var$i.createPolicy("lit-html", {
     createHTML: (t)=>t
-}) : void 0, $f58f44579a4747ac$var$e = "$lit$", $f58f44579a4747ac$var$h = `lit$${Math.random().toFixed(9).slice(2)}$`, $f58f44579a4747ac$var$o = "?" + $f58f44579a4747ac$var$h, $f58f44579a4747ac$var$n = `<${$f58f44579a4747ac$var$o}>`, $f58f44579a4747ac$var$r = document, $f58f44579a4747ac$var$l = ()=>$f58f44579a4747ac$var$r.createComment(""), $f58f44579a4747ac$var$c = (t)=>null === t || "object" != typeof t && "function" != typeof t, $f58f44579a4747ac$var$a = Array.isArray, $f58f44579a4747ac$var$u = (t)=>$f58f44579a4747ac$var$a(t) || "function" == typeof t?.[Symbol.iterator], $f58f44579a4747ac$var$d = "[ \t\n\f\r]", $f58f44579a4747ac$var$f = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, $f58f44579a4747ac$var$v = /-->/g, $f58f44579a4747ac$var$_ = />/g, $f58f44579a4747ac$var$m = RegExp(`>|${$f58f44579a4747ac$var$d}(?:([^\\s"'>=/]+)(${$f58f44579a4747ac$var$d}*=${$f58f44579a4747ac$var$d}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), $f58f44579a4747ac$var$p = /'/g, $f58f44579a4747ac$var$g = /"/g, $f58f44579a4747ac$var$$ = /^(?:script|style|textarea|title)$/i, $f58f44579a4747ac$var$y = (t)=>(i, ...s)=>({
+}) : void 0, $d33ef1320595a3ac$var$e = "$lit$", $d33ef1320595a3ac$var$h = `lit$${Math.random().toFixed(9).slice(2)}$`, $d33ef1320595a3ac$var$o = "?" + $d33ef1320595a3ac$var$h, $d33ef1320595a3ac$var$n = `<${$d33ef1320595a3ac$var$o}>`, $d33ef1320595a3ac$var$r = document, $d33ef1320595a3ac$var$l = ()=>$d33ef1320595a3ac$var$r.createComment(""), $d33ef1320595a3ac$var$c = (t)=>null === t || "object" != typeof t && "function" != typeof t, $d33ef1320595a3ac$var$a = Array.isArray, $d33ef1320595a3ac$var$u = (t)=>$d33ef1320595a3ac$var$a(t) || "function" == typeof t?.[Symbol.iterator], $d33ef1320595a3ac$var$d = "[ \t\n\f\r]", $d33ef1320595a3ac$var$f = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, $d33ef1320595a3ac$var$v = /-->/g, $d33ef1320595a3ac$var$_ = />/g, $d33ef1320595a3ac$var$m = RegExp(`>|${$d33ef1320595a3ac$var$d}(?:([^\\s"'>=/]+)(${$d33ef1320595a3ac$var$d}*=${$d33ef1320595a3ac$var$d}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), $d33ef1320595a3ac$var$p = /'/g, $d33ef1320595a3ac$var$g = /"/g, $d33ef1320595a3ac$var$$ = /^(?:script|style|textarea|title)$/i, $d33ef1320595a3ac$var$y = (t)=>(i, ...s)=>({
             _$litType$: t,
             strings: i,
             values: s
-        }), $f58f44579a4747ac$export$c0bb0b647f701bb5 = $f58f44579a4747ac$var$y(1), $f58f44579a4747ac$export$7ed1367e7fa1ad68 = $f58f44579a4747ac$var$y(2), $f58f44579a4747ac$export$47d5b44d225be5b4 = $f58f44579a4747ac$var$y(3), $f58f44579a4747ac$export$9c068ae9cc5db4e8 = Symbol.for("lit-noChange"), $f58f44579a4747ac$export$45b790e32b2810ee = Symbol.for("lit-nothing"), $f58f44579a4747ac$var$A = new WeakMap, $f58f44579a4747ac$var$C = $f58f44579a4747ac$var$r.createTreeWalker($f58f44579a4747ac$var$r, 129);
-function $f58f44579a4747ac$var$P(t, i) {
-    if (!$f58f44579a4747ac$var$a(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
-    return void 0 !== $f58f44579a4747ac$var$s ? $f58f44579a4747ac$var$s.createHTML(i) : i;
+        }), $d33ef1320595a3ac$export$c0bb0b647f701bb5 = $d33ef1320595a3ac$var$y(1), $d33ef1320595a3ac$export$7ed1367e7fa1ad68 = $d33ef1320595a3ac$var$y(2), $d33ef1320595a3ac$export$47d5b44d225be5b4 = $d33ef1320595a3ac$var$y(3), $d33ef1320595a3ac$export$9c068ae9cc5db4e8 = Symbol.for("lit-noChange"), $d33ef1320595a3ac$export$45b790e32b2810ee = Symbol.for("lit-nothing"), $d33ef1320595a3ac$var$A = new WeakMap, $d33ef1320595a3ac$var$C = $d33ef1320595a3ac$var$r.createTreeWalker($d33ef1320595a3ac$var$r, 129);
+function $d33ef1320595a3ac$var$P(t, i) {
+    if (!$d33ef1320595a3ac$var$a(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
+    return void 0 !== $d33ef1320595a3ac$var$s ? $d33ef1320595a3ac$var$s.createHTML(i) : i;
 }
-const $f58f44579a4747ac$var$V = (t, i)=>{
+const $d33ef1320595a3ac$var$V = (t, i)=>{
     const s = t.length - 1, o = [];
-    let r, l = 2 === i ? "<svg>" : 3 === i ? "<math>" : "", c = $f58f44579a4747ac$var$f;
+    let r, l = 2 === i ? "<svg>" : 3 === i ? "<math>" : "", c = $d33ef1320595a3ac$var$f;
     for(let i = 0; i < s; i++){
         const s = t[i];
         let a, u, d = -1, y = 0;
-        for(; y < s.length && (c.lastIndex = y, u = c.exec(s), null !== u);)y = c.lastIndex, c === $f58f44579a4747ac$var$f ? "!--" === u[1] ? c = $f58f44579a4747ac$var$v : void 0 !== u[1] ? c = $f58f44579a4747ac$var$_ : void 0 !== u[2] ? ($f58f44579a4747ac$var$$.test(u[2]) && (r = RegExp("</" + u[2], "g")), c = $f58f44579a4747ac$var$m) : void 0 !== u[3] && (c = $f58f44579a4747ac$var$m) : c === $f58f44579a4747ac$var$m ? ">" === u[0] ? (c = r ?? $f58f44579a4747ac$var$f, d = -1) : void 0 === u[1] ? d = -2 : (d = c.lastIndex - u[2].length, a = u[1], c = void 0 === u[3] ? $f58f44579a4747ac$var$m : '"' === u[3] ? $f58f44579a4747ac$var$g : $f58f44579a4747ac$var$p) : c === $f58f44579a4747ac$var$g || c === $f58f44579a4747ac$var$p ? c = $f58f44579a4747ac$var$m : c === $f58f44579a4747ac$var$v || c === $f58f44579a4747ac$var$_ ? c = $f58f44579a4747ac$var$f : (c = $f58f44579a4747ac$var$m, r = void 0);
-        const x = c === $f58f44579a4747ac$var$m && t[i + 1].startsWith("/>") ? " " : "";
-        l += c === $f58f44579a4747ac$var$f ? s + $f58f44579a4747ac$var$n : d >= 0 ? (o.push(a), s.slice(0, d) + $f58f44579a4747ac$var$e + s.slice(d) + $f58f44579a4747ac$var$h + x) : s + $f58f44579a4747ac$var$h + (-2 === d ? i : x);
+        for(; y < s.length && (c.lastIndex = y, u = c.exec(s), null !== u);)y = c.lastIndex, c === $d33ef1320595a3ac$var$f ? "!--" === u[1] ? c = $d33ef1320595a3ac$var$v : void 0 !== u[1] ? c = $d33ef1320595a3ac$var$_ : void 0 !== u[2] ? ($d33ef1320595a3ac$var$$.test(u[2]) && (r = RegExp("</" + u[2], "g")), c = $d33ef1320595a3ac$var$m) : void 0 !== u[3] && (c = $d33ef1320595a3ac$var$m) : c === $d33ef1320595a3ac$var$m ? ">" === u[0] ? (c = r ?? $d33ef1320595a3ac$var$f, d = -1) : void 0 === u[1] ? d = -2 : (d = c.lastIndex - u[2].length, a = u[1], c = void 0 === u[3] ? $d33ef1320595a3ac$var$m : '"' === u[3] ? $d33ef1320595a3ac$var$g : $d33ef1320595a3ac$var$p) : c === $d33ef1320595a3ac$var$g || c === $d33ef1320595a3ac$var$p ? c = $d33ef1320595a3ac$var$m : c === $d33ef1320595a3ac$var$v || c === $d33ef1320595a3ac$var$_ ? c = $d33ef1320595a3ac$var$f : (c = $d33ef1320595a3ac$var$m, r = void 0);
+        const x = c === $d33ef1320595a3ac$var$m && t[i + 1].startsWith("/>") ? " " : "";
+        l += c === $d33ef1320595a3ac$var$f ? s + $d33ef1320595a3ac$var$n : d >= 0 ? (o.push(a), s.slice(0, d) + $d33ef1320595a3ac$var$e + s.slice(d) + $d33ef1320595a3ac$var$h + x) : s + $d33ef1320595a3ac$var$h + (-2 === d ? i : x);
     }
     return [
-        $f58f44579a4747ac$var$P(t, l + (t[s] || "<?>") + (2 === i ? "</svg>" : 3 === i ? "</math>" : "")),
+        $d33ef1320595a3ac$var$P(t, l + (t[s] || "<?>") + (2 === i ? "</svg>" : 3 === i ? "</math>" : "")),
         o
     ];
 };
-class $f58f44579a4747ac$var$N {
+class $d33ef1320595a3ac$var$N {
     constructor({ strings: t, _$litType$: s }, n){
         let r;
         this.parts = [];
         let c = 0, a = 0;
-        const u = t.length - 1, d = this.parts, [f, v] = $f58f44579a4747ac$var$V(t, s);
-        if (this.el = $f58f44579a4747ac$var$N.createElement(f, n), $f58f44579a4747ac$var$C.currentNode = this.el.content, 2 === s || 3 === s) {
+        const u = t.length - 1, d = this.parts, [f, v] = $d33ef1320595a3ac$var$V(t, s);
+        if (this.el = $d33ef1320595a3ac$var$N.createElement(f, n), $d33ef1320595a3ac$var$C.currentNode = this.el.content, 2 === s || 3 === s) {
             const t = this.el.content.firstChild;
             t.replaceWith(...t.childNodes);
         }
-        for(; null !== (r = $f58f44579a4747ac$var$C.nextNode()) && d.length < u;){
+        for(; null !== (r = $d33ef1320595a3ac$var$C.nextNode()) && d.length < u;){
             if (1 === r.nodeType) {
-                if (r.hasAttributes()) for (const t of r.getAttributeNames())if (t.endsWith($f58f44579a4747ac$var$e)) {
-                    const i = v[a++], s = r.getAttribute(t).split($f58f44579a4747ac$var$h), e = /([.?@])?(.*)/.exec(i);
+                if (r.hasAttributes()) for (const t of r.getAttributeNames())if (t.endsWith($d33ef1320595a3ac$var$e)) {
+                    const i = v[a++], s = r.getAttribute(t).split($d33ef1320595a3ac$var$h), e = /([.?@])?(.*)/.exec(i);
                     d.push({
                         type: 1,
                         index: c,
                         name: e[2],
                         strings: s,
-                        ctor: "." === e[1] ? $f58f44579a4747ac$var$H : "?" === e[1] ? $f58f44579a4747ac$var$I : "@" === e[1] ? $f58f44579a4747ac$var$L : $f58f44579a4747ac$var$k
+                        ctor: "." === e[1] ? $d33ef1320595a3ac$var$H : "?" === e[1] ? $d33ef1320595a3ac$var$I : "@" === e[1] ? $d33ef1320595a3ac$var$L : $d33ef1320595a3ac$var$k
                     }), r.removeAttribute(t);
-                } else t.startsWith($f58f44579a4747ac$var$h) && (d.push({
+                } else t.startsWith($d33ef1320595a3ac$var$h) && (d.push({
                     type: 6,
                     index: c
                 }), r.removeAttribute(t));
-                if ($f58f44579a4747ac$var$$.test(r.tagName)) {
-                    const t = r.textContent.split($f58f44579a4747ac$var$h), s = t.length - 1;
+                if ($d33ef1320595a3ac$var$$.test(r.tagName)) {
+                    const t = r.textContent.split($d33ef1320595a3ac$var$h), s = t.length - 1;
                     if (s > 0) {
-                        r.textContent = $f58f44579a4747ac$var$i ? $f58f44579a4747ac$var$i.emptyScript : "";
-                        for(let i = 0; i < s; i++)r.append(t[i], $f58f44579a4747ac$var$l()), $f58f44579a4747ac$var$C.nextNode(), d.push({
+                        r.textContent = $d33ef1320595a3ac$var$i ? $d33ef1320595a3ac$var$i.emptyScript : "";
+                        for(let i = 0; i < s; i++)r.append(t[i], $d33ef1320595a3ac$var$l()), $d33ef1320595a3ac$var$C.nextNode(), d.push({
                             type: 2,
                             index: ++c
                         });
-                        r.append(t[s], $f58f44579a4747ac$var$l());
+                        r.append(t[s], $d33ef1320595a3ac$var$l());
                     }
                 }
             } else if (8 === r.nodeType) {
-                if (r.data === $f58f44579a4747ac$var$o) d.push({
+                if (r.data === $d33ef1320595a3ac$var$o) d.push({
                     type: 2,
                     index: c
                 });
                 else {
                     let t = -1;
-                    for(; -1 !== (t = r.data.indexOf($f58f44579a4747ac$var$h, t + 1));)d.push({
+                    for(; -1 !== (t = r.data.indexOf($d33ef1320595a3ac$var$h, t + 1));)d.push({
                         type: 7,
                         index: c
-                    }), t += $f58f44579a4747ac$var$h.length - 1;
+                    }), t += $d33ef1320595a3ac$var$h.length - 1;
                 }
             }
             c++;
         }
     }
     static createElement(t, i) {
-        const s = $f58f44579a4747ac$var$r.createElement("template");
+        const s = $d33ef1320595a3ac$var$r.createElement("template");
         return s.innerHTML = t, s;
     }
 }
-function $f58f44579a4747ac$var$S(t, i, s = t, e) {
-    if (i === $f58f44579a4747ac$export$9c068ae9cc5db4e8) return i;
+function $d33ef1320595a3ac$var$S(t, i, s = t, e) {
+    if (i === $d33ef1320595a3ac$export$9c068ae9cc5db4e8) return i;
     let h = void 0 !== e ? s._$Co?.[e] : s._$Cl;
-    const o = $f58f44579a4747ac$var$c(i) ? void 0 : i._$litDirective$;
-    return h?.constructor !== o && (h?._$AO?.(!1), void 0 === o ? h = void 0 : (h = new o(t), h._$AT(t, s, e)), void 0 !== e ? (s._$Co ??= [])[e] = h : s._$Cl = h), void 0 !== h && (i = $f58f44579a4747ac$var$S(t, h._$AS(t, i.values), h, e)), i;
+    const o = $d33ef1320595a3ac$var$c(i) ? void 0 : i._$litDirective$;
+    return h?.constructor !== o && (h?._$AO?.(!1), void 0 === o ? h = void 0 : (h = new o(t), h._$AT(t, s, e)), void 0 !== e ? (s._$Co ??= [])[e] = h : s._$Cl = h), void 0 !== h && (i = $d33ef1320595a3ac$var$S(t, h._$AS(t, i.values), h, e)), i;
 }
-class $f58f44579a4747ac$var$M {
+class $d33ef1320595a3ac$var$M {
     constructor(t, i){
         this._$AV = [], this._$AN = void 0, this._$AD = t, this._$AM = i;
     }
@@ -394,29 +394,29 @@ class $f58f44579a4747ac$var$M {
         return this._$AM._$AU;
     }
     u(t) {
-        const { el: { content: i }, parts: s } = this._$AD, e = (t?.creationScope ?? $f58f44579a4747ac$var$r).importNode(i, !0);
-        $f58f44579a4747ac$var$C.currentNode = e;
-        let h = $f58f44579a4747ac$var$C.nextNode(), o = 0, n = 0, l = s[0];
+        const { el: { content: i }, parts: s } = this._$AD, e = (t?.creationScope ?? $d33ef1320595a3ac$var$r).importNode(i, !0);
+        $d33ef1320595a3ac$var$C.currentNode = e;
+        let h = $d33ef1320595a3ac$var$C.nextNode(), o = 0, n = 0, l = s[0];
         for(; void 0 !== l;){
             if (o === l.index) {
                 let i;
-                2 === l.type ? i = new $f58f44579a4747ac$var$R(h, h.nextSibling, this, t) : 1 === l.type ? i = new l.ctor(h, l.name, l.strings, this, t) : 6 === l.type && (i = new $f58f44579a4747ac$var$z(h, this, t)), this._$AV.push(i), l = s[++n];
+                2 === l.type ? i = new $d33ef1320595a3ac$var$R(h, h.nextSibling, this, t) : 1 === l.type ? i = new l.ctor(h, l.name, l.strings, this, t) : 6 === l.type && (i = new $d33ef1320595a3ac$var$z(h, this, t)), this._$AV.push(i), l = s[++n];
             }
-            o !== l?.index && (h = $f58f44579a4747ac$var$C.nextNode(), o++);
+            o !== l?.index && (h = $d33ef1320595a3ac$var$C.nextNode(), o++);
         }
-        return $f58f44579a4747ac$var$C.currentNode = $f58f44579a4747ac$var$r, e;
+        return $d33ef1320595a3ac$var$C.currentNode = $d33ef1320595a3ac$var$r, e;
     }
     p(t) {
         let i = 0;
         for (const s of this._$AV)void 0 !== s && (void 0 !== s.strings ? (s._$AI(t, s, i), i += s.strings.length - 2) : s._$AI(t[i])), i++;
     }
 }
-class $f58f44579a4747ac$var$R {
+class $d33ef1320595a3ac$var$R {
     get _$AU() {
         return this._$AM?._$AU ?? this._$Cv;
     }
     constructor(t, i, s, e){
-        this.type = 2, this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$Cv = e?.isConnected ?? !0;
+        this.type = 2, this._$AH = $d33ef1320595a3ac$export$45b790e32b2810ee, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$Cv = e?.isConnected ?? !0;
     }
     get parentNode() {
         let t = this._$AA.parentNode;
@@ -430,7 +430,7 @@ class $f58f44579a4747ac$var$R {
         return this._$AB;
     }
     _$AI(t, i = this) {
-        t = $f58f44579a4747ac$var$S(this, t, i), $f58f44579a4747ac$var$c(t) ? t === $f58f44579a4747ac$export$45b790e32b2810ee || null == t || "" === t ? (this._$AH !== $f58f44579a4747ac$export$45b790e32b2810ee && this._$AR(), this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee) : t !== this._$AH && t !== $f58f44579a4747ac$export$9c068ae9cc5db4e8 && this._(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.T(t) : $f58f44579a4747ac$var$u(t) ? this.k(t) : this._(t);
+        t = $d33ef1320595a3ac$var$S(this, t, i), $d33ef1320595a3ac$var$c(t) ? t === $d33ef1320595a3ac$export$45b790e32b2810ee || null == t || "" === t ? (this._$AH !== $d33ef1320595a3ac$export$45b790e32b2810ee && this._$AR(), this._$AH = $d33ef1320595a3ac$export$45b790e32b2810ee) : t !== this._$AH && t !== $d33ef1320595a3ac$export$9c068ae9cc5db4e8 && this._(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.T(t) : $d33ef1320595a3ac$var$u(t) ? this.k(t) : this._(t);
     }
     O(t) {
         return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -439,25 +439,25 @@ class $f58f44579a4747ac$var$R {
         this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
     }
     _(t) {
-        this._$AH !== $f58f44579a4747ac$export$45b790e32b2810ee && $f58f44579a4747ac$var$c(this._$AH) ? this._$AA.nextSibling.data = t : this.T($f58f44579a4747ac$var$r.createTextNode(t)), this._$AH = t;
+        this._$AH !== $d33ef1320595a3ac$export$45b790e32b2810ee && $d33ef1320595a3ac$var$c(this._$AH) ? this._$AA.nextSibling.data = t : this.T($d33ef1320595a3ac$var$r.createTextNode(t)), this._$AH = t;
     }
     $(t) {
-        const { values: i, _$litType$: s } = t, e = "number" == typeof s ? this._$AC(t) : (void 0 === s.el && (s.el = $f58f44579a4747ac$var$N.createElement($f58f44579a4747ac$var$P(s.h, s.h[0]), this.options)), s);
+        const { values: i, _$litType$: s } = t, e = "number" == typeof s ? this._$AC(t) : (void 0 === s.el && (s.el = $d33ef1320595a3ac$var$N.createElement($d33ef1320595a3ac$var$P(s.h, s.h[0]), this.options)), s);
         if (this._$AH?._$AD === e) this._$AH.p(i);
         else {
-            const t = new $f58f44579a4747ac$var$M(e, this), s = t.u(this.options);
+            const t = new $d33ef1320595a3ac$var$M(e, this), s = t.u(this.options);
             t.p(i), this.T(s), this._$AH = t;
         }
     }
     _$AC(t) {
-        let i = $f58f44579a4747ac$var$A.get(t.strings);
-        return void 0 === i && $f58f44579a4747ac$var$A.set(t.strings, i = new $f58f44579a4747ac$var$N(t)), i;
+        let i = $d33ef1320595a3ac$var$A.get(t.strings);
+        return void 0 === i && $d33ef1320595a3ac$var$A.set(t.strings, i = new $d33ef1320595a3ac$var$N(t)), i;
     }
     k(t) {
-        $f58f44579a4747ac$var$a(this._$AH) || (this._$AH = [], this._$AR());
+        $d33ef1320595a3ac$var$a(this._$AH) || (this._$AH = [], this._$AR());
         const i = this._$AH;
         let s, e = 0;
-        for (const h of t)e === i.length ? i.push(s = new $f58f44579a4747ac$var$R(this.O($f58f44579a4747ac$var$l()), this.O($f58f44579a4747ac$var$l()), this, this.options)) : s = i[e], s._$AI(h), e++;
+        for (const h of t)e === i.length ? i.push(s = new $d33ef1320595a3ac$var$R(this.O($d33ef1320595a3ac$var$l()), this.O($d33ef1320595a3ac$var$l()), this, this.options)) : s = i[e], s._$AI(h), e++;
         e < i.length && (this._$AR(s && s._$AB.nextSibling, e), i.length = e);
     }
     _$AR(t = this._$AA.nextSibling, i) {
@@ -470,7 +470,7 @@ class $f58f44579a4747ac$var$R {
         void 0 === this._$AM && (this._$Cv = t, this._$AP?.(t));
     }
 }
-class $f58f44579a4747ac$var$k {
+class $d33ef1320595a3ac$var$k {
     get tagName() {
         return this.element.tagName;
     }
@@ -478,53 +478,53 @@ class $f58f44579a4747ac$var$k {
         return this._$AM._$AU;
     }
     constructor(t, i, s, e, h){
-        this.type = 1, this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = h, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String), this.strings = s) : this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee;
+        this.type = 1, this._$AH = $d33ef1320595a3ac$export$45b790e32b2810ee, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = h, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String), this.strings = s) : this._$AH = $d33ef1320595a3ac$export$45b790e32b2810ee;
     }
     _$AI(t, i = this, s, e) {
         const h = this.strings;
         let o = !1;
-        if (void 0 === h) t = $f58f44579a4747ac$var$S(this, t, i, 0), o = !$f58f44579a4747ac$var$c(t) || t !== this._$AH && t !== $f58f44579a4747ac$export$9c068ae9cc5db4e8, o && (this._$AH = t);
+        if (void 0 === h) t = $d33ef1320595a3ac$var$S(this, t, i, 0), o = !$d33ef1320595a3ac$var$c(t) || t !== this._$AH && t !== $d33ef1320595a3ac$export$9c068ae9cc5db4e8, o && (this._$AH = t);
         else {
             const e = t;
             let n, r;
-            for(t = h[0], n = 0; n < h.length - 1; n++)r = $f58f44579a4747ac$var$S(this, e[s + n], i, n), r === $f58f44579a4747ac$export$9c068ae9cc5db4e8 && (r = this._$AH[n]), o ||= !$f58f44579a4747ac$var$c(r) || r !== this._$AH[n], r === $f58f44579a4747ac$export$45b790e32b2810ee ? t = $f58f44579a4747ac$export$45b790e32b2810ee : t !== $f58f44579a4747ac$export$45b790e32b2810ee && (t += (r ?? "") + h[n + 1]), this._$AH[n] = r;
+            for(t = h[0], n = 0; n < h.length - 1; n++)r = $d33ef1320595a3ac$var$S(this, e[s + n], i, n), r === $d33ef1320595a3ac$export$9c068ae9cc5db4e8 && (r = this._$AH[n]), o ||= !$d33ef1320595a3ac$var$c(r) || r !== this._$AH[n], r === $d33ef1320595a3ac$export$45b790e32b2810ee ? t = $d33ef1320595a3ac$export$45b790e32b2810ee : t !== $d33ef1320595a3ac$export$45b790e32b2810ee && (t += (r ?? "") + h[n + 1]), this._$AH[n] = r;
         }
         o && !e && this.j(t);
     }
     j(t) {
-        t === $f58f44579a4747ac$export$45b790e32b2810ee ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
+        t === $d33ef1320595a3ac$export$45b790e32b2810ee ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
     }
 }
-class $f58f44579a4747ac$var$H extends $f58f44579a4747ac$var$k {
+class $d33ef1320595a3ac$var$H extends $d33ef1320595a3ac$var$k {
     constructor(){
         super(...arguments), this.type = 3;
     }
     j(t) {
-        this.element[this.name] = t === $f58f44579a4747ac$export$45b790e32b2810ee ? void 0 : t;
+        this.element[this.name] = t === $d33ef1320595a3ac$export$45b790e32b2810ee ? void 0 : t;
     }
 }
-class $f58f44579a4747ac$var$I extends $f58f44579a4747ac$var$k {
+class $d33ef1320595a3ac$var$I extends $d33ef1320595a3ac$var$k {
     constructor(){
         super(...arguments), this.type = 4;
     }
     j(t) {
-        this.element.toggleAttribute(this.name, !!t && t !== $f58f44579a4747ac$export$45b790e32b2810ee);
+        this.element.toggleAttribute(this.name, !!t && t !== $d33ef1320595a3ac$export$45b790e32b2810ee);
     }
 }
-class $f58f44579a4747ac$var$L extends $f58f44579a4747ac$var$k {
+class $d33ef1320595a3ac$var$L extends $d33ef1320595a3ac$var$k {
     constructor(t, i, s, e, h){
         super(t, i, s, e, h), this.type = 5;
     }
     _$AI(t, i = this) {
-        if ((t = $f58f44579a4747ac$var$S(this, t, i, 0) ?? $f58f44579a4747ac$export$45b790e32b2810ee) === $f58f44579a4747ac$export$9c068ae9cc5db4e8) return;
-        const s = this._$AH, e = t === $f58f44579a4747ac$export$45b790e32b2810ee && s !== $f58f44579a4747ac$export$45b790e32b2810ee || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, h = t !== $f58f44579a4747ac$export$45b790e32b2810ee && (s === $f58f44579a4747ac$export$45b790e32b2810ee || e);
+        if ((t = $d33ef1320595a3ac$var$S(this, t, i, 0) ?? $d33ef1320595a3ac$export$45b790e32b2810ee) === $d33ef1320595a3ac$export$9c068ae9cc5db4e8) return;
+        const s = this._$AH, e = t === $d33ef1320595a3ac$export$45b790e32b2810ee && s !== $d33ef1320595a3ac$export$45b790e32b2810ee || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, h = t !== $d33ef1320595a3ac$export$45b790e32b2810ee && (s === $d33ef1320595a3ac$export$45b790e32b2810ee || e);
         e && this.element.removeEventListener(this.name, this, s), h && this.element.addEventListener(this.name, this, t), this._$AH = t;
     }
     handleEvent(t) {
         "function" == typeof this._$AH ? this._$AH.call(this.options?.host ?? this.element, t) : this._$AH.handleEvent(t);
     }
 }
-class $f58f44579a4747ac$var$z {
+class $d33ef1320595a3ac$var$z {
     constructor(t, i, s){
         this.element = t, this.type = 6, this._$AN = void 0, this._$AM = i, this.options = s;
     }
@@ -532,32 +532,32 @@ class $f58f44579a4747ac$var$z {
         return this._$AM._$AU;
     }
     _$AI(t) {
-        $f58f44579a4747ac$var$S(this, t);
+        $d33ef1320595a3ac$var$S(this, t);
     }
 }
-const $f58f44579a4747ac$export$8613d1ca9052b22e = {
-    M: $f58f44579a4747ac$var$e,
-    P: $f58f44579a4747ac$var$h,
-    A: $f58f44579a4747ac$var$o,
+const $d33ef1320595a3ac$export$8613d1ca9052b22e = {
+    M: $d33ef1320595a3ac$var$e,
+    P: $d33ef1320595a3ac$var$h,
+    A: $d33ef1320595a3ac$var$o,
     C: 1,
-    L: $f58f44579a4747ac$var$V,
-    R: $f58f44579a4747ac$var$M,
-    D: $f58f44579a4747ac$var$u,
-    V: $f58f44579a4747ac$var$S,
-    I: $f58f44579a4747ac$var$R,
-    H: $f58f44579a4747ac$var$k,
-    N: $f58f44579a4747ac$var$I,
-    U: $f58f44579a4747ac$var$L,
-    B: $f58f44579a4747ac$var$H,
-    F: $f58f44579a4747ac$var$z
-}, $f58f44579a4747ac$var$j = $f58f44579a4747ac$var$t.litHtmlPolyfillSupport;
-$f58f44579a4747ac$var$j?.($f58f44579a4747ac$var$N, $f58f44579a4747ac$var$R), ($f58f44579a4747ac$var$t.litHtmlVersions ??= []).push("3.3.1");
-const $f58f44579a4747ac$export$b3890eb0ae9dca99 = (t, i, s)=>{
+    L: $d33ef1320595a3ac$var$V,
+    R: $d33ef1320595a3ac$var$M,
+    D: $d33ef1320595a3ac$var$u,
+    V: $d33ef1320595a3ac$var$S,
+    I: $d33ef1320595a3ac$var$R,
+    H: $d33ef1320595a3ac$var$k,
+    N: $d33ef1320595a3ac$var$I,
+    U: $d33ef1320595a3ac$var$L,
+    B: $d33ef1320595a3ac$var$H,
+    F: $d33ef1320595a3ac$var$z
+}, $d33ef1320595a3ac$var$j = $d33ef1320595a3ac$var$t.litHtmlPolyfillSupport;
+$d33ef1320595a3ac$var$j?.($d33ef1320595a3ac$var$N, $d33ef1320595a3ac$var$R), ($d33ef1320595a3ac$var$t.litHtmlVersions ??= []).push("3.3.1");
+const $d33ef1320595a3ac$export$b3890eb0ae9dca99 = (t, i, s)=>{
     const e = s?.renderBefore ?? i;
     let h = e._$litPart$;
     if (void 0 === h) {
         const t = s?.renderBefore ?? null;
-        e._$litPart$ = h = new $f58f44579a4747ac$var$R(i.insertBefore($f58f44579a4747ac$var$l(), t), t, void 0, s ?? {});
+        e._$litPart$ = h = new $d33ef1320595a3ac$var$R(i.insertBefore($d33ef1320595a3ac$var$l(), t), t, void 0, s ?? {});
     }
     return h._$AI(t), h;
 };
@@ -569,8 +569,8 @@ const $f58f44579a4747ac$export$b3890eb0ae9dca99 = (t, i, s)=>{
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const $ab210b2da7b39b9d$var$s = globalThis;
-class $ab210b2da7b39b9d$export$3f2f9f5909897157 extends (0, $19fe8e3abedf4df0$export$c7c07a37856565d) {
+ */ const $528e4332d1e3099e$var$s = globalThis;
+class $528e4332d1e3099e$export$3f2f9f5909897157 extends (0, $375b48187e686ca2$export$c7c07a37856565d) {
     constructor(){
         super(...arguments), this.renderOptions = {
             host: this
@@ -582,7 +582,7 @@ class $ab210b2da7b39b9d$export$3f2f9f5909897157 extends (0, $19fe8e3abedf4df0$ex
     }
     update(t) {
         const r = this.render();
-        this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = (0, $f58f44579a4747ac$export$b3890eb0ae9dca99)(r, this.renderRoot, this.renderOptions);
+        this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = (0, $d33ef1320595a3ac$export$b3890eb0ae9dca99)(r, this.renderRoot, this.renderOptions);
     }
     connectedCallback() {
         super.connectedCallback(), this._$Do?.setConnected(!0);
@@ -591,30 +591,30 @@ class $ab210b2da7b39b9d$export$3f2f9f5909897157 extends (0, $19fe8e3abedf4df0$ex
         super.disconnectedCallback(), this._$Do?.setConnected(!1);
     }
     render() {
-        return 0, $f58f44579a4747ac$export$9c068ae9cc5db4e8;
+        return 0, $d33ef1320595a3ac$export$9c068ae9cc5db4e8;
     }
 }
-$ab210b2da7b39b9d$export$3f2f9f5909897157._$litElement$ = !0, $ab210b2da7b39b9d$export$3f2f9f5909897157["finalized"] = !0, $ab210b2da7b39b9d$var$s.litElementHydrateSupport?.({
-    LitElement: $ab210b2da7b39b9d$export$3f2f9f5909897157
+$528e4332d1e3099e$export$3f2f9f5909897157._$litElement$ = !0, $528e4332d1e3099e$export$3f2f9f5909897157["finalized"] = !0, $528e4332d1e3099e$var$s.litElementHydrateSupport?.({
+    LitElement: $528e4332d1e3099e$export$3f2f9f5909897157
 });
-const $ab210b2da7b39b9d$var$o = $ab210b2da7b39b9d$var$s.litElementPolyfillSupport;
-$ab210b2da7b39b9d$var$o?.({
-    LitElement: $ab210b2da7b39b9d$export$3f2f9f5909897157
+const $528e4332d1e3099e$var$o = $528e4332d1e3099e$var$s.litElementPolyfillSupport;
+$528e4332d1e3099e$var$o?.({
+    LitElement: $528e4332d1e3099e$export$3f2f9f5909897157
 });
-const $ab210b2da7b39b9d$export$f5c524615a7708d6 = {
+const $528e4332d1e3099e$export$f5c524615a7708d6 = {
     _$AK: (t, e, r)=>{
         t._$AK(e, r);
     },
     _$AL: (t)=>t._$AL
 };
-($ab210b2da7b39b9d$var$s.litElementVersions ??= []).push("4.2.1");
+($528e4332d1e3099e$var$s.litElementVersions ??= []).push("4.2.1");
 
 
 /**
  * @license
  * Copyright 2022 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const $a00bca1a101a9088$export$6acf61af03e62db = !1;
+ */ const $56239b0c931b817c$export$6acf61af03e62db = !1;
 
 
 
@@ -624,18 +624,18 @@ const $ab210b2da7b39b9d$export$f5c524615a7708d6 = {
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const $107bb7d062dde330$export$9ba3b3f20a85bfa = {
+ */ const $f62b4c9bce56f3ae$export$9ba3b3f20a85bfa = {
     ATTRIBUTE: 1,
     CHILD: 2,
     PROPERTY: 3,
     BOOLEAN_ATTRIBUTE: 4,
     EVENT: 5,
     ELEMENT: 6
-}, $107bb7d062dde330$export$99b43ad1ed32e735 = (t)=>(...e)=>({
+}, $f62b4c9bce56f3ae$export$99b43ad1ed32e735 = (t)=>(...e)=>({
             _$litDirective$: t,
             values: e
         });
-class $107bb7d062dde330$export$befdefbdce210f91 {
+class $f62b4c9bce56f3ae$export$befdefbdce210f91 {
     constructor(t){}
     get _$AU() {
         return this._$AM._$AU;
@@ -656,9 +656,9 @@ class $107bb7d062dde330$export$befdefbdce210f91 {
  * @license
  * Copyright 2018 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const $ca7e425cc484d5ff$export$56cc687933817664 = (0, $107bb7d062dde330$export$99b43ad1ed32e735)(class extends (0, $107bb7d062dde330$export$befdefbdce210f91) {
+ */ const $da98d0425d3716de$export$56cc687933817664 = (0, $f62b4c9bce56f3ae$export$99b43ad1ed32e735)(class extends (0, $f62b4c9bce56f3ae$export$befdefbdce210f91) {
     constructor(t){
-        if (super(t), t.type !== (0, $107bb7d062dde330$export$9ba3b3f20a85bfa).ATTRIBUTE || "class" !== t.name || t.strings?.length > 2) throw Error("`classMap()` can only be used in the `class` attribute and must be the only part in the attribute.");
+        if (super(t), t.type !== (0, $f62b4c9bce56f3ae$export$9ba3b3f20a85bfa).ATTRIBUTE || "class" !== t.name || t.strings?.length > 2) throw Error("`classMap()` can only be used in the `class` attribute and must be the only part in the attribute.");
     }
     render(t) {
         return " " + Object.keys(t).filter((s)=>t[s]).join(" ") + " ";
@@ -675,7 +675,7 @@ class $107bb7d062dde330$export$befdefbdce210f91 {
             const s = !!i[t];
             s === this.st.has(t) || this.nt?.has(t) || (s ? (r.add(t), this.st.add(t)) : (r.remove(t), this.st.delete(t)));
         }
-        return 0, $f58f44579a4747ac$export$9c068ae9cc5db4e8;
+        return 0, $d33ef1320595a3ac$export$9c068ae9cc5db4e8;
     }
 });
 
@@ -684,7 +684,7 @@ class $107bb7d062dde330$export$befdefbdce210f91 {
 
 
 
-const $14f43deeb4b831cc$export$d760b013da4dfa06 = (sectorClassData)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+const $84db147239ed44e7$export$d760b013da4dfa06 = (sectorClassData)=>(0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
    class="tooth-image base-image"
@@ -831,7 +831,7 @@ const $14f43deeb4b831cc$export$d760b013da4dfa06 = (sectorClassData)=>(0, $f58f44
      stroke="none"
      id="g22">
     <g
-   id="g1" class="upper_right ${(0, $ca7e425cc484d5ff$export$56cc687933817664)(sectorClassData.upper_right)}"
+   id="g1" class="upper_right ${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.upper_right)}"
    inkscape:label="upper_right"><path
      id="path23"
      d="m 1962.1732,3483.7088 c 5.8539,18.8622 5.9913,15.8484 6.8268,-6.7088 1,-36 16,-64 42,-78 12,-6 94,-13 189,-16 160,-5 169,-4 181,15 12,19 14,18 55,-13 58,-44 218,-95 298,-95 28,0 36,-4 36,-18 0,-30 110,-154 157,-176 36,-17 42,-25 46,-60 6,-44 33,-86 64,-100 11,-5 27,-31 37,-59 18,-50 84,-132 114,-142 14,-4 17,-19 18,-72 1,-74 25,-156 55,-189 17,-18 18,-25 8,-53 -17,-47 -4,-147 26,-204 14,-28 25,-66 25,-88 0,-65 65,-175 120,-204 39,-20 77,-19 130,7 34,16 66,21 129,22 l 85,1 19,34 c 29,49 37,215 12,262 -13,26 -17,54 -16,116 3,93 -11,155 -43,198 -17,22 -24,49 -28,100 -7,93 -37,168 -96,241 -43,53 -49,67 -55,123 -12,115 -59,182 -148,210 -32,10 -38,18 -48,58 -17,68 -45,115 -90,156 -42,38 -109,62 -146,53 -19,-5 -25,1 -43,43 -27,65 -91,134 -155,166 -58,29 -84,31 -133,10 l -34,-14 -42,45 c -73,79 -152,107 -228,79 -25,-9 -53,-19 -63,-22 -12,-4 -35,11 -72,46 -30,29 -72,59 -92,68 -55,23 -138,20 -201,-7 -50,-22 -112,-78 -112,-102 0,-3.667 -3.5676,-1.8454 -9.2652,3.8834"
@@ -900,7 +900,7 @@ const $14f43deeb4b831cc$export$d760b013da4dfa06 = (sectorClassData)=>(0, $f58f44
        id="path9" /><path
        d="m 3579,2125 c -4,-36 -9,-42 -49,-62 -50,-26 -39,-31 16,-8 40,16 51,13 65,-19 8,-18 9,-17 4,7 -5,26 -4,27 42,27 27,0 53,4 60,8 6,4 -15,7 -47,7 -32,0 -61,3 -65,7 -4,4 -11,22 -15,40 l -7,33 z"
        id="path11" /></g></g><g
-   id="g2" class="upper_left ${(0, $ca7e425cc484d5ff$export$56cc687933817664)(sectorClassData.upper_left)}"
+   id="g2" class="upper_left ${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.upper_left)}"
    inkscape:label="upper_left"><path
      id="path24"
      d="m 1960.7348,3821.8834 c -5.1785,5.2069 -12.1166,13.6416 -19.7348,24.1166 -56,75 -189,122 -272,95 -44,-15 -72,-33 -125,-83 l -52,-49 -51,21 c -29,11 -66,20 -84,20 -50,0 -129,-42 -173,-93 -38,-43 -41,-44 -64,-31 -88,48 -247,-44 -296,-173 -16,-41 -19,-43 -58,-43 -58,-1 -116,-30 -159,-81 -31,-36 -51,-81 -72,-165 -2,-5 -23,-16 -46,-23 -83,-25 -129,-94 -145,-220 -6,-43 -17,-67 -54,-117 -57,-75 -89,-154 -97,-243 -4,-44 -14,-78 -29,-101 -33,-51 -48,-121 -41,-198 6,-56 3,-74 -15,-110 -18,-38 -20,-55 -15,-127 3,-46 12,-98 20,-116 23,-55 38,-62 115,-55 60,6 74,4 126,-20 69,-31 110,-27 159,16 44,38 91,133 92,185 0,22 11,60 25,85 27,52 40,183 21,218 -9,17 -8,23 5,30 25,14 64,136 64,201 0,56 2,60 38,87 51,39 68,61 89,114 10,25 34,61 54,80 32,31 59,88 59,128 0,6 10,12 21,12 27,0 146,119 165,166 11,27 20,34 42,34 15,0 71,11 125,25 96,24 170,57 197,90 12,14 15,14 32,-5 19,-20 27,-21 166,-15 222,9 229,11 250,85 1.6455,5.4301 3.0202,9.9938 4.1732,13.7088"
@@ -964,7 +964,7 @@ const $14f43deeb4b831cc$export$d760b013da4dfa06 = (sectorClassData)=>(0, $f58f44
        id="path8" /><path
        d="m 329,2121 c -5,-29 -46,-44 -99,-36 -32,4 -33,4 -10,-6 14,-6 41,-8 61,-6 33,4 36,3 32,-17 l -4,-21 13,22 c 12,20 15,20 38,8 14,-8 32,-14 40,-14 8,0 -1,8 -20,18 -24,13 -37,28 -41,48 -5,27 -6,27 -10,4 z"
        id="path10" /></g></g><g
-   id="g3" class="lower_left ${(0, $ca7e425cc484d5ff$export$56cc687933817664)(sectorClassData.lower_left)}"
+   id="g3" class="lower_left ${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.lower_left)}"
    inkscape:label="lower_left"><path
      id="path40"
      d="M 1959.4501,437.31453 C 1946.2033,435.84607 1925.0502,437.5444 1905,442 c -28,5 -102,11 -165,13 -92,2 -123,6 -155,22 -49,25 -130,43 -194,43 -41,0 -50,4 -69,30 -40,53 -122,112 -153,108 -22,-2 -36,6 -63,35 -19,21 -47,40 -65,43 -21,5 -31,12 -30,23 6,66 -48,155 -110,181 -19,8 -31,20 -31,31 0,11 -26,49 -57,84 -32,36 -73,83 -92,105 -24,29 -43,42 -71,46 -36,6 -38,8 -43,54 -8,64 -41,141 -76,174 -27,26 -28,31 -23,96 4,54 1,75 -12,94 -9,14 -16,34 -16,45 0,11 -12,33 -26,50 -53,64 -210,79 -320,32 -61,-26 -97,-61 -119,-115 -20,-48 -15,-86 28,-181 22,-50 31,-90 34,-140 2,-38 13,-101 24,-139 18,-60 29,-78 78,-125 49,-47 59,-63 64,-100 7,-52 53,-144 109,-219 40,-54 116,-102 163,-102 16,0 26,-16 48,-73 36,-94 46,-106 109,-128 48,-16 54,-21 67,-61 19,-60 55,-104 95,-118 40,-13 114,1 162,31 l 31,19 7,-32 c 10,-51 63,-124 103,-143 31,-15 44,-16 87,-6 27,6 64,23 82,36 l 32,25 21,-33 C 1430,32 1524,12 1605,96 l 41,42 18,-33 c 32,-59 70,-87 123,-92 65,-6 106,21 138,90 14,28 25,62 25,75 0,6.91587 1.6607,13.16745 4.0251,17.22333"
@@ -1031,7 +1031,7 @@ const $14f43deeb4b831cc$export$d760b013da4dfa06 = (sectorClassData)=>(0, $f58f44
        id="path20" /><path
        d="m 937,688 c 2,-5 15,-8 28,-8 13,0 32,-11 42,-24 15,-19 21,-21 31,-10 10,11 10,14 -2,14 -8,0 -21,8 -28,18 -12,16 -82,26 -71,10 z"
        id="path22" /></g></g><g
-   id="g4" class="lower_right ${(0, $ca7e425cc484d5ff$export$56cc687933817664)(sectorClassData.lower_right)}"
+   id="g4" class="lower_right ${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.lower_right)}"
    inkscape:label="lower_right"><path
      id="path41"
      d="m 1954.0251,195.22333 c 1.7381,2.98164 3.8565,4.77667 5.9749,4.77667 6,0 10,-10 10,-22 1,-33 33,-99 63,-127 34,-31 103,-39 146,-16 18,9 46,38 63,65 l 30,48 31,-35 c 80,-91 165,-77 254,40 l 21,27 53,-27 c 36,-19 68,-28 101,-28 41,0 52,5 83,35 20,20 46,61 58,92 22,52 24,55 42,41 32,-23 123,-45 155,-38 44,10 87,58 106,120 16,50 20,54 55,60 21,4 49,15 62,26 21,16 60,94 81,162 3,9 15,17 28,17 99,1 239,167 270,318 12,54 18,64 55,91 67,48 113,163 113,281 0,42 9,77 35,137 63,145 40,230 -79,288 -59,29 -181,42 -241,26 -66,-17 -114,-57 -115,-94 0,-10 -8,-32 -17,-50 -12,-22 -16,-53 -15,-100 2,-65 0,-71 -33,-109 -39,-46 -65,-114 -65,-170 0,-32 -3,-38 -20,-38 -41,0 -87,-28 -110,-66 -13,-22 -47,-62 -77,-91 -36,-35 -53,-60 -53,-77 0,-17 -7,-27 -22,-31 -56,-17 -133,-124 -126,-174 4,-26 1,-30 -25,-35 -16,-3 -46,-23 -65,-43 -24,-26 -42,-37 -58,-35 -34,5 -76,-21 -132,-83 -47,-51 -54,-55 -96,-55 -70,0 -146,-19 -203,-51 -30,-17 -55,-25 -58,-19 -3,6 -27,10 -53,10 -63,0 -223,-20 -242,-30 -2.3166,-1.287 -5.9583,-2.17647 -10.5499,-2.68547"
@@ -1103,7 +1103,7 @@ const $14f43deeb4b831cc$export$d760b013da4dfa06 = (sectorClassData)=>(0, $f58f44
 `;
 
 
-const $30975d4056a61496$export$1e083828221390e5 = {
+const $3cb0a15594fd43d6$export$1e083828221390e5 = {
     "daily_clean": "mdi:repeat-once",
     "deep_clean": "mdi:water",
     "gum_care": "mdi:tooth-outline",
@@ -1121,11 +1121,11 @@ const $30975d4056a61496$export$1e083828221390e5 = {
 };
 
 
-var $72134a97c3fcf0ed$exports = {};
-$72134a97c3fcf0ed$exports = ".card-content {\n  text-align: center;\n  flex-direction: column;\n  gap: 15px;\n  padding: 16px;\n  display: flex;\n}\n\n.title {\n  margin: 0 0 10px;\n  font-size: 1.2em;\n}\n\n.image-stack {\n  width: 100%;\n  margin: 0 auto;\n  padding-bottom: 75%;\n  position: relative;\n}\n\n.tooth-image {\n  object-fit: contain;\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n}\n\n.base-image, .active-sector {\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n}\n\n.status-overlay, .time-overlay, .pressure-overlay {\n  color: var(--primary-text-color);\n  cursor: pointer;\n  font-weight: 500;\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\n.status-overlay {\n  text-transform: capitalize;\n  color: var(--secondary-text-color);\n  font-size: 1.1em;\n  top: 30%;\n}\n\n.battery-container {\n  align-items: center;\n  gap: 4px;\n  display: inline-flex;\n}\n\n.battery-icon {\n  display: inline-block;\n  transform: rotate(90deg);\n}\n\n.time-overlay {\n  font-size: 56px;\n  font-weight: var(--ha-font-weight-normal);\n  font-family: var(--ha-font-family-body);\n  align-items: center;\n  gap: 5px;\n  display: flex;\n  top: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.time-overlay ha-icon {\n  --mdc-icon-size: 1.2em;\n}\n\n.pressure-overlay {\n  align-items: center;\n  gap: 5px;\n  font-size: 1.1em;\n  font-weight: 700;\n  display: flex;\n  top: 65%;\n}\n\n.pressure-overlay ha-icon {\n  --mdc-icon-size: 1.2em;\n}\n\n.stats-container {\n  border-top: 1px solid var(--divider-color);\n  justify-content: space-around;\n  width: 100%;\n  padding-top: 10px;\n  display: flex;\n}\n\n.mode-container {\n  align-items: center;\n  gap: 4px;\n  display: flex;\n}\n\n.mode-icon {\n  --mdc-icon-size: 20px;\n  color: var(--primary-color);\n}\n\n.mode-level {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 1.1em;\n  font-weight: 500;\n}\n\n.stat-item {\n  cursor: pointer;\n  flex-direction: column;\n  align-items: center;\n  display: flex;\n}\n\n.stat-item .label {\n  color: var(--secondary-text-color);\n  margin-bottom: 2px;\n  font-size: .8em;\n}\n\n.surfaces {\n  fill: #fff;\n  stroke: #000;\n  stroke-width: 1px;\n  transition: fill .5s;\n}\n\n.plaque {\n  fill: #e3dbdb;\n  fill-rule: evenodd;\n  stroke: none;\n  stroke-width: .75px;\n}\n\n@keyframes blinkTooth {\n  0%, 100% {\n    fill: #fff;\n  }\n\n  50% {\n    fill: #aee4ff;\n  }\n}\n\n@keyframes blinkPlaque {\n  0%, 100% {\n    fill: #e3dbdb;\n  }\n\n  50% {\n    fill: #aee4ff;\n  }\n}\n\n.cleaning .surfaces {\n  stroke: #ccc;\n  stroke-width: 3px;\n  filter: url(\"#shadow\");\n  animation: 1s ease-in-out infinite blinkTooth;\n}\n\n.cleaning .plaque {\n  stroke: none;\n  stroke-width: .75px;\n  filter: url(\"#shadow\");\n  animation: 1s ease-in-out infinite blinkPlaque;\n}\n\n.cleaned .surfaces {\n  fill: #fff;\n}\n\n.cleaned .plaque {\n  fill: none;\n}\n";
+var $7bfe0f8b5ad5b7ee$exports = {};
+$7bfe0f8b5ad5b7ee$exports = ".card-content {\n  text-align: center;\n  flex-direction: column;\n  gap: 15px;\n  padding: 16px;\n  display: flex;\n}\n\n.title {\n  margin: 0 0 10px;\n  font-size: 1.2em;\n}\n\n.image-stack {\n  width: 100%;\n  margin: 0 auto;\n  padding-bottom: 75%;\n  position: relative;\n}\n\n.tooth-image {\n  object-fit: contain;\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n}\n\n.base-image, .active-sector {\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n}\n\n.status-overlay, .time-overlay, .pressure-overlay {\n  color: var(--primary-text-color);\n  cursor: pointer;\n  font-weight: 500;\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\n.status-overlay {\n  text-transform: capitalize;\n  color: var(--secondary-text-color);\n  font-size: 1.1em;\n  top: 30%;\n}\n\n.battery-container {\n  align-items: center;\n  gap: 4px;\n  display: inline-flex;\n}\n\n.battery-icon {\n  display: inline-block;\n  transform: rotate(90deg);\n}\n\n.time-overlay {\n  font-size: 56px;\n  font-weight: var(--ha-font-weight-normal);\n  font-family: var(--ha-font-family-body);\n  align-items: center;\n  gap: 5px;\n  display: flex;\n  top: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.time-overlay ha-icon {\n  --mdc-icon-size: 1.2em;\n}\n\n.pressure-overlay {\n  align-items: center;\n  gap: 5px;\n  font-size: 1.1em;\n  font-weight: 700;\n  display: flex;\n  top: 65%;\n}\n\n.pressure-overlay ha-icon {\n  --mdc-icon-size: 1.2em;\n}\n\n.stats-container {\n  border-top: 1px solid var(--divider-color);\n  justify-content: space-around;\n  width: 100%;\n  padding-top: 10px;\n  display: flex;\n}\n\n.mode-container {\n  align-items: center;\n  gap: 4px;\n  display: flex;\n}\n\n.mode-icon {\n  --mdc-icon-size: 20px;\n  color: var(--primary-color);\n}\n\n.mode-level {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 1.1em;\n  font-weight: 500;\n}\n\n.stat-item {\n  cursor: pointer;\n  flex-direction: column;\n  align-items: center;\n  display: flex;\n}\n\n.stat-item .label {\n  color: var(--secondary-text-color);\n  margin-bottom: 2px;\n  font-size: .8em;\n}\n\n.surfaces {\n  fill: #fff;\n  stroke: #000;\n  stroke-width: 1px;\n  transition: fill .5s;\n}\n\n.plaque {\n  fill: #e3dbdb;\n  fill-rule: evenodd;\n  stroke: none;\n  stroke-width: .75px;\n}\n\n@keyframes blinkTooth {\n  0%, 100% {\n    fill: #fff;\n  }\n\n  50% {\n    fill: #aee4ff;\n  }\n}\n\n@keyframes blinkPlaque {\n  0%, 100% {\n    fill: #e3dbdb;\n  }\n\n  50% {\n    fill: #aee4ff;\n  }\n}\n\n.cleaning .surfaces {\n  stroke: #ccc;\n  stroke-width: 3px;\n  filter: url(\"#shadow\");\n  animation: 1s ease-in-out infinite blinkTooth;\n}\n\n.cleaning .plaque {\n  stroke: none;\n  stroke-width: .75px;\n  filter: url(\"#shadow\");\n  animation: 1s ease-in-out infinite blinkPlaque;\n}\n\n.cleaned .surfaces {\n  fill: #fff;\n}\n\n.cleaned .plaque {\n  fill: none;\n}\n";
 
 
-class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$export$3f2f9f5909897157) {
+class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$export$3f2f9f5909897157) {
     set hass(hass) {
         this._hass = hass;
         // determinig all required entitys (if not already done)
@@ -1295,7 +1295,7 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
             // Falls _hass vorhanden, aber _entityIds null ist (was nicht passieren sollte),
             // versuchen Sie das Mapping noch einmal. Sonst leere Card zeigen.
             if (hass && config?.device_id) this._entityIds = this._findAndMapEntitiesInConfig(hass, config.device_id);
-            else return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+            else return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                     <ha-card class="toothbrush-error">
                         Geräte-ID fehlt oder Home Assistant Daten werden geladen...
                     </ha-card>`;
@@ -1322,7 +1322,7 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
         const batteryIconColor = this._getBatteryColor(batteryLevel);
         const sectorClassData = this._getSectorData(sector);
         // rendering the html
-        return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+        return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
             <ha-card>
                 <div class="card-content">
                     <h1 class="title">
@@ -1330,11 +1330,13 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
                     </h1>
 
                     <div class="image-stack">
-                        <!-- import the svg -->
-                        ${(0, $14f43deeb4b831cc$export$d760b013da4dfa06)(sectorClassData)}
+                        <!-- the tooth svg -->
+                        ${(0, $84db147239ed44e7$export$d760b013da4dfa06)(sectorClassData)}
 
+                        <!-- the current status of the brush -->
                         <div class="status-overlay" @click="${()=>this._showMoreInfo(entityIds.base_entity)}">${status}</div>
                         
+                        <!-- the duration since start -->
                         <div class="time-overlay" @click="${()=>this._showMoreInfo(entityIds.duration)}">
                             <span>${this._formatTime(duration)}</span>
                         </div>
@@ -1393,7 +1395,7 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
     // Innerhalb Ihrer LitElement Card-Klasse
     _getModeIcon(mode) {
         const cleanMode = String(mode).toLowerCase().replace(/ /g, '_');
-        return (0, $30975d4056a61496$export$1e083828221390e5)[cleanMode] || (0, $30975d4056a61496$export$1e083828221390e5).default;
+        return (0, $3cb0a15594fd43d6$export$1e083828221390e5)[cleanMode] || (0, $3cb0a15594fd43d6$export$1e083828221390e5).default;
     }
     /**
      * Format duraction 
@@ -1409,7 +1411,7 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
         return `${formattedMinutes}:${padSeconds(remainingSeconds)}`;
     }
     static get styles() {
-        return (0, $def2de46b9306e8a$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($72134a97c3fcf0ed$exports))));
+        return (0, $06bdd16cbb4a41b3$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($7bfe0f8b5ad5b7ee$exports))));
     }
     /**
      * The properties to configure
@@ -1439,7 +1441,7 @@ class $1b6488a61d23aa6e$export$e2f41388bb2b94a0 extends (0, $ab210b2da7b39b9d$ex
 }
 
 
-customElements.define('toothbrush-card', (0, $1b6488a61d23aa6e$export$e2f41388bb2b94a0));
+customElements.define('toothbrush-card', (0, $930552a63f9e9686$export$e2f41388bb2b94a0));
 window.customCards = window.customCards || [];
 window.customCards.push({
     type: "toothbrush-card",
@@ -1448,4 +1450,3 @@ window.customCards.push({
 });
 
 
-//# sourceMappingURL=toothbrush-card.js.map
