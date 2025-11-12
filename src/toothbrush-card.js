@@ -61,7 +61,7 @@ export class ToothbrushCard extends LitElement {
         const targetEntityId = entityId || this._entityIds?.base_entity;
 
         if (!this._hass || !targetEntityId) {
-            console.error("Kann Mehr-Infos nicht öffnen: Ziel-Entität fehlt.");
+            console.error("Unable to open target entity. No target defined.");
             return;
         }
 
@@ -179,7 +179,7 @@ export class ToothbrushCard extends LitElement {
             }
         }
         
-        // Status-ID finalisieren
+        // finalize status id
         if (entityKeys.status !== null) {
             entityKeys.base_entity = entityKeys.status;
             entityKeys.status = null; 
@@ -192,17 +192,14 @@ export class ToothbrushCard extends LitElement {
         const hass = this._hass;
         const config = this.config;
         
-        // Sicherstellen, dass die Konfiguration und die IDs vorhanden sind
+        // Lazy init if required
         if (!hass || !config || !this._entityIds) {
             // Falls _hass vorhanden, aber _entityIds null ist (was nicht passieren sollte),
             // versuchen Sie das Mapping noch einmal. Sonst leere Card zeigen.
             if (hass && config?.device_id) {
                 this._entityIds = this._findAndMapEntitiesInConfig(hass, config.device_id);
             } else {
-                return html`
-                    <ha-card class="toothbrush-error">
-                        Geräte-ID fehlt oder Home Assistant Daten werden geladen...
-                    </ha-card>`;
+                throw new Error('Please enter the device id');
             }
         }
 
@@ -223,7 +220,7 @@ export class ToothbrushCard extends LitElement {
         const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
         const modeIcon = this._getModeIcon(mode);
 
-        // Status (nutzt die Base/Status-Entität)
+        // status (using the base entity)
         const statusEntityId = entityIds.base_entity;
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
 
@@ -243,11 +240,13 @@ export class ToothbrushCard extends LitElement {
                     </h1>
 
                     <div class="image-stack">
-                        <!-- import the svg -->
+                        <!-- the tooth svg -->
                         ${ToothSVG(sectorClassData)}
 
+                        <!-- the current status of the brush -->
                         <div class="status-overlay" @click="${() => this._showMoreInfo(entityIds.base_entity)}">${status}</div>
                         
+                        <!-- the duration since start -->
                         <div class="time-overlay" @click="${() => this._showMoreInfo(entityIds.duration)}">
                             <span>${this._formatTime(duration)}</span>
                         </div>
