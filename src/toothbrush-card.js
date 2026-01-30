@@ -207,6 +207,9 @@ export class ToothbrushCard extends LitElement {
         const device = hass.devices[config.device_id];
         const deviceName = device.name;
 
+        // getting the card title
+        const title = config.title || deviceName;
+
         // getting all neccessary sensors
         const entityIds = this._entityIds; // Abruf der gespeicherten IDs
 
@@ -235,9 +238,7 @@ export class ToothbrushCard extends LitElement {
         return html`
             <ha-card>
                 <div class="card-content">
-                    <h1 class="title">
-                        ${deviceName}
-                    </h1>
+                    <h1 class="title">${title}</h1>
 
                     <div class="image-stack">
                         <!-- the tooth svg -->
@@ -356,6 +357,11 @@ export class ToothbrushCard extends LitElement {
     static getConfigForm() {
         return {
             schema: [
+                {
+                    name: "title",
+                    label: "Title (Optional)",
+                    selector: { text: {} }
+                },
                 { 
                     name: "device_id", 
                     required: true, 
