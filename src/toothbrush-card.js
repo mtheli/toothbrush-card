@@ -9,8 +9,8 @@ export class ToothbrushCard extends LitElement {
     set hass(hass) {
         this._hass = hass;
 
-        // determinig all required entitys (if not already done)
-        if (!this._entityIds && this.config?.device_id) {
+        // determinig all required entitys (retry until sector entity is found)
+        if ((!this._entityIds || !this._entityIds.sector) && this.config?.device_id) {
             this._entityIds = this._findAndMapEntitiesInConfig(hass, this.config.device_id);
         }
 
