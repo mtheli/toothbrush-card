@@ -161,14 +161,12 @@
 .cleaning .surfaces {
     stroke: #ccc;
     stroke-width: 3;
-    filter: url(#shadow);
     animation: blinkTooth 1s infinite ease-in-out;
 }
 
 .cleaning .plaque {
     stroke:none;
     stroke-width:0.75;
-    filter: url(#shadow);
     animation: blinkPlaque 1s infinite ease-in-out;
 }
 
