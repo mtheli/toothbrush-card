@@ -2,7 +2,7 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/v/release/mtheli/toothbrush-card)](https://github.com/mtheli/toothbrush-card/releases)
-[![License](https://img.shields.io/github/license/PorlyBe/glance_clock_ha.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/mtheli/toothbrush-card)](LICENSE)
 
 A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) designed to visualize **Oral-B toothbrushes** integrated via the official `oralb` integration.  
 The card displays real-time status, battery, brushing sectors, mode, and other relevant information directly on your dashboard.
