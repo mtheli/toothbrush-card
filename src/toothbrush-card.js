@@ -378,7 +378,10 @@ export class ToothbrushCard extends LitElement {
         };
     }
 
-    static getStubConfig() {
-        return { device_id: "" }
+    static getStubConfig(hass) {
+        const entry = Object.values(hass.entities).find(
+            (e) => e.platform === "oralb" && e.translation_key === "toothbrush_state"
+        );
+        return { device_id: entry ? entry.device_id : "" };
     }
 }
