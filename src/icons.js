@@ -12,5 +12,22 @@ export const MODE_ICONS = {
     "turbo": "mdi:car-turbocharger",
     "whiten": "mdi:shimmer",
     "whitening": "mdi:shimmer",
-    "default": "mdi:brush-variant" 
+    "default": "mdi:brush-variant"
+};
+
+export const MODE_LABELS = {
+    "daily_clean": "Daily Clean",
+    "deep_clean": "Deep Clean",
+    "gum_care": "Gum Care",
+    "intense": "Intense",
+    "massage": "Massage",
+    "off": "Off",
+    "sensitive": "Sensitive",
+    "settings": "Settings",
+    "super_sensitive": "Super Sensitive",
+    "tongue_cleaning": "Tongue Clean",
+    "turbo": "Turbo",
+    "whiten": "Whiten",
+    "whitening": "Whitening",
+    "unknown": "Unknown",
 };
