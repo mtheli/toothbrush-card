@@ -1,6 +1,8 @@
 import { ToothbrushCard, CARD_VERSION } from "./toothbrush-card";
+import { ToothbrushCardEditor } from "./toothbrush-card-editor";
 
 customElements.define('toothbrush-card', ToothbrushCard);
+customElements.define('toothbrush-card-editor', ToothbrushCardEditor);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
