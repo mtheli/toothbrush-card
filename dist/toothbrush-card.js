@@ -684,7 +684,14 @@ class $f62b4c9bce56f3ae$export$befdefbdce210f91 {
 
 
 
-const $84db147239ed44e7$export$d760b013da4dfa06 = (sectorClassData)=>(0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+const $84db147239ed44e7$var$OUTLINES = (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+    <!-- Outlines -->
+    <path fill="none" stroke="var(--secondary-text-color, #9ca3af)" stroke-width="8" d="m 1962,3484 c 6,19 6,16 7,-7 1,-36 16,-64 42,-78 12,-6 94,-13 189,-16 160,-5 169,-4 181,15 12,19 14,18 55,-13 58,-44 218,-95 298,-95 28,0 36,-4 36,-18 0,-30 110,-154 157,-176 36,-17 42,-25 46,-60 6,-44 33,-86 64,-100 11,-5 27,-31 37,-59 18,-50 84,-132 114,-142 14,-4 17,-19 18,-72 1,-74 25,-156 55,-189 17,-18 18,-25 8,-53 -17,-47 -4,-147 26,-204 14,-28 25,-66 25,-88 0,-65 65,-175 120,-204 39,-20 77,-19 130,7 34,16 66,21 129,22 l 85,1 19,34 c 29,49 37,215 12,262 -13,26 -17,54 -16,116 3,93 -11,155 -43,198 -17,22 -24,49 -28,100 -7,93 -37,168 -96,241 -43,53 -49,67 -55,123 -12,115 -59,182 -148,210 -32,10 -38,18 -48,58 -17,68 -45,115 -90,156 -42,38 -109,62 -146,53 -19,-5 -25,1 -43,43 -27,65 -91,134 -155,166 -58,29 -84,31 -133,10 l -34,-14 -42,45 c -73,79 -152,107 -228,79 -25,-9 -53,-19 -63,-22 -12,-4 -35,11 -72,46 -30,29 -72,59 -92,68 -55,23 -138,20 -201,-7 -50,-22 -112,-78 -112,-102"/>
+    <path fill="none" stroke="var(--secondary-text-color, #9ca3af)" stroke-width="8" d="m 1961,3822 c -5,5 -12,14 -20,24 -56,75 -189,122 -272,95 -44,-15 -72,-33 -125,-83 l -52,-49 -51,21 c -29,11 -66,20 -84,20 -50,0 -129,-42 -173,-93 -38,-43 -41,-44 -64,-31 -88,48 -247,-44 -296,-173 -16,-41 -19,-43 -58,-43 -58,-1 -116,-30 -159,-81 -31,-36 -51,-81 -72,-165 -2,-5 -23,-16 -46,-23 -83,-25 -129,-94 -145,-220 -6,-43 -17,-67 -54,-117 -57,-75 -89,-154 -97,-243 -4,-44 -14,-78 -29,-101 -33,-51 -48,-121 -41,-198 6,-56 3,-74 -15,-110 -18,-38 -20,-55 -15,-127 3,-46 12,-98 20,-116 23,-55 38,-62 115,-55 60,6 74,4 126,-20 69,-31 110,-27 159,16 44,38 91,133 92,185 0,22 11,60 25,85 27,52 40,183 21,218 -9,17 -8,23 5,30 25,14 64,136 64,201 0,56 2,60 38,87 51,39 68,61 89,114 10,25 34,61 54,80 32,31 59,88 59,128 0,6 10,12 21,12 27,0 146,119 165,166 11,27 20,34 42,34 15,0 71,11 125,25 96,24 170,57 197,90 12,14 15,14 32,-5 19,-20 27,-21 166,-15 222,9 229,11 250,85"/>
+    <path fill="none" stroke="var(--secondary-text-color, #9ca3af)" stroke-width="8" d="M 1959,437 C 1946,436 1925,438 1905,442 c -28,5 -102,11 -165,13 -92,2 -123,6 -155,22 -49,25 -130,43 -194,43 -41,0 -50,4 -69,30 -40,53 -122,112 -153,108 -22,-2 -36,6 -63,35 -19,21 -47,40 -65,43 -21,5 -31,12 -30,23 6,66 -48,155 -110,181 -19,8 -31,20 -31,31 0,11 -26,49 -57,84 -32,36 -73,83 -92,105 -24,29 -43,42 -71,46 -36,6 -38,8 -43,54 -8,64 -41,141 -76,174 -27,26 -28,31 -23,96 4,54 1,75 -12,94 -9,14 -16,34 -16,45 0,11 -12,33 -26,50 -53,64 -210,79 -320,32 -61,-26 -97,-61 -119,-115 -20,-48 -15,-86 28,-181 22,-50 31,-90 34,-140 2,-38 13,-101 24,-139 18,-60 29,-78 78,-125 49,-47 59,-63 64,-100 7,-52 53,-144 109,-219 40,-54 116,-102 163,-102 16,0 26,-16 48,-73 36,-94 46,-106 109,-128 48,-16 54,-21 67,-61 19,-60 55,-104 95,-118 40,-13 114,1 162,31 l 31,19 7,-32 c 10,-51 63,-124 103,-143 31,-15 44,-16 87,-6 27,6 64,23 82,36 l 32,25 21,-33 C 1430,32 1524,12 1605,96 l 41,42 18,-33 c 32,-59 70,-87 123,-92 65,-6 106,21 138,90 14,28 25,62 25,75"/>
+    <path fill="none" stroke="var(--secondary-text-color, #9ca3af)" stroke-width="8" d="m 1954,195 c 2,3 4,5 6,5 6,0 10,-10 10,-22 1,-33 33,-99 63,-127 34,-31 103,-39 146,-16 18,9 46,38 63,65 l 30,48 31,-35 c 80,-91 165,-77 254,40 l 21,27 53,-27 c 36,-19 68,-28 101,-28 41,0 52,5 83,35 20,20 46,61 58,92 22,52 24,55 42,41 32,-23 123,-45 155,-38 44,10 87,58 106,120 16,50 20,54 55,60 21,4 49,15 62,26 21,16 60,94 81,162 3,9 15,17 28,17 99,1 239,167 270,318 12,54 18,64 55,91 67,48 113,163 113,281 0,42 9,77 35,137 63,145 40,230 -79,288 -59,29 -181,42 -241,26 -66,-17 -114,-57 -115,-94 0,-10 -8,-32 -17,-50 -12,-22 -16,-53 -15,-100 2,-65 0,-71 -33,-109 -39,-46 -65,-114 -65,-170 0,-32 -3,-38 -20,-38 -41,0 -87,-28 -110,-66 -13,-22 -47,-62 -77,-91 -36,-35 -53,-60 -53,-77 0,-17 -7,-27 -22,-31 -56,-17 -133,-124 -126,-174 4,-26 1,-30 -25,-35 -16,-3 -46,-23 -65,-43 -24,-26 -42,-37 -58,-35 -34,5 -76,-21 -132,-83 -47,-51 -54,-55 -96,-55 -70,0 -146,-19 -203,-51 -30,-17 -55,-25 -58,-19 -3,6 -27,10 -53,10 -63,0 -223,-20 -242,-30"/>
+`;
+const $84db147239ed44e7$var$ToothSVG4 = (sectorClassData)=>(0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
 <svg class="tooth-svg" viewBox="0 0 392 395" xmlns="http://www.w3.org/2000/svg">
   <g transform="translate(0,395) scale(0.1,-0.1)" fill="none" stroke="var(--divider-color, #d1d5db)" stroke-width="4">
     <g id="zone-ur" class="${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.upper_right)}">
@@ -727,14 +734,65 @@ const $84db147239ed44e7$export$d760b013da4dfa06 = (sectorClassData)=>(0, $d33ef1
       <path class="zone" d="m 3750,1758 c 63,-19 117,-64 135,-113 20,-52 16,-82 -22,-167 l -26,-59 -32,31 c -44,43 -100,55 -160,34 -36,-12 -53,-13 -80,-4 -19,6 -54,8 -83,4 -46,-6 -50,-5 -55,17 -12,42 -7,105 8,125 8,10 15,27 15,37 1,92 152,140 300,95"/>
       <path class="zone" d="m 3756,1464 c 57,-27 73,-59 69,-136 -7,-123 -52,-234 -108,-268 -40,-25 -47,-25 -47,-2 0,32 -50,120 -87,153 -36,31 -38,31 -107,24 -39,-4 -89,-8 -111,-9 l -40,-1 2,44 c 3,53 48,148 83,173 34,24 112,34 158,19 31,-10 43,-10 72,3 45,20 74,20 116,0"/>
     </g>
-    <!-- Outlines -->
-    <path fill="none" stroke="var(--secondary-text-color, #9ca3af)" stroke-width="8" d="m 1962,3484 c 6,19 6,16 7,-7 1,-36 16,-64 42,-78 12,-6 94,-13 189,-16 160,-5 169,-4 181,15 12,19 14,18 55,-13 58,-44 218,-95 298,-95 28,0 36,-4 36,-18 0,-30 110,-154 157,-176 36,-17 42,-25 46,-60 6,-44 33,-86 64,-100 11,-5 27,-31 37,-59 18,-50 84,-132 114,-142 14,-4 17,-19 18,-72 1,-74 25,-156 55,-189 17,-18 18,-25 8,-53 -17,-47 -4,-147 26,-204 14,-28 25,-66 25,-88 0,-65 65,-175 120,-204 39,-20 77,-19 130,7 34,16 66,21 129,22 l 85,1 19,34 c 29,49 37,215 12,262 -13,26 -17,54 -16,116 3,93 -11,155 -43,198 -17,22 -24,49 -28,100 -7,93 -37,168 -96,241 -43,53 -49,67 -55,123 -12,115 -59,182 -148,210 -32,10 -38,18 -48,58 -17,68 -45,115 -90,156 -42,38 -109,62 -146,53 -19,-5 -25,1 -43,43 -27,65 -91,134 -155,166 -58,29 -84,31 -133,10 l -34,-14 -42,45 c -73,79 -152,107 -228,79 -25,-9 -53,-19 -63,-22 -12,-4 -35,11 -72,46 -30,29 -72,59 -92,68 -55,23 -138,20 -201,-7 -50,-22 -112,-78 -112,-102"/>
-    <path fill="none" stroke="var(--secondary-text-color, #9ca3af)" stroke-width="8" d="m 1961,3822 c -5,5 -12,14 -20,24 -56,75 -189,122 -272,95 -44,-15 -72,-33 -125,-83 l -52,-49 -51,21 c -29,11 -66,20 -84,20 -50,0 -129,-42 -173,-93 -38,-43 -41,-44 -64,-31 -88,48 -247,-44 -296,-173 -16,-41 -19,-43 -58,-43 -58,-1 -116,-30 -159,-81 -31,-36 -51,-81 -72,-165 -2,-5 -23,-16 -46,-23 -83,-25 -129,-94 -145,-220 -6,-43 -17,-67 -54,-117 -57,-75 -89,-154 -97,-243 -4,-44 -14,-78 -29,-101 -33,-51 -48,-121 -41,-198 6,-56 3,-74 -15,-110 -18,-38 -20,-55 -15,-127 3,-46 12,-98 20,-116 23,-55 38,-62 115,-55 60,6 74,4 126,-20 69,-31 110,-27 159,16 44,38 91,133 92,185 0,22 11,60 25,85 27,52 40,183 21,218 -9,17 -8,23 5,30 25,14 64,136 64,201 0,56 2,60 38,87 51,39 68,61 89,114 10,25 34,61 54,80 32,31 59,88 59,128 0,6 10,12 21,12 27,0 146,119 165,166 11,27 20,34 42,34 15,0 71,11 125,25 96,24 170,57 197,90 12,14 15,14 32,-5 19,-20 27,-21 166,-15 222,9 229,11 250,85"/>
-    <path fill="none" stroke="var(--secondary-text-color, #9ca3af)" stroke-width="8" d="M 1959,437 C 1946,436 1925,438 1905,442 c -28,5 -102,11 -165,13 -92,2 -123,6 -155,22 -49,25 -130,43 -194,43 -41,0 -50,4 -69,30 -40,53 -122,112 -153,108 -22,-2 -36,6 -63,35 -19,21 -47,40 -65,43 -21,5 -31,12 -30,23 6,66 -48,155 -110,181 -19,8 -31,20 -31,31 0,11 -26,49 -57,84 -32,36 -73,83 -92,105 -24,29 -43,42 -71,46 -36,6 -38,8 -43,54 -8,64 -41,141 -76,174 -27,26 -28,31 -23,96 4,54 1,75 -12,94 -9,14 -16,34 -16,45 0,11 -12,33 -26,50 -53,64 -210,79 -320,32 -61,-26 -97,-61 -119,-115 -20,-48 -15,-86 28,-181 22,-50 31,-90 34,-140 2,-38 13,-101 24,-139 18,-60 29,-78 78,-125 49,-47 59,-63 64,-100 7,-52 53,-144 109,-219 40,-54 116,-102 163,-102 16,0 26,-16 48,-73 36,-94 46,-106 109,-128 48,-16 54,-21 67,-61 19,-60 55,-104 95,-118 40,-13 114,1 162,31 l 31,19 7,-32 c 10,-51 63,-124 103,-143 31,-15 44,-16 87,-6 27,6 64,23 82,36 l 32,25 21,-33 C 1430,32 1524,12 1605,96 l 41,42 18,-33 c 32,-59 70,-87 123,-92 65,-6 106,21 138,90 14,28 25,62 25,75"/>
-    <path fill="none" stroke="var(--secondary-text-color, #9ca3af)" stroke-width="8" d="m 1954,195 c 2,3 4,5 6,5 6,0 10,-10 10,-22 1,-33 33,-99 63,-127 34,-31 103,-39 146,-16 18,9 46,38 63,65 l 30,48 31,-35 c 80,-91 165,-77 254,40 l 21,27 53,-27 c 36,-19 68,-28 101,-28 41,0 52,5 83,35 20,20 46,61 58,92 22,52 24,55 42,41 32,-23 123,-45 155,-38 44,10 87,58 106,120 16,50 20,54 55,60 21,4 49,15 62,26 21,16 60,94 81,162 3,9 15,17 28,17 99,1 239,167 270,318 12,54 18,64 55,91 67,48 113,163 113,281 0,42 9,77 35,137 63,145 40,230 -79,288 -59,29 -181,42 -241,26 -66,-17 -114,-57 -115,-94 0,-10 -8,-32 -17,-50 -12,-22 -16,-53 -15,-100 2,-65 0,-71 -33,-109 -39,-46 -65,-114 -65,-170 0,-32 -3,-38 -20,-38 -41,0 -87,-28 -110,-66 -13,-22 -47,-62 -77,-91 -36,-35 -53,-60 -53,-77 0,-17 -7,-27 -22,-31 -56,-17 -133,-124 -126,-174 4,-26 1,-30 -25,-35 -16,-3 -46,-23 -65,-43 -24,-26 -42,-37 -58,-35 -34,5 -76,-21 -132,-83 -47,-51 -54,-55 -96,-55 -70,0 -146,-19 -203,-51 -30,-17 -55,-25 -58,-19 -3,6 -27,10 -53,10 -63,0 -223,-20 -242,-30"/>
+    ${$84db147239ed44e7$var$OUTLINES}
   </g>
 </svg>
 `;
+const $84db147239ed44e7$var$ToothSVG6 = (sectorClassData)=>(0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+<svg class="tooth-svg" viewBox="0 0 392 395" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0,395) scale(0.1,-0.1)" fill="none" stroke="var(--divider-color, #d1d5db)" stroke-width="4">
+    <g id="zone-ur" class="${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.upper_right)}">
+      <path class="zone" d="m 3816,2201 c 10,-49 -10,-185 -31,-217 -16,-25 -19,-26 -90,-19 -63,6 -79,4 -114,-14 -53,-27 -120,-28 -154,-1 -37,30 -87,122 -90,167 l -2,38 75,5 c 63,4 84,10 126,37 47,30 53,32 119,27 64,-5 72,-3 100,20 27,23 31,23 42,9 7,-9 16,-32 19,-52"/>
+      <path class="zone" d="m 3767,2512 c 13,-33 18,-72 17,-131 -1,-84 -1,-84 -38,-118 -37,-34 -38,-34 -106,-27 -66,6 -70,5 -113,-26 -37,-26 -58,-33 -110,-37 -61,-5 -67,-4 -90,21 -30,32 -50,100 -50,171 0,59 14,85 45,85 10,0 57,16 104,35 55,23 100,35 132,35 59,0 114,15 144,39 29,24 41,15 65,-47"/>
+      <path class="zone" d="m 3664,2829 c 33,-60 59,-163 52,-204 -11,-56 -42,-75 -152,-89 -59,-8 -116,-22 -141,-34 -22,-12 -60,-26 -83,-31 -38,-8 -45,-7 -65,14 -30,29 -55,113 -55,182 v 53 h 45 c 40,0 47,4 77,41 l 33,40 57,-6 c 86,-10 106,8 145,135 5,19 50,-33 87,-101"/>
+      <path class="zone" d="m 3460,3210 c 74,-38 105,-110 98,-234 -5,-89 -33,-160 -67,-171 -11,-3 -37,-1 -58,4 -53,15 -50,16 -99,-34 -47,-49 -65,-53 -122,-29 -49,20 -90,60 -113,109 -25,55 -24,62 16,80 19,9 39,23 46,31 7,9 31,14 66,14 59,0 101,18 123,53 18,30 40,115 40,160 0,44 12,47 70,17"/>
+      <path class="zone" d="m 3239,3470 c 113,-57 166,-229 117,-377 -25,-74 -52,-95 -134,-102 -48,-5 -76,-13 -96,-29 -51,-39 -97,-24 -127,41 -26,59 -24,68 25,119 59,62 87,138 93,253 2,50 6,96 8,103 6,19 71,14 114,-8"/>
+    </g>
+    <g id="zone-uf" class="${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.upper_front)}">
+      <path class="zone" d="m 2956,3694 c 68,-45 96,-77 127,-144 28,-62 29,-69 23,-153 -9,-121 -38,-207 -85,-257 -53,-56 -79,-54 -143,12 -27,28 -61,68 -74,88 -24,36 -25,39 -14,126 11,81 7,262 -6,306 -7,23 40,47 92,48 28,0 53,-8 80,-26"/>
+      <path class="zone" d="m 2672,3794 c 23,-16 55,-46 72,-67 l 31,-39 v -183 c 0,-134 -3,-187 -13,-197 -17,-17 -182,21 -268,61 -96,45 -97,48 -84,248 7,92 13,168 13,169 89,40 106,44 155,41 38,-3 64,-12 94,-33"/>
+      <path class="zone" d="m 2262,3918 c 21,-6 63,-34 93,-62 l 55,-51 -14,-193 c -8,-116 -19,-198 -26,-207 -10,-12 -38,-14 -164,-9 -167,6 -203,15 -217,53 -6,14 -13,93 -16,176 -5,132 -4,155 12,188 42,89 170,137 277,105"/>
+      <path class="zone" d="m 1104,3717 29,-13 v -221 c 0,-186 -2,-225 -16,-246 -31,-48 -115,-126 -143,-133 -24,-6 -33,-1 -69,38 -55,61 -76,128 -82,259 -5,99 -4,109 21,161 30,63 88,121 150,149 48,22 70,23 110,6"/>
+      <path class="zone" d="m 1447,3812 c 61,-20 59,-12 69,-230 8,-163 7,-165 -78,-208 -67,-34 -245,-76 -268,-64 -25,14 -35,134 -23,276 8,99 13,116 37,149 49,64 139,110 191,98 11,-3 43,-12 72,-21"/>
+      <path class="zone" d="m 1815,3919 c 25,-7 58,-29 89,-60 l 48,-48 -4,-173 c -2,-110 -8,-181 -16,-195 -18,-32 -67,-41 -230,-45 -111,-2 -145,0 -151,11 -9,13 -16,94 -27,291 l -7,115 47,43 c 26,24 61,50 79,57 39,17 118,19 172,4"/>
+    </g>
+    <g id="zone-ul" class="${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.upper_left)}">
+      <path class="zone" d="m 177,2244 c 35,-24 44,-25 104,-20 57,6 69,4 92,-14 43,-34 93,-50 157,-50 h 60 v -32 c -1,-46 -58,-148 -99,-175 -42,-29 -78,-29 -142,-2 -40,18 -62,21 -115,16 -77,-6 -100,8 -114,68 -18,77 -8,235 14,235 3,0 22,-12 43,-26"/>
+      <path class="zone" d="m 235,2556 c 27,-19 55,-26 120,-31 62,-5 101,-15 145,-36 33,-15 76,-31 96,-35 45,-8 58,-38 51,-117 -7,-83 -43,-149 -86,-160 -48,-12 -125,8 -177,45 -43,31 -45,31 -95,20 -45,-11 -57,-10 -88,5 -20,10 -41,29 -48,43 -16,32 -17,166 -1,211 11,33 37,79 44,79 2,0 19,-11 39,-24"/>
+      <path class="zone" d="m 360,2893 c 5,-22 23,-55 39,-72 29,-31 31,-32 93,-25 l 63,6 33,-41 c 28,-35 38,-41 71,-41 33,0 40,-4 45,-26 12,-48 -26,-186 -59,-214 -20,-17 -71,-8 -143,25 -35,16 -82,28 -122,31 -85,7 -144,28 -160,59 -21,39 -8,143 27,213 31,62 96,150 100,135"/>
+      <path class="zone" d="m 570,3050 c 25,-49 64,-70 131,-70 40,0 58,-5 81,-25 16,-14 38,-25 49,-25 16,0 19,-4 13,-22 -30,-99 -103,-167 -181,-170 -31,-1 -41,5 -69,38 -33,39 -34,39 -106,39 h -73 l -25,50 c -34,69 -36,208 -2,272 23,44 59,74 107,90 l 30,10 12,-74 c 7,-41 22,-91 33,-113"/>
+      <path class="zone" d="m 800,3436 c 0,-134 34,-239 101,-311 38,-41 41,-49 36,-82 -8,-46 -36,-85 -70,-97 -20,-7 -34,-4 -71,21 -25,17 -43,33 -40,36 -29,-9 -45,-8 -81,6 -56,21 -81,69 -94,173 -7,61 -5,81 12,135 25,77 45,109 89,142 35,27 99,46 130,38 13,-3 17,-15 17,-56"/>
+    </g>
+    <g id="zone-ll" class="${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.lower_left)}">
+      <path class="zone" d="m 1053,715 c 18,-9 40,-27 51,-41 18,-25 18,-26 -2,-47 -36,-39 -62,-112 -71,-207 -6,-50 -16,-99 -23,-107 -21,-26 -90,-53 -135,-53 -33,0 -48,6 -71,30 -42,42 -66,119 -58,185 9,78 43,180 72,214 23,27 29,29 72,24 26,-3 63,0 82,5 48,14 48,14 83,-3"/>
+      <path class="zone" d="m 761,934 c 28,-10 60,-13 87,-10 53,7 80,-9 122,-72 57,-86 34,-127 -70,-124 -30,0 -63,-1 -73,-4 -32,-10 -83,-134 -102,-248 -6,-38 -7,-38 -42,-33 -47,8 -61,22 -95,92 -23,49 -28,73 -28,134 0,111 18,197 48,233 42,50 81,58 153,32"/>
+      <path class="zone" d="m 555,1201 c 114,-8 133,-16 171,-69 15,-20 49,-59 75,-87 80,-86 70,-132 -23,-99 -54,19 -128,18 -156,-2 -38,-26 -62,-88 -74,-194 L 536,650 h -29 c -62,0 -137,68 -200,181 -48,86 -60,141 -43,205 33,123 97,193 166,178 14,-3 70,-9 125,-13"/>
+      <path class="zone" d="m 280,1454 c 33,-14 45,-14 70,-4 20,8 49,10 87,5 48,-6 63,-13 89,-41 34,-35 62,-105 66,-164 3,-35 3,-35 -37,-34 -22,1 -72,5 -111,9 l -71,8 -40,-36 c -37,-33 -56,-67 -83,-140 -9,-27 -10,-27 -39,-13 -64,34 -109,133 -118,261 -5,73 -3,83 17,109 25,31 72,55 107,56 13,0 41,-7 63,-16"/>
+      <path class="zone" d="m 337,1759 c 72,-13 123,-47 123,-83 0,-12 6,-30 14,-41 20,-31 28,-73 20,-122 l -7,-45 -54,7 c -35,4 -65,2 -84,-5 -23,-10 -36,-10 -60,0 -66,28 -170,3 -198,-48 -7,-13 -15,-4 -36,43 -15,33 -29,76 -32,96 -14,98 63,176 197,199 25,4 47,8 49,9 2,0 33,-4 68,-10"/>
+    </g>
+    <g id="zone-lf" class="${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.lower_front)}">
+      <path class="zone" d="m 1795,439 c 60,-6 120,-15 133,-20 l 25,-10 -6,-107 C 1937,128 1904,51 1831,29 1757,7 1679,73 1649,184 c -16,59 -8,244 11,256 19,12 6,12 135,-1"/>
+      <path class="zone" d="m 1476,495 c 43,-8 93,-25 113,-38 l 35,-24 2,-144 c 2,-129 0,-146 -18,-171 -23,-34 -67,-58 -103,-58 -64,0 -139,76 -162,163 -13,53 -18,268 -6,280 10,11 55,8 139,-8"/>
+      <path class="zone" d="m 1237,611 c 77,-56 83,-70 76,-179 -3,-53 -1,-128 5,-166 13,-80 9,-89 -53,-117 -91,-42 -161,-10 -205,93 -20,47 -22,63 -16,144 8,115 27,180 65,222 38,41 74,42 128,3"/>
+      <path class="zone" d="m 2256,446 c 17,-13 19,-27 19,-133 0,-116 -1,-119 -35,-182 -45,-82 -90,-110 -150,-92 -78,23 -110,95 -117,267 l -6,122 41,7 c 48,8 166,22 203,24 14,0 34,-5 45,-13"/>
+      <path class="zone" d="m 2581,498 c 17,-31 6,-242 -14,-290 C 2517,90 2431,42 2353,90 c -62,37 -68,58 -64,209 2,104 6,140 18,153 20,23 88,48 154,58 93,13 107,12 120,-12"/>
+      <path class="zone" d="m 2803,623 c 39,-42 56,-92 67,-200 13,-122 -2,-183 -59,-243 -32,-34 -44,-40 -80,-40 -43,0 -107,27 -130,53 -9,12 -10,33 -1,98 7,47 8,118 5,168 l -7,87 57,52 c 68,62 105,69 148,25"/>
+    </g>
+    <g id="zone-lr" class="${(0, $da98d0425d3716de$export$56cc687933817664)(sectorClassData.lower_right)}">
+      <path class="zone" d="m 3014,724 c 58,-1 73,-5 87,-23 26,-32 57,-121 70,-199 10,-60 9,-73 -11,-124 -36,-96 -93,-126 -181,-96 -76,25 -85,39 -92,130 -7,96 -28,169 -64,216 -24,31 -24,34 -8,58 21,33 73,56 105,47 14,-4 56,-8 94,-9"/>
+      <path class="zone" d="m 3277,940 c 40,-24 58,-58 72,-141 18,-107 14,-171 -15,-245 -29,-71 -68,-107 -113,-102 -22,3 -26,11 -38,73 -15,73 -53,167 -80,197 -12,13 -30,17 -77,16 -90,-2 -106,5 -106,51 0,26 9,51 29,78 44,60 66,73 120,67 28,-4 61,0 86,10 55,20 84,19 122,-4"/>
+      <path class="zone" d="m 3570,1201 c 40,-29 81,-120 87,-192 5,-60 2,-70 -36,-145 -65,-130 -143,-204 -215,-204 -27,0 -29,5 -41,124 -7,79 -40,153 -76,171 -37,19 -107,19 -154,0 -20,-9 -45,-13 -56,-10 -37,12 -20,56 50,126 25,25 57,61 70,79 32,43 75,60 158,61 37,1 82,5 98,9 40,11 85,4 115,-19"/>
+      <path class="zone" d="m 3750,1758 c 63,-19 117,-64 135,-113 20,-52 16,-82 -22,-167 l -26,-59 -32,31 c -44,43 -100,55 -160,34 -36,-12 -53,-13 -80,-4 -19,6 -54,8 -83,4 -46,-6 -50,-5 -55,17 -12,42 -7,105 8,125 8,10 15,27 15,37 1,92 152,140 300,95"/>
+      <path class="zone" d="m 3756,1464 c 57,-27 73,-59 69,-136 -7,-123 -52,-234 -108,-268 -40,-25 -47,-25 -47,-2 0,32 -50,120 -87,153 -36,31 -38,31 -107,24 -39,-4 -89,-8 -111,-9 l -40,-1 2,44 c 3,53 48,148 83,173 34,24 112,34 158,19 31,-10 43,-10 72,3 45,20 74,20 116,0"/>
+    </g>
+    ${$84db147239ed44e7$var$OUTLINES}
+  </g>
+</svg>
+`;
+const $84db147239ed44e7$export$d760b013da4dfa06 = (sectorClassData, numSectors = 4)=>{
+    if (numSectors === 6) return $84db147239ed44e7$var$ToothSVG6(sectorClassData);
+    return $84db147239ed44e7$var$ToothSVG4(sectorClassData);
+};
 
 
 const $3cb0a15594fd43d6$export$1e083828221390e5 = {
@@ -775,8 +833,30 @@ var $7bfe0f8b5ad5b7ee$exports = {};
 $7bfe0f8b5ad5b7ee$exports = "ha-card {\n  container-type: inline-size;\n}\n\n.card-header {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n  justify-content: space-between;\n  align-items: center;\n  padding: 16px 18px 12px;\n  display: flex;\n}\n\n.header-title {\n  align-items: baseline;\n  gap: 7px;\n  display: flex;\n}\n\n.header-title h2 {\n  color: var(--primary-text-color);\n  letter-spacing: -.01em;\n  margin: 0;\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.header-sub {\n  color: var(--secondary-text-color);\n  font-size: 12px;\n  font-weight: 400;\n}\n\n.header-icons {\n  align-items: center;\n  gap: 10px;\n  display: flex;\n}\n\n.header-icons svg {\n  width: 16px;\n  height: 16px;\n}\n\n.bt-icon {\n  color: var(--secondary-text-color);\n  opacity: .4;\n  transition: color .4s, opacity .4s;\n}\n\n.bt-icon.bt-active {\n  color: #0082fc;\n  opacity: 1;\n}\n\n.bt-icon.bt-off {\n  color: var(--disabled-text-color, #9ca3af);\n  opacity: .3;\n}\n\n.more-info-btn {\n  cursor: pointer;\n  opacity: .5;\n  transition: opacity .2s;\n  color: var(--secondary-text-color) !important;\n}\n\n.more-info-btn:hover {\n  opacity: 1;\n}\n\n.chips-row {\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n  padding: 12px 14px;\n  display: grid;\n}\n\n.chip {\n  background: var(--card-background-color, #f9fafb);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  cursor: pointer;\n  border-radius: 10px;\n  grid-template-rows: auto auto;\n  grid-template-columns: auto 1fr;\n  align-items: center;\n  gap: 1px 8px;\n  padding: 8px 10px;\n  display: grid;\n}\n\n.chip-icon {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.chip-icon ha-icon {\n  --mdc-icon-size: 24px;\n}\n\n.chip-icon.green {\n  color: #16a34a;\n}\n\n.chip-icon.blue {\n  color: #2563eb;\n}\n\n.chip-icon.amber {\n  color: #d97706;\n}\n\n.chip-icon.red {\n  color: #dc2626;\n}\n\n.chip-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .06em;\n  font-size: 9px;\n  font-weight: 600;\n}\n\n.chip-value {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1;\n  overflow: hidden;\n}\n\n.chip-value.green {\n  color: #16a34a;\n}\n\n.chip-value.blue {\n  color: #2563eb;\n}\n\n.chip-value.amber {\n  color: #d97706;\n}\n\n.chip-value.red {\n  color: #dc2626;\n}\n\n.pressure-bars {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: flex-end;\n  gap: 2px;\n  display: flex;\n}\n\n.pb {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  width: 4px;\n  transition: background .3s;\n}\n\n.pb:first-child {\n  height: 5px;\n}\n\n.pb:nth-child(2) {\n  height: 9px;\n}\n\n.pb:nth-child(3) {\n  height: 13px;\n}\n\n.pb:nth-child(4) {\n  height: 18px;\n}\n\n.p-low .pb:first-child {\n  background: #f59e0b;\n}\n\n.p-normal .pb:first-child, .p-normal .pb:nth-child(2) {\n  background: #22c55e;\n}\n\n.p-high .pb {\n  background: #ef4444;\n}\n\n.visual-area {\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 14px 10px;\n  display: flex;\n}\n\n.tooth-wrap {\n  justify-content: center;\n  align-items: center;\n  width: 210px;\n  height: 210px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-svg {\n  width: 100%;\n  height: 100%;\n}\n\n.zone {\n  fill: var(--divider-color, #f3f4f6);\n  transition: fill .3s;\n}\n\n.brushing .zone {\n  animation: .8s ease-in-out infinite alternate brush-zone;\n}\n\n@keyframes brush-zone {\n  from {\n    fill: #bfdbfe;\n  }\n\n  to {\n    fill: #93c5fd;\n  }\n}\n\n.done .zone {\n  fill: #bbf7d0 !important;\n}\n\n.center-info {\n  text-align: center;\n  pointer-events: none;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.session-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .1em;\n  margin-bottom: 2px;\n  font-size: 9px;\n  font-weight: 600;\n  display: block;\n}\n\n.timer-display {\n  color: var(--primary-text-color);\n  letter-spacing: -1px;\n  font-variant-numeric: tabular-nums;\n  font-size: 30px;\n  font-weight: 400;\n  line-height: 1;\n  transition: color .4s;\n}\n\n.timer-display.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-text-wrap {\n  text-align: center;\n  cursor: pointer;\n  margin: 2px 0 10px;\n}\n\n.status-main {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 14px;\n  font-weight: 600;\n  transition: color .4s;\n}\n\n.status-main.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-sub {\n  color: var(--secondary-text-color);\n  text-transform: capitalize;\n  margin-top: 1px;\n  font-size: 11px;\n}\n\n.progress-wrap {\n  opacity: 0;\n  width: 100%;\n  height: 0;\n  padding: 0 14px;\n  transition: opacity .4s, height .4s;\n  overflow: hidden;\n}\n\n.progress-wrap.visible {\n  opacity: 1;\n  height: auto;\n  padding: 0 14px 10px;\n}\n\n.progress-track {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  height: 4px;\n  overflow: hidden;\n}\n\n.progress-fill {\n  background: linear-gradient(90deg, #3b82f6, #22c55e);\n  border-radius: 2px;\n  height: 100%;\n  transition: width .5s;\n}\n\n.progress-labels {\n  color: var(--secondary-text-color);\n  justify-content: space-between;\n  margin-top: 4px;\n  font-size: 10px;\n  display: flex;\n}\n\n.done-badge {\n  background: var(--card-background-color, #f0fdf4);\n  text-align: center;\n  border-top: 1px solid #bbf7d0;\n  padding: 10px 14px;\n  display: none;\n}\n\n.done-badge.show {\n  animation: .4s cubic-bezier(.34, 1.56, .64, 1) pop-in;\n  display: block;\n}\n\n@keyframes pop-in {\n  from {\n    opacity: 0;\n    transform: scaleY(.7);\n  }\n\n  to {\n    opacity: 1;\n    transform: scaleY(1);\n  }\n}\n\n.done-badge p {\n  color: #15803d;\n  margin: 0;\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.done-badge span {\n  color: #16a34a;\n  font-size: 11px;\n}\n\n@container (width <= 280px) {\n  .chips-row {\n    grid-template-columns: 1fr;\n    gap: 6px;\n  }\n\n  .chip {\n    column-gap: 6px;\n  }\n\n  .tooth-wrap {\n    width: 160px;\n    height: 160px;\n  }\n\n  .timer-display {\n    font-size: 24px;\n  }\n}\n\n@container (width <= 350px) {\n  .tooth-wrap {\n    width: 180px;\n    height: 180px;\n  }\n\n  .timer-display {\n    font-size: 26px;\n  }\n}\n";
 
 
-const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.2.0";
+const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.3.0";
 const $930552a63f9e9686$var$BRUSHING_DURATION = 120; // 2 minutes target
+const $930552a63f9e9686$export$5055f2a665f9cd1e = [
+    'lower_left',
+    'lower_right',
+    'upper_left',
+    'upper_right'
+];
+const $930552a63f9e9686$export$d18f9bb4634fc18d = [
+    'upper_right',
+    'upper_front',
+    'upper_left',
+    'lower_left',
+    'lower_front',
+    'lower_right'
+];
+const $930552a63f9e9686$export$e237830bda259402 = {
+    upper_right: 'Upper right',
+    upper_front: 'Upper front',
+    upper_left: 'Upper left',
+    lower_left: 'Lower left',
+    lower_front: 'Lower front',
+    lower_right: 'Lower right'
+};
 class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$export$3f2f9f5909897157) {
     set hass(hass) {
         this._hass = hass;
@@ -825,90 +905,44 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
             composed: true
         }));
     }
-    _getSectorData(sector) {
-        const allSectors = [
-            'lower_left',
-            'lower_right',
-            'upper_left',
-            'upper_right'
-        ];
+    _getSectorData(sector, sectorOrder) {
         const getActiveIndex = (input)=>{
-            switch(input){
-                case 'sector_1':
-                case 'sector 1':
-                case '1':
-                    return 0;
-                case 'sector_2':
-                case 'sector 2':
-                case '2':
-                    return 1;
-                case 'sector_3':
-                case 'sector 3':
-                case '3':
-                    return 2;
-                case 'sector_4':
-                case 'sector 4':
-                case '4':
-                    return 3;
-                default:
-                    return -1;
+            const match = String(input).match(/(\d+)/);
+            if (match) {
+                const idx = parseInt(match[1]) - 1;
+                return idx >= 0 && idx < sectorOrder.length ? idx : -1;
             }
+            return -1;
         };
         const activeIndex = getActiveIndex(sector);
-        const sectorClassMaps = {
-            lower_left: {
+        const sectorClassMaps = {};
+        sectorOrder.forEach((s)=>{
+            sectorClassMaps[s] = {
                 done: false,
                 brushing: false
-            },
-            lower_right: {
-                done: false,
-                brushing: false
-            },
-            upper_left: {
-                done: false,
-                brushing: false
-            },
-            upper_right: {
-                done: false,
-                brushing: false
-            }
-        };
+            };
+        });
         if (sector === 'success') {
-            allSectors.forEach((s)=>{
+            sectorOrder.forEach((s)=>{
                 sectorClassMaps[s].done = true;
             });
             return sectorClassMaps;
         }
         if (activeIndex === -1) return sectorClassMaps;
-        allSectors.forEach((sectorName, index)=>{
+        sectorOrder.forEach((sectorName, index)=>{
             if (index < activeIndex) sectorClassMaps[sectorName].done = true;
             else if (index === activeIndex) sectorClassMaps[sectorName].brushing = true;
         });
         return sectorClassMaps;
     }
-    _getSectorLabel(sector) {
-        switch(sector){
-            case 'sector_1':
-            case 'sector 1':
-            case '1':
-                return 'Lower left';
-            case 'sector_2':
-            case 'sector 2':
-            case '2':
-                return 'Lower right';
-            case 'sector_3':
-            case 'sector 3':
-            case '3':
-                return 'Upper left';
-            case 'sector_4':
-            case 'sector 4':
-            case '4':
-                return 'Upper right';
-            case 'success':
-                return 'Complete';
-            default:
-                return '';
+    _getSectorLabel(sector, sectorOrder) {
+        if (sector === 'success') return 'Complete';
+        const match = String(sector).match(/(\d+)/);
+        if (match) {
+            const idx = parseInt(match[1]) - 1;
+            if (idx >= 0 && idx < sectorOrder.length) return $930552a63f9e9686$export$e237830bda259402[sectorOrder[idx]] || '';
         }
+        return '';
     }
     _getBatteryChipColor(level) {
         const l = parseInt(level, 10);
@@ -942,7 +976,8 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
             pressure: null,
             battery: null,
             status: null,
-            base_entity: null
+            base_entity: null,
+            number_of_sectors: null
         };
         const allEntities = hass.entities;
         for(const entityId in allEntities){
@@ -954,6 +989,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
             else if (entity.translation_key === 'mode') entityKeys.mode = entity.entity_id;
             else if (entity.translation_key === 'pressure') entityKeys.pressure = entity.entity_id;
             else if (entity.translation_key === 'toothbrush_state') entityKeys.status = entity.entity_id;
+            else if (entity.translation_key === 'number_of_sectors') entityKeys.number_of_sectors = entity.entity_id;
             if (deviceClass) {
                 if (entityKeys.battery === null && deviceClass === 'battery') entityKeys.battery = entity.entity_id;
                 else if (entityKeys.duration === null && deviceClass === 'duration') entityKeys.duration = entity.entity_id;
@@ -982,6 +1018,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const headerSub = config.show_subtitle !== false ? deviceName : '';
         const entityIds = this._entityIds;
         // Read sensor states
+        const numSectors = entityIds.number_of_sectors ? parseInt(hass.states[entityIds.number_of_sectors]?.state) || 4 : 4;
         const sector = entityIds.sector ? hass.states[entityIds.sector]?.state || 'no_sector' : 'no_sector';
         const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
         const pressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
@@ -990,9 +1027,11 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const statusEntityId = entityIds.base_entity;
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
         // Computed values
+        const defaultOrder = numSectors === 6 ? $930552a63f9e9686$export$d18f9bb4634fc18d : $930552a63f9e9686$export$5055f2a665f9cd1e;
+        const sectorOrder = config.sector_order?.length === numSectors ? config.sector_order : defaultOrder;
         const active = this._isActive(status);
-        const sectorClassData = this._getSectorData(sector);
-        const sectorLabel = this._getSectorLabel(sector);
+        const sectorClassData = this._getSectorData(sector, sectorOrder);
+        const sectorLabel = this._getSectorLabel(sector, sectorOrder);
         const isSuccess = sector === 'success';
         const batteryColor = this._getBatteryChipColor(batteryLevel);
         const batteryIsCharging = status === 'charging';
@@ -1060,7 +1099,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                 <!-- Tooth visual -->
                 <div class="visual-area">
                     <div class="tooth-wrap">
-                        ${(0, $84db147239ed44e7$export$d760b013da4dfa06)(sectorClassData)}
+                        ${(0, $84db147239ed44e7$export$d760b013da4dfa06)(sectorClassData, numSectors)}
                         <div class="center-info">
                             <span class="session-label">Session</span>
                             <div class="timer-display ${active ? 'active' : ''}"
@@ -1089,7 +1128,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                 <!-- Done badge -->
                 <div class="done-badge ${isSuccess ? 'show' : ''}">
                     <p>&#10003; Brushing complete!</p>
-                    <span>All 4 quadrants finished</span>
+                    <span>All ${numSectors === 6 ? '6 sextants' : '4 quadrants'} finished</span>
                 </div>
             </ha-card>
         `;
@@ -1126,38 +1165,8 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
     static get styles() {
         return (0, $06bdd16cbb4a41b3$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($7bfe0f8b5ad5b7ee$exports))));
     }
-    static getConfigForm() {
-        return {
-            schema: [
-                {
-                    name: "title",
-                    label: "Title (Optional)",
-                    selector: {
-                        text: {}
-                    }
-                },
-                {
-                    name: "show_subtitle",
-                    label: "Show device name as subtitle",
-                    selector: {
-                        boolean: {}
-                    },
-                    default: true
-                },
-                {
-                    name: "device_id",
-                    required: true,
-                    selector: {
-                        device: {
-                            filter: {
-                                integration: "oralb"
-                            },
-                            multiple: false
-                        }
-                    }
-                }
-            ]
-        };
+    static getConfigElement() {
+        return document.createElement('toothbrush-card-editor');
     }
     static getStubConfig(hass) {
         const entry = Object.values(hass.entities).find((e)=>e.platform === "oralb" && e.translation_key === "toothbrush_state");
@@ -1168,7 +1177,271 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
 }
 
 
+
+
+class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$export$3f2f9f5909897157) {
+    static get properties() {
+        return {
+            hass: {
+                attribute: false
+            },
+            _config: {
+                state: true
+            },
+            _dragIndex: {
+                state: true
+            },
+            _overIndex: {
+                state: true
+            }
+        };
+    }
+    constructor(){
+        super();
+        this._dragIndex = -1;
+        this._overIndex = -1;
+    }
+    setConfig(config) {
+        this._config = config;
+    }
+    get _sectorOrder() {
+        const numSectors = this._getNumSectors();
+        const defaultOrder = numSectors === 6 ? (0, $930552a63f9e9686$export$d18f9bb4634fc18d) : (0, $930552a63f9e9686$export$5055f2a665f9cd1e);
+        if (this._config.sector_order?.length === numSectors) return [
+            ...this._config.sector_order
+        ];
+        return [
+            ...defaultOrder
+        ];
+    }
+    _getNumSectors() {
+        if (!this.hass || !this._config?.device_id) return 4;
+        for(const entityId in this.hass.entities){
+            const entity = this.hass.entities[entityId];
+            if (entity.device_id === this._config.device_id && entity.translation_key === 'number_of_sectors') return parseInt(this.hass.states[entityId]?.state) || 4;
+        }
+        return 4;
+    }
+    _fireConfig(config) {
+        this.dispatchEvent(new CustomEvent('config-changed', {
+            bubbles: true,
+            composed: true,
+            detail: {
+                config: config
+            }
+        }));
+    }
+    _valueChanged(key, value) {
+        const newConfig = {
+            ...this._config,
+            [key]: value
+        };
+        if (value === '' || value === undefined) delete newConfig[key];
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+    _deviceChanged(ev) {
+        const deviceId = ev.detail.value;
+        const newConfig = {
+            ...this._config,
+            device_id: deviceId
+        };
+        delete newConfig.sector_order;
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+    // --- Drag & Drop ---
+    _dragStart(ev, index) {
+        this._dragIndex = index;
+        ev.dataTransfer.effectAllowed = 'move';
+    }
+    _dragOver(ev, index) {
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = 'move';
+        if (index !== this._overIndex) this._overIndex = index;
+    }
+    _drop(ev, index) {
+        ev.preventDefault();
+        if (this._dragIndex === -1 || this._dragIndex === index) {
+            this._dragIndex = -1;
+            this._overIndex = -1;
+            return;
+        }
+        const order = this._sectorOrder;
+        const [moved] = order.splice(this._dragIndex, 1);
+        order.splice(index, 0, moved);
+        this._dragIndex = -1;
+        this._overIndex = -1;
+        this._valueChanged('sector_order', order);
+    }
+    _dragEnd() {
+        this._dragIndex = -1;
+        this._overIndex = -1;
+    }
+    _resetOrder() {
+        const newConfig = {
+            ...this._config
+        };
+        delete newConfig.sector_order;
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+    render() {
+        if (!this.hass || !this._config) return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)``;
+        const order = this._sectorOrder;
+        const numSectors = this._getNumSectors();
+        const defaultOrder = numSectors === 6 ? (0, $930552a63f9e9686$export$d18f9bb4634fc18d) : (0, $930552a63f9e9686$export$5055f2a665f9cd1e);
+        const isCustom = this._config.sector_order?.length === numSectors && JSON.stringify(this._config.sector_order) !== JSON.stringify(defaultOrder);
+        return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+            <div class="editor">
+                <div class="field">
+                    <ha-device-picker
+                        .hass=${this.hass}
+                        .value=${this._config.device_id || ''}
+                        .includeDeviceClasses=${undefined}
+                        .includeDomains=${undefined}
+                        .deviceFilter=${(device)=>{
+            const entries = Object.values(this.hass.entities);
+            return entries.some((e)=>e.device_id === device.id && e.platform === 'oralb');
+        }}
+                        @value-changed=${this._deviceChanged}
+                    ></ha-device-picker>
+                </div>
+
+                <div class="field">
+                    <ha-textfield
+                        .label=${'Title (Optional)'}
+                        .value=${this._config.title || ''}
+                        @input=${(ev)=>this._valueChanged('title', ev.target.value)}
+                    ></ha-textfield>
+                </div>
+
+                <div class="field row">
+                    <ha-switch
+                        .checked=${this._config.show_subtitle !== false}
+                        @change=${(ev)=>this._valueChanged('show_subtitle', ev.target.checked)}
+                    ></ha-switch>
+                    <span>Show device name as subtitle</span>
+                </div>
+
+                ${this._config.device_id ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+                    <div class="section-label">
+                        <span>Sector order</span>
+                        ${isCustom ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+                            <button class="reset-btn" @click=${this._resetOrder}>Reset</button>
+                        ` : ''}
+                    </div>
+                    <div class="sector-list" @dragend=${this._dragEnd}>
+                        ${order.map((zone, i)=>(0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+                            <div class="sector-item ${this._dragIndex === i ? 'dragging' : ''} ${this._overIndex === i && this._dragIndex !== i ? 'over' : ''}"
+                                 draggable="true"
+                                 @dragstart=${(ev)=>this._dragStart(ev, i)}
+                                 @dragover=${(ev)=>this._dragOver(ev, i)}
+                                 @drop=${(ev)=>this._drop(ev, i)}>
+                                <span class="grip">☰</span>
+                                <span class="sector-num">${i + 1}</span>
+                                <span class="sector-label">${(0, $930552a63f9e9686$export$e237830bda259402)[zone] || zone}</span>
+                            </div>
+                        `)}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+    static get styles() {
+        return (0, $06bdd16cbb4a41b3$export$dbf350e5966cf602)`
+            .editor {
+                padding: 16px;
+            }
+            .field {
+                margin-bottom: 16px;
+            }
+            .field.row {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            ha-textfield {
+                display: block;
+                width: 100%;
+            }
+            .section-label {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-weight: 500;
+                font-size: 14px;
+                margin: 20px 0 8px;
+                color: var(--primary-text-color);
+            }
+            .reset-btn {
+                background: none;
+                border: 1px solid var(--divider-color, #e0e0e0);
+                border-radius: 6px;
+                padding: 4px 10px;
+                font-size: 12px;
+                cursor: pointer;
+                color: var(--primary-text-color);
+            }
+            .reset-btn:hover {
+                background: var(--secondary-background-color, #f5f5f5);
+            }
+            .sector-list {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .sector-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 12px;
+                background: var(--card-background-color, #fff);
+                border: 1px solid var(--divider-color, #e0e0e0);
+                border-radius: 8px;
+                cursor: grab;
+                user-select: none;
+                transition: opacity 0.15s, border-color 0.15s;
+            }
+            .sector-item:active {
+                cursor: grabbing;
+            }
+            .sector-item.dragging {
+                opacity: 0.3;
+            }
+            .sector-item.over {
+                border-color: var(--primary-color, #03a9f4);
+                border-style: dashed;
+            }
+            .grip {
+                color: var(--disabled-text-color, #bdbdbd);
+                font-size: 14px;
+                line-height: 1;
+            }
+            .sector-num {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                background: var(--primary-color, #03a9f4);
+                color: #fff;
+                font-size: 12px;
+                font-weight: 600;
+                flex-shrink: 0;
+            }
+            .sector-label {
+                font-size: 14px;
+                color: var(--primary-text-color);
+            }
+        `;
+    }
+}
+
+
 customElements.define('toothbrush-card', (0, $930552a63f9e9686$export$e2f41388bb2b94a0));
+customElements.define('toothbrush-card-editor', (0, $2e9f76afc74d559a$export$eec44ce80a6d3e24));
 window.customCards = window.customCards || [];
 window.customCards.push({
     type: "toothbrush-card",

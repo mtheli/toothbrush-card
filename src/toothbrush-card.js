@@ -4,9 +4,18 @@ import { ToothSVG } from './toothbrush-svg.js';
 import { MODE_ICONS, MODE_LABELS } from './icons.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.2.0";
+export const CARD_VERSION = "0.3.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
+
+export const QUADRANT_ZONES = ['lower_left', 'lower_right', 'upper_left', 'upper_right'];
+export const SEXTANT_ZONES = ['upper_right', 'upper_front', 'upper_left', 'lower_left', 'lower_front', 'lower_right'];
+
+export const ZONE_LABELS = {
+    upper_right: 'Upper right', upper_front: 'Upper front',
+    upper_left: 'Upper left',   lower_left: 'Lower left',
+    lower_front: 'Lower front', lower_right: 'Lower right',
+};
 
 export class ToothbrushCard extends LitElement {
 
@@ -71,30 +80,23 @@ export class ToothbrushCard extends LitElement {
         window.dispatchEvent(new CustomEvent('location-changed', { bubbles: true, composed: true }));
     }
 
-    _getSectorData(sector) {
-        const allSectors = ['lower_left', 'lower_right', 'upper_left', 'upper_right'];
-
+    _getSectorData(sector, sectorOrder) {
         const getActiveIndex = (input) => {
-            switch (input) {
-                case 'sector_1': case 'sector 1': case '1': return 0;
-                case 'sector_2': case 'sector 2': case '2': return 1;
-                case 'sector_3': case 'sector 3': case '3': return 2;
-                case 'sector_4': case 'sector 4': case '4': return 3;
-                default: return -1;
+            const match = String(input).match(/(\d+)/);
+            if (match) {
+                const idx = parseInt(match[1]) - 1;
+                return (idx >= 0 && idx < sectorOrder.length) ? idx : -1;
             }
+            return -1;
         };
 
         const activeIndex = getActiveIndex(sector);
 
-        const sectorClassMaps = {
-            lower_left:  { done: false, brushing: false },
-            lower_right: { done: false, brushing: false },
-            upper_left:  { done: false, brushing: false },
-            upper_right: { done: false, brushing: false }
-        };
+        const sectorClassMaps = {};
+        sectorOrder.forEach(s => { sectorClassMaps[s] = { done: false, brushing: false }; });
 
         if (sector === 'success') {
-            allSectors.forEach(s => { sectorClassMaps[s].done = true; });
+            sectorOrder.forEach(s => { sectorClassMaps[s].done = true; });
             return sectorClassMaps;
         }
 
@@ -102,7 +104,7 @@ export class ToothbrushCard extends LitElement {
             return sectorClassMaps;
         }
 
-        allSectors.forEach((sectorName, index) => {
+        sectorOrder.forEach((sectorName, index) => {
             if (index < activeIndex) {
                 sectorClassMaps[sectorName].done = true;
             } else if (index === activeIndex) {
@@ -113,15 +115,15 @@ export class ToothbrushCard extends LitElement {
         return sectorClassMaps;
     }
 
-    _getSectorLabel(sector) {
-        switch (sector) {
-            case 'sector_1': case 'sector 1': case '1': return 'Lower left';
-            case 'sector_2': case 'sector 2': case '2': return 'Lower right';
-            case 'sector_3': case 'sector 3': case '3': return 'Upper left';
-            case 'sector_4': case 'sector 4': case '4': return 'Upper right';
-            case 'success': return 'Complete';
-            default: return '';
+    _getSectorLabel(sector, sectorOrder) {
+        if (sector === 'success') return 'Complete';
+
+        const match = String(sector).match(/(\d+)/);
+        if (match) {
+            const idx = parseInt(match[1]) - 1;
+            if (idx >= 0 && idx < sectorOrder.length) return ZONE_LABELS[sectorOrder[idx]] || '';
         }
+        return '';
     }
 
     _getBatteryChipColor(level) {
@@ -156,7 +158,8 @@ export class ToothbrushCard extends LitElement {
     _findAndMapEntitiesInConfig(hass, deviceId) {
         const entityKeys = {
             sector: null, duration: null, mode: null, pressure: null,
-            battery: null, status: null, base_entity: null
+            battery: null, status: null, base_entity: null,
+            number_of_sectors: null
         };
 
         const allEntities = hass.entities;
@@ -176,6 +179,8 @@ export class ToothbrushCard extends LitElement {
                 entityKeys.pressure = entity.entity_id;
             } else if (entity.translation_key === 'toothbrush_state') {
                 entityKeys.status = entity.entity_id;
+            } else if (entity.translation_key === 'number_of_sectors') {
+                entityKeys.number_of_sectors = entity.entity_id;
             }
 
             if (deviceClass) {
@@ -222,6 +227,9 @@ export class ToothbrushCard extends LitElement {
         const entityIds = this._entityIds;
 
         // Read sensor states
+        const numSectors = entityIds.number_of_sectors
+            ? parseInt(hass.states[entityIds.number_of_sectors]?.state) || 4
+            : 4;
         const sector = entityIds.sector ? hass.states[entityIds.sector]?.state || 'no_sector' : 'no_sector';
         const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
         const pressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
@@ -232,9 +240,13 @@ export class ToothbrushCard extends LitElement {
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
 
         // Computed values
+        const defaultOrder = numSectors === 6 ? SEXTANT_ZONES : QUADRANT_ZONES;
+        const sectorOrder = config.sector_order?.length === numSectors
+            ? config.sector_order
+            : defaultOrder;
         const active = this._isActive(status);
-        const sectorClassData = this._getSectorData(sector);
-        const sectorLabel = this._getSectorLabel(sector);
+        const sectorClassData = this._getSectorData(sector, sectorOrder);
+        const sectorLabel = this._getSectorLabel(sector, sectorOrder);
         const isSuccess = sector === 'success';
         const batteryColor = this._getBatteryChipColor(batteryLevel);
         const batteryIsCharging = status === 'charging';
@@ -303,7 +315,7 @@ export class ToothbrushCard extends LitElement {
                 <!-- Tooth visual -->
                 <div class="visual-area">
                     <div class="tooth-wrap">
-                        ${ToothSVG(sectorClassData)}
+                        ${ToothSVG(sectorClassData, numSectors)}
                         <div class="center-info">
                             <span class="session-label">Session</span>
                             <div class="timer-display ${active ? 'active' : ''}"
@@ -332,7 +344,7 @@ export class ToothbrushCard extends LitElement {
                 <!-- Done badge -->
                 <div class="done-badge ${isSuccess ? 'show' : ''}">
                     <p>&#10003; Brushing complete!</p>
-                    <span>All 4 quadrants finished</span>
+                    <span>All ${numSectors === 6 ? '6 sextants' : '4 quadrants'} finished</span>
                 </div>
             </ha-card>
         `;
@@ -378,32 +390,8 @@ export class ToothbrushCard extends LitElement {
         return unsafeCSS(styles);
     }
 
-    static getConfigForm() {
-        return {
-            schema: [
-                {
-                    name: "title",
-                    label: "Title (Optional)",
-                    selector: { text: {} }
-                },
-                {
-                    name: "show_subtitle",
-                    label: "Show device name as subtitle",
-                    selector: { boolean: {} },
-                    default: true
-                },
-                {
-                    name: "device_id",
-                    required: true,
-                    selector: {
-                        device: {
-                            filter: { integration: "oralb" },
-                            multiple: false
-                        }
-                    }
-                }
-            ]
-        };
+    static getConfigElement() {
+        return document.createElement('toothbrush-card-editor');
     }
 
     static getStubConfig(hass) {
