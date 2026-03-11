@@ -9,11 +9,30 @@ ha-card {
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--divider-color, #f3f4f6);
+    position: relative;
+    overflow: hidden;
+}
+.card-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-color, transparent);
+    opacity: 0.12;
+    pointer-events: none;
+    transition: background 0.5s ease;
+}
+.header-accent {
+    width: 4px;
+    height: 28px;
+    border-radius: 3px;
+    background: var(--accent-color);
+    flex-shrink: 0;
+    transition: background 0.4s ease;
 }
 .header-title {
     display: flex;
-    align-items: baseline;
-    gap: 7px;
+    align-items: center;
+    gap: 8px;
 }
 .header-title h2 {
     font-size: 15px;

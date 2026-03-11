@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit';
-import { QUADRANT_ZONES, SEXTANT_ZONES, ZONE_LABELS } from './toothbrush-card.js';
+import { QUADRANT_ZONES, SEXTANT_ZONES, ZONE_LABELS, ACCENT_COLORS } from './toothbrush-card.js';
 
 export class ToothbrushCardEditor extends LitElement {
 
@@ -147,6 +147,24 @@ export class ToothbrushCardEditor extends LitElement {
                     <span>Show device name as subtitle</span>
                 </div>
 
+                <div class="field">
+                    <div class="section-label">
+                        <span>Accent color</span>
+                        ${this._config.accent_color ? html`
+                            <button class="reset-btn" @click=${() => this._valueChanged('accent_color', '')}>Reset</button>
+                        ` : ''}
+                    </div>
+                    <div class="color-grid">
+                        ${ACCENT_COLORS.map(c => html`
+                            <button class="color-swatch ${this._config.accent_color === c.color ? 'selected' : ''}"
+                                    style="background: ${c.color}"
+                                    title="${c.name}"
+                                    @click=${() => this._valueChanged('accent_color', c.color)}>
+                            </button>
+                        `)}
+                    </div>
+                </div>
+
                 ${this._config.device_id ? html`
                     <div class="section-label">
                         <span>Sector order</span>
@@ -258,6 +276,30 @@ export class ToothbrushCardEditor extends LitElement {
             .sector-label {
                 font-size: 14px;
                 color: var(--primary-text-color);
+            }
+            .color-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .color-swatch {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                border: 2px solid var(--divider-color, #e0e0e0);
+                cursor: pointer;
+                padding: 0;
+                transition: transform 0.15s, border-color 0.15s;
+                box-sizing: border-box;
+            }
+            .color-swatch:hover {
+                transform: scale(1.15);
+            }
+            .color-swatch.selected {
+                border-color: var(--primary-text-color, #333);
+                border-width: 3px;
+                box-shadow: 0 0 0 2px var(--card-background-color, #fff),
+                            0 0 0 4px var(--primary-text-color, #333);
             }
         `;
     }

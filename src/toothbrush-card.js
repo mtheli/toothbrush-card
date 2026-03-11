@@ -11,6 +11,19 @@ const BRUSHING_DURATION = 120; // 2 minutes target
 export const QUADRANT_ZONES = ['lower_left', 'lower_right', 'upper_left', 'upper_right'];
 export const SEXTANT_ZONES = ['upper_right', 'upper_front', 'upper_left', 'lower_left', 'lower_front', 'lower_right'];
 
+export const ACCENT_COLORS = [
+    { name: 'Blue',         color: '#0085FF' },
+    { name: 'Light Blue',   color: '#AEF0FF' },
+    { name: 'Turquoise',    color: '#4CEAC8' },
+    { name: 'Light Green',  color: '#CBF68F' },
+    { name: 'Yellow',       color: '#FFDC00' },
+    { name: 'Orange',       color: '#FF782C' },
+    { name: 'Pink',         color: '#F825BB' },
+    { name: 'Purple',       color: '#7036CF' },
+    { name: 'Light Purple', color: '#D9C1FF' },
+    { name: 'White',        color: '#FFFFFF' },
+];
+
 export const ZONE_LABELS = {
     upper_right: 'Upper right', upper_front: 'Upper front',
     upper_left: 'Upper left',   lower_left: 'Lower left',
@@ -260,12 +273,14 @@ export class ToothbrushCard extends LitElement {
         const displayPressure = pressure.replace(/_/g, ' ');
         const btConnected = status !== 'unavailable' && status !== 'unknown';
         const btActive = active || status === 'charging';
+        const accentColor = config.accent_color || '#FFFFFF';
 
         return html`
-            <ha-card>
+            <ha-card style="--accent-color: ${accentColor}">
                 <!-- Header -->
                 <div class="card-header">
                     <div class="header-title">
+                        <div class="header-accent"></div>
                         <h2>${headerTitle}</h2>
                         ${headerSub ? html`<span class="header-sub">${headerSub}</span>` : ''}
                     </div>
