@@ -4,7 +4,7 @@ import { ToothSVG } from './toothbrush-svg.js';
 import { MODE_ICONS, MODE_LABELS } from './icons.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.3.0";
+export const CARD_VERSION = "0.4.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
