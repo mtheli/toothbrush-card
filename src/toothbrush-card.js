@@ -4,7 +4,7 @@ import { ToothSVG } from './toothbrush-svg.js';
 import { MODE_ICONS, MODE_LABELS } from './icons.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.4.0";
+export const CARD_VERSION = "0.5.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -45,6 +45,14 @@ export class ToothbrushCard extends LitElement {
 
     get hass() {
         return this._hass;
+    }
+
+    constructor() {
+        super();
+        this._highestSector = -1;
+        this._lastRawIndex = -1;
+        this._correctedIndex = -1;
+        this._wasActive = false;
     }
 
     connectedCallback() {
@@ -93,18 +101,57 @@ export class ToothbrushCard extends LitElement {
         window.dispatchEvent(new CustomEvent('location-changed', { bubbles: true, composed: true }));
     }
 
-    _getSectorData(sector, sectorOrder) {
-        const getActiveIndex = (input) => {
-            const match = String(input).match(/(\d+)/);
-            if (match) {
-                const idx = parseInt(match[1]) - 1;
-                return (idx >= 0 && idx < sectorOrder.length) ? idx : -1;
-            }
-            return -1;
-        };
+    /**
+     * Workaround for oralb_ble mapping bug: 6-sector brushes wrap back to
+     * sector 4 instead of reporting sectors 5/6. During active brushing
+     * sectors only move forward, so if we see a sector ≤ the highest
+     * already seen, we advance to the next one instead.
+     */
+    _correctSectorIndex(rawIndex, active, maxIndex) {
+        if (!this._wasActive && active) {
+            this._highestSector = -1;
+            this._lastRawIndex = -1;
+            this._correctedIndex = -1;
+        }
+        this._wasActive = active;
 
-        const activeIndex = getActiveIndex(sector);
+        if (!active || rawIndex === -1) {
+            this._highestSector = -1;
+            this._lastRawIndex = -1;
+            this._correctedIndex = -1;
+            return rawIndex;
+        }
 
+        // Same raw value as last render — return cached result
+        if (rawIndex === this._lastRawIndex) {
+            return this._correctedIndex;
+        }
+
+        this._lastRawIndex = rawIndex;
+
+        if (rawIndex > this._highestSector) {
+            this._highestSector = rawIndex;
+            this._correctedIndex = rawIndex;
+        } else {
+            // Sector went backwards or repeated — advance
+            const corrected = Math.min(this._highestSector + 1, maxIndex);
+            this._highestSector = corrected;
+            this._correctedIndex = corrected;
+        }
+
+        return this._correctedIndex;
+    }
+
+    _parseRawSectorIndex(sector) {
+        const match = String(sector).match(/(\d+)/);
+        if (match) {
+            const idx = parseInt(match[1]) - 1;
+            return idx >= 0 ? idx : -1;
+        }
+        return -1;
+    }
+
+    _getSectorData(sector, activeIndex, sectorOrder) {
         const sectorClassMaps = {};
         sectorOrder.forEach(s => { sectorClassMaps[s] = { done: false, brushing: false }; });
 
@@ -113,7 +160,7 @@ export class ToothbrushCard extends LitElement {
             return sectorClassMaps;
         }
 
-        if (activeIndex === -1) {
+        if (activeIndex === -1 || activeIndex >= sectorOrder.length) {
             return sectorClassMaps;
         }
 
@@ -128,13 +175,10 @@ export class ToothbrushCard extends LitElement {
         return sectorClassMaps;
     }
 
-    _getSectorLabel(sector, sectorOrder) {
+    _getSectorLabel(sector, activeIndex, sectorOrder) {
         if (sector === 'success') return 'Complete';
-
-        const match = String(sector).match(/(\d+)/);
-        if (match) {
-            const idx = parseInt(match[1]) - 1;
-            if (idx >= 0 && idx < sectorOrder.length) return ZONE_LABELS[sectorOrder[idx]] || '';
+        if (activeIndex >= 0 && activeIndex < sectorOrder.length) {
+            return ZONE_LABELS[sectorOrder[activeIndex]] || '';
         }
         return '';
     }
@@ -258,8 +302,11 @@ export class ToothbrushCard extends LitElement {
             ? config.sector_order
             : defaultOrder;
         const active = this._isActive(status);
-        const sectorClassData = this._getSectorData(sector, sectorOrder);
-        const sectorLabel = this._getSectorLabel(sector, sectorOrder);
+        const rawSectorIndex = this._parseRawSectorIndex(sector);
+        const correctedIndex = sector === 'success' ? -1
+            : this._correctSectorIndex(rawSectorIndex, active, sectorOrder.length - 1);
+        const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder);
+        const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
         const isSuccess = sector === 'success';
         const batteryColor = this._getBatteryChipColor(batteryLevel);
         const batteryIsCharging = status === 'charging';
