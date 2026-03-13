@@ -94,6 +94,14 @@ export class ToothbrushCardEditor extends LitElement {
         this._valueChanged('sector_order', order);
     }
 
+    _moveItem(index, direction) {
+        const target = index + direction;
+        const order = this._sectorOrder;
+        if (target < 0 || target >= order.length) return;
+        [order[index], order[target]] = [order[target], order[index]];
+        this._valueChanged('sector_order', order);
+    }
+
     _dragEnd() {
         this._dragIndex = -1;
         this._overIndex = -1;
@@ -182,6 +190,12 @@ export class ToothbrushCardEditor extends LitElement {
                                 <span class="grip">☰</span>
                                 <span class="sector-num">${i + 1}</span>
                                 <span class="sector-label">${ZONE_LABELS[zone] || zone}</span>
+                                <span class="move-buttons">
+                                    <button class="move-btn" ?disabled=${i === 0}
+                                            @click=${(ev) => { ev.stopPropagation(); this._moveItem(i, -1); }}>▲</button>
+                                    <button class="move-btn" ?disabled=${i === order.length - 1}
+                                            @click=${(ev) => { ev.stopPropagation(); this._moveItem(i, 1); }}>▼</button>
+                                </span>
                             </div>
                         `)}
                     </div>
@@ -276,6 +290,33 @@ export class ToothbrushCardEditor extends LitElement {
             .sector-label {
                 font-size: 14px;
                 color: var(--primary-text-color);
+                flex: 1;
+            }
+            .move-buttons {
+                display: flex;
+                gap: 4px;
+                margin-left: auto;
+            }
+            .move-btn {
+                background: none;
+                border: 1px solid var(--divider-color, #e0e0e0);
+                border-radius: 4px;
+                width: 28px;
+                height: 24px;
+                cursor: pointer;
+                color: var(--primary-text-color);
+                font-size: 10px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .move-btn:hover:not([disabled]) {
+                background: var(--secondary-background-color, #f5f5f5);
+            }
+            .move-btn[disabled] {
+                opacity: 0.25;
+                cursor: default;
             }
             .color-grid {
                 display: flex;

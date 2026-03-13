@@ -324,6 +324,18 @@ ha-card {
 }
 
 @container (max-width: 350px) {
+    .chip {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        padding: 8px 4px;
+        row-gap: 0;
+    }
+    .chip-icon, .pressure-bars {
+        grid-row: auto;
+    }
+    .chip-label, .chip-value {
+        display: none;
+    }
     .tooth-wrap {
         width: 180px;
         height: 180px;
