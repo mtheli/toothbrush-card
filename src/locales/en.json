@@ -1,0 +1,51 @@
+{
+  "chip_battery": "Battery",
+  "chip_pressure": "Pressure",
+  "chip_mode": "Mode",
+
+  "session": "Session",
+  "complete": "Complete",
+
+  "done_title": "Brushing complete!",
+  "done_sextants": "All 6 sextants finished",
+  "done_quadrants": "All 4 quadrants finished",
+
+  "pressure_low": "low",
+  "pressure_normal": "normal",
+  "pressure_high": "high",
+
+  "status_idle": "Idle",
+  "status_running": "Running",
+  "status_charging": "Charging",
+  "status_selection_menu": "Selection Menu",
+  "status_unavailable": "Unavailable",
+  "status_unknown": "Unknown",
+
+  "zone_upper_right": "Upper right",
+  "zone_upper_front": "Upper front",
+  "zone_upper_left": "Upper left",
+  "zone_lower_left": "Lower left",
+  "zone_lower_front": "Lower front",
+  "zone_lower_right": "Lower right",
+
+  "mode_daily_clean": "Daily Clean",
+  "mode_deep_clean": "Deep Clean",
+  "mode_gum_care": "Gum Care",
+  "mode_intense": "Intense",
+  "mode_massage": "Massage",
+  "mode_off": "Off",
+  "mode_sensitive": "Sensitive",
+  "mode_settings": "Settings",
+  "mode_super_sensitive": "Super Sensitive",
+  "mode_tongue_cleaning": "Tongue Clean",
+  "mode_turbo": "Turbo",
+  "mode_whiten": "Whiten",
+  "mode_whitening": "Whitening",
+  "mode_unknown": "Unknown",
+
+  "config_title": "Title (Optional)",
+  "config_subtitle": "Show device name as subtitle",
+  "config_accent_color": "Accent color",
+  "config_sector_order": "Sector order",
+  "config_select_device": "Please enter the device id"
+}

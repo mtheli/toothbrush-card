@@ -1,10 +1,11 @@
 import { LitElement, html, css, unsafeCSS } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ToothSVG } from './toothbrush-svg.js';
-import { MODE_ICONS, MODE_LABELS } from './icons.js';
+import { MODE_ICONS } from './icons.js';
+import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.5.0";
+export const CARD_VERSION = "0.6.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -24,11 +25,6 @@ export const ACCENT_COLORS = [
     { name: 'White',        color: '#FFFFFF' },
 ];
 
-export const ZONE_LABELS = {
-    upper_right: 'Upper right', upper_front: 'Upper front',
-    upper_left: 'Upper left',   lower_left: 'Lower left',
-    lower_front: 'Lower front', lower_right: 'Lower right',
-};
 
 export class ToothbrushCard extends LitElement {
 
@@ -176,9 +172,9 @@ export class ToothbrushCard extends LitElement {
     }
 
     _getSectorLabel(sector, activeIndex, sectorOrder) {
-        if (sector === 'success') return 'Complete';
+        if (sector === 'success') return t(this._hass, 'complete');
         if (activeIndex >= 0 && activeIndex < sectorOrder.length) {
-            return ZONE_LABELS[sectorOrder[activeIndex]] || '';
+            return t(this._hass, 'zone_' + sectorOrder[activeIndex]);
         }
         return '';
     }
@@ -316,8 +312,14 @@ export class ToothbrushCard extends LitElement {
         const modeIcon = this._getModeIcon(mode);
         const modeLabel = this._getModeLabel(mode);
         const progressPct = Math.min(100, Math.round(duration / BRUSHING_DURATION * 100));
-        const displayStatus = status.replace(/_/g, ' ');
-        const displayPressure = pressure.replace(/_/g, ' ');
+        const statusKey = 'status_' + status;
+        const displayStatus = t(hass, statusKey) !== statusKey
+            ? t(hass, statusKey)
+            : status.replace(/_/g, ' ');
+        const pressureKey = 'pressure_' + String(pressure).toLowerCase();
+        const displayPressure = t(hass, pressureKey) !== pressureKey
+            ? t(hass, pressureKey)
+            : pressure.replace(/_/g, ' ');
         const btConnected = status !== 'unavailable' && status !== 'unknown';
         const btActive = active || status === 'charging';
         const accentColor = config.accent_color || '#FFFFFF';
@@ -352,7 +354,7 @@ export class ToothbrushCard extends LitElement {
                         <div class="chip-icon ${batteryColor}">
                             <ha-icon icon="${batteryIconName}"></ha-icon>
                         </div>
-                        <span class="chip-label">Battery</span>
+                        <span class="chip-label">${t(hass, 'chip_battery')}</span>
                         <div class="chip-value ${batteryColor}">${batteryLevel}%</div>
                     </div>
 
@@ -361,7 +363,7 @@ export class ToothbrushCard extends LitElement {
                             <div class="pb"></div><div class="pb"></div>
                             <div class="pb"></div><div class="pb"></div>
                         </div>
-                        <span class="chip-label">Pressure</span>
+                        <span class="chip-label">${t(hass, 'chip_pressure')}</span>
                         <div class="chip-value ${pressureColor}">${displayPressure}</div>
                     </div>
 
@@ -369,7 +371,7 @@ export class ToothbrushCard extends LitElement {
                         <div class="chip-icon blue">
                             <ha-icon icon="${modeIcon}"></ha-icon>
                         </div>
-                        <span class="chip-label">Mode</span>
+                        <span class="chip-label">${t(hass, 'chip_mode')}</span>
                         <div class="chip-value blue" style="font-size:12px;">${modeLabel}</div>
                     </div>
                 </div>
@@ -379,7 +381,7 @@ export class ToothbrushCard extends LitElement {
                     <div class="tooth-wrap">
                         ${ToothSVG(sectorClassData, numSectors)}
                         <div class="center-info">
-                            <span class="session-label">Session</span>
+                            <span class="session-label">${t(hass, 'session')}</span>
                             <div class="timer-display ${active ? 'active' : ''}"
                                  @click="${() => this._showMoreInfo(entityIds.duration)}">
                                 ${this._formatTime(duration)}
@@ -405,8 +407,8 @@ export class ToothbrushCard extends LitElement {
 
                 <!-- Done badge -->
                 <div class="done-badge ${isSuccess ? 'show' : ''}">
-                    <p>&#10003; Brushing complete!</p>
-                    <span>All ${numSectors === 6 ? '6 sextants' : '4 quadrants'} finished</span>
+                    <p>&#10003; ${t(hass, 'done_title')}</p>
+                    <span>${t(hass, numSectors === 6 ? 'done_sextants' : 'done_quadrants')}</span>
                 </div>
             </ha-card>
         `;
@@ -436,7 +438,9 @@ export class ToothbrushCard extends LitElement {
 
     _getModeLabel(mode) {
         const cleanMode = String(mode).toLowerCase().replace(/ /g, '_');
-        return MODE_LABELS[cleanMode] || mode.replace(/_/g, ' ');
+        const key = 'mode_' + cleanMode;
+        const translated = t(this._hass, key);
+        return translated !== key ? translated : mode.replace(/_/g, ' ');
     }
 
     _formatTime(seconds) {

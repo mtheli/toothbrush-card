@@ -1,0 +1,51 @@
+{
+  "chip_battery": "Akku",
+  "chip_pressure": "Druck",
+  "chip_mode": "Modus",
+
+  "session": "Sitzung",
+  "complete": "Fertig",
+
+  "done_title": "Putzen abgeschlossen!",
+  "done_sextants": "Alle 6 Sextanten fertig",
+  "done_quadrants": "Alle 4 Quadranten fertig",
+
+  "pressure_low": "Niedrig",
+  "pressure_normal": "Normal",
+  "pressure_high": "Hoch",
+
+  "status_idle": "Bereit",
+  "status_running": "Putzen",
+  "status_charging": "Laden",
+  "status_selection_menu": "Auswahl",
+  "status_unavailable": "Nicht verfügbar",
+  "status_unknown": "Unbekannt",
+
+  "zone_upper_right": "Oben rechts",
+  "zone_upper_front": "Oben vorne",
+  "zone_upper_left": "Oben links",
+  "zone_lower_left": "Unten links",
+  "zone_lower_front": "Unten vorne",
+  "zone_lower_right": "Unten rechts",
+
+  "mode_daily_clean": "Tägliche Reinigung",
+  "mode_deep_clean": "Tiefenreinigung",
+  "mode_gum_care": "Zahnfleischschutz",
+  "mode_intense": "Intensiv",
+  "mode_massage": "Massage",
+  "mode_off": "Aus",
+  "mode_sensitive": "Sensitiv",
+  "mode_settings": "Einstellungen",
+  "mode_super_sensitive": "Extrasensitiv",
+  "mode_tongue_cleaning": "Zungenreinigung",
+  "mode_turbo": "Turbo",
+  "mode_whiten": "Aufhellen",
+  "mode_whitening": "Aufhellung",
+  "mode_unknown": "Unbekannt",
+
+  "config_title": "Titel (Optional)",
+  "config_subtitle": "Gerätename als Untertitel anzeigen",
+  "config_accent_color": "Akzentfarbe",
+  "config_sector_order": "Sektorreihenfolge",
+  "config_select_device": "Bitte Geräte-ID eingeben"
+}

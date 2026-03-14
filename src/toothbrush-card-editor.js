@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
-import { QUADRANT_ZONES, SEXTANT_ZONES, ZONE_LABELS, ACCENT_COLORS } from './toothbrush-card.js';
+import { QUADRANT_ZONES, SEXTANT_ZONES, ACCENT_COLORS } from './toothbrush-card.js';
+import { t } from './translations.js';
 
 export class ToothbrushCardEditor extends LitElement {
 
@@ -141,7 +142,7 @@ export class ToothbrushCardEditor extends LitElement {
 
                 <div class="field">
                     <ha-textfield
-                        .label=${'Title (Optional)'}
+                        .label=${t(this.hass, 'config_title')}
                         .value=${this._config.title || ''}
                         @input=${(ev) => this._valueChanged('title', ev.target.value)}
                     ></ha-textfield>
@@ -152,12 +153,12 @@ export class ToothbrushCardEditor extends LitElement {
                         .checked=${this._config.show_subtitle !== false}
                         @change=${(ev) => this._valueChanged('show_subtitle', ev.target.checked)}
                     ></ha-switch>
-                    <span>Show device name as subtitle</span>
+                    <span>${t(this.hass, 'config_subtitle')}</span>
                 </div>
 
                 <div class="field">
                     <div class="section-label">
-                        <span>Accent color</span>
+                        <span>${t(this.hass, 'config_accent_color')}</span>
                         ${this._config.accent_color ? html`
                             <button class="reset-btn" @click=${() => this._valueChanged('accent_color', '')}>Reset</button>
                         ` : ''}
@@ -175,7 +176,7 @@ export class ToothbrushCardEditor extends LitElement {
 
                 ${this._config.device_id ? html`
                     <div class="section-label">
-                        <span>Sector order</span>
+                        <span>${t(this.hass, 'config_sector_order')}</span>
                         ${isCustom ? html`
                             <button class="reset-btn" @click=${this._resetOrder}>Reset</button>
                         ` : ''}
@@ -189,7 +190,7 @@ export class ToothbrushCardEditor extends LitElement {
                                  @drop=${(ev) => this._drop(ev, i)}>
                                 <span class="grip">☰</span>
                                 <span class="sector-num">${i + 1}</span>
-                                <span class="sector-label">${ZONE_LABELS[zone] || zone}</span>
+                                <span class="sector-label">${t(this.hass, 'zone_' + zone)}</span>
                                 <span class="move-buttons">
                                     <button class="move-btn" ?disabled=${i === 0}
                                             @click=${(ev) => { ev.stopPropagation(); this._moveItem(i, -1); }}>▲</button>
