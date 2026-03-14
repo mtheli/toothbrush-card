@@ -811,29 +811,32 @@ const $3cb0a15594fd43d6$export$1e083828221390e5 = {
     "whitening": "mdi:shimmer",
     "default": "mdi:brush-variant"
 };
-const $3cb0a15594fd43d6$export$21100cbd977279ca = {
-    "daily_clean": "Daily Clean",
-    "deep_clean": "Deep Clean",
-    "gum_care": "Gum Care",
-    "intense": "Intense",
-    "massage": "Massage",
-    "off": "Off",
-    "sensitive": "Sensitive",
-    "settings": "Settings",
-    "super_sensitive": "Super Sensitive",
-    "tongue_cleaning": "Tongue Clean",
-    "turbo": "Turbo",
-    "whiten": "Whiten",
-    "whitening": "Whitening",
-    "unknown": "Unknown"
+
+
+var $76eee68ef692a3c3$exports = {};
+$76eee68ef692a3c3$exports = JSON.parse("{\"chip_battery\":\"Battery\",\"chip_pressure\":\"Pressure\",\"chip_mode\":\"Mode\",\"session\":\"Session\",\"complete\":\"Complete\",\"done_title\":\"Brushing complete!\",\"done_sextants\":\"All 6 sextants finished\",\"done_quadrants\":\"All 4 quadrants finished\",\"pressure_low\":\"low\",\"pressure_normal\":\"normal\",\"pressure_high\":\"high\",\"status_idle\":\"Idle\",\"status_running\":\"Running\",\"status_charging\":\"Charging\",\"status_selection_menu\":\"Selection Menu\",\"status_unavailable\":\"Unavailable\",\"status_unknown\":\"Unknown\",\"zone_upper_right\":\"Upper right\",\"zone_upper_front\":\"Upper front\",\"zone_upper_left\":\"Upper left\",\"zone_lower_left\":\"Lower left\",\"zone_lower_front\":\"Lower front\",\"zone_lower_right\":\"Lower right\",\"mode_daily_clean\":\"Daily Clean\",\"mode_deep_clean\":\"Deep Clean\",\"mode_gum_care\":\"Gum Care\",\"mode_intense\":\"Intense\",\"mode_massage\":\"Massage\",\"mode_off\":\"Off\",\"mode_sensitive\":\"Sensitive\",\"mode_settings\":\"Settings\",\"mode_super_sensitive\":\"Super Sensitive\",\"mode_tongue_cleaning\":\"Tongue Clean\",\"mode_turbo\":\"Turbo\",\"mode_whiten\":\"Whiten\",\"mode_whitening\":\"Whitening\",\"mode_unknown\":\"Unknown\",\"config_title\":\"Title (Optional)\",\"config_subtitle\":\"Show device name as subtitle\",\"config_accent_color\":\"Accent color\",\"config_sector_order\":\"Sector order\",\"config_select_device\":\"Please enter the device id\"}");
+
+
+var $238d401f28c1db46$exports = {};
+$238d401f28c1db46$exports = JSON.parse('{"chip_battery":"Akku","chip_pressure":"Druck","chip_mode":"Modus","session":"Sitzung","complete":"Fertig","done_title":"Putzen abgeschlossen!","done_sextants":"Alle 6 Sextanten fertig","done_quadrants":"Alle 4 Quadranten fertig","pressure_low":"Niedrig","pressure_normal":"Normal","pressure_high":"Hoch","status_idle":"Bereit","status_running":"Putzen","status_charging":"Laden","status_selection_menu":"Auswahl","status_unavailable":"Nicht verf\xfcgbar","status_unknown":"Unbekannt","zone_upper_right":"Oben rechts","zone_upper_front":"Oben vorne","zone_upper_left":"Oben links","zone_lower_left":"Unten links","zone_lower_front":"Unten vorne","zone_lower_right":"Unten rechts","mode_daily_clean":"T\xe4gliche Reinigung","mode_deep_clean":"Tiefenreinigung","mode_gum_care":"Zahnfleischschutz","mode_intense":"Intensiv","mode_massage":"Massage","mode_off":"Aus","mode_sensitive":"Sensitiv","mode_settings":"Einstellungen","mode_super_sensitive":"Extrasensitiv","mode_tongue_cleaning":"Zungenreinigung","mode_turbo":"Turbo","mode_whiten":"Aufhellen","mode_whitening":"Aufhellung","mode_unknown":"Unbekannt","config_title":"Titel (Optional)","config_subtitle":"Ger\xe4tename als Untertitel anzeigen","config_accent_color":"Akzentfarbe","config_sector_order":"Sektorreihenfolge","config_select_device":"Bitte Ger\xe4te-ID eingeben"}');
+
+
+const $d8078e452c66bdbe$var$LOCALES = {
+    en: (/*@__PURE__*/$parcel$interopDefault($76eee68ef692a3c3$exports)),
+    de: (/*@__PURE__*/$parcel$interopDefault($238d401f28c1db46$exports))
 };
+function $d8078e452c66bdbe$export$625550452a3fa3ec(hass, key) {
+    const lang = hass?.language || 'en';
+    const locale = $d8078e452c66bdbe$var$LOCALES[lang] || $d8078e452c66bdbe$var$LOCALES.en;
+    return locale[key] || $d8078e452c66bdbe$var$LOCALES.en[key] || key;
+}
 
 
 var $7bfe0f8b5ad5b7ee$exports = {};
 $7bfe0f8b5ad5b7ee$exports = "ha-card {\n  container-type: inline-size;\n}\n\n.card-header {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n  justify-content: space-between;\n  align-items: center;\n  padding: 16px 18px 12px;\n  display: flex;\n  position: relative;\n  overflow: hidden;\n}\n\n.card-header:before {\n  content: \"\";\n  background: var(--accent-color, transparent);\n  opacity: .12;\n  pointer-events: none;\n  transition: background .5s;\n  position: absolute;\n  inset: 0;\n}\n\n.header-accent {\n  background: var(--accent-color);\n  border-radius: 3px;\n  flex-shrink: 0;\n  width: 4px;\n  height: 28px;\n  transition: background .4s;\n}\n\n.header-title {\n  align-items: center;\n  gap: 8px;\n  display: flex;\n}\n\n.header-title h2 {\n  color: var(--primary-text-color);\n  letter-spacing: -.01em;\n  margin: 0;\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.header-sub {\n  color: var(--secondary-text-color);\n  font-size: 12px;\n  font-weight: 400;\n}\n\n.header-icons {\n  align-items: center;\n  gap: 10px;\n  display: flex;\n}\n\n.header-icons svg {\n  width: 16px;\n  height: 16px;\n}\n\n.bt-icon {\n  color: var(--secondary-text-color);\n  opacity: .4;\n  transition: color .4s, opacity .4s;\n}\n\n.bt-icon.bt-active {\n  color: #0082fc;\n  opacity: 1;\n}\n\n.bt-icon.bt-off {\n  color: var(--disabled-text-color, #9ca3af);\n  opacity: .3;\n}\n\n.more-info-btn {\n  cursor: pointer;\n  opacity: .5;\n  transition: opacity .2s;\n  color: var(--secondary-text-color) !important;\n}\n\n.more-info-btn:hover {\n  opacity: 1;\n}\n\n.chips-row {\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n  padding: 12px 14px;\n  display: grid;\n}\n\n.chip {\n  background: var(--card-background-color, #f9fafb);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  cursor: pointer;\n  border-radius: 10px;\n  grid-template-rows: auto auto;\n  grid-template-columns: auto 1fr;\n  align-items: center;\n  gap: 1px 8px;\n  padding: 8px 10px;\n  display: grid;\n}\n\n.chip-icon {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.chip-icon ha-icon {\n  --mdc-icon-size: 24px;\n}\n\n.chip-icon.green {\n  color: #16a34a;\n}\n\n.chip-icon.blue {\n  color: #2563eb;\n}\n\n.chip-icon.amber {\n  color: #d97706;\n}\n\n.chip-icon.red {\n  color: #dc2626;\n}\n\n.chip-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .06em;\n  font-size: 9px;\n  font-weight: 600;\n}\n\n.chip-value {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1;\n  overflow: hidden;\n}\n\n.chip-value.green {\n  color: #16a34a;\n}\n\n.chip-value.blue {\n  color: #2563eb;\n}\n\n.chip-value.amber {\n  color: #d97706;\n}\n\n.chip-value.red {\n  color: #dc2626;\n}\n\n.pressure-bars {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: flex-end;\n  gap: 2px;\n  display: flex;\n}\n\n.pb {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  width: 4px;\n  transition: background .3s;\n}\n\n.pb:first-child {\n  height: 5px;\n}\n\n.pb:nth-child(2) {\n  height: 9px;\n}\n\n.pb:nth-child(3) {\n  height: 13px;\n}\n\n.pb:nth-child(4) {\n  height: 18px;\n}\n\n.p-low .pb:first-child {\n  background: #f59e0b;\n}\n\n.p-normal .pb:first-child, .p-normal .pb:nth-child(2) {\n  background: #22c55e;\n}\n\n.p-high .pb {\n  background: #ef4444;\n}\n\n.visual-area {\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 14px 10px;\n  display: flex;\n}\n\n.tooth-wrap {\n  justify-content: center;\n  align-items: center;\n  width: 210px;\n  height: 210px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-svg {\n  width: 100%;\n  height: 100%;\n}\n\n.zone {\n  fill: var(--divider-color, #f3f4f6);\n  transition: fill .3s;\n}\n\n.brushing .zone {\n  animation: .8s ease-in-out infinite alternate brush-zone;\n}\n\n@keyframes brush-zone {\n  from {\n    fill: #bfdbfe;\n  }\n\n  to {\n    fill: #93c5fd;\n  }\n}\n\n.done .zone {\n  fill: #bbf7d0 !important;\n}\n\n.center-info {\n  text-align: center;\n  pointer-events: none;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.session-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .1em;\n  margin-bottom: 2px;\n  font-size: 9px;\n  font-weight: 600;\n  display: block;\n}\n\n.timer-display {\n  color: var(--primary-text-color);\n  letter-spacing: -1px;\n  font-variant-numeric: tabular-nums;\n  font-size: 30px;\n  font-weight: 400;\n  line-height: 1;\n  transition: color .4s;\n}\n\n.timer-display.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-text-wrap {\n  text-align: center;\n  cursor: pointer;\n  margin: 2px 0 10px;\n}\n\n.status-main {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 14px;\n  font-weight: 600;\n  transition: color .4s;\n}\n\n.status-main.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-sub {\n  color: var(--secondary-text-color);\n  text-transform: capitalize;\n  margin-top: 1px;\n  font-size: 11px;\n}\n\n.progress-wrap {\n  opacity: 0;\n  width: 100%;\n  height: 0;\n  padding: 0 14px;\n  transition: opacity .4s, height .4s;\n  overflow: hidden;\n}\n\n.progress-wrap.visible {\n  opacity: 1;\n  height: auto;\n  padding: 0 14px 10px;\n}\n\n.progress-track {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  height: 4px;\n  overflow: hidden;\n}\n\n.progress-fill {\n  background: linear-gradient(90deg, #3b82f6, #22c55e);\n  border-radius: 2px;\n  height: 100%;\n  transition: width .5s;\n}\n\n.progress-labels {\n  color: var(--secondary-text-color);\n  justify-content: space-between;\n  margin-top: 4px;\n  font-size: 10px;\n  display: flex;\n}\n\n.done-badge {\n  background: var(--card-background-color, #f0fdf4);\n  text-align: center;\n  border-top: 1px solid #bbf7d0;\n  padding: 10px 14px;\n  display: none;\n}\n\n.done-badge.show {\n  animation: .4s cubic-bezier(.34, 1.56, .64, 1) pop-in;\n  display: block;\n}\n\n@keyframes pop-in {\n  from {\n    opacity: 0;\n    transform: scaleY(.7);\n  }\n\n  to {\n    opacity: 1;\n    transform: scaleY(1);\n  }\n}\n\n.done-badge p {\n  color: #15803d;\n  margin: 0;\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.done-badge span {\n  color: #16a34a;\n  font-size: 11px;\n}\n\n@container (width <= 280px) {\n  .chips-row {\n    grid-template-columns: 1fr;\n    gap: 6px;\n  }\n\n  .chip {\n    column-gap: 6px;\n  }\n\n  .tooth-wrap {\n    width: 160px;\n    height: 160px;\n  }\n\n  .timer-display {\n    font-size: 24px;\n  }\n}\n\n@container (width <= 350px) {\n  .chip {\n    grid-template-columns: 1fr;\n    justify-items: center;\n    row-gap: 0;\n    padding: 8px 4px;\n  }\n\n  .chip-icon, .pressure-bars {\n    grid-row: auto;\n  }\n\n  .chip-label, .chip-value {\n    display: none;\n  }\n\n  .tooth-wrap {\n    width: 180px;\n    height: 180px;\n  }\n\n  .timer-display {\n    font-size: 26px;\n  }\n}\n";
 
 
-const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.5.0";
+const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.6.0";
 const $930552a63f9e9686$var$BRUSHING_DURATION = 120; // 2 minutes target
 const $930552a63f9e9686$export$5055f2a665f9cd1e = [
     'lower_left',
@@ -891,14 +894,6 @@ const $930552a63f9e9686$export$bde3a8f4155c4c5 = [
         color: '#FFFFFF'
     }
 ];
-const $930552a63f9e9686$export$e237830bda259402 = {
-    upper_right: 'Upper right',
-    upper_front: 'Upper front',
-    upper_left: 'Upper left',
-    lower_left: 'Lower left',
-    lower_front: 'Lower front',
-    lower_right: 'Lower right'
-};
 class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$export$3f2f9f5909897157) {
     set hass(hass) {
         this._hass = hass;
@@ -1016,8 +1011,8 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         return sectorClassMaps;
     }
     _getSectorLabel(sector, activeIndex, sectorOrder) {
-        if (sector === 'success') return 'Complete';
-        if (activeIndex >= 0 && activeIndex < sectorOrder.length) return $930552a63f9e9686$export$e237830bda259402[sectorOrder[activeIndex]] || '';
+        if (sector === 'success') return (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this._hass, 'complete');
+        if (activeIndex >= 0 && activeIndex < sectorOrder.length) return (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this._hass, 'zone_' + sectorOrder[activeIndex]);
         return '';
     }
     _getBatteryChipColor(level) {
@@ -1119,8 +1114,10 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const modeIcon = this._getModeIcon(mode);
         const modeLabel = this._getModeLabel(mode);
         const progressPct = Math.min(100, Math.round(duration / $930552a63f9e9686$var$BRUSHING_DURATION * 100));
-        const displayStatus = status.replace(/_/g, ' ');
-        const displayPressure = pressure.replace(/_/g, ' ');
+        const statusKey = 'status_' + status;
+        const displayStatus = (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, statusKey) !== statusKey ? (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, statusKey) : status.replace(/_/g, ' ');
+        const pressureKey = 'pressure_' + String(pressure).toLowerCase();
+        const displayPressure = (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, pressureKey) !== pressureKey ? (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, pressureKey) : pressure.replace(/_/g, ' ');
         const btConnected = status !== 'unavailable' && status !== 'unknown';
         const btActive = active || status === 'charging';
         const accentColor = config.accent_color || '#FFFFFF';
@@ -1154,7 +1151,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                         <div class="chip-icon ${batteryColor}">
                             <ha-icon icon="${batteryIconName}"></ha-icon>
                         </div>
-                        <span class="chip-label">Battery</span>
+                        <span class="chip-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'chip_battery')}</span>
                         <div class="chip-value ${batteryColor}">${batteryLevel}%</div>
                     </div>
 
@@ -1163,7 +1160,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                             <div class="pb"></div><div class="pb"></div>
                             <div class="pb"></div><div class="pb"></div>
                         </div>
-                        <span class="chip-label">Pressure</span>
+                        <span class="chip-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'chip_pressure')}</span>
                         <div class="chip-value ${pressureColor}">${displayPressure}</div>
                     </div>
 
@@ -1171,7 +1168,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                         <div class="chip-icon blue">
                             <ha-icon icon="${modeIcon}"></ha-icon>
                         </div>
-                        <span class="chip-label">Mode</span>
+                        <span class="chip-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'chip_mode')}</span>
                         <div class="chip-value blue" style="font-size:12px;">${modeLabel}</div>
                     </div>
                 </div>
@@ -1181,7 +1178,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                     <div class="tooth-wrap">
                         ${(0, $84db147239ed44e7$export$d760b013da4dfa06)(sectorClassData, numSectors)}
                         <div class="center-info">
-                            <span class="session-label">Session</span>
+                            <span class="session-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'session')}</span>
                             <div class="timer-display ${active ? 'active' : ''}"
                                  @click="${()=>this._showMoreInfo(entityIds.duration)}">
                                 ${this._formatTime(duration)}
@@ -1207,8 +1204,8 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
 
                 <!-- Done badge -->
                 <div class="done-badge ${isSuccess ? 'show' : ''}">
-                    <p>&#10003; Brushing complete!</p>
-                    <span>All ${numSectors === 6 ? '6 sextants' : '4 quadrants'} finished</span>
+                    <p>&#10003; ${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'done_title')}</p>
+                    <span>${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, numSectors === 6 ? 'done_sextants' : 'done_quadrants')}</span>
                 </div>
             </ha-card>
         `;
@@ -1233,7 +1230,9 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
     }
     _getModeLabel(mode) {
         const cleanMode = String(mode).toLowerCase().replace(/ /g, '_');
-        return (0, $3cb0a15594fd43d6$export$21100cbd977279ca)[cleanMode] || mode.replace(/_/g, ' ');
+        const key = 'mode_' + cleanMode;
+        const translated = (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this._hass, key);
+        return translated !== key ? translated : mode.replace(/_/g, ' ');
     }
     _formatTime(seconds) {
         const secs = parseInt(seconds);
@@ -1255,6 +1254,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         };
     }
 }
+
 
 
 
@@ -1400,7 +1400,7 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
 
                 <div class="field">
                     <ha-textfield
-                        .label=${'Title (Optional)'}
+                        .label=${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_title')}
                         .value=${this._config.title || ''}
                         @input=${(ev)=>this._valueChanged('title', ev.target.value)}
                     ></ha-textfield>
@@ -1411,12 +1411,12 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
                         .checked=${this._config.show_subtitle !== false}
                         @change=${(ev)=>this._valueChanged('show_subtitle', ev.target.checked)}
                     ></ha-switch>
-                    <span>Show device name as subtitle</span>
+                    <span>${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_subtitle')}</span>
                 </div>
 
                 <div class="field">
                     <div class="section-label">
-                        <span>Accent color</span>
+                        <span>${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_accent_color')}</span>
                         ${this._config.accent_color ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                             <button class="reset-btn" @click=${()=>this._valueChanged('accent_color', '')}>Reset</button>
                         ` : ''}
@@ -1434,7 +1434,7 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
 
                 ${this._config.device_id ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                     <div class="section-label">
-                        <span>Sector order</span>
+                        <span>${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_sector_order')}</span>
                         ${isCustom ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                             <button class="reset-btn" @click=${this._resetOrder}>Reset</button>
                         ` : ''}
@@ -1448,7 +1448,7 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
                                  @drop=${(ev)=>this._drop(ev, i)}>
                                 <span class="grip">☰</span>
                                 <span class="sector-num">${i + 1}</span>
-                                <span class="sector-label">${(0, $930552a63f9e9686$export$e237830bda259402)[zone] || zone}</span>
+                                <span class="sector-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'zone_' + zone)}</span>
                                 <span class="move-buttons">
                                     <button class="move-btn" ?disabled=${i === 0}
                                             @click=${(ev)=>{

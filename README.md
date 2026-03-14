@@ -21,6 +21,7 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 - Configurable title, subtitle, and accent color (10 official Oral-B presets)
 - Configurable sector order with drag & drop and up/down buttons
 - Responsive layout with container queries (icon-only chips on narrow cards)
+- Multi-language support (auto-detects Home Assistant language)
 - Light and dark mode support via HA CSS variables
 
 ## Supported Data Points
@@ -72,6 +73,15 @@ title: My Toothbrush
 show_subtitle: true
 accent_color: "#0085FF"
 ```
+
+## Supported Languages
+
+| Language | Code |
+|----------|------|
+| English  | en   |
+| Deutsch  | de   |
+
+The card automatically detects the language configured in your Home Assistant instance. If your language is not yet supported, it falls back to English. Contributions for additional languages are welcome — just add a new JSON file in `src/locales/`.
 
 ## Known Issues
 
