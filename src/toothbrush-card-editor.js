@@ -127,17 +127,13 @@ export class ToothbrushCardEditor extends LitElement {
         return html`
             <div class="editor">
                 <div class="field">
-                    <ha-device-picker
+                    <ha-selector
                         .hass=${this.hass}
+                        .selector=${{ device: { filter: { integration: 'oralb' } } }}
                         .value=${this._config.device_id || ''}
-                        .includeDeviceClasses=${undefined}
-                        .includeDomains=${undefined}
-                        .deviceFilter=${(device) => {
-                            const entries = Object.values(this.hass.entities);
-                            return entries.some(e => e.device_id === device.id && e.platform === 'oralb');
-                        }}
+                        .label=${t(this.hass, 'config_device') || 'Device'}
                         @value-changed=${this._deviceChanged}
-                    ></ha-device-picker>
+                    ></ha-selector>
                 </div>
 
                 <div class="field">
