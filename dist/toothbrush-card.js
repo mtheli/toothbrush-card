@@ -814,11 +814,11 @@ const $3cb0a15594fd43d6$export$1e083828221390e5 = {
 
 
 var $76eee68ef692a3c3$exports = {};
-$76eee68ef692a3c3$exports = JSON.parse("{\"chip_battery\":\"Battery\",\"chip_pressure\":\"Pressure\",\"chip_mode\":\"Mode\",\"session\":\"Session\",\"complete\":\"Complete\",\"done_title\":\"Brushing complete!\",\"done_sextants\":\"All 6 sextants finished\",\"done_quadrants\":\"All 4 quadrants finished\",\"pressure_low\":\"low\",\"pressure_normal\":\"normal\",\"pressure_high\":\"high\",\"status_idle\":\"Idle\",\"status_running\":\"Running\",\"status_charging\":\"Charging\",\"status_selection_menu\":\"Selection Menu\",\"status_unavailable\":\"Unavailable\",\"status_unknown\":\"Unknown\",\"zone_upper_right\":\"Upper right\",\"zone_upper_front\":\"Upper front\",\"zone_upper_left\":\"Upper left\",\"zone_lower_left\":\"Lower left\",\"zone_lower_front\":\"Lower front\",\"zone_lower_right\":\"Lower right\",\"mode_daily_clean\":\"Daily Clean\",\"mode_deep_clean\":\"Deep Clean\",\"mode_gum_care\":\"Gum Care\",\"mode_intense\":\"Intense\",\"mode_massage\":\"Massage\",\"mode_off\":\"Off\",\"mode_sensitive\":\"Sensitive\",\"mode_settings\":\"Settings\",\"mode_super_sensitive\":\"Super Sensitive\",\"mode_tongue_cleaning\":\"Tongue Clean\",\"mode_turbo\":\"Turbo\",\"mode_whiten\":\"Whiten\",\"mode_whitening\":\"Whitening\",\"mode_unknown\":\"Unknown\",\"config_title\":\"Title (Optional)\",\"config_subtitle\":\"Show device name as subtitle\",\"config_accent_color\":\"Accent color\",\"config_sector_order\":\"Sector order\",\"config_select_device\":\"Please enter the device id\"}");
+$76eee68ef692a3c3$exports = JSON.parse("{\"chip_battery\":\"Battery\",\"chip_pressure\":\"Pressure\",\"chip_mode\":\"Mode\",\"session\":\"Session\",\"complete\":\"Complete\",\"done_title\":\"Brushing complete!\",\"done_sextants\":\"All 6 sextants finished\",\"done_quadrants\":\"All 4 quadrants finished\",\"pressure_low\":\"low\",\"pressure_normal\":\"normal\",\"pressure_high\":\"high\",\"status_idle\":\"Idle\",\"status_running\":\"Running\",\"status_charging\":\"Charging\",\"status_selection_menu\":\"Selection Menu\",\"status_unavailable\":\"Unavailable\",\"status_unknown\":\"Unknown\",\"zone_upper_right\":\"Upper right\",\"zone_upper_front\":\"Upper front\",\"zone_upper_left\":\"Upper left\",\"zone_lower_left\":\"Lower left\",\"zone_lower_front\":\"Lower front\",\"zone_lower_right\":\"Lower right\",\"mode_daily_clean\":\"Daily Clean\",\"mode_deep_clean\":\"Deep Clean\",\"mode_gum_care\":\"Gum Care\",\"mode_intense\":\"Intense\",\"mode_massage\":\"Massage\",\"mode_off\":\"Off\",\"mode_sensitive\":\"Sensitive\",\"mode_settings\":\"Settings\",\"mode_super_sensitive\":\"Super Sensitive\",\"mode_tongue_cleaning\":\"Tongue Clean\",\"mode_turbo\":\"Turbo\",\"mode_whiten\":\"Whiten\",\"mode_whitening\":\"Whitening\",\"mode_unknown\":\"Unknown\",\"config_device\":\"Device\",\"config_title\":\"Title (Optional)\",\"config_subtitle\":\"Show device name as subtitle\",\"config_accent_color\":\"Accent color\",\"config_sector_order\":\"Sector order\",\"config_select_device\":\"Please enter the device id\"}");
 
 
 var $238d401f28c1db46$exports = {};
-$238d401f28c1db46$exports = JSON.parse('{"chip_battery":"Akku","chip_pressure":"Druck","chip_mode":"Modus","session":"Sitzung","complete":"Fertig","done_title":"Putzen abgeschlossen!","done_sextants":"Alle 6 Sextanten fertig","done_quadrants":"Alle 4 Quadranten fertig","pressure_low":"Niedrig","pressure_normal":"Normal","pressure_high":"Hoch","status_idle":"Bereit","status_running":"Putzen","status_charging":"Laden","status_selection_menu":"Auswahl","status_unavailable":"Nicht verf\xfcgbar","status_unknown":"Unbekannt","zone_upper_right":"Oben rechts","zone_upper_front":"Oben vorne","zone_upper_left":"Oben links","zone_lower_left":"Unten links","zone_lower_front":"Unten vorne","zone_lower_right":"Unten rechts","mode_daily_clean":"T\xe4gliche Reinigung","mode_deep_clean":"Tiefenreinigung","mode_gum_care":"Zahnfleischschutz","mode_intense":"Intensiv","mode_massage":"Massage","mode_off":"Aus","mode_sensitive":"Sensitiv","mode_settings":"Einstellungen","mode_super_sensitive":"Extrasensitiv","mode_tongue_cleaning":"Zungenreinigung","mode_turbo":"Turbo","mode_whiten":"Aufhellen","mode_whitening":"Aufhellung","mode_unknown":"Unbekannt","config_title":"Titel (Optional)","config_subtitle":"Ger\xe4tename als Untertitel anzeigen","config_accent_color":"Akzentfarbe","config_sector_order":"Sektorreihenfolge","config_select_device":"Bitte Ger\xe4te-ID eingeben"}');
+$238d401f28c1db46$exports = JSON.parse('{"chip_battery":"Akku","chip_pressure":"Druck","chip_mode":"Modus","session":"Sitzung","complete":"Fertig","done_title":"Putzen abgeschlossen!","done_sextants":"Alle 6 Sextanten fertig","done_quadrants":"Alle 4 Quadranten fertig","pressure_low":"Niedrig","pressure_normal":"Normal","pressure_high":"Hoch","status_idle":"Bereit","status_running":"Putzen","status_charging":"Laden","status_selection_menu":"Auswahl","status_unavailable":"Nicht verf\xfcgbar","status_unknown":"Unbekannt","zone_upper_right":"Oben rechts","zone_upper_front":"Oben vorne","zone_upper_left":"Oben links","zone_lower_left":"Unten links","zone_lower_front":"Unten vorne","zone_lower_right":"Unten rechts","mode_daily_clean":"T\xe4gliche Reinigung","mode_deep_clean":"Tiefenreinigung","mode_gum_care":"Zahnfleischschutz","mode_intense":"Intensiv","mode_massage":"Massage","mode_off":"Aus","mode_sensitive":"Sensitiv","mode_settings":"Einstellungen","mode_super_sensitive":"Extrasensitiv","mode_tongue_cleaning":"Zungenreinigung","mode_turbo":"Turbo","mode_whiten":"Aufhellen","mode_whitening":"Aufhellung","mode_unknown":"Unbekannt","config_device":"Ger\xe4t","config_title":"Titel (Optional)","config_subtitle":"Ger\xe4tename als Untertitel anzeigen","config_accent_color":"Akzentfarbe","config_sector_order":"Sektorreihenfolge","config_select_device":"Bitte Ger\xe4te-ID eingeben"}');
 
 
 const $d8078e452c66bdbe$var$LOCALES = {
@@ -1385,17 +1385,19 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
         return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
             <div class="editor">
                 <div class="field">
-                    <ha-device-picker
+                    <ha-selector
                         .hass=${this.hass}
-                        .value=${this._config.device_id || ''}
-                        .includeDeviceClasses=${undefined}
-                        .includeDomains=${undefined}
-                        .deviceFilter=${(device)=>{
-            const entries = Object.values(this.hass.entities);
-            return entries.some((e)=>e.device_id === device.id && e.platform === 'oralb');
+                        .selector=${{
+            device: {
+                filter: {
+                    integration: 'oralb'
+                }
+            }
         }}
+                        .value=${this._config.device_id || ''}
+                        .label=${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_device') || 'Device'}
                         @value-changed=${this._deviceChanged}
-                    ></ha-device-picker>
+                    ></ha-selector>
                 </div>
 
                 <div class="field">

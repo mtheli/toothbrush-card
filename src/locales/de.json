@@ -43,6 +43,7 @@
   "mode_whitening": "Aufhellung",
   "mode_unknown": "Unbekannt",
 
+  "config_device": "Gerät",
   "config_title": "Titel (Optional)",
   "config_subtitle": "Gerätename als Untertitel anzeigen",
   "config_accent_color": "Akzentfarbe",

@@ -43,6 +43,7 @@
   "mode_whitening": "Whitening",
   "mode_unknown": "Unknown",
 
+  "config_device": "Device",
   "config_title": "Title (Optional)",
   "config_subtitle": "Show device name as subtitle",
   "config_accent_color": "Accent color",
