@@ -44,6 +44,10 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 | Mode      | Daily Clean, Sensitive, Turbo, …| Clean, White+, Gum Health, Deep Clean+    |
 | Battery   | Battery level (%)               | Battery level (%)                          |
 
+## Community
+
+- [Smartes Badezimmer? So hilft dir ein Shelly Wall Display beim Zähneputzen & Rasieren!](https://www.youtube.com/watch?v=ROI91x2Swv8) — Video by smartmatic showing the card on a Shelly Wall Display alongside the Philips Shaver integration (German)
+
 ## Installation
 
 ### HACS (Recommended)
