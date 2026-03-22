@@ -4,7 +4,14 @@
 [![GitHub Release](https://img.shields.io/github/v/release/mtheli/toothbrush-card)](https://github.com/mtheli/toothbrush-card/releases)
 [![License: MIT](https://img.shields.io/github/license/mtheli/toothbrush-card)](LICENSE)
 
-A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) designed to visualize **Oral-B toothbrushes** integrated via the official `oralb` integration.
+A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) designed to visualize **electric toothbrushes** via Bluetooth LE integrations.
+
+### Supported Integrations
+
+| Brand | Integration | Link |
+|-------|------------|------|
+| Oral-B | `oralb` | [Oral-B Integration](https://www.home-assistant.io/integrations/oralb/) (official, built into HA Core) |
+| Philips Sonicare | `philips_sonicare_ble` | [philips_sonicare_ble](https://github.com/theli/philips_sonicare_ble) (custom component) |
 
 ![Toothbrush Card Preview](images/preview.png)
 
@@ -13,12 +20,13 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 ## Features
 
 - Real-time brushing visualization with animated tooth SVG (4 or 6 sectors)
-- Chip-based display for battery, pressure, and brushing mode
+- Chip-based display for battery, pressure/intensity, and brushing mode
 - Bluetooth connection status indicator (Pantone 285 blue)
-- Progress bar based on 2-minute brushing target
+- Progress bar based on brushing target (uses device routine length when available)
 - Success badge when all sectors are complete
 - Automatic entity discovery — no manual YAML required
-- Configurable title, subtitle, and accent color (10 official Oral-B presets)
+- Sector tracking: device-reported (Oral-B) or time-based calculation (Sonicare)
+- Configurable title, subtitle, and accent color
 - Configurable sector order with drag & drop and up/down buttons
 - Responsive layout with container queries (icon-only chips on narrow cards)
 - Multi-language support (auto-detects Home Assistant language)
@@ -26,14 +34,15 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 
 ## Supported Data Points
 
-| Sensor   | Description                                      |
-|----------|--------------------------------------------------|
-| Status   | Device state (idle, running, charging, …)        |
-| Sector   | Current brushed sector (1–6) or success          |
-| Duration | Brushing session duration (seconds)              |
-| Pressure | Brushing pressure (low, normal, high)            |
-| Mode     | Brushing mode (Daily Clean, Sensitive, Turbo, …) |
-| Battery  | Battery level (%)                                |
+| Sensor    | Oral-B                          | Philips Sonicare                          |
+|-----------|---------------------------------|-------------------------------------------|
+| Status    | idle, running, charging, …      | off, standby, run, charge, …              |
+| Sector    | Reported by device (1–6)        | Calculated from routine time (4 quadrants)|
+| Duration  | Brushing session (seconds)      | Brushing time (seconds)                   |
+| Pressure  | low, normal, high               | —                                         |
+| Intensity | —                               | low, medium, high                         |
+| Mode      | Daily Clean, Sensitive, Turbo, …| Clean, White+, Gum Health, Deep Clean+    |
+| Battery   | Battery level (%)               | Battery level (%)                          |
 
 ## Installation
 
@@ -55,11 +64,11 @@ resources:
 
 ## Configuration
 
-The card is configured via the UI — just add it and select your Oral-B device.
+The card is configured via the UI — just add it and select your toothbrush device.
 
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
-| device_id     | string   | —       | **(required)** Oral-B device to use          |
+| device_id     | string   | —       | **(required)** Toothbrush device to use      |
 | title         | string   | —       | Custom title (default: manufacturer)         |
 | show_subtitle | boolean  | true    | Show device name as subtitle                 |
 | accent_color  | string   | —       | Header accent color (hex, e.g. `#0085FF`)    |

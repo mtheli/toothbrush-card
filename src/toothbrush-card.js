@@ -5,7 +5,7 @@ import { MODE_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.6.0";
+export const CARD_VERSION = "0.7.0-beta.1";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -31,8 +31,8 @@ export class ToothbrushCard extends LitElement {
     set hass(hass) {
         this._hass = hass;
 
-        // retry entity discovery until sector entity is found
-        if ((!this._entityIds || !this._entityIds.sector) && this.config?.device_id) {
+        // retry entity discovery until base_entity is found
+        if ((!this._entityIds || !this._entityIds.base_entity) && this.config?.device_id) {
             this._entityIds = this._findAndMapEntitiesInConfig(hass, this.config.device_id);
         }
 
@@ -197,12 +197,12 @@ export class ToothbrushCard extends LitElement {
         const p = String(pressure).toLowerCase();
         if (p === 'high') return 'red';
         if (p === 'low') return 'amber';
-        if (p === 'normal') return 'green';
+        if (p === 'normal' || p === 'medium') return 'green';
         return 'blue';
     }
 
     _isActive(status) {
-        return status === 'running';
+        return status === 'running' || status === 'run';
     }
 
     /**
@@ -212,7 +212,9 @@ export class ToothbrushCard extends LitElement {
         const entityKeys = {
             sector: null, duration: null, mode: null, pressure: null,
             battery: null, status: null, base_entity: null,
-            number_of_sectors: null
+            number_of_sectors: null, model_number: null,
+            routine_length: null, integration: null,
+            brushhead_wear: null
         };
 
         const allEntities = hass.entities;
@@ -221,9 +223,14 @@ export class ToothbrushCard extends LitElement {
             const entity = allEntities[entityId];
             if (entity.device_id !== deviceId) continue;
 
+            if (!entityKeys.integration && entity.platform) {
+                entityKeys.integration = entity.platform;
+            }
+
             const state = hass.states[entityId];
             const deviceClass = state?.attributes?.device_class;
 
+            // OralB translation_keys
             if (entity.translation_key === 'sector') {
                 entityKeys.sector = entity.entity_id;
             } else if (entity.translation_key === 'mode') {
@@ -234,6 +241,23 @@ export class ToothbrushCard extends LitElement {
                 entityKeys.status = entity.entity_id;
             } else if (entity.translation_key === 'number_of_sectors') {
                 entityKeys.number_of_sectors = entity.entity_id;
+            }
+
+            // Sonicare translation_keys
+            if (entity.translation_key === 'handle_state') {
+                entityKeys.status = entity.entity_id;
+            } else if (entity.translation_key === 'brushing_mode') {
+                entityKeys.mode = entity.entity_id;
+            } else if (entity.translation_key === 'pressure_alert') {
+                entityKeys.pressure = entity.entity_id;
+            } else if (entity.translation_key === 'intensity') {
+                if (!entityKeys.pressure) entityKeys.pressure = entity.entity_id;
+            } else if (entity.translation_key === 'model_number') {
+                entityKeys.model_number = entity.entity_id;
+            } else if (entity.translation_key === 'brushing_time') {
+                entityKeys.duration = entity.entity_id;
+            } else if (entity.translation_key === 'routine_length') {
+                entityKeys.routine_length = entity.entity_id;
             }
 
             if (deviceClass) {
@@ -256,6 +280,20 @@ export class ToothbrushCard extends LitElement {
             entityKeys.status = null;
         }
 
+        // Search child devices (e.g. Brush Head) for additional entities
+        if (hass.devices) {
+            const childDevices = Object.values(hass.devices).filter(d => d.via_device_id === deviceId);
+            for (const child of childDevices) {
+                for (const entityId in allEntities) {
+                    const entity = allEntities[entityId];
+                    if (entity.device_id !== child.id) continue;
+                    if (entity.translation_key === 'brushhead_wear') {
+                        entityKeys.brushhead_wear = entity.entity_id;
+                    }
+                }
+            }
+        }
+
         return entityKeys;
     }
 
@@ -271,33 +309,62 @@ export class ToothbrushCard extends LitElement {
             }
         }
 
+        const entityIds = this._entityIds;
         const device = hass.devices[config.device_id];
         const deviceName = device.name;
         const manufacturer = device.manufacturer || '';
+        const modelNumber = entityIds.model_number
+            ? hass.states[entityIds.model_number]?.state || ''
+            : '';
         const headerTitle = config.title || manufacturer || deviceName;
-        const headerSub = config.show_subtitle !== false ? deviceName : '';
-
-        const entityIds = this._entityIds;
+        const rawSub = config.show_subtitle !== false
+            ? (modelNumber || deviceName)
+            : '';
+        const headerSub = rawSub && headerTitle && rawSub.startsWith(headerTitle)
+            ? rawSub.slice(headerTitle.length).trim()
+            : rawSub;
 
         // Read sensor states
         const numSectors = entityIds.number_of_sectors
             ? parseInt(hass.states[entityIds.number_of_sectors]?.state) || 4
             : 4;
-        const sector = entityIds.sector ? hass.states[entityIds.sector]?.state || 'no_sector' : 'no_sector';
         const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
-        const pressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
+        const rawPressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
+        const pressure = rawPressure === 'on' ? 'high' : rawPressure === 'off' ? 'normal' : rawPressure;
         const batteryLevel = entityIds.battery ? hass.states[entityIds.battery]?.state || 0 : 0;
         const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
+        const routineLength = entityIds.routine_length
+            ? parseInt(hass.states[entityIds.routine_length]?.state) || 0
+            : 0;
+
+        const brushheadWear = entityIds.brushhead_wear
+            ? parseFloat(hass.states[entityIds.brushhead_wear]?.state) || null
+            : null;
 
         const statusEntityId = entityIds.base_entity;
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
+        const active = this._isActive(status);
+
+        // Sector: use real entity if available, otherwise compute from time
+        let sector;
+        if (entityIds.sector) {
+            sector = hass.states[entityIds.sector]?.state || 'no_sector';
+        } else if (routineLength > 0 && active && duration > 0) {
+            const sectorDuration = routineLength / 4;
+            // +1 because _parseRawSectorIndex expects 1-based values (OralB convention)
+            const idx = Math.min(4, Math.floor(duration / sectorDuration) + 1);
+            sector = String(idx);
+        } else if (routineLength > 0 && duration >= routineLength && duration > 0) {
+            sector = 'success';
+        } else {
+            sector = 'no_sector';
+        }
 
         // Computed values
         const defaultOrder = numSectors === 6 ? SEXTANT_ZONES : QUADRANT_ZONES;
         const sectorOrder = config.sector_order?.length === numSectors
             ? config.sector_order
             : defaultOrder;
-        const active = this._isActive(status);
         const rawSectorIndex = this._parseRawSectorIndex(sector);
         const correctedIndex = sector === 'success' ? -1
             : this._correctSectorIndex(rawSectorIndex, active, sectorOrder.length - 1);
@@ -305,13 +372,14 @@ export class ToothbrushCard extends LitElement {
         const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
         const isSuccess = sector === 'success';
         const batteryColor = this._getBatteryChipColor(batteryLevel);
-        const batteryIsCharging = status === 'charging';
+        const batteryIsCharging = status === 'charging' || status === 'charge';
         const batteryIconName = this._getBatteryIcon(batteryLevel, batteryIsCharging);
         const pressureColor = this._getPressureColor(pressure);
         const pressureClass = this._getPressureClass(pressure);
         const modeIcon = this._getModeIcon(mode);
         const modeLabel = this._getModeLabel(mode);
-        const progressPct = Math.min(100, Math.round(duration / BRUSHING_DURATION * 100));
+        const targetDuration = routineLength || BRUSHING_DURATION;
+        const progressPct = Math.min(100, Math.round(duration / targetDuration * 100));
         const statusKey = 'status_' + status;
         const displayStatus = t(hass, statusKey) !== statusKey
             ? t(hass, statusKey)
@@ -321,7 +389,7 @@ export class ToothbrushCard extends LitElement {
             ? t(hass, pressureKey)
             : pressure.replace(/_/g, ' ');
         const btConnected = status !== 'unavailable' && status !== 'unknown';
-        const btActive = active || status === 'charging';
+        const btActive = active || batteryIsCharging;
         const accentColor = config.accent_color || '#FFFFFF';
 
         return html`
@@ -399,10 +467,33 @@ export class ToothbrushCard extends LitElement {
                             <div class="progress-fill" style="width: ${progressPct}%"></div>
                         </div>
                         <div class="progress-labels">
-                            <span>${sectorLabel || '—'}</span>
+                            <span>${sectorLabel || ''}</span>
                             <span>${progressPct}%</span>
                         </div>
                     </div>
+
+                    ${brushheadWear !== null ? html`
+                        <div class="brushhead-indicator" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
+                            <svg viewBox="0 0 24 72" class="brushhead-svg">
+                                <defs>
+                                    <clipPath id="bh-fill-${this._bhClipId}">
+                                        <rect x="0" y="${brushheadWear * 0.72}" width="24" height="${72 - brushheadWear * 0.72}"/>
+                                    </clipPath>
+                                </defs>
+                                <!-- Brush head: wide oval top, thin neck, narrow handle -->
+                                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="none" stroke="var(--divider-color, #bbb)" stroke-width="1.2"/>
+                                <!-- Fill -->
+                                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="${this._getBrushheadColor(brushheadWear)}" opacity="0.3" clip-path="url(#bh-fill-${this._bhClipId})"/>
+                                <!-- Bristle rows -->
+                                <line x1="7" y1="5" x2="17" y2="5" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
+                                <line x1="6.5" y1="9" x2="17.5" y2="9" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
+                                <line x1="6" y1="13" x2="18" y2="13" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
+                                <line x1="6" y1="17" x2="18" y2="17" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
+                                <line x1="6.5" y1="21" x2="17.5" y2="21" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
+                            </svg>
+                            <span class="brushhead-pct">${Math.round(100 - brushheadWear)}%</span>
+                        </div>
+                    ` : ''}
                 </div>
 
                 <!-- Done badge -->
@@ -412,6 +503,17 @@ export class ToothbrushCard extends LitElement {
                 </div>
             </ha-card>
         `;
+    }
+
+    get _bhClipId() {
+        if (!this.__bhClipId) this.__bhClipId = Math.random().toString(36).slice(2, 8);
+        return this.__bhClipId;
+    }
+
+    _getBrushheadColor(wear) {
+        if (wear >= 80) return '#ef4444';
+        if (wear >= 60) return '#f59e0b';
+        return '#22c55e';
     }
 
     _getBatteryColor(level) {
@@ -462,7 +564,8 @@ export class ToothbrushCard extends LitElement {
 
     static getStubConfig(hass) {
         const entry = Object.values(hass.entities).find(
-            (e) => e.platform === "oralb" && e.translation_key === "toothbrush_state"
+            (e) => (e.platform === "oralb" && e.translation_key === "toothbrush_state") ||
+                   (e.platform === "philips_sonicare_ble" && e.translation_key === "handle_state")
         );
         return { device_id: entry ? entry.device_id : "" };
     }

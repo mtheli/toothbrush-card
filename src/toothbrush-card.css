@@ -162,6 +162,7 @@ ha-card {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
 }
 .tooth-wrap {
     position: relative;
@@ -307,22 +308,33 @@ ha-card {
     color: #16a34a;
 }
 
-/* ── RESPONSIVE ── */
-@container (max-width: 280px) {
-    .chips-row {
-        grid-template-columns: 1fr;
-        gap: 6px;
-    }
-    .chip {
-        column-gap: 6px;
-    }
-    .tooth-wrap {
-        width: 160px;
-        height: 160px;
-    }
-    .timer-display { font-size: 24px; }
+/* ── BRUSH HEAD INDICATOR ── */
+.brushhead-indicator {
+    position: absolute;
+    top: 8px;
+    right: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+.brushhead-indicator:hover {
+    opacity: 1;
+}
+.brushhead-svg {
+    width: 16px;
+    height: 42px;
+}
+.brushhead-pct {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--secondary-text-color);
 }
 
+/* ── RESPONSIVE ── */
 @container (max-width: 350px) {
     .chip {
         grid-template-columns: 1fr;
