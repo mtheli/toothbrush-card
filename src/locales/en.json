@@ -20,6 +20,7 @@
   "status_running": "Running",
   "status_charging": "Charging",
   "status_selection_menu": "Selection Menu",
+  "status_initializing": "Connecting\u2026",
   "status_unavailable": "Unavailable",
   "status_unknown": "Unknown",
   "status_off": "Off",

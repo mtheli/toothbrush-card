@@ -214,7 +214,7 @@ export class ToothbrushCard extends LitElement {
             battery: null, status: null, base_entity: null,
             number_of_sectors: null, model_number: null,
             routine_length: null, integration: null,
-            brushhead_wear: null
+            brushhead_wear: null, activity: null
         };
 
         const allEntities = hass.entities;
@@ -254,6 +254,8 @@ export class ToothbrushCard extends LitElement {
                 if (!entityKeys.pressure) entityKeys.pressure = entity.entity_id;
             } else if (entity.translation_key === 'model_number') {
                 entityKeys.model_number = entity.entity_id;
+            } else if (entity.translation_key === 'activity') {
+                entityKeys.activity = entity.entity_id;
             } else if (entity.translation_key === 'brushing_time') {
                 entityKeys.duration = entity.entity_id;
             } else if (entity.translation_key === 'routine_length') {
@@ -344,6 +346,41 @@ export class ToothbrushCard extends LitElement {
         const statusEntityId = entityIds.base_entity;
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
         const active = this._isActive(status);
+
+        // Sonicare: show initializing screen while connecting
+        const activity = entityIds.activity ? hass.states[entityIds.activity]?.state : null;
+        if (activity === 'initializing') {
+            return html`
+                <ha-card style="--accent-color: ${config.accent_color || '#FFFFFF'}">
+                    <div class="card-header">
+                        <div class="header-title">
+                            <div class="header-accent"></div>
+                            <h2>${config.title || device.manufacturer || deviceName}</h2>
+                            ${headerSub ? html`<span class="header-sub">${headerSub}</span>` : ''}
+                        </div>
+                        <div class="header-icons">
+                            <svg class="bt-icon bt-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/>
+                                <line x1="4" y1="4" x2="20" y2="20" stroke-width="2.5"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="init-wrap">
+                        <div class="init-rings">
+                            <div class="init-ring init-ring-1"></div>
+                            <div class="init-ring init-ring-2"></div>
+                            <div class="init-ring init-ring-3"></div>
+                            <div class="init-bt">
+                                <svg viewBox="0 0 24 24" fill="var(--primary-color, #3b82f6)">
+                                    <path d="M14.5 12.5l4-4-5.5-5.5v8.5l-4-4-1.5 1.5 5 5-5 5 1.5 1.5 4-4v8.5l5.5-5.5z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="init-label">${t(hass, 'status_initializing')}</div>
+                    </div>
+                </ha-card>
+            `;
+        }
 
         // Sector: use real entity if available, otherwise compute from time
         let sector;
