@@ -1,6 +1,7 @@
 {
   "chip_battery": "Battery",
   "chip_pressure": "Pressure",
+  "chip_intensity": "Intensity",
   "chip_mode": "Mode",
 
   "session": "Session",
@@ -10,16 +11,23 @@
   "done_sextants": "All 6 sextants finished",
   "done_quadrants": "All 4 quadrants finished",
 
-  "pressure_low": "low",
-  "pressure_normal": "normal",
-  "pressure_high": "high",
+  "pressure_low": "Low",
+  "pressure_normal": "Normal",
+  "pressure_medium": "Medium",
+  "pressure_high": "High",
 
   "status_idle": "Idle",
   "status_running": "Running",
   "status_charging": "Charging",
   "status_selection_menu": "Selection Menu",
+  "status_initializing": "Connecting\u2026",
   "status_unavailable": "Unavailable",
   "status_unknown": "Unknown",
+  "status_off": "Off",
+  "status_standby": "Standby",
+  "status_run": "Running",
+  "status_charge": "Charging",
+  "status_shutdown": "Shutdown",
 
   "zone_upper_right": "Upper right",
   "zone_upper_front": "Upper front",
@@ -42,10 +50,17 @@
   "mode_whiten": "Whiten",
   "mode_whitening": "Whitening",
   "mode_unknown": "Unknown",
+  "mode_clean": "Clean",
+  "mode_white_plus": "White+",
+  "mode_gum_health": "Gum Health",
+  "mode_deep_clean_plus": "Deep Clean+",
 
+  "config_device": "Device",
   "config_title": "Title (Optional)",
   "config_subtitle": "Show device name as subtitle",
   "config_accent_color": "Accent color",
   "config_sector_order": "Sector order",
+  "config_sector_mode_device": "Sectors reported by device",
+  "config_sector_mode_time": "Sectors calculated from routine time",
   "config_select_device": "Please enter the device id"
 }

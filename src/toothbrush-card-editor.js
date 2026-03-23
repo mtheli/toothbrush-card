@@ -44,6 +44,13 @@ export class ToothbrushCardEditor extends LitElement {
         return 4;
     }
 
+    _hasSectorEntity() {
+        if (!this.hass || !this._config?.device_id) return false;
+        return Object.values(this.hass.entities).some(
+            e => e.device_id === this._config.device_id && e.translation_key === 'sector'
+        );
+    }
+
     _fireConfig(config) {
         this.dispatchEvent(new CustomEvent('config-changed', {
             bubbles: true, composed: true,
@@ -127,17 +134,13 @@ export class ToothbrushCardEditor extends LitElement {
         return html`
             <div class="editor">
                 <div class="field">
-                    <ha-device-picker
+                    <ha-selector
                         .hass=${this.hass}
+                        .selector=${{ device: { filter: [{ integration: 'oralb' }, { integration: 'philips_sonicare_ble' }], entity: [{ device_class: 'battery' }] } }}
                         .value=${this._config.device_id || ''}
-                        .includeDeviceClasses=${undefined}
-                        .includeDomains=${undefined}
-                        .deviceFilter=${(device) => {
-                            const entries = Object.values(this.hass.entities);
-                            return entries.some(e => e.device_id === device.id && e.platform === 'oralb');
-                        }}
+                        .label=${t(this.hass, 'config_device') || 'Device'}
                         @value-changed=${this._deviceChanged}
-                    ></ha-device-picker>
+                    ></ha-selector>
                 </div>
 
                 <div class="field">
@@ -180,6 +183,11 @@ export class ToothbrushCardEditor extends LitElement {
                         ${isCustom ? html`
                             <button class="reset-btn" @click=${this._resetOrder}>Reset</button>
                         ` : ''}
+                    </div>
+                    <div class="sector-mode-hint">
+                        ${this._hasSectorEntity()
+                            ? t(this.hass, 'config_sector_mode_device')
+                            : t(this.hass, 'config_sector_mode_time')}
                     </div>
                     <div class="sector-list" @dragend=${this._dragEnd}>
                         ${order.map((zone, i) => html`
@@ -242,6 +250,12 @@ export class ToothbrushCardEditor extends LitElement {
             }
             .reset-btn:hover {
                 background: var(--secondary-background-color, #f5f5f5);
+            }
+            .sector-mode-hint {
+                font-size: 12px;
+                color: var(--secondary-text-color, #888);
+                font-style: italic;
+                margin-bottom: 8px;
             }
             .sector-list {
                 display: flex;
