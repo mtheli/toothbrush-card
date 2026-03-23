@@ -20,6 +20,7 @@
   "status_running": "Putzen",
   "status_charging": "Laden",
   "status_selection_menu": "Auswahl",
+  "status_initializing": "Verbinde\u2026",
   "status_unavailable": "Nicht verfügbar",
   "status_unknown": "Unbekannt",
   "status_off": "Aus",
