@@ -1,6 +1,7 @@
 {
   "chip_battery": "Akku",
   "chip_pressure": "Druck",
+  "chip_intensity": "Intensität",
   "chip_mode": "Modus",
 
   "session": "Sitzung",
@@ -12,14 +13,21 @@
 
   "pressure_low": "Niedrig",
   "pressure_normal": "Normal",
+  "pressure_medium": "Mittel",
   "pressure_high": "Hoch",
 
   "status_idle": "Bereit",
   "status_running": "Putzen",
   "status_charging": "Laden",
   "status_selection_menu": "Auswahl",
+  "status_initializing": "Verbinde\u2026",
   "status_unavailable": "Nicht verfügbar",
   "status_unknown": "Unbekannt",
+  "status_off": "Aus",
+  "status_standby": "Bereit",
+  "status_run": "Putzen",
+  "status_charge": "Laden",
+  "status_shutdown": "Ausschalten",
 
   "zone_upper_right": "Oben rechts",
   "zone_upper_front": "Oben vorne",
@@ -42,10 +50,17 @@
   "mode_whiten": "Aufhellen",
   "mode_whitening": "Aufhellung",
   "mode_unknown": "Unbekannt",
+  "mode_clean": "Reinigung",
+  "mode_white_plus": "White+",
+  "mode_gum_health": "Zahnfleischschutz",
+  "mode_deep_clean_plus": "Tiefenreinigung+",
 
+  "config_device": "Gerät",
   "config_title": "Titel (Optional)",
   "config_subtitle": "Gerätename als Untertitel anzeigen",
   "config_accent_color": "Akzentfarbe",
   "config_sector_order": "Sektorreihenfolge",
+  "config_sector_mode_device": "Sektoren vom Gerät gemeldet",
+  "config_sector_mode_time": "Sektoren aus Putzzeit berechnet",
   "config_select_device": "Bitte Geräte-ID eingeben"
 }
