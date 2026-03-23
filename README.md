@@ -46,7 +46,7 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 
 ## Community
 
-- [Smartes Badezimmer? So hilft dir ein Shelly Wall Display beim Zähneputzen & Rasieren!](https://www.youtube.com/watch?v=ROI91x2Swv8) — Video by smartmatic showing the card on a Shelly Wall Display alongside the Philips Shaver integration (German)
+- [Smartes Badezimmer? So hilft dir ein Shelly Wall Display beim Zähneputzen & Rasieren!](https://www.youtube.com/watch?v=ROI91x2Swv8) — Video by [@smartmatic](https://github.com/smartmatic) showing the card on a Shelly Wall Display alongside the Philips Shaver integration (German)
 
 ## Installation
 
