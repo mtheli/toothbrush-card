@@ -11,7 +11,7 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 | Brand | Integration | Link |
 |-------|------------|------|
 | Oral-B | `oralb` | [Oral-B Integration](https://www.home-assistant.io/integrations/oralb/) (official, built into HA Core) |
-| Philips Sonicare | `philips_sonicare_ble` | [philips_sonicare_ble](https://github.com/theli/philips_sonicare_ble) (custom component) |
+| Philips Sonicare | `philips_sonicare_ble` | [philips_sonicare_ble](https://github.com/mtheli/philips_sonicare_ble) (custom component) |
 
 ![Oral-B](screenshots/OralB.png) ![Sonicare](screenshots/Sonicare.png)
 
