@@ -332,7 +332,9 @@ export class ToothbrushCard extends LitElement {
             : 4;
         const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
         const rawPressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
-        const pressure = rawPressure === 'on' ? 'high' : rawPressure === 'off' ? 'normal' : rawPressure;
+        const pressure = rawPressure === 'unavailable' || rawPressure === 'unknown'
+            ? '–'
+            : rawPressure === 'on' ? 'high' : rawPressure === 'off' ? 'normal' : rawPressure;
         const batteryLevel = entityIds.battery ? hass.states[entityIds.battery]?.state || 0 : 0;
         const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
         const routineLength = entityIds.routine_length
@@ -362,6 +364,12 @@ export class ToothbrushCard extends LitElement {
                             <svg class="bt-icon bt-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/>
                                 <line x1="4" y1="4" x2="20" y2="20" stroke-width="2.5"/>
+                            </svg>
+                            <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
+                                 @click="${() => this._showDeviceInfo()}">
+                                <circle cx="12" cy="5" r="1.5"/>
+                                <circle cx="12" cy="12" r="1.5"/>
+                                <circle cx="12" cy="19" r="1.5"/>
                             </svg>
                         </div>
                     </div>
