@@ -1,11 +1,11 @@
 import { LitElement, html, css, unsafeCSS } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ToothSVG } from './toothbrush-svg.js';
-import { MODE_ICONS } from './icons.js';
+import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.7.0";
+export const CARD_VERSION = "0.8.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -190,7 +190,8 @@ export class ToothbrushCard extends LitElement {
         const p = String(pressure).toLowerCase();
         if (p === 'high') return 'p-high';
         if (p === 'low') return 'p-low';
-        return 'p-normal';
+        if (p === 'normal' || p === 'medium') return 'p-normal';
+        return '';
     }
 
     _getPressureColor(pressure) {
@@ -198,7 +199,7 @@ export class ToothbrushCard extends LitElement {
         if (p === 'high') return 'red';
         if (p === 'low') return 'amber';
         if (p === 'normal' || p === 'medium') return 'green';
-        return 'blue';
+        return '';
     }
 
     _isActive(status) {
@@ -214,7 +215,9 @@ export class ToothbrushCard extends LitElement {
             battery: null, status: null, base_entity: null,
             number_of_sectors: null, model_number: null,
             routine_length: null, integration: null,
-            brushhead_wear: null, activity: null
+            brushhead_wear: null, activity: null,
+            mode_select: null, esp_bridge_alive: null,
+            ble_connected: null
         };
 
         const allEntities = hass.entities;
@@ -258,6 +261,10 @@ export class ToothbrushCard extends LitElement {
                 entityKeys.activity = entity.entity_id;
             } else if (entity.translation_key === 'brushing_time') {
                 entityKeys.duration = entity.entity_id;
+            } else if (entity.translation_key === 'brushing_mode_select') {
+                entityKeys.mode_select = entity.entity_id;
+            } else if (entity.translation_key === 'esp_bridge_alive') {
+                entityKeys.esp_bridge_alive = entity.entity_id;
             } else if (entity.translation_key === 'routine_length') {
                 entityKeys.routine_length = entity.entity_id;
             }
@@ -282,15 +289,26 @@ export class ToothbrushCard extends LitElement {
             entityKeys.status = null;
         }
 
-        // Search child devices (e.g. Brush Head) for additional entities
+        // Search related devices (child + same config entry) for additional entities
         if (hass.devices) {
-            const childDevices = Object.values(hass.devices).filter(d => d.via_device_id === deviceId);
-            for (const child of childDevices) {
+            const mainDevice = hass.devices[deviceId];
+            const configEntries = mainDevice?.config_entries || [];
+            const relatedDevices = Object.values(hass.devices).filter(d =>
+                d.id !== deviceId && (
+                    d.via_device_id === deviceId ||
+                    d.config_entries?.some(ce => configEntries.includes(ce))
+                )
+            );
+            for (const related of relatedDevices) {
                 for (const entityId in allEntities) {
                     const entity = allEntities[entityId];
-                    if (entity.device_id !== child.id) continue;
+                    if (entity.device_id !== related.id) continue;
                     if (entity.translation_key === 'brushhead_wear') {
                         entityKeys.brushhead_wear = entity.entity_id;
+                    } else if (entity.translation_key === 'esp_bridge_alive') {
+                        entityKeys.esp_bridge_alive = entity.entity_id;
+                    } else if (entity.translation_key === 'ble_connected') {
+                        entityKeys.ble_connected = entity.entity_id;
                     }
                 }
             }
@@ -335,8 +353,13 @@ export class ToothbrushCard extends LitElement {
         const pressure = rawPressure === 'unavailable' || rawPressure === 'unknown'
             ? '–'
             : rawPressure === 'on' ? 'high' : rawPressure === 'off' ? 'normal' : rawPressure;
-        const batteryLevel = entityIds.battery ? hass.states[entityIds.battery]?.state || 0 : 0;
-        const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
+        const rawBattery = entityIds.battery ? hass.states[entityIds.battery]?.state : null;
+        const batteryUnavailable = !rawBattery || rawBattery === 'unavailable' || rawBattery === 'unknown';
+        const batteryLevel = batteryUnavailable ? 0 : rawBattery;
+        const modeSelectState = entityIds.mode_select ? hass.states[entityIds.mode_select] : null;
+        const mode = (modeSelectState?.state && modeSelectState.state !== 'unavailable')
+            ? modeSelectState.state
+            : (entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A');
         const routineLength = entityIds.routine_length
             ? parseInt(hass.states[entityIds.routine_length]?.state) || 0
             : 0;
@@ -348,6 +371,22 @@ export class ToothbrushCard extends LitElement {
         const statusEntityId = entityIds.base_entity;
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
         const active = this._isActive(status);
+
+        // Mode selector
+        const canSelectMode = entityIds.mode_select
+            && modeSelectState?.state !== 'unavailable'
+            && !active;
+        const modeOptions = canSelectMode
+            ? (modeSelectState?.attributes?.options || [])
+            : [];
+        if (active && this._showModeDropdown) {
+            this._showModeDropdown = false;
+        }
+
+        // ESP Bridge
+        const espConnected = entityIds.esp_bridge_alive
+            ? hass.states[entityIds.esp_bridge_alive]?.state === 'on'
+            : false;
 
         // Sonicare: show initializing screen while connecting
         const activity = entityIds.activity ? hass.states[entityIds.activity]?.state : null;
@@ -361,10 +400,14 @@ export class ToothbrushCard extends LitElement {
                             ${headerSub ? html`<span class="header-sub">${headerSub}</span>` : ''}
                         </div>
                         <div class="header-icons">
-                            <svg class="bt-icon bt-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/>
-                                <line x1="4" y1="4" x2="20" y2="20" stroke-width="2.5"/>
+                            <svg class="conn-icon disconnected" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="${CONN_ICONS.bluetooth}"/>
                             </svg>
+                            ${entityIds.esp_bridge_alive ? html`
+                            <svg class="conn-icon ${espConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
+                                 @click="${() => this._showMoreInfo(entityIds.esp_bridge_alive)}">
+                                <path d="${espConnected ? CONN_ICONS.lan_connect : CONN_ICONS.lan_disconnect}"/>
+                            </svg>` : ''}
                             <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
                                  @click="${() => this._showDeviceInfo()}">
                                 <circle cx="12" cy="5" r="1.5"/>
@@ -416,13 +459,14 @@ export class ToothbrushCard extends LitElement {
         const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder);
         const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
         const isSuccess = sector === 'success';
-        const batteryColor = this._getBatteryChipColor(batteryLevel);
+        const batteryColor = batteryUnavailable ? 'muted' : this._getBatteryChipColor(batteryLevel);
         const batteryIsCharging = status === 'charging' || status === 'charge';
-        const batteryIconName = this._getBatteryIcon(batteryLevel, batteryIsCharging);
+        const batteryIconName = batteryUnavailable ? 'mdi:battery-unknown' : this._getBatteryIcon(batteryLevel, batteryIsCharging);
         const pressureColor = this._getPressureColor(pressure);
         const pressureClass = this._getPressureClass(pressure);
-        const modeIcon = this._getModeIcon(mode);
-        const modeLabel = this._getModeLabel(mode);
+        const modeUnavailable = mode === 'unavailable' || mode === 'unknown' || mode === 'N/A';
+        const modeIcon = modeUnavailable ? 'mdi:brush-variant' : this._getModeIcon(mode);
+        const modeLabel = modeUnavailable ? '–' : this._getModeLabel(mode);
         const targetDuration = routineLength || BRUSHING_DURATION;
         const progressPct = Math.min(100, Math.round(duration / targetDuration * 100));
         const statusKey = 'status_' + status;
@@ -433,7 +477,9 @@ export class ToothbrushCard extends LitElement {
         const displayPressure = t(hass, pressureKey) !== pressureKey
             ? t(hass, pressureKey)
             : pressure.replace(/_/g, ' ');
-        const btConnected = status !== 'unavailable' && status !== 'unknown';
+        const btConnected = entityIds.ble_connected
+            ? hass.states[entityIds.ble_connected]?.state === 'on'
+            : status !== 'unavailable' && status !== 'unknown';
         const btActive = active || batteryIsCharging;
         const accentColor = config.accent_color || '#FFFFFF';
 
@@ -447,11 +493,15 @@ export class ToothbrushCard extends LitElement {
                         ${headerSub ? html`<span class="header-sub">${headerSub}</span>` : ''}
                     </div>
                     <div class="header-icons">
-                        <svg class="bt-icon ${btActive ? 'bt-active' : ''} ${!btConnected ? 'bt-off' : ''}"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/>
-                            ${!btConnected ? html`<line x1="4" y1="4" x2="20" y2="20" stroke-width="2.5"/>` : ''}
+                        <svg class="conn-icon ${btActive ? 'active' : ''} ${!btConnected ? 'disconnected' : ''}"
+                             viewBox="0 0 24 24" fill="currentColor">
+                            <path d="${CONN_ICONS.bluetooth}"/>
                         </svg>
+                        ${entityIds.esp_bridge_alive ? html`
+                        <svg class="conn-icon ${espConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
+                             @click="${() => this._showMoreInfo(entityIds.esp_bridge_alive)}">
+                            <path d="${espConnected ? CONN_ICONS.lan_connect : CONN_ICONS.lan_disconnect}"/>
+                        </svg>` : ''}
                         <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
                              @click="${() => this._showDeviceInfo()}">
                             <circle cx="12" cy="5" r="1.5"/>
@@ -468,7 +518,7 @@ export class ToothbrushCard extends LitElement {
                             <ha-icon icon="${batteryIconName}"></ha-icon>
                         </div>
                         <span class="chip-label">${t(hass, 'chip_battery')}</span>
-                        <div class="chip-value ${batteryColor}">${batteryLevel}%</div>
+                        <div class="chip-value ${batteryColor}">${batteryUnavailable ? '–' : html`${batteryLevel}%`}</div>
                     </div>
 
                     <div class="chip" @click="${() => this._showMoreInfo(entityIds.pressure)}">
@@ -480,12 +530,28 @@ export class ToothbrushCard extends LitElement {
                         <div class="chip-value ${pressureColor}">${displayPressure}</div>
                     </div>
 
-                    <div class="chip" @click="${() => this._showMoreInfo(entityIds.mode)}">
-                        <div class="chip-icon blue">
-                            <ha-icon icon="${modeIcon}"></ha-icon>
+                    <div class="mode-chip-wrap">
+                        <div class="chip ${canSelectMode ? 'selectable' : ''}"
+                             @click="${() => this._handleModeChipClick()}">
+                            <div class="chip-icon ${modeUnavailable ? 'muted' : 'blue'}">
+                                <ha-icon icon="${modeIcon}"></ha-icon>
+                            </div>
+                            <span class="chip-label">${t(hass, 'chip_mode')}</span>
+                            <div class="chip-value ${modeUnavailable ? '' : 'blue'}" style="font-size:12px;">${modeLabel}${canSelectMode ? html`<span class="mode-caret"> ▾</span>` : ''}</div>
+                            ${canSelectMode ? html`<ha-icon class="chip-select-hint" icon="mdi:chevron-down"></ha-icon>` : ''}
                         </div>
-                        <span class="chip-label">${t(hass, 'chip_mode')}</span>
-                        <div class="chip-value blue" style="font-size:12px;">${modeLabel}</div>
+                        ${this._showModeDropdown && canSelectMode ? html`
+                            <div class="dropdown-backdrop" @click="${() => this._closeModeDropdown()}"></div>
+                            <div class="mode-dropdown">
+                                ${modeOptions.map(opt => html`
+                                    <div class="mode-option ${opt === mode ? 'active' : ''}"
+                                         @click="${(e) => { e.stopPropagation(); this._selectMode(opt); }}">
+                                        <ha-icon icon="${this._getModeIcon(opt)}"></ha-icon>
+                                        <span>${this._getModeLabel(opt)}</span>
+                                    </div>
+                                `)}
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
 
@@ -513,6 +579,7 @@ export class ToothbrushCard extends LitElement {
                         </div>
                         <div class="progress-labels">
                             <span>${sectorLabel || ''}</span>
+                            <span>${targetDuration > 0 ? html`${this._formatTime(duration)} / ${this._formatTime(targetDuration)}` : ''}</span>
                             <span>${progressPct}%</span>
                         </div>
                     </div>
@@ -588,6 +655,40 @@ export class ToothbrushCard extends LitElement {
         const key = 'mode_' + cleanMode;
         const translated = t(this._hass, key);
         return translated !== key ? translated : mode.replace(/_/g, ' ');
+    }
+
+    _handleModeChipClick() {
+        const entityIds = this._entityIds;
+        const hass = this._hass;
+        if (!hass || !entityIds) return;
+
+        const status = entityIds.base_entity ? hass.states[entityIds.base_entity]?.state : 'unknown';
+        const active = this._isActive(status);
+        const modeSelectState = entityIds.mode_select ? hass.states[entityIds.mode_select] : null;
+        const canSelect = entityIds.mode_select
+            && modeSelectState?.state !== 'unavailable'
+            && !active;
+
+        if (canSelect) {
+            this._showModeDropdown = !this._showModeDropdown;
+            this.requestUpdate();
+        } else {
+            this._showMoreInfo(entityIds.mode || entityIds.mode_select);
+        }
+    }
+
+    _closeModeDropdown() {
+        this._showModeDropdown = false;
+        this.requestUpdate();
+    }
+
+    async _selectMode(option) {
+        this._showModeDropdown = false;
+        this.requestUpdate();
+        await this._hass.callService('select', 'select_option', {
+            entity_id: this._entityIds.mode_select,
+            option: option
+        });
     }
 
     _formatTime(seconds) {

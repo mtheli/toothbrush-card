@@ -1,5 +1,6 @@
 ha-card {
     container-type: inline-size;
+    overflow: visible;
 }
 
 /* ── HEADER ── */
@@ -51,20 +52,23 @@ ha-card {
     align-items: center;
     gap: 10px;
 }
-.header-icons svg {
+.header-icons svg:not(.conn-icon) {
     width: 16px;
     height: 16px;
 }
-.bt-icon {
-    color: var(--secondary-text-color);
-    opacity: 0.4;
+.conn-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--primary-color, #3b82f6);
+    fill: currentColor;
+    cursor: pointer;
+    opacity: 1;
     transition: color 0.4s, opacity 0.4s;
 }
-.bt-icon.bt-active {
+.conn-icon.active {
     color: #0082fc;
-    opacity: 1;
 }
-.bt-icon.bt-off {
+.conn-icon.disconnected {
     color: var(--disabled-text-color, #9ca3af);
     opacity: 0.3;
 }
@@ -165,6 +169,7 @@ ha-card {
 .chip-icon.blue  { color: #2563eb; }
 .chip-icon.amber { color: #d97706; }
 .chip-icon.red   { color: #dc2626; }
+.chip-icon.muted { color: var(--disabled-text-color, #9ca3af); }
 .chip-label {
     font-size: 9px;
     font-weight: 600;
@@ -209,6 +214,68 @@ ha-card {
 .p-normal .pb:nth-child(1),
 .p-normal .pb:nth-child(2) { background: #22c55e; }
 .p-high .pb { background: #ef4444; }
+
+/* ── MODE SELECTOR ── */
+.mode-chip-wrap {
+    position: relative;
+}
+.chip.selectable {
+    cursor: pointer;
+}
+.mode-caret {
+    font-size: 10px;
+    opacity: 0.5;
+}
+.chip-select-hint {
+    display: none;
+}
+.dropdown-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+}
+.mode-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 160px;
+    z-index: 10;
+    background: var(--card-background-color, #fff);
+    border: 1px solid var(--divider-color, #e5e7eb);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    overflow: hidden;
+    animation: dropdown-in 0.15s ease-out;
+}
+@keyframes dropdown-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.mode-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--primary-text-color);
+    transition: background 0.15s;
+}
+.mode-option:hover {
+    background: var(--secondary-background-color, #f3f4f6);
+}
+.mode-option.active {
+    color: #2563eb;
+    font-weight: 600;
+}
+.mode-option ha-icon {
+    --mdc-icon-size: 20px;
+    color: inherit;
+}
+.mode-option:not(:last-child) {
+    border-bottom: 1px solid var(--divider-color, #f3f4f6);
+}
 
 /* ── TOOTH VISUAL ── */
 .visual-area {
@@ -395,12 +462,22 @@ ha-card {
         justify-items: center;
         padding: 8px 4px;
         row-gap: 0;
+        position: relative;
     }
     .chip-icon, .pressure-bars {
         grid-row: auto;
     }
     .chip-label, .chip-value {
         display: none;
+    }
+    .chip-select-hint {
+        display: block;
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        --mdc-icon-size: 12px;
+        color: #2563eb;
+        opacity: 0.6;
     }
     .tooth-wrap {
         width: 180px;

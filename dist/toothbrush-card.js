@@ -795,6 +795,11 @@ const $84db147239ed44e7$export$d760b013da4dfa06 = (sectorClassData, numSectors =
 };
 
 
+const $3cb0a15594fd43d6$export$cd21dc7a72bbb52c = {
+    bluetooth: 'M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z',
+    lan_connect: 'M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z',
+    lan_disconnect: 'M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM17 7h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'
+};
 const $3cb0a15594fd43d6$export$1e083828221390e5 = {
     // OralB modes
     "daily_clean": "mdi:repeat-once",
@@ -815,20 +820,21 @@ const $3cb0a15594fd43d6$export$1e083828221390e5 = {
     "white_plus": "mdi:shimmer",
     "gum_health": "mdi:tooth-outline",
     "deep_clean_plus": "mdi:water",
+    "tongue_care": "mdi:emoticon-tongue-outline",
     "default": "mdi:brush-variant"
 };
 
 
 var $76eee68ef692a3c3$exports = {};
-$76eee68ef692a3c3$exports = JSON.parse('{"chip_battery":"Battery","chip_pressure":"Pressure","chip_intensity":"Intensity","chip_mode":"Mode","session":"Session","complete":"Complete","done_title":"Brushing complete!","done_sextants":"All 6 sextants finished","done_quadrants":"All 4 quadrants finished","pressure_low":"Low","pressure_normal":"Normal","pressure_medium":"Medium","pressure_high":"High","status_idle":"Idle","status_running":"Running","status_charging":"Charging","status_selection_menu":"Selection Menu","status_initializing":"Connecting\u2026","status_unavailable":"Unavailable","status_unknown":"Unknown","status_off":"Off","status_standby":"Standby","status_run":"Running","status_charge":"Charging","status_shutdown":"Shutdown","zone_upper_right":"Upper right","zone_upper_front":"Upper front","zone_upper_left":"Upper left","zone_lower_left":"Lower left","zone_lower_front":"Lower front","zone_lower_right":"Lower right","mode_daily_clean":"Daily Clean","mode_deep_clean":"Deep Clean","mode_gum_care":"Gum Care","mode_intense":"Intense","mode_massage":"Massage","mode_off":"Off","mode_sensitive":"Sensitive","mode_settings":"Settings","mode_super_sensitive":"Super Sensitive","mode_tongue_cleaning":"Tongue Clean","mode_turbo":"Turbo","mode_whiten":"Whiten","mode_whitening":"Whitening","mode_unknown":"Unknown","mode_clean":"Clean","mode_white_plus":"White+","mode_gum_health":"Gum Health","mode_deep_clean_plus":"Deep Clean+","config_device":"Device","config_title":"Title (Optional)","config_subtitle":"Show device name as subtitle","config_accent_color":"Accent color","config_sector_order":"Sector order","config_sector_mode_device":"Sectors reported by device","config_sector_mode_time":"Sectors calculated from routine time","config_select_device":"Please enter the device id"}');
+$76eee68ef692a3c3$exports = JSON.parse('{"chip_battery":"Battery","chip_pressure":"Pressure","chip_intensity":"Intensity","chip_mode":"Mode","session":"Session","complete":"Complete","done_title":"Brushing complete!","done_sextants":"All 6 sextants finished","done_quadrants":"All 4 quadrants finished","pressure_low":"Low","pressure_normal":"Normal","pressure_medium":"Medium","pressure_high":"High","status_idle":"Idle","status_running":"Running","status_charging":"Charging","status_selection_menu":"Selection Menu","status_initializing":"Connecting\u2026","status_unavailable":"Unavailable","status_unknown":"Unknown","status_off":"Off","status_standby":"Standby","status_run":"Running","status_charge":"Charging","status_shutdown":"Shutdown","zone_upper_right":"Upper right","zone_upper_front":"Upper front","zone_upper_left":"Upper left","zone_lower_left":"Lower left","zone_lower_front":"Lower front","zone_lower_right":"Lower right","mode_daily_clean":"Daily Clean","mode_deep_clean":"Deep Clean","mode_gum_care":"Gum Care","mode_intense":"Intense","mode_massage":"Massage","mode_off":"Off","mode_sensitive":"Sensitive","mode_settings":"Settings","mode_super_sensitive":"Super Sensitive","mode_tongue_cleaning":"Tongue Clean","mode_turbo":"Turbo","mode_whiten":"Whiten","mode_whitening":"Whitening","mode_unknown":"Unknown","mode_clean":"Clean","mode_white_plus":"White+","mode_gum_health":"Gum Health","mode_deep_clean_plus":"Deep Clean+","mode_tongue_care":"Tongue Care","config_device":"Device","config_title":"Title (Optional)","config_subtitle":"Show device name as subtitle","config_accent_color":"Accent color","config_sector_order":"Sector order","config_sector_mode_device":"Sectors reported by device","config_sector_mode_time":"Sectors calculated from routine time","config_select_device":"Please enter the device id"}');
 
 
 var $238d401f28c1db46$exports = {};
-$238d401f28c1db46$exports = JSON.parse('{"chip_battery":"Akku","chip_pressure":"Druck","chip_intensity":"Intensit\xe4t","chip_mode":"Modus","session":"Sitzung","complete":"Fertig","done_title":"Putzen abgeschlossen!","done_sextants":"Alle 6 Sextanten fertig","done_quadrants":"Alle 4 Quadranten fertig","pressure_low":"Niedrig","pressure_normal":"Normal","pressure_medium":"Mittel","pressure_high":"Hoch","status_idle":"Bereit","status_running":"Putzen","status_charging":"Laden","status_selection_menu":"Auswahl","status_initializing":"Verbinde\u2026","status_unavailable":"Nicht verf\xfcgbar","status_unknown":"Unbekannt","status_off":"Aus","status_standby":"Bereit","status_run":"Putzen","status_charge":"Laden","status_shutdown":"Ausschalten","zone_upper_right":"Oben rechts","zone_upper_front":"Oben vorne","zone_upper_left":"Oben links","zone_lower_left":"Unten links","zone_lower_front":"Unten vorne","zone_lower_right":"Unten rechts","mode_daily_clean":"T\xe4gliche Reinigung","mode_deep_clean":"Tiefenreinigung","mode_gum_care":"Zahnfleischschutz","mode_intense":"Intensiv","mode_massage":"Massage","mode_off":"Aus","mode_sensitive":"Sensitiv","mode_settings":"Einstellungen","mode_super_sensitive":"Extrasensitiv","mode_tongue_cleaning":"Zungenreinigung","mode_turbo":"Turbo","mode_whiten":"Aufhellen","mode_whitening":"Aufhellung","mode_unknown":"Unbekannt","mode_clean":"Reinigung","mode_white_plus":"White+","mode_gum_health":"Zahnfleischschutz","mode_deep_clean_plus":"Tiefenreinigung+","config_device":"Ger\xe4t","config_title":"Titel (Optional)","config_subtitle":"Ger\xe4tename als Untertitel anzeigen","config_accent_color":"Akzentfarbe","config_sector_order":"Sektorreihenfolge","config_sector_mode_device":"Sektoren vom Ger\xe4t gemeldet","config_sector_mode_time":"Sektoren aus Putzzeit berechnet","config_select_device":"Bitte Ger\xe4te-ID eingeben"}');
+$238d401f28c1db46$exports = JSON.parse('{"chip_battery":"Akku","chip_pressure":"Druck","chip_intensity":"Intensit\xe4t","chip_mode":"Modus","session":"Sitzung","complete":"Fertig","done_title":"Putzen abgeschlossen!","done_sextants":"Alle 6 Sextanten fertig","done_quadrants":"Alle 4 Quadranten fertig","pressure_low":"Niedrig","pressure_normal":"Normal","pressure_medium":"Mittel","pressure_high":"Hoch","status_idle":"Bereit","status_running":"Putzen","status_charging":"Laden","status_selection_menu":"Auswahl","status_initializing":"Verbinde\u2026","status_unavailable":"Nicht verf\xfcgbar","status_unknown":"Unbekannt","status_off":"Aus","status_standby":"Bereit","status_run":"Putzen","status_charge":"Laden","status_shutdown":"Ausschalten","zone_upper_right":"Oben rechts","zone_upper_front":"Oben vorne","zone_upper_left":"Oben links","zone_lower_left":"Unten links","zone_lower_front":"Unten vorne","zone_lower_right":"Unten rechts","mode_daily_clean":"T\xe4gliche Reinigung","mode_deep_clean":"Tiefenreinigung","mode_gum_care":"Zahnfleischschutz","mode_intense":"Intensiv","mode_massage":"Massage","mode_off":"Aus","mode_sensitive":"Sensitiv","mode_settings":"Einstellungen","mode_super_sensitive":"Extrasensitiv","mode_tongue_cleaning":"Zungenreinigung","mode_turbo":"Turbo","mode_whiten":"Aufhellen","mode_whitening":"Aufhellung","mode_unknown":"Unbekannt","mode_clean":"Reinigung","mode_white_plus":"White+","mode_gum_health":"Zahnfleischschutz","mode_deep_clean_plus":"Tiefenreinigung+","mode_tongue_care":"Zungenpflege","config_device":"Ger\xe4t","config_title":"Titel (Optional)","config_subtitle":"Ger\xe4tename als Untertitel anzeigen","config_accent_color":"Akzentfarbe","config_sector_order":"Sektorreihenfolge","config_sector_mode_device":"Sektoren vom Ger\xe4t gemeldet","config_sector_mode_time":"Sektoren aus Putzzeit berechnet","config_select_device":"Bitte Ger\xe4te-ID eingeben"}');
 
 
 var $450b7740649a7c34$exports = {};
-$450b7740649a7c34$exports = JSON.parse('{"chip_battery":"Batterij","chip_pressure":"Druk","chip_intensity":"Intensiteit","chip_mode":"Modus","session":"Sessie","complete":"Afgerond","done_title":"Klaar met poetsen!","done_sextants":"Alle 6 sectoren afgerond","done_quadrants":"Alle 4 sectoren afgerond","pressure_low":"Laag","pressure_normal":"Normaal","pressure_medium":"Midden","pressure_high":"Hoog","status_idle":"Rustend","status_running":"Draait","status_charging":"Opladen","status_selection_menu":"Selectie Menu","status_initializing":"Verbinden\u2026","status_unavailable":"Niet beschikbaar","status_unknown":"Onbekend","status_off":"Uit","status_standby":"Standby","status_run":"Draait","status_charge":"Laden","status_shutdown":"Afsluiten","zone_upper_right":"Boven rechts","zone_upper_front":"Boven voor","zone_upper_left":"Boven links","zone_lower_left":"Onder links","zone_lower_front":"Onder voor","zone_lower_right":"Onder rechts","mode_daily_clean":"Dagelijkse reiniging","mode_deep_clean":"Diepe reiniging","mode_gum_care":"Tandvlees verzorging","mode_intense":"Intens","mode_massage":"Massage","mode_off":"Uit","mode_sensitive":"Voorzichtig","mode_settings":"Instellingen","mode_super_sensitive":"Super voorzichtig","mode_tongue_cleaning":"Tong reiniging","mode_turbo":"Turbo","mode_whiten":"Bleken","mode_whitening":"Bleken","mode_unknown":"Onbekend","mode_clean":"Reinigen","mode_white_plus":"Bleek+","mode_gum_health":"Tandvlees gezondheid","mode_deep_clean_plus":"Diepe reiniging+","config_device":"Apparaat","config_title":"Titel (optioneel)","config_subtitle":"Toon apparaatnaam als onderschrift","config_accent_color":"Accentkleur","config_sector_order":"Sectorvolgorde","config_sector_mode_device":"Sectoren gerapporteerd door apparaat","config_sector_mode_time":"Sectoren berekend op basis van routine tijd","config_select_device":"Vul het apparaat-id in"}');
+$450b7740649a7c34$exports = JSON.parse('{"chip_battery":"Batterij","chip_pressure":"Druk","chip_intensity":"Intensiteit","chip_mode":"Modus","session":"Sessie","complete":"Afgerond","done_title":"Klaar met poetsen!","done_sextants":"Alle 6 sectoren afgerond","done_quadrants":"Alle 4 sectoren afgerond","pressure_low":"Laag","pressure_normal":"Normaal","pressure_medium":"Midden","pressure_high":"Hoog","status_idle":"Rustend","status_running":"Draait","status_charging":"Opladen","status_selection_menu":"Selectie Menu","status_initializing":"Verbinden\u2026","status_unavailable":"Niet beschikbaar","status_unknown":"Onbekend","status_off":"Uit","status_standby":"Standby","status_run":"Draait","status_charge":"Laden","status_shutdown":"Afsluiten","zone_upper_right":"Boven rechts","zone_upper_front":"Boven voor","zone_upper_left":"Boven links","zone_lower_left":"Onder links","zone_lower_front":"Onder voor","zone_lower_right":"Onder rechts","mode_daily_clean":"Dagelijkse reiniging","mode_deep_clean":"Diepe reiniging","mode_gum_care":"Tandvlees verzorging","mode_intense":"Intens","mode_massage":"Massage","mode_off":"Uit","mode_sensitive":"Voorzichtig","mode_settings":"Instellingen","mode_super_sensitive":"Super voorzichtig","mode_tongue_cleaning":"Tong reiniging","mode_turbo":"Turbo","mode_whiten":"Bleken","mode_whitening":"Bleken","mode_unknown":"Onbekend","mode_clean":"Reinigen","mode_white_plus":"Bleek+","mode_gum_health":"Tandvlees gezondheid","mode_deep_clean_plus":"Diepe reiniging+","mode_tongue_care":"Tongreiniging","config_device":"Apparaat","config_title":"Titel (optioneel)","config_subtitle":"Toon apparaatnaam als onderschrift","config_accent_color":"Accentkleur","config_sector_order":"Sectorvolgorde","config_sector_mode_device":"Sectoren gerapporteerd door apparaat","config_sector_mode_time":"Sectoren berekend op basis van routine tijd","config_select_device":"Vul het apparaat-id in"}');
 
 
 const $d8078e452c66bdbe$var$LOCALES = {
@@ -844,10 +850,10 @@ function $d8078e452c66bdbe$export$625550452a3fa3ec(hass, key) {
 
 
 var $7bfe0f8b5ad5b7ee$exports = {};
-$7bfe0f8b5ad5b7ee$exports = "ha-card {\n  container-type: inline-size;\n}\n\n.card-header {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n  justify-content: space-between;\n  align-items: center;\n  padding: 16px 18px 12px;\n  display: flex;\n  position: relative;\n  overflow: hidden;\n}\n\n.card-header:before {\n  content: \"\";\n  background: var(--accent-color, transparent);\n  opacity: .12;\n  pointer-events: none;\n  transition: background .5s;\n  position: absolute;\n  inset: 0;\n}\n\n.header-accent {\n  background: var(--accent-color);\n  border-radius: 3px;\n  flex-shrink: 0;\n  width: 4px;\n  height: 28px;\n  transition: background .4s;\n}\n\n.header-title {\n  align-items: center;\n  gap: 8px;\n  display: flex;\n}\n\n.header-title h2 {\n  color: var(--primary-text-color);\n  letter-spacing: -.01em;\n  margin: 0;\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.header-sub {\n  color: var(--secondary-text-color);\n  font-size: 12px;\n  font-weight: 400;\n}\n\n.header-icons {\n  align-items: center;\n  gap: 10px;\n  display: flex;\n}\n\n.header-icons svg {\n  width: 16px;\n  height: 16px;\n}\n\n.bt-icon {\n  color: var(--secondary-text-color);\n  opacity: .4;\n  transition: color .4s, opacity .4s;\n}\n\n.bt-icon.bt-active {\n  color: #0082fc;\n  opacity: 1;\n}\n\n.bt-icon.bt-off {\n  color: var(--disabled-text-color, #9ca3af);\n  opacity: .3;\n}\n\n.more-info-btn {\n  cursor: pointer;\n  opacity: .5;\n  transition: opacity .2s;\n  color: var(--secondary-text-color) !important;\n}\n\n.more-info-btn:hover {\n  opacity: 1;\n}\n\n.init-wrap {\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  padding: 24px 0 32px;\n  display: flex;\n  overflow: hidden;\n}\n\n.init-rings {\n  flex-shrink: 0;\n  justify-content: center;\n  align-items: center;\n  width: 180px;\n  height: 180px;\n  display: flex;\n  position: relative;\n}\n\n.init-ring {\n  border: 2px solid var(--primary-color, #3b82f6);\n  opacity: 0;\n  border-radius: 50%;\n  animation: 3s ease-out infinite initPulse;\n  position: absolute;\n}\n\n.init-ring-1 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 0s;\n}\n\n.init-ring-2 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 1s;\n}\n\n.init-ring-3 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 2s;\n}\n\n@keyframes initPulse {\n  0% {\n    opacity: .6;\n    width: 70px;\n    height: 70px;\n  }\n\n  100% {\n    opacity: 0;\n    width: 190px;\n    height: 190px;\n  }\n}\n\n.init-bt {\n  z-index: 1;\n  width: 52px;\n  height: 52px;\n  animation: 2s ease-in-out infinite initBtPulse;\n  position: relative;\n}\n\n.init-bt svg {\n  width: 52px;\n  height: 52px;\n}\n\n@keyframes initBtPulse {\n  0%, 100% {\n    opacity: .5;\n    transform: scale(.95);\n  }\n\n  50% {\n    opacity: 1;\n    transform: scale(1.05);\n  }\n}\n\n.init-label {\n  color: var(--primary-color, #3b82f6);\n  margin-top: 6px;\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.chips-row {\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n  padding: 12px 14px;\n  display: grid;\n}\n\n.chip {\n  background: var(--card-background-color, #f9fafb);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  cursor: pointer;\n  border-radius: 10px;\n  grid-template-rows: auto auto;\n  grid-template-columns: auto 1fr;\n  align-items: center;\n  gap: 1px 8px;\n  padding: 8px 10px;\n  display: grid;\n}\n\n.chip-icon {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.chip-icon ha-icon {\n  --mdc-icon-size: 24px;\n}\n\n.chip-icon.green {\n  color: #16a34a;\n}\n\n.chip-icon.blue {\n  color: #2563eb;\n}\n\n.chip-icon.amber {\n  color: #d97706;\n}\n\n.chip-icon.red {\n  color: #dc2626;\n}\n\n.chip-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .06em;\n  font-size: 9px;\n  font-weight: 600;\n}\n\n.chip-value {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1;\n  overflow: hidden;\n}\n\n.chip-value.green {\n  color: #16a34a;\n}\n\n.chip-value.blue {\n  color: #2563eb;\n}\n\n.chip-value.amber {\n  color: #d97706;\n}\n\n.chip-value.red {\n  color: #dc2626;\n}\n\n.pressure-bars {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: flex-end;\n  gap: 2px;\n  display: flex;\n}\n\n.pb {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  width: 4px;\n  transition: background .3s;\n}\n\n.pb:first-child {\n  height: 5px;\n}\n\n.pb:nth-child(2) {\n  height: 9px;\n}\n\n.pb:nth-child(3) {\n  height: 13px;\n}\n\n.pb:nth-child(4) {\n  height: 18px;\n}\n\n.p-low .pb:first-child {\n  background: #f59e0b;\n}\n\n.p-normal .pb:first-child, .p-normal .pb:nth-child(2) {\n  background: #22c55e;\n}\n\n.p-high .pb {\n  background: #ef4444;\n}\n\n.visual-area {\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 14px 10px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-wrap {\n  justify-content: center;\n  align-items: center;\n  width: 210px;\n  height: 210px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-svg {\n  width: 100%;\n  height: 100%;\n}\n\n.zone {\n  fill: var(--divider-color, #f3f4f6);\n  transition: fill .3s;\n}\n\n.brushing .zone {\n  animation: .8s ease-in-out infinite alternate brush-zone;\n}\n\n@keyframes brush-zone {\n  from {\n    fill: #bfdbfe;\n  }\n\n  to {\n    fill: #93c5fd;\n  }\n}\n\n.done .zone {\n  fill: #bbf7d0 !important;\n}\n\n.center-info {\n  text-align: center;\n  pointer-events: none;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.session-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .1em;\n  margin-bottom: 2px;\n  font-size: 9px;\n  font-weight: 600;\n  display: block;\n}\n\n.timer-display {\n  color: var(--primary-text-color);\n  letter-spacing: -1px;\n  font-variant-numeric: tabular-nums;\n  font-size: 30px;\n  font-weight: 400;\n  line-height: 1;\n  transition: color .4s;\n}\n\n.timer-display.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-text-wrap {\n  text-align: center;\n  cursor: pointer;\n  margin: 2px 0 10px;\n}\n\n.status-main {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 14px;\n  font-weight: 600;\n  transition: color .4s;\n}\n\n.status-main.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-sub {\n  color: var(--secondary-text-color);\n  text-transform: capitalize;\n  margin-top: 1px;\n  font-size: 11px;\n}\n\n.progress-wrap {\n  opacity: 0;\n  width: 100%;\n  height: 0;\n  padding: 0 14px;\n  transition: opacity .4s, height .4s;\n  overflow: hidden;\n}\n\n.progress-wrap.visible {\n  opacity: 1;\n  height: auto;\n  padding: 0 14px 10px;\n}\n\n.progress-track {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  height: 4px;\n  overflow: hidden;\n}\n\n.progress-fill {\n  background: linear-gradient(90deg, #3b82f6, #22c55e);\n  border-radius: 2px;\n  height: 100%;\n  transition: width .5s;\n}\n\n.progress-labels {\n  color: var(--secondary-text-color);\n  justify-content: space-between;\n  margin-top: 4px;\n  font-size: 10px;\n  display: flex;\n}\n\n.done-badge {\n  background: var(--card-background-color, #f0fdf4);\n  text-align: center;\n  border-top: 1px solid #bbf7d0;\n  padding: 10px 14px;\n  display: none;\n}\n\n.done-badge.show {\n  animation: .4s cubic-bezier(.34, 1.56, .64, 1) pop-in;\n  display: block;\n}\n\n@keyframes pop-in {\n  from {\n    opacity: 0;\n    transform: scaleY(.7);\n  }\n\n  to {\n    opacity: 1;\n    transform: scaleY(1);\n  }\n}\n\n.done-badge p {\n  color: #15803d;\n  margin: 0;\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.done-badge span {\n  color: #16a34a;\n  font-size: 11px;\n}\n\n.brushhead-indicator {\n  cursor: pointer;\n  opacity: .8;\n  flex-direction: column;\n  align-items: center;\n  gap: 2px;\n  transition: opacity .2s;\n  display: flex;\n  position: absolute;\n  top: 8px;\n  right: 14px;\n}\n\n.brushhead-indicator:hover {\n  opacity: 1;\n}\n\n.brushhead-svg {\n  width: 16px;\n  height: 42px;\n}\n\n.brushhead-pct {\n  color: var(--secondary-text-color);\n  font-size: 9px;\n  font-weight: 600;\n}\n\n@container (width <= 350px) {\n  .chip {\n    grid-template-columns: 1fr;\n    justify-items: center;\n    row-gap: 0;\n    padding: 8px 4px;\n  }\n\n  .chip-icon, .pressure-bars {\n    grid-row: auto;\n  }\n\n  .chip-label, .chip-value {\n    display: none;\n  }\n\n  .tooth-wrap {\n    width: 180px;\n    height: 180px;\n  }\n\n  .timer-display {\n    font-size: 26px;\n  }\n}\n";
+$7bfe0f8b5ad5b7ee$exports = "ha-card {\n  overflow: visible;\n  container-type: inline-size;\n}\n\n.card-header {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n  justify-content: space-between;\n  align-items: center;\n  padding: 16px 18px 12px;\n  display: flex;\n  position: relative;\n  overflow: hidden;\n}\n\n.card-header:before {\n  content: \"\";\n  background: var(--accent-color, transparent);\n  opacity: .12;\n  pointer-events: none;\n  transition: background .5s;\n  position: absolute;\n  inset: 0;\n}\n\n.header-accent {\n  background: var(--accent-color);\n  border-radius: 3px;\n  flex-shrink: 0;\n  width: 4px;\n  height: 28px;\n  transition: background .4s;\n}\n\n.header-title {\n  align-items: center;\n  gap: 8px;\n  display: flex;\n}\n\n.header-title h2 {\n  color: var(--primary-text-color);\n  letter-spacing: -.01em;\n  margin: 0;\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.header-sub {\n  color: var(--secondary-text-color);\n  font-size: 12px;\n  font-weight: 400;\n}\n\n.header-icons {\n  align-items: center;\n  gap: 10px;\n  display: flex;\n}\n\n.header-icons svg:not(.conn-icon) {\n  width: 16px;\n  height: 16px;\n}\n\n.conn-icon {\n  width: 18px;\n  height: 18px;\n  color: var(--primary-color, #3b82f6);\n  fill: currentColor;\n  cursor: pointer;\n  opacity: 1;\n  transition: color .4s, opacity .4s;\n}\n\n.conn-icon.active {\n  color: #0082fc;\n}\n\n.conn-icon.disconnected {\n  color: var(--disabled-text-color, #9ca3af);\n  opacity: .3;\n}\n\n.more-info-btn {\n  cursor: pointer;\n  opacity: .5;\n  transition: opacity .2s;\n  color: var(--secondary-text-color) !important;\n}\n\n.more-info-btn:hover {\n  opacity: 1;\n}\n\n.init-wrap {\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  padding: 24px 0 32px;\n  display: flex;\n  overflow: hidden;\n}\n\n.init-rings {\n  flex-shrink: 0;\n  justify-content: center;\n  align-items: center;\n  width: 180px;\n  height: 180px;\n  display: flex;\n  position: relative;\n}\n\n.init-ring {\n  border: 2px solid var(--primary-color, #3b82f6);\n  opacity: 0;\n  border-radius: 50%;\n  animation: 3s ease-out infinite initPulse;\n  position: absolute;\n}\n\n.init-ring-1 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 0s;\n}\n\n.init-ring-2 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 1s;\n}\n\n.init-ring-3 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 2s;\n}\n\n@keyframes initPulse {\n  0% {\n    opacity: .6;\n    width: 70px;\n    height: 70px;\n  }\n\n  100% {\n    opacity: 0;\n    width: 190px;\n    height: 190px;\n  }\n}\n\n.init-bt {\n  z-index: 1;\n  width: 52px;\n  height: 52px;\n  animation: 2s ease-in-out infinite initBtPulse;\n  position: relative;\n}\n\n.init-bt svg {\n  width: 52px;\n  height: 52px;\n}\n\n@keyframes initBtPulse {\n  0%, 100% {\n    opacity: .5;\n    transform: scale(.95);\n  }\n\n  50% {\n    opacity: 1;\n    transform: scale(1.05);\n  }\n}\n\n.init-label {\n  color: var(--primary-color, #3b82f6);\n  margin-top: 6px;\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.chips-row {\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n  padding: 12px 14px;\n  display: grid;\n}\n\n.chip {\n  background: var(--card-background-color, #f9fafb);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  cursor: pointer;\n  border-radius: 10px;\n  grid-template-rows: auto auto;\n  grid-template-columns: auto 1fr;\n  align-items: center;\n  gap: 1px 8px;\n  padding: 8px 10px;\n  display: grid;\n}\n\n.chip-icon {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.chip-icon ha-icon {\n  --mdc-icon-size: 24px;\n}\n\n.chip-icon.green {\n  color: #16a34a;\n}\n\n.chip-icon.blue {\n  color: #2563eb;\n}\n\n.chip-icon.amber {\n  color: #d97706;\n}\n\n.chip-icon.red {\n  color: #dc2626;\n}\n\n.chip-icon.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.chip-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .06em;\n  font-size: 9px;\n  font-weight: 600;\n}\n\n.chip-value {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1;\n  overflow: hidden;\n}\n\n.chip-value.green {\n  color: #16a34a;\n}\n\n.chip-value.blue {\n  color: #2563eb;\n}\n\n.chip-value.amber {\n  color: #d97706;\n}\n\n.chip-value.red {\n  color: #dc2626;\n}\n\n.pressure-bars {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: flex-end;\n  gap: 2px;\n  display: flex;\n}\n\n.pb {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  width: 4px;\n  transition: background .3s;\n}\n\n.pb:first-child {\n  height: 5px;\n}\n\n.pb:nth-child(2) {\n  height: 9px;\n}\n\n.pb:nth-child(3) {\n  height: 13px;\n}\n\n.pb:nth-child(4) {\n  height: 18px;\n}\n\n.p-low .pb:first-child {\n  background: #f59e0b;\n}\n\n.p-normal .pb:first-child, .p-normal .pb:nth-child(2) {\n  background: #22c55e;\n}\n\n.p-high .pb {\n  background: #ef4444;\n}\n\n.mode-chip-wrap {\n  position: relative;\n}\n\n.chip.selectable {\n  cursor: pointer;\n}\n\n.mode-caret {\n  opacity: .5;\n  font-size: 10px;\n}\n\n.chip-select-hint {\n  display: none;\n}\n\n.dropdown-backdrop {\n  z-index: 9;\n  position: fixed;\n  inset: 0;\n}\n\n.mode-dropdown {\n  z-index: 10;\n  background: var(--card-background-color, #fff);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  border-radius: 12px;\n  min-width: 160px;\n  animation: .15s ease-out dropdown-in;\n  position: absolute;\n  top: calc(100% + 4px);\n  right: 0;\n  overflow: hidden;\n  box-shadow: 0 4px 16px #0000001f;\n}\n\n@keyframes dropdown-in {\n  from {\n    opacity: 0;\n    transform: translateY(-4px);\n  }\n\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n.mode-option {\n  cursor: pointer;\n  color: var(--primary-text-color);\n  align-items: center;\n  gap: 10px;\n  padding: 10px 14px;\n  font-size: 13px;\n  font-weight: 500;\n  transition: background .15s;\n  display: flex;\n}\n\n.mode-option:hover {\n  background: var(--secondary-background-color, #f3f4f6);\n}\n\n.mode-option.active {\n  color: #2563eb;\n  font-weight: 600;\n}\n\n.mode-option ha-icon {\n  --mdc-icon-size: 20px;\n  color: inherit;\n}\n\n.mode-option:not(:last-child) {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n}\n\n.visual-area {\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 14px 10px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-wrap {\n  justify-content: center;\n  align-items: center;\n  width: 210px;\n  height: 210px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-svg {\n  width: 100%;\n  height: 100%;\n}\n\n.zone {\n  fill: var(--divider-color, #f3f4f6);\n  transition: fill .3s;\n}\n\n.brushing .zone {\n  animation: .8s ease-in-out infinite alternate brush-zone;\n}\n\n@keyframes brush-zone {\n  from {\n    fill: #bfdbfe;\n  }\n\n  to {\n    fill: #93c5fd;\n  }\n}\n\n.done .zone {\n  fill: #bbf7d0 !important;\n}\n\n.center-info {\n  text-align: center;\n  pointer-events: none;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.session-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .1em;\n  margin-bottom: 2px;\n  font-size: 9px;\n  font-weight: 600;\n  display: block;\n}\n\n.timer-display {\n  color: var(--primary-text-color);\n  letter-spacing: -1px;\n  font-variant-numeric: tabular-nums;\n  font-size: 30px;\n  font-weight: 400;\n  line-height: 1;\n  transition: color .4s;\n}\n\n.timer-display.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-text-wrap {\n  text-align: center;\n  cursor: pointer;\n  margin: 2px 0 10px;\n}\n\n.status-main {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 14px;\n  font-weight: 600;\n  transition: color .4s;\n}\n\n.status-main.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-sub {\n  color: var(--secondary-text-color);\n  text-transform: capitalize;\n  margin-top: 1px;\n  font-size: 11px;\n}\n\n.progress-wrap {\n  opacity: 0;\n  width: 100%;\n  height: 0;\n  padding: 0 14px;\n  transition: opacity .4s, height .4s;\n  overflow: hidden;\n}\n\n.progress-wrap.visible {\n  opacity: 1;\n  height: auto;\n  padding: 0 14px 10px;\n}\n\n.progress-track {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  height: 4px;\n  overflow: hidden;\n}\n\n.progress-fill {\n  background: linear-gradient(90deg, #3b82f6, #22c55e);\n  border-radius: 2px;\n  height: 100%;\n  transition: width .5s;\n}\n\n.progress-labels {\n  color: var(--secondary-text-color);\n  justify-content: space-between;\n  margin-top: 4px;\n  font-size: 10px;\n  display: flex;\n}\n\n.done-badge {\n  background: var(--card-background-color, #f0fdf4);\n  text-align: center;\n  border-top: 1px solid #bbf7d0;\n  padding: 10px 14px;\n  display: none;\n}\n\n.done-badge.show {\n  animation: .4s cubic-bezier(.34, 1.56, .64, 1) pop-in;\n  display: block;\n}\n\n@keyframes pop-in {\n  from {\n    opacity: 0;\n    transform: scaleY(.7);\n  }\n\n  to {\n    opacity: 1;\n    transform: scaleY(1);\n  }\n}\n\n.done-badge p {\n  color: #15803d;\n  margin: 0;\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.done-badge span {\n  color: #16a34a;\n  font-size: 11px;\n}\n\n.brushhead-indicator {\n  cursor: pointer;\n  opacity: .8;\n  flex-direction: column;\n  align-items: center;\n  gap: 2px;\n  transition: opacity .2s;\n  display: flex;\n  position: absolute;\n  top: 8px;\n  right: 14px;\n}\n\n.brushhead-indicator:hover {\n  opacity: 1;\n}\n\n.brushhead-svg {\n  width: 16px;\n  height: 42px;\n}\n\n.brushhead-pct {\n  color: var(--secondary-text-color);\n  font-size: 9px;\n  font-weight: 600;\n}\n\n@container (width <= 350px) {\n  .chip {\n    grid-template-columns: 1fr;\n    justify-items: center;\n    row-gap: 0;\n    padding: 8px 4px;\n    position: relative;\n  }\n\n  .chip-icon, .pressure-bars {\n    grid-row: auto;\n  }\n\n  .chip-label, .chip-value {\n    display: none;\n  }\n\n  .chip-select-hint {\n    --mdc-icon-size: 12px;\n    color: #2563eb;\n    opacity: .6;\n    display: block;\n    position: absolute;\n    bottom: 2px;\n    right: 2px;\n  }\n\n  .tooth-wrap {\n    width: 180px;\n    height: 180px;\n  }\n\n  .timer-display {\n    font-size: 26px;\n  }\n}\n";
 
 
-const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.7.0";
+const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.8.0";
 const $930552a63f9e9686$var$BRUSHING_DURATION = 120; // 2 minutes target
 const $930552a63f9e9686$export$5055f2a665f9cd1e = [
     'lower_left',
@@ -1036,14 +1042,15 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const p = String(pressure).toLowerCase();
         if (p === 'high') return 'p-high';
         if (p === 'low') return 'p-low';
-        return 'p-normal';
+        if (p === 'normal' || p === 'medium') return 'p-normal';
+        return '';
     }
     _getPressureColor(pressure) {
         const p = String(pressure).toLowerCase();
         if (p === 'high') return 'red';
         if (p === 'low') return 'amber';
         if (p === 'normal' || p === 'medium') return 'green';
-        return 'blue';
+        return '';
     }
     _isActive(status) {
         return status === 'running' || status === 'run';
@@ -1064,7 +1071,10 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
             routine_length: null,
             integration: null,
             brushhead_wear: null,
-            activity: null
+            activity: null,
+            mode_select: null,
+            esp_bridge_alive: null,
+            ble_connected: null
         };
         const allEntities = hass.entities;
         for(const entityId in allEntities){
@@ -1088,6 +1098,8 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
             } else if (entity.translation_key === 'model_number') entityKeys.model_number = entity.entity_id;
             else if (entity.translation_key === 'activity') entityKeys.activity = entity.entity_id;
             else if (entity.translation_key === 'brushing_time') entityKeys.duration = entity.entity_id;
+            else if (entity.translation_key === 'brushing_mode_select') entityKeys.mode_select = entity.entity_id;
+            else if (entity.translation_key === 'esp_bridge_alive') entityKeys.esp_bridge_alive = entity.entity_id;
             else if (entity.translation_key === 'routine_length') entityKeys.routine_length = entity.entity_id;
             if (deviceClass) {
                 if (entityKeys.battery === null && deviceClass === 'battery') entityKeys.battery = entity.entity_id;
@@ -1101,13 +1113,17 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
             entityKeys.base_entity = entityKeys.status;
             entityKeys.status = null;
         }
-        // Search child devices (e.g. Brush Head) for additional entities
+        // Search related devices (child + same config entry) for additional entities
         if (hass.devices) {
-            const childDevices = Object.values(hass.devices).filter((d)=>d.via_device_id === deviceId);
-            for (const child of childDevices)for(const entityId in allEntities){
+            const mainDevice = hass.devices[deviceId];
+            const configEntries = mainDevice?.config_entries || [];
+            const relatedDevices = Object.values(hass.devices).filter((d)=>d.id !== deviceId && (d.via_device_id === deviceId || d.config_entries?.some((ce)=>configEntries.includes(ce))));
+            for (const related of relatedDevices)for(const entityId in allEntities){
                 const entity = allEntities[entityId];
-                if (entity.device_id !== child.id) continue;
+                if (entity.device_id !== related.id) continue;
                 if (entity.translation_key === 'brushhead_wear') entityKeys.brushhead_wear = entity.entity_id;
+                else if (entity.translation_key === 'esp_bridge_alive') entityKeys.esp_bridge_alive = entity.entity_id;
+                else if (entity.translation_key === 'ble_connected') entityKeys.ble_connected = entity.entity_id;
             }
         }
         return entityKeys;
@@ -1131,14 +1147,23 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const numSectors = entityIds.number_of_sectors ? parseInt(hass.states[entityIds.number_of_sectors]?.state) || 4 : 4;
         const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
         const rawPressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
-        const pressure = rawPressure === 'on' ? 'high' : rawPressure === 'off' ? 'normal' : rawPressure;
-        const batteryLevel = entityIds.battery ? hass.states[entityIds.battery]?.state || 0 : 0;
-        const mode = entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
+        const pressure = rawPressure === 'unavailable' || rawPressure === 'unknown' ? "\u2013" : rawPressure === 'on' ? 'high' : rawPressure === 'off' ? 'normal' : rawPressure;
+        const rawBattery = entityIds.battery ? hass.states[entityIds.battery]?.state : null;
+        const batteryUnavailable = !rawBattery || rawBattery === 'unavailable' || rawBattery === 'unknown';
+        const batteryLevel = batteryUnavailable ? 0 : rawBattery;
+        const modeSelectState = entityIds.mode_select ? hass.states[entityIds.mode_select] : null;
+        const mode = modeSelectState?.state && modeSelectState.state !== 'unavailable' ? modeSelectState.state : entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
         const routineLength = entityIds.routine_length ? parseInt(hass.states[entityIds.routine_length]?.state) || 0 : 0;
         const brushheadWear = entityIds.brushhead_wear ? parseFloat(hass.states[entityIds.brushhead_wear]?.state) || null : null;
         const statusEntityId = entityIds.base_entity;
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
         const active = this._isActive(status);
+        // Mode selector
+        const canSelectMode = entityIds.mode_select && modeSelectState?.state !== 'unavailable' && !active;
+        const modeOptions = canSelectMode ? modeSelectState?.attributes?.options || [] : [];
+        if (active && this._showModeDropdown) this._showModeDropdown = false;
+        // ESP Bridge
+        const espConnected = entityIds.esp_bridge_alive ? hass.states[entityIds.esp_bridge_alive]?.state === 'on' : false;
         // Sonicare: show initializing screen while connecting
         const activity = entityIds.activity ? hass.states[entityIds.activity]?.state : null;
         if (activity === 'initializing') return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
@@ -1150,9 +1175,19 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                             ${headerSub ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`<span class="header-sub">${headerSub}</span>` : ''}
                         </div>
                         <div class="header-icons">
-                            <svg class="bt-icon bt-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/>
-                                <line x1="4" y1="4" x2="20" y2="20" stroke-width="2.5"/>
+                            <svg class="conn-icon disconnected" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="${(0, $3cb0a15594fd43d6$export$cd21dc7a72bbb52c).bluetooth}"/>
+                            </svg>
+                            ${entityIds.esp_bridge_alive ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+                            <svg class="conn-icon ${espConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
+                                 @click="${()=>this._showMoreInfo(entityIds.esp_bridge_alive)}">
+                                <path d="${espConnected ? (0, $3cb0a15594fd43d6$export$cd21dc7a72bbb52c).lan_connect : (0, $3cb0a15594fd43d6$export$cd21dc7a72bbb52c).lan_disconnect}"/>
+                            </svg>` : ''}
+                            <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
+                                 @click="${()=>this._showDeviceInfo()}">
+                                <circle cx="12" cy="5" r="1.5"/>
+                                <circle cx="12" cy="12" r="1.5"/>
+                                <circle cx="12" cy="19" r="1.5"/>
                             </svg>
                         </div>
                     </div>
@@ -1189,20 +1224,21 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder);
         const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
         const isSuccess = sector === 'success';
-        const batteryColor = this._getBatteryChipColor(batteryLevel);
+        const batteryColor = batteryUnavailable ? 'muted' : this._getBatteryChipColor(batteryLevel);
         const batteryIsCharging = status === 'charging' || status === 'charge';
-        const batteryIconName = this._getBatteryIcon(batteryLevel, batteryIsCharging);
+        const batteryIconName = batteryUnavailable ? 'mdi:battery-unknown' : this._getBatteryIcon(batteryLevel, batteryIsCharging);
         const pressureColor = this._getPressureColor(pressure);
         const pressureClass = this._getPressureClass(pressure);
-        const modeIcon = this._getModeIcon(mode);
-        const modeLabel = this._getModeLabel(mode);
+        const modeUnavailable = mode === 'unavailable' || mode === 'unknown' || mode === 'N/A';
+        const modeIcon = modeUnavailable ? 'mdi:brush-variant' : this._getModeIcon(mode);
+        const modeLabel = modeUnavailable ? "\u2013" : this._getModeLabel(mode);
         const targetDuration = routineLength || $930552a63f9e9686$var$BRUSHING_DURATION;
         const progressPct = Math.min(100, Math.round(duration / targetDuration * 100));
         const statusKey = 'status_' + status;
         const displayStatus = (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, statusKey) !== statusKey ? (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, statusKey) : status.replace(/_/g, ' ');
         const pressureKey = 'pressure_' + String(pressure).toLowerCase();
         const displayPressure = (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, pressureKey) !== pressureKey ? (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, pressureKey) : pressure.replace(/_/g, ' ');
-        const btConnected = status !== 'unavailable' && status !== 'unknown';
+        const btConnected = entityIds.ble_connected ? hass.states[entityIds.ble_connected]?.state === 'on' : status !== 'unavailable' && status !== 'unknown';
         const btActive = active || batteryIsCharging;
         const accentColor = config.accent_color || '#FFFFFF';
         return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
@@ -1215,11 +1251,15 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                         ${headerSub ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`<span class="header-sub">${headerSub}</span>` : ''}
                     </div>
                     <div class="header-icons">
-                        <svg class="bt-icon ${btActive ? 'bt-active' : ''} ${!btConnected ? 'bt-off' : ''}"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/>
-                            ${!btConnected ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`<line x1="4" y1="4" x2="20" y2="20" stroke-width="2.5"/>` : ''}
+                        <svg class="conn-icon ${btActive ? 'active' : ''} ${!btConnected ? 'disconnected' : ''}"
+                             viewBox="0 0 24 24" fill="currentColor">
+                            <path d="${(0, $3cb0a15594fd43d6$export$cd21dc7a72bbb52c).bluetooth}"/>
                         </svg>
+                        ${entityIds.esp_bridge_alive ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+                        <svg class="conn-icon ${espConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
+                             @click="${()=>this._showMoreInfo(entityIds.esp_bridge_alive)}">
+                            <path d="${espConnected ? (0, $3cb0a15594fd43d6$export$cd21dc7a72bbb52c).lan_connect : (0, $3cb0a15594fd43d6$export$cd21dc7a72bbb52c).lan_disconnect}"/>
+                        </svg>` : ''}
                         <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
                              @click="${()=>this._showDeviceInfo()}">
                             <circle cx="12" cy="5" r="1.5"/>
@@ -1236,7 +1276,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                             <ha-icon icon="${batteryIconName}"></ha-icon>
                         </div>
                         <span class="chip-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'chip_battery')}</span>
-                        <div class="chip-value ${batteryColor}">${batteryLevel}%</div>
+                        <div class="chip-value ${batteryColor}">${batteryUnavailable ? "\u2013" : (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`${batteryLevel}%`}</div>
                     </div>
 
                     <div class="chip" @click="${()=>this._showMoreInfo(entityIds.pressure)}">
@@ -1248,12 +1288,31 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                         <div class="chip-value ${pressureColor}">${displayPressure}</div>
                     </div>
 
-                    <div class="chip" @click="${()=>this._showMoreInfo(entityIds.mode)}">
-                        <div class="chip-icon blue">
-                            <ha-icon icon="${modeIcon}"></ha-icon>
+                    <div class="mode-chip-wrap">
+                        <div class="chip ${canSelectMode ? 'selectable' : ''}"
+                             @click="${()=>this._handleModeChipClick()}">
+                            <div class="chip-icon ${modeUnavailable ? 'muted' : 'blue'}">
+                                <ha-icon icon="${modeIcon}"></ha-icon>
+                            </div>
+                            <span class="chip-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'chip_mode')}</span>
+                            <div class="chip-value ${modeUnavailable ? '' : 'blue'}" style="font-size:12px;">${modeLabel}${canSelectMode ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`<span class="mode-caret"> ▾</span>` : ''}</div>
+                            ${canSelectMode ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`<ha-icon class="chip-select-hint" icon="mdi:chevron-down"></ha-icon>` : ''}
                         </div>
-                        <span class="chip-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'chip_mode')}</span>
-                        <div class="chip-value blue" style="font-size:12px;">${modeLabel}</div>
+                        ${this._showModeDropdown && canSelectMode ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+                            <div class="dropdown-backdrop" @click="${()=>this._closeModeDropdown()}"></div>
+                            <div class="mode-dropdown">
+                                ${modeOptions.map((opt)=>(0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+                                    <div class="mode-option ${opt === mode ? 'active' : ''}"
+                                         @click="${(e)=>{
+                e.stopPropagation();
+                this._selectMode(opt);
+            }}">
+                                        <ha-icon icon="${this._getModeIcon(opt)}"></ha-icon>
+                                        <span>${this._getModeLabel(opt)}</span>
+                                    </div>
+                                `)}
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
 
@@ -1281,6 +1340,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                         </div>
                         <div class="progress-labels">
                             <span>${sectorLabel || ''}</span>
+                            <span>${targetDuration > 0 ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`${this._formatTime(duration)} / ${this._formatTime(targetDuration)}` : ''}</span>
                             <span>${progressPct}%</span>
                         </div>
                     </div>
@@ -1349,6 +1409,31 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const key = 'mode_' + cleanMode;
         const translated = (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this._hass, key);
         return translated !== key ? translated : mode.replace(/_/g, ' ');
+    }
+    _handleModeChipClick() {
+        const entityIds = this._entityIds;
+        const hass = this._hass;
+        if (!hass || !entityIds) return;
+        const status = entityIds.base_entity ? hass.states[entityIds.base_entity]?.state : 'unknown';
+        const active = this._isActive(status);
+        const modeSelectState = entityIds.mode_select ? hass.states[entityIds.mode_select] : null;
+        const canSelect = entityIds.mode_select && modeSelectState?.state !== 'unavailable' && !active;
+        if (canSelect) {
+            this._showModeDropdown = !this._showModeDropdown;
+            this.requestUpdate();
+        } else this._showMoreInfo(entityIds.mode || entityIds.mode_select);
+    }
+    _closeModeDropdown() {
+        this._showModeDropdown = false;
+        this.requestUpdate();
+    }
+    async _selectMode(option) {
+        this._showModeDropdown = false;
+        this.requestUpdate();
+        await this._hass.callService('select', 'select_option', {
+            entity_id: this._entityIds.mode_select,
+            option: option
+        });
     }
     _formatTime(seconds) {
         const secs = parseInt(seconds);
