@@ -37,7 +37,7 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 | Sensor    | Oral-B                          | Philips Sonicare                          |
 |-----------|---------------------------------|-------------------------------------------|
 | Status    | idle, running, charging, …      | off, standby, run, charge, …              |
-| Sector    | Reported by device (1–6)        | Calculated from routine time (4 quadrants)|
+| Sector    | Reported by device (1–6)        | Calculated from routine time (4 or 6 sectors, configurable) |
 | Duration  | Brushing session (seconds)      | Brushing time (seconds)                   |
 | Pressure  | low, normal, high               | —                                         |
 | Intensity | —                               | low, medium, high                         |
@@ -76,7 +76,8 @@ The card is configured via the UI — just add it and select your toothbrush dev
 | title         | string   | —       | Custom title (default: manufacturer)         |
 | show_subtitle | boolean  | true    | Show device name as subtitle                 |
 | accent_color  | string   | —       | Header accent color (hex, e.g. `#0085FF`)    |
-| sector_order  | string[] | —       | Custom sector order (e.g. for 6-sector mode) |
+| num_sectors   | 4 \| 6   | auto    | Override sector count (Oral-B: from device; Sonicare: 4 default, set to 6 for Prestige/HX999B) |
+| sector_order  | string[] | —       | Custom sector order (drag & drop in UI)      |
 
 ### YAML Example
 ```yaml

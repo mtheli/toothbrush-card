@@ -60,6 +60,7 @@
   "config_title": "Titel (Optional)",
   "config_subtitle": "Gerätename als Untertitel anzeigen",
   "config_accent_color": "Akzentfarbe",
+  "config_num_sectors": "Anzahl Sektoren",
   "config_sector_order": "Sektorreihenfolge",
   "config_sector_mode_device": "Sektoren vom Gerät gemeldet",
   "config_sector_mode_time": "Sektoren aus Putzzeit berechnet",

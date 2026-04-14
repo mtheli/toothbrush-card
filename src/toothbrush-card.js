@@ -10,7 +10,7 @@ export const CARD_VERSION = "0.8.0";
 const BRUSHING_DURATION = 120; // 2 minutes target
 
 export const QUADRANT_ZONES = ['lower_left', 'lower_right', 'upper_left', 'upper_right'];
-export const SEXTANT_ZONES = ['upper_right', 'upper_front', 'upper_left', 'lower_left', 'lower_front', 'lower_right'];
+export const SEXTANT_ZONES = ['lower_left', 'lower_front', 'lower_right', 'upper_right', 'upper_front', 'upper_left'];
 
 export const ACCENT_COLORS = [
     { name: 'Blue',         color: '#0085FF' },
@@ -345,9 +345,10 @@ export class ToothbrushCard extends LitElement {
             : rawSub;
 
         // Read sensor states
-        const numSectors = entityIds.number_of_sectors
-            ? parseInt(hass.states[entityIds.number_of_sectors]?.state) || 4
-            : 4;
+        const numSectorsFromEntity = entityIds.number_of_sectors
+            ? parseInt(hass.states[entityIds.number_of_sectors]?.state) || null
+            : null;
+        const numSectors = config.num_sectors || numSectorsFromEntity || 4;
         const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
         const rawPressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
         const pressure = rawPressure === 'unavailable' || rawPressure === 'unknown'
@@ -438,9 +439,9 @@ export class ToothbrushCard extends LitElement {
         if (entityIds.sector) {
             sector = hass.states[entityIds.sector]?.state || 'no_sector';
         } else if (routineLength > 0 && active && duration > 0) {
-            const sectorDuration = routineLength / 4;
+            const sectorDuration = routineLength / numSectors;
             // +1 because _parseRawSectorIndex expects 1-based values (OralB convention)
-            const idx = Math.min(4, Math.floor(duration / sectorDuration) + 1);
+            const idx = Math.min(numSectors, Math.floor(duration / sectorDuration) + 1);
             sector = String(idx);
         } else if (routineLength > 0 && duration >= routineLength && duration > 0) {
             sector = 'success';

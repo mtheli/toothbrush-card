@@ -60,6 +60,7 @@
   "config_title": "Titel (optioneel)",
   "config_subtitle": "Toon apparaatnaam als onderschrift",
   "config_accent_color": "Accentkleur",
+  "config_num_sectors": "Aantal sectoren",
   "config_sector_order": "Sectorvolgorde",
   "config_sector_mode_device": "Sectoren gerapporteerd door apparaat",
   "config_sector_mode_time": "Sectoren berekend op basis van routine tijd",

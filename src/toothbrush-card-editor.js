@@ -33,6 +33,11 @@ export class ToothbrushCardEditor extends LitElement {
     }
 
     _getNumSectors() {
+        if (this._config?.num_sectors) return this._config.num_sectors;
+        return this._getEntityNumSectors();
+    }
+
+    _getEntityNumSectors() {
         if (!this.hass || !this._config?.device_id) return 4;
         for (const entityId in this.hass.entities) {
             const entity = this.hass.entities[entityId];
@@ -69,6 +74,7 @@ export class ToothbrushCardEditor extends LitElement {
         const deviceId = ev.detail.value;
         const newConfig = { ...this._config, device_id: deviceId };
         delete newConfig.sector_order;
+        delete newConfig.num_sectors;
         this._config = newConfig;
         this._fireConfig(newConfig);
     }
@@ -117,6 +123,20 @@ export class ToothbrushCardEditor extends LitElement {
 
     _resetOrder() {
         const newConfig = { ...this._config };
+        delete newConfig.sector_order;
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+
+    _numSectorsChanged(value) {
+        const parsed = parseInt(value);
+        const entityValue = this._getEntityNumSectors();
+        const newConfig = { ...this._config };
+        if (parsed && parsed !== entityValue) {
+            newConfig.num_sectors = parsed;
+        } else {
+            delete newConfig.num_sectors;
+        }
         delete newConfig.sector_order;
         this._config = newConfig;
         this._fireConfig(newConfig);
@@ -178,6 +198,19 @@ export class ToothbrushCardEditor extends LitElement {
                 </div>
 
                 ${this._config.device_id ? html`
+                    <div class="field">
+                        <ha-selector
+                            .hass=${this.hass}
+                            .selector=${{ select: { mode: 'dropdown', options: [
+                                { value: '4', label: '4' },
+                                { value: '6', label: '6' },
+                            ] } }}
+                            .label=${t(this.hass, 'config_num_sectors')}
+                            .value=${String(numSectors)}
+                            @value-changed=${(ev) => this._numSectorsChanged(ev.detail.value)}
+                        ></ha-selector>
+                    </div>
+
                     <div class="section-label">
                         <span>${t(this.hass, 'config_sector_order')}</span>
                         ${isCustom ? html`
