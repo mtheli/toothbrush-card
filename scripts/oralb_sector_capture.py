@@ -14,9 +14,9 @@ The library currently only decodes sectors 1-4; brushes reporting 6 sectors
 
 Usage
 -----
-Start the script, then run a FULL brushing session, actively moving through
-EVERY sector the brush supports, holding each sector for a few seconds so
-multiple advertisements are captured per sector:
+Start the script, then run a FULL brushing session. Keep the motor running
+and spend ~5-10 seconds brushing each sector before moving to the next —
+do not pause the brush between sectors, just move it:
 
     python3 oralb_sector_capture.py
     python3 oralb_sector_capture.py --json oralb_capture.json
@@ -180,8 +180,9 @@ class Capture:
             print(f"Filtering for MAC: {self.mac_filter}")
         else:
             print("Listening to ALL Oral-B devices in range.")
-        print("Start a brushing session and deliberately brush every sector")
-        print("for ~5-10 seconds each. Press Ctrl+C when done.")
+        print("Start a brushing session and keep the motor running through")
+        print("every sector, spending ~5-10 seconds in each one. Press Ctrl+C")
+        print("once the routine ends.")
         if self.json_path:
             print(f"JSON output: {self.json_path}")
         print("=" * 78)
