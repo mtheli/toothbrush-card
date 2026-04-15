@@ -222,6 +222,9 @@ export class ToothbrushCardEditor extends LitElement {
                             ? t(this.hass, 'config_sector_mode_device')
                             : t(this.hass, 'config_sector_mode_time')}
                     </div>
+                    <div class="sector-revisit-hint">
+                        ${t(this.hass, 'config_sector_revisit_hint')}
+                    </div>
                     <div class="sector-list" @dragend=${this._dragEnd}>
                         ${order.map((zone, i) => html`
                             <div class="sector-item ${this._dragIndex === i ? 'dragging' : ''} ${this._overIndex === i && this._dragIndex !== i ? 'over' : ''}"
@@ -289,6 +292,12 @@ export class ToothbrushCardEditor extends LitElement {
                 color: var(--secondary-text-color, #888);
                 font-style: italic;
                 margin-bottom: 8px;
+            }
+            .sector-revisit-hint {
+                font-size: 11px;
+                color: var(--secondary-text-color, #888);
+                margin-bottom: 8px;
+                line-height: 1.4;
             }
             .sector-list {
                 display: flex;

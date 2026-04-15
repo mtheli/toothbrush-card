@@ -138,6 +138,16 @@ export class ToothbrushCard extends LitElement {
         return this._correctedIndex;
     }
 
+    _trackVisitedSector(rawIndex, active) {
+        if (!active) {
+            this._visitedSectors = null;
+            return 0;
+        }
+        if (!this._visitedSectors) this._visitedSectors = new Set();
+        if (rawIndex >= 0) this._visitedSectors.add(rawIndex);
+        return this._visitedSectors.size;
+    }
+
     _parseRawSectorIndex(sector) {
         const match = String(sector).match(/(\d+)/);
         if (match) {
@@ -147,7 +157,7 @@ export class ToothbrushCard extends LitElement {
         return -1;
     }
 
-    _getSectorData(sector, activeIndex, sectorOrder) {
+    _getSectorData(sector, activeIndex, sectorOrder, doneCount = null) {
         const sectorClassMaps = {};
         sectorOrder.forEach(s => { sectorClassMaps[s] = { done: false, brushing: false }; });
 
@@ -160,11 +170,17 @@ export class ToothbrushCard extends LitElement {
             return sectorClassMaps;
         }
 
+        // Time-based doneCount (Sonicare-Pfad) erlaubt Revisits ohne Done-Reset;
+        // Fallback ist index-basiertes Progress-Marking (Oral-B).
+        const effectiveDone = doneCount !== null
+            ? Math.max(doneCount, activeIndex)
+            : activeIndex;
+
         sectorOrder.forEach((sectorName, index) => {
-            if (index < activeIndex) {
-                sectorClassMaps[sectorName].done = true;
-            } else if (index === activeIndex) {
+            if (index === activeIndex) {
                 sectorClassMaps[sectorName].brushing = true;
+            } else if (index < effectiveDone) {
+                sectorClassMaps[sectorName].done = true;
             }
         });
 
@@ -233,17 +249,17 @@ export class ToothbrushCard extends LitElement {
             const state = hass.states[entityId];
             const deviceClass = state?.attributes?.device_class;
 
-            // OralB translation_keys
+            // Shared translation_keys (OralB + Sonicare >= 0.8)
             if (entity.translation_key === 'sector') {
                 entityKeys.sector = entity.entity_id;
+            } else if (entity.translation_key === 'number_of_sectors') {
+                entityKeys.number_of_sectors = entity.entity_id;
             } else if (entity.translation_key === 'mode') {
                 entityKeys.mode = entity.entity_id;
             } else if (entity.translation_key === 'pressure') {
                 entityKeys.pressure = entity.entity_id;
             } else if (entity.translation_key === 'toothbrush_state') {
                 entityKeys.status = entity.entity_id;
-            } else if (entity.translation_key === 'number_of_sectors') {
-                entityKeys.number_of_sectors = entity.entity_id;
             }
 
             // Sonicare translation_keys
@@ -455,9 +471,35 @@ export class ToothbrushCard extends LitElement {
             ? config.sector_order
             : defaultOrder;
         const rawSectorIndex = this._parseRawSectorIndex(sector);
-        const correctedIndex = sector === 'success' ? -1
-            : this._correctSectorIndex(rawSectorIndex, active, sectorOrder.length - 1);
-        const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder);
+        // Sonicare meldet anatomische Sektoren inklusive Revisits (White+,
+        // Gum Health) — dort den _correctSectorIndex-Workaround umgehen und
+        // Done-Zonen zeit-basiert markieren, damit Revisits die bereits
+        // abgeschlossenen Zonen nicht zurücksetzen. Oral-B braucht den
+        // Workaround weiterhin (Integration meldet Sektor 5/6 als 4).
+        const allowsRevisits = entityIds.integration === 'philips_sonicare_ble'
+            && routineLength > 0;
+        let correctedIndex;
+        let doneCount = null;
+        if (sector === 'success') {
+            correctedIndex = -1;
+        } else if (allowsRevisits) {
+            correctedIndex = rawSectorIndex >= 0
+                ? Math.min(rawSectorIndex, sectorOrder.length - 1)
+                : -1;
+            // doneCount kombiniert Zeit-Fortschritt und tatsächlich beobachtete
+            // Sektoren. Wir nutzen das Maximum, damit nach einem Revisit (White+:
+            // nach 120s alle Zonen einmal durch) die bereits besuchten Zonen
+            // "done" bleiben, auch wenn der Raw-Sektor wieder zurückspringt.
+            const timeBasedDone = Math.min(
+                sectorOrder.length,
+                Math.floor(sectorOrder.length * duration / routineLength)
+            );
+            const visitedSize = this._trackVisitedSector(rawSectorIndex, active);
+            doneCount = Math.max(timeBasedDone, visitedSize);
+        } else {
+            correctedIndex = this._correctSectorIndex(rawSectorIndex, active, sectorOrder.length - 1);
+        }
+        const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder, doneCount);
         const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
         const isSuccess = sector === 'success';
         const batteryColor = batteryUnavailable ? 'muted' : this._getBatteryChipColor(batteryLevel);

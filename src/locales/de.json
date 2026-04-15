@@ -64,5 +64,6 @@
   "config_sector_order": "Sektorreihenfolge",
   "config_sector_mode_device": "Sektoren vom Gerät gemeldet",
   "config_sector_mode_time": "Sektoren aus Putzzeit berechnet",
+  "config_sector_revisit_hint": "Hinweis: Manche Modi kehren zu bestimmten Zonen zurück (z.B. poliert Sonicare White+ die Frontzähne erneut). Eine abweichende Reihenfolge kann in diesen Modi verwirrend wirken, wenn der Startquadrant der Bürste nicht entsprechend angepasst ist.",
   "config_select_device": "Bitte Geräte-ID eingeben"
 }
