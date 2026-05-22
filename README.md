@@ -1,6 +1,6 @@
 # Toothbrush Card
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/default)
 [![GitHub Release](https://img.shields.io/github/v/release/mtheli/toothbrush-card)](https://github.com/mtheli/toothbrush-card/releases)
 [![License: MIT](https://img.shields.io/github/license/mtheli/toothbrush-card)](LICENSE)
 
@@ -51,12 +51,16 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 ## Installation
 
 ### HACS (Recommended)
-1. Open **HACS → Frontend → Custom Repositories**
-2. Add the repository: `https://github.com/mtheli/toothbrush-card`
-3. Install **Toothbrush Card**
-4. Refresh your Home Assistant dashboard
 
-### Manual
+This card is available in the **default HACS store** — just click the button below, or search HACS for "Toothbrush Card".
+
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mtheli&repository=toothbrush-card&category=plugin)
+
+Then refresh your Home Assistant dashboard.
+
+<details>
+<summary>Manual installation</summary>
+
 1. Download `dist/toothbrush-card.js` from the [latest release](https://github.com/mtheli/toothbrush-card/releases)
 2. Copy it to `/config/www/community/toothbrush-card/`
 3. Add as a Lovelace resource:
@@ -65,6 +69,8 @@ resources:
   - url: /local/community/toothbrush-card/toothbrush-card.js
     type: module
 ```
+
+</details>
 
 ## Configuration
 
