@@ -853,7 +853,7 @@ var $7bfe0f8b5ad5b7ee$exports = {};
 $7bfe0f8b5ad5b7ee$exports = "ha-card {\n  overflow: visible;\n  container-type: inline-size;\n}\n\n.card-header {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n  justify-content: space-between;\n  align-items: center;\n  padding: 16px 18px 12px;\n  display: flex;\n  position: relative;\n  overflow: hidden;\n}\n\n.card-header:before {\n  content: \"\";\n  background: var(--accent-color, transparent);\n  opacity: .12;\n  pointer-events: none;\n  transition: background .5s;\n  position: absolute;\n  inset: 0;\n}\n\n.header-accent {\n  background: var(--accent-color);\n  border-radius: 3px;\n  flex-shrink: 0;\n  width: 4px;\n  height: 28px;\n  transition: background .4s;\n}\n\n.header-title {\n  align-items: center;\n  gap: 8px;\n  display: flex;\n}\n\n.header-title h2 {\n  color: var(--primary-text-color);\n  letter-spacing: -.01em;\n  margin: 0;\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.header-sub {\n  color: var(--secondary-text-color);\n  font-size: 12px;\n  font-weight: 400;\n}\n\n.header-icons {\n  align-items: center;\n  gap: 10px;\n  display: flex;\n}\n\n.header-icons svg:not(.conn-icon) {\n  width: 16px;\n  height: 16px;\n}\n\n.conn-icon {\n  width: 18px;\n  height: 18px;\n  color: var(--primary-color, #3b82f6);\n  fill: currentColor;\n  cursor: pointer;\n  opacity: 1;\n  transition: color .4s, opacity .4s;\n}\n\n.conn-icon.active {\n  color: #0082fc;\n}\n\n.conn-icon.disconnected {\n  color: var(--disabled-text-color, #9ca3af);\n  opacity: .3;\n}\n\n.more-info-btn {\n  cursor: pointer;\n  opacity: .5;\n  transition: opacity .2s;\n  color: var(--secondary-text-color) !important;\n}\n\n.more-info-btn:hover {\n  opacity: 1;\n}\n\n.init-wrap {\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  padding: 24px 0 32px;\n  display: flex;\n  overflow: hidden;\n}\n\n.init-rings {\n  flex-shrink: 0;\n  justify-content: center;\n  align-items: center;\n  width: 180px;\n  height: 180px;\n  display: flex;\n  position: relative;\n}\n\n.init-ring {\n  border: 2px solid var(--primary-color, #3b82f6);\n  opacity: 0;\n  border-radius: 50%;\n  animation: 3s ease-out infinite initPulse;\n  position: absolute;\n}\n\n.init-ring-1 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 0s;\n}\n\n.init-ring-2 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 1s;\n}\n\n.init-ring-3 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 2s;\n}\n\n@keyframes initPulse {\n  0% {\n    opacity: .6;\n    width: 70px;\n    height: 70px;\n  }\n\n  100% {\n    opacity: 0;\n    width: 190px;\n    height: 190px;\n  }\n}\n\n.init-bt {\n  z-index: 1;\n  width: 52px;\n  height: 52px;\n  animation: 2s ease-in-out infinite initBtPulse;\n  position: relative;\n}\n\n.init-bt svg {\n  width: 52px;\n  height: 52px;\n}\n\n@keyframes initBtPulse {\n  0%, 100% {\n    opacity: .5;\n    transform: scale(.95);\n  }\n\n  50% {\n    opacity: 1;\n    transform: scale(1.05);\n  }\n}\n\n.init-label {\n  color: var(--primary-color, #3b82f6);\n  margin-top: 6px;\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.chips-row {\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n  padding: 12px 14px;\n  display: grid;\n}\n\n.chip {\n  background: var(--card-background-color, #f9fafb);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  cursor: pointer;\n  border-radius: 10px;\n  grid-template-rows: auto auto;\n  grid-template-columns: auto 1fr;\n  align-items: center;\n  gap: 1px 8px;\n  padding: 8px 10px;\n  display: grid;\n}\n\n.chip-icon {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.chip-icon ha-icon {\n  --mdc-icon-size: 24px;\n}\n\n.chip-icon.green {\n  color: #16a34a;\n}\n\n.chip-icon.blue {\n  color: #2563eb;\n}\n\n.chip-icon.amber {\n  color: #d97706;\n}\n\n.chip-icon.red {\n  color: #dc2626;\n}\n\n.chip-icon.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.chip-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .06em;\n  font-size: 9px;\n  font-weight: 600;\n}\n\n.chip-value {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1;\n  overflow: hidden;\n}\n\n.chip-value.green {\n  color: #16a34a;\n}\n\n.chip-value.blue {\n  color: #2563eb;\n}\n\n.chip-value.amber {\n  color: #d97706;\n}\n\n.chip-value.red {\n  color: #dc2626;\n}\n\n.pressure-bars {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: flex-end;\n  gap: 2px;\n  display: flex;\n}\n\n.pb {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  width: 4px;\n  transition: background .3s;\n}\n\n.pb:first-child {\n  height: 5px;\n}\n\n.pb:nth-child(2) {\n  height: 9px;\n}\n\n.pb:nth-child(3) {\n  height: 13px;\n}\n\n.pb:nth-child(4) {\n  height: 18px;\n}\n\n.p-low .pb:first-child {\n  background: #f59e0b;\n}\n\n.p-normal .pb:first-child, .p-normal .pb:nth-child(2) {\n  background: #22c55e;\n}\n\n.p-high .pb {\n  background: #ef4444;\n}\n\n.mode-chip-wrap {\n  position: relative;\n}\n\n.chip.selectable {\n  cursor: pointer;\n}\n\n.mode-caret {\n  opacity: .5;\n  font-size: 10px;\n}\n\n.chip-select-hint {\n  display: none;\n}\n\n.dropdown-backdrop {\n  z-index: 9;\n  position: fixed;\n  inset: 0;\n}\n\n.mode-dropdown {\n  z-index: 10;\n  background: var(--card-background-color, #fff);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  border-radius: 12px;\n  min-width: 160px;\n  animation: .15s ease-out dropdown-in;\n  position: absolute;\n  top: calc(100% + 4px);\n  right: 0;\n  overflow: hidden;\n  box-shadow: 0 4px 16px #0000001f;\n}\n\n@keyframes dropdown-in {\n  from {\n    opacity: 0;\n    transform: translateY(-4px);\n  }\n\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n.mode-option {\n  cursor: pointer;\n  color: var(--primary-text-color);\n  align-items: center;\n  gap: 10px;\n  padding: 10px 14px;\n  font-size: 13px;\n  font-weight: 500;\n  transition: background .15s;\n  display: flex;\n}\n\n.mode-option:hover {\n  background: var(--secondary-background-color, #f3f4f6);\n}\n\n.mode-option.active {\n  color: #2563eb;\n  font-weight: 600;\n}\n\n.mode-option ha-icon {\n  --mdc-icon-size: 20px;\n  color: inherit;\n}\n\n.mode-option:not(:last-child) {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n}\n\n.visual-area {\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 14px 10px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-wrap {\n  justify-content: center;\n  align-items: center;\n  width: 210px;\n  height: 210px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-svg {\n  width: 100%;\n  height: 100%;\n}\n\n.zone {\n  fill: var(--divider-color, #f3f4f6);\n  transition: fill .3s;\n}\n\n.brushing .zone {\n  animation: .8s ease-in-out infinite alternate brush-zone;\n}\n\n@keyframes brush-zone {\n  from {\n    fill: #bfdbfe;\n  }\n\n  to {\n    fill: #93c5fd;\n  }\n}\n\n.done .zone {\n  fill: #bbf7d0 !important;\n}\n\n.center-info {\n  text-align: center;\n  pointer-events: none;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.session-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .1em;\n  margin-bottom: 2px;\n  font-size: 9px;\n  font-weight: 600;\n  display: block;\n}\n\n.timer-display {\n  color: var(--primary-text-color);\n  letter-spacing: -1px;\n  font-variant-numeric: tabular-nums;\n  font-size: 30px;\n  font-weight: 400;\n  line-height: 1;\n  transition: color .4s;\n}\n\n.timer-display.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-text-wrap {\n  text-align: center;\n  cursor: pointer;\n  margin: 2px 0 10px;\n}\n\n.status-main {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 14px;\n  font-weight: 600;\n  transition: color .4s;\n}\n\n.status-main.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-sub {\n  color: var(--secondary-text-color);\n  text-transform: capitalize;\n  margin-top: 1px;\n  font-size: 11px;\n}\n\n.progress-wrap {\n  opacity: 0;\n  width: 100%;\n  height: 0;\n  padding: 0 14px;\n  transition: opacity .4s, height .4s;\n  overflow: hidden;\n}\n\n.progress-wrap.visible {\n  opacity: 1;\n  height: auto;\n  padding: 0 14px 10px;\n}\n\n.progress-track {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  height: 4px;\n  overflow: hidden;\n}\n\n.progress-fill {\n  background: linear-gradient(90deg, #3b82f6, #22c55e);\n  border-radius: 2px;\n  height: 100%;\n  transition: width .5s;\n}\n\n.progress-labels {\n  color: var(--secondary-text-color);\n  justify-content: space-between;\n  margin-top: 4px;\n  font-size: 10px;\n  display: flex;\n}\n\n.done-badge {\n  background: var(--card-background-color, #f0fdf4);\n  text-align: center;\n  border-top: 1px solid #bbf7d0;\n  padding: 10px 14px;\n  display: none;\n}\n\n.done-badge.show {\n  animation: .4s cubic-bezier(.34, 1.56, .64, 1) pop-in;\n  display: block;\n}\n\n@keyframes pop-in {\n  from {\n    opacity: 0;\n    transform: scaleY(.7);\n  }\n\n  to {\n    opacity: 1;\n    transform: scaleY(1);\n  }\n}\n\n.done-badge p {\n  color: #15803d;\n  margin: 0;\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.done-badge span {\n  color: #16a34a;\n  font-size: 11px;\n}\n\n.brushhead-indicator {\n  cursor: pointer;\n  opacity: .8;\n  flex-direction: column;\n  align-items: center;\n  gap: 2px;\n  transition: opacity .2s;\n  display: flex;\n  position: absolute;\n  top: 8px;\n  right: 14px;\n}\n\n.brushhead-indicator:hover {\n  opacity: 1;\n}\n\n.brushhead-svg {\n  width: 16px;\n  height: 42px;\n}\n\n.brushhead-pct {\n  color: var(--secondary-text-color);\n  font-size: 9px;\n  font-weight: 600;\n}\n\n@container (width <= 350px) {\n  .chip {\n    grid-template-columns: 1fr;\n    justify-items: center;\n    row-gap: 0;\n    padding: 8px 4px;\n    position: relative;\n  }\n\n  .chip-icon, .pressure-bars {\n    grid-row: auto;\n  }\n\n  .chip-label, .chip-value {\n    display: none;\n  }\n\n  .chip-select-hint {\n    --mdc-icon-size: 12px;\n    color: #2563eb;\n    opacity: .6;\n    display: block;\n    position: absolute;\n    bottom: 2px;\n    right: 2px;\n  }\n\n  .tooth-wrap {\n    width: 180px;\n    height: 180px;\n  }\n\n  .timer-display {\n    font-size: 26px;\n  }\n}\n";
 
 
-const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.8.0";
+const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.11.0";
 const $930552a63f9e9686$var$BRUSHING_DURATION = 120; // 2 minutes target
 const $930552a63f9e9686$export$5055f2a665f9cd1e = [
     'lower_left',
@@ -927,6 +927,11 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         this._lastRawIndex = -1;
         this._correctedIndex = -1;
         this._wasActive = false;
+        // Completion latch (issue #4): persist the finished-session view.
+        this._peakDuration = 0;
+        this._completed = false;
+        this._completedDuration = 0;
+        this._wasActiveSession = false;
     }
     connectedCallback() {
         super.connectedCallback();
@@ -1171,6 +1176,36 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const statusEntityId = entityIds.base_entity;
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
         const active = this._isActive(status);
+        // Completion latch (issue #4): keep showing the finished session after
+        // it ends. Neither integration keeps reporting a completed session —
+        // Oral-B reverts to "no sector" once it stops running and Sonicare
+        // powers itself off at the end — so the done state would otherwise
+        // vanish moments after brushing. We track the peak duration while
+        // active and, on the active->inactive transition, latch "completed" if
+        // a full routine was reached. The hold is released when the next
+        // session starts or the device becomes unavailable. Opt out with
+        // `hold_completed: false`.
+        const holdCompleted = config.hold_completed !== false;
+        const deviceAvailable = status !== 'unavailable' && status !== 'unknown';
+        if (active) {
+            if (!this._wasActiveSession) {
+                // New session started — drop any held completion.
+                this._peakDuration = 0;
+                this._completed = false;
+            }
+            this._peakDuration = Math.max(this._peakDuration, duration);
+        } else if (this._wasActiveSession) {
+            // Session just ended — latch if (nearly) a full routine was reached.
+            // Tolerance covers Sonicare powering off a beat before the last
+            // duration sample lands exactly on the routine length.
+            const target = (routineLength || $930552a63f9e9686$var$BRUSHING_DURATION) * 0.9;
+            this._completed = holdCompleted && this._peakDuration >= target;
+            this._completedDuration = this._peakDuration;
+            this._peakDuration = 0;
+        }
+        if (!deviceAvailable) this._completed = false;
+        this._wasActiveSession = active;
+        const showCompleted = this._completed && !active;
         // Mode selector
         const canSelectMode = entityIds.mode_select && modeSelectState?.state !== 'unavailable' && !active;
         const modeOptions = canSelectMode ? modeSelectState?.attributes?.options || [] : [];
@@ -1229,6 +1264,10 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
             sector = String(idx);
         } else if (routineLength > 0 && duration >= routineLength && duration > 0) sector = 'success';
         else sector = 'no_sector';
+        // issue #4: while holding a finished session, present it as completed
+        // (all zones done, final time) regardless of the now-idle live values.
+        if (showCompleted) sector = 'success';
+        const displayDuration = showCompleted ? this._completedDuration : duration;
         // Computed values
         const defaultOrder = numSectors === 6 ? $930552a63f9e9686$export$d18f9bb4634fc18d : $930552a63f9e9686$export$5055f2a665f9cd1e;
         const sectorOrder = config.sector_order?.length === numSectors ? config.sector_order : defaultOrder;
@@ -1264,7 +1303,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const modeIcon = modeUnavailable ? 'mdi:brush-variant' : this._getModeIcon(mode);
         const modeLabel = modeUnavailable ? "\u2013" : this._getModeLabel(mode);
         const targetDuration = routineLength || $930552a63f9e9686$var$BRUSHING_DURATION;
-        const progressPct = Math.min(100, Math.round(duration / targetDuration * 100));
+        const progressPct = showCompleted ? 100 : Math.min(100, Math.round(displayDuration / targetDuration * 100));
         const statusKey = 'status_' + status;
         const displayStatus = (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, statusKey) !== statusKey ? (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, statusKey) : status.replace(/_/g, ' ');
         const pressureKey = 'pressure_' + String(pressure).toLowerCase();
@@ -1355,7 +1394,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                             <span class="session-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'session')}</span>
                             <div class="timer-display ${active ? 'active' : ''}"
                                  @click="${()=>this._showMoreInfo(entityIds.duration)}">
-                                ${this._formatTime(duration)}
+                                ${this._formatTime(displayDuration)}
                             </div>
                         </div>
                     </div>
@@ -1371,7 +1410,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                         </div>
                         <div class="progress-labels">
                             <span>${sectorLabel || ''}</span>
-                            <span>${targetDuration > 0 ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`${this._formatTime(duration)} / ${this._formatTime(targetDuration)}` : ''}</span>
+                            <span>${targetDuration > 0 ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`${this._formatTime(displayDuration)} / ${this._formatTime(targetDuration)}` : ''}</span>
                             <span>${progressPct}%</span>
                         </div>
                     </div>

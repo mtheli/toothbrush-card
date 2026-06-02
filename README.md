@@ -84,6 +84,7 @@ The card is configured via the UI — just add it and select your toothbrush dev
 | accent_color  | string   | —       | Header accent color (hex, e.g. `#0085FF`)    |
 | num_sectors   | 4 \| 6   | auto    | Override sector count (Oral-B: from device; Sonicare: 4 default, set to 6 for Prestige/HX999B) |
 | sector_order  | string[] | —       | Custom sector order (drag & drop in UI)      |
+| hold_completed | boolean | true    | Keep showing the finished session (done badge + final time) until the next brush. Set `false` to clear immediately when the brush stops. |
 
 ### YAML Example
 ```yaml

@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.8.0";
+export const CARD_VERSION = "0.11.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -49,6 +49,11 @@ export class ToothbrushCard extends LitElement {
         this._lastRawIndex = -1;
         this._correctedIndex = -1;
         this._wasActive = false;
+        // Completion latch (issue #4): persist the finished-session view.
+        this._peakDuration = 0;
+        this._completed = false;
+        this._completedDuration = 0;
+        this._wasActiveSession = false;
     }
 
     connectedCallback() {
@@ -389,6 +394,39 @@ export class ToothbrushCard extends LitElement {
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
         const active = this._isActive(status);
 
+        // Completion latch (issue #4): keep showing the finished session after
+        // it ends. Neither integration keeps reporting a completed session —
+        // Oral-B reverts to "no sector" once it stops running and Sonicare
+        // powers itself off at the end — so the done state would otherwise
+        // vanish moments after brushing. We track the peak duration while
+        // active and, on the active->inactive transition, latch "completed" if
+        // a full routine was reached. The hold is released when the next
+        // session starts or the device becomes unavailable. Opt out with
+        // `hold_completed: false`.
+        const holdCompleted = config.hold_completed !== false;
+        const deviceAvailable = status !== 'unavailable' && status !== 'unknown';
+        if (active) {
+            if (!this._wasActiveSession) {
+                // New session started — drop any held completion.
+                this._peakDuration = 0;
+                this._completed = false;
+            }
+            this._peakDuration = Math.max(this._peakDuration, duration);
+        } else if (this._wasActiveSession) {
+            // Session just ended — latch if (nearly) a full routine was reached.
+            // Tolerance covers Sonicare powering off a beat before the last
+            // duration sample lands exactly on the routine length.
+            const target = (routineLength || BRUSHING_DURATION) * 0.9;
+            this._completed = holdCompleted && this._peakDuration >= target;
+            this._completedDuration = this._peakDuration;
+            this._peakDuration = 0;
+        }
+        if (!deviceAvailable) {
+            this._completed = false;
+        }
+        this._wasActiveSession = active;
+        const showCompleted = this._completed && !active;
+
         // Mode selector
         const canSelectMode = entityIds.mode_select
             && modeSelectState?.state !== 'unavailable'
@@ -465,6 +503,13 @@ export class ToothbrushCard extends LitElement {
             sector = 'no_sector';
         }
 
+        // issue #4: while holding a finished session, present it as completed
+        // (all zones done, final time) regardless of the now-idle live values.
+        if (showCompleted) {
+            sector = 'success';
+        }
+        const displayDuration = showCompleted ? this._completedDuration : duration;
+
         // Computed values
         const defaultOrder = numSectors === 6 ? SEXTANT_ZONES : QUADRANT_ZONES;
         const sectorOrder = config.sector_order?.length === numSectors
@@ -511,7 +556,9 @@ export class ToothbrushCard extends LitElement {
         const modeIcon = modeUnavailable ? 'mdi:brush-variant' : this._getModeIcon(mode);
         const modeLabel = modeUnavailable ? '–' : this._getModeLabel(mode);
         const targetDuration = routineLength || BRUSHING_DURATION;
-        const progressPct = Math.min(100, Math.round(duration / targetDuration * 100));
+        const progressPct = showCompleted
+            ? 100
+            : Math.min(100, Math.round(displayDuration / targetDuration * 100));
         const statusKey = 'status_' + status;
         const displayStatus = t(hass, statusKey) !== statusKey
             ? t(hass, statusKey)
@@ -606,7 +653,7 @@ export class ToothbrushCard extends LitElement {
                             <span class="session-label">${t(hass, 'session')}</span>
                             <div class="timer-display ${active ? 'active' : ''}"
                                  @click="${() => this._showMoreInfo(entityIds.duration)}">
-                                ${this._formatTime(duration)}
+                                ${this._formatTime(displayDuration)}
                             </div>
                         </div>
                     </div>
@@ -622,7 +669,7 @@ export class ToothbrushCard extends LitElement {
                         </div>
                         <div class="progress-labels">
                             <span>${sectorLabel || ''}</span>
-                            <span>${targetDuration > 0 ? html`${this._formatTime(duration)} / ${this._formatTime(targetDuration)}` : ''}</span>
+                            <span>${targetDuration > 0 ? html`${this._formatTime(displayDuration)} / ${this._formatTime(targetDuration)}` : ''}</span>
                             <span>${progressPct}%</span>
                         </div>
                     </div>

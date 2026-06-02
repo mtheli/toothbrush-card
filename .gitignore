@@ -3941,3 +3941,10 @@ node_modules/lit-html/node/directives/when.js.map
 .parcel-cache/f103e7317eb006b5-RequestGraph
 .parcel-cache/snapshot-85044f63a92db765.txt
 .parcel-cache/snapshot-f103e7317eb006b5.txt
+
+# Oral-B capture files (contain device MAC addresses) and Python caches
+/*.json
+!/package.json
+!/package-lock.json
+!/hacs.json
+scripts/__pycache__/
