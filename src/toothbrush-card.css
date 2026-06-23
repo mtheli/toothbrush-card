@@ -12,6 +12,10 @@ ha-card {
     border-bottom: 1px solid var(--divider-color, #f3f4f6);
     position: relative;
     overflow: hidden;
+    /* Match the card's rounded top corners so the accent tint below
+       doesn't bleed past them (issue #6). */
+    border-top-left-radius: var(--ha-card-border-radius, 12px);
+    border-top-right-radius: var(--ha-card-border-radius, 12px);
 }
 .card-header::before {
     content: '';
@@ -298,20 +302,25 @@ ha-card {
     height: 100%;
 }
 
-/* Zone states */
+/* Zone states.
+   Colors are overridable via card config (issue #6):
+   --tb-tooth-color  → idle tooth fill (defaults to divider color)
+   --tb-active-color → currently-brushing sector
+   --tb-done-color   → completed sector */
 .zone {
-    fill: var(--divider-color, #f3f4f6);
+    fill: var(--tb-tooth-color, var(--divider-color, #f3f4f6));
     transition: fill 0.3s ease;
 }
 .brushing .zone {
+    fill: var(--tb-active-color, #93c5fd);
     animation: brush-zone 0.8s ease-in-out infinite alternate;
 }
 @keyframes brush-zone {
-    from { fill: #bfdbfe; }
-    to { fill: #93c5fd; }
+    from { opacity: 0.6; }
+    to { opacity: 1; }
 }
 .done .zone {
-    fill: #bbf7d0 !important;
+    fill: var(--tb-done-color, #bbf7d0) !important;
 }
 
 /* Center info overlay */

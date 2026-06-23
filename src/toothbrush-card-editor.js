@@ -142,6 +142,30 @@ export class ToothbrushCardEditor extends LitElement {
         this._fireConfig(newConfig);
     }
 
+    _colorField(key, labelKey, fallback) {
+        const value = this._config[key] || '';
+        return html`
+            <div class="field">
+                <div class="section-label">
+                    <span>${t(this.hass, labelKey)}</span>
+                    ${value ? html`
+                        <button class="reset-btn" @click=${() => this._valueChanged(key, '')}>Reset</button>
+                    ` : ''}
+                </div>
+                <div class="color-field">
+                    <input type="color" class="color-input"
+                           .value=${value || fallback}
+                           @input=${(ev) => this._valueChanged(key, ev.target.value)}>
+                    <ha-textfield
+                        .value=${value}
+                        .placeholder=${fallback}
+                        @input=${(ev) => this._valueChanged(key, ev.target.value)}
+                    ></ha-textfield>
+                </div>
+            </div>
+        `;
+    }
+
     render() {
         if (!this.hass || !this._config) return html``;
 
@@ -196,6 +220,10 @@ export class ToothbrushCardEditor extends LitElement {
                         `)}
                     </div>
                 </div>
+
+                ${this._colorField('tooth_color', 'config_tooth_color', '#d1d5db')}
+                ${this._colorField('active_color', 'config_active_color', '#93c5fd')}
+                ${this._colorField('done_color', 'config_done_color', '#bbf7d0')}
 
                 ${this._config.device_id ? html`
                     <div class="field">
@@ -374,6 +402,24 @@ export class ToothbrushCardEditor extends LitElement {
             .move-btn[disabled] {
                 opacity: 0.25;
                 cursor: default;
+            }
+            .color-field {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .color-input {
+                width: 40px;
+                height: 36px;
+                padding: 0;
+                border: 1px solid var(--divider-color, #e0e0e0);
+                border-radius: 8px;
+                background: none;
+                cursor: pointer;
+                flex-shrink: 0;
+            }
+            .color-field ha-textfield {
+                flex: 1;
             }
             .color-grid {
                 display: flex;

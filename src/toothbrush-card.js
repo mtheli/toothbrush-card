@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.11.0";
+export const CARD_VERSION = "0.12.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -83,6 +83,20 @@ export class ToothbrushCard extends LitElement {
 
     getCardSize() {
         return 5;
+    }
+
+    /**
+     * Inline style for the <ha-card>, exposing the accent color plus the
+     * optional tooth/active/done color overrides (issue #6). Colors left
+     * unset fall back to the CSS defaults.
+     */
+    _cardStyle() {
+        const c = this.config || {};
+        let style = `--accent-color: ${c.accent_color || '#FFFFFF'}`;
+        if (c.tooth_color) style += `; --tb-tooth-color: ${c.tooth_color}`;
+        if (c.active_color) style += `; --tb-active-color: ${c.active_color}`;
+        if (c.done_color) style += `; --tb-done-color: ${c.done_color}`;
+        return style;
     }
 
     _showMoreInfo(entityId = null) {
@@ -447,7 +461,7 @@ export class ToothbrushCard extends LitElement {
         const activity = entityIds.activity ? hass.states[entityIds.activity]?.state : null;
         if (activity === 'initializing') {
             return html`
-                <ha-card style="--accent-color: ${config.accent_color || '#FFFFFF'}">
+                <ha-card style="${this._cardStyle()}">
                     <div class="card-header">
                         <div class="header-title">
                             <div class="header-accent"></div>
@@ -571,10 +585,9 @@ export class ToothbrushCard extends LitElement {
             ? hass.states[entityIds.ble_connected]?.state === 'on'
             : status !== 'unavailable' && status !== 'unknown';
         const btActive = active || batteryIsCharging;
-        const accentColor = config.accent_color || '#FFFFFF';
 
         return html`
-            <ha-card style="--accent-color: ${accentColor}">
+            <ha-card style="${this._cardStyle()}">
                 <!-- Header -->
                 <div class="card-header">
                     <div class="header-title">

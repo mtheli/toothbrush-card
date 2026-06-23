@@ -27,6 +27,7 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 - Automatic entity discovery — no manual YAML required
 - Sector tracking: device-reported (Oral-B) or time-based calculation (Sonicare)
 - Configurable title, subtitle, and accent color
+- Configurable tooth, active-sector, and completed-sector colors
 - Configurable sector order with drag & drop and up/down buttons
 - Responsive layout with container queries (icon-only chips on narrow cards)
 - Multi-language support (auto-detects Home Assistant language)
@@ -82,7 +83,10 @@ The card is configured via the UI — just add it and select your toothbrush dev
 | title         | string   | —       | Custom title (default: manufacturer)         |
 | show_subtitle | boolean  | true    | Show device name as subtitle                 |
 | accent_color  | string   | —       | Header accent color (hex, e.g. `#0085FF`)    |
-| num_sectors   | 4 \| 6   | auto    | Override sector count (Oral-B: from device; Sonicare: 4 default, set to 6 for Prestige/HX999B) |
+| tooth_color   | string   | divider color | Idle tooth color (hex). Set this if the teeth are invisible against your theme background |
+| active_color  | string   | `#93c5fd` | Color of the currently-brushing sector (hex) |
+| done_color    | string   | `#bbf7d0` | Color of completed sectors (hex)           |
+| num_sectors   | 4 \| 6   | auto    | Override sector count. Auto-detected from the integration (Oral-B and Sonicare both expose it); manual override only needed as a fallback (e.g. unknown model or the diagnostic entity disabled) |
 | sector_order  | string[] | —       | Custom sector order (drag & drop in UI)      |
 | hold_completed | boolean | true    | Keep showing the finished session (done badge + final time) until the next brush. Set `false` to clear immediately when the brush stops. |
 
@@ -93,6 +97,9 @@ device_id: 1234567890abcdef
 title: My Toothbrush
 show_subtitle: true
 accent_color: "#0085FF"
+tooth_color: "#d1d5db"
+active_color: "#93c5fd"
+done_color: "#bbf7d0"
 ```
 
 ## Supported Languages
