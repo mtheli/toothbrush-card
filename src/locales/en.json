@@ -59,6 +59,7 @@
   "config_device": "Device",
   "config_title": "Title (Optional)",
   "config_subtitle": "Show device name as subtitle",
+  "config_hold_completed": "Keep showing finished session until the next brushing starts",
   "config_accent_color": "Accent color",
   "config_tooth_color": "Tooth color",
   "config_active_color": "Active sector color",

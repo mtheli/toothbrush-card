@@ -59,6 +59,7 @@
   "config_device": "Apparaat",
   "config_title": "Titel (optioneel)",
   "config_subtitle": "Toon apparaatnaam als onderschrift",
+  "config_hold_completed": "Voltooide sessie tonen totdat de volgende poetsbeurt start",
   "config_accent_color": "Accentkleur",
   "config_tooth_color": "Tandkleur",
   "config_active_color": "Kleur actieve sector",

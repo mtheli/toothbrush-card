@@ -59,6 +59,7 @@
   "config_device": "Gerät",
   "config_title": "Titel (Optional)",
   "config_subtitle": "Gerätename als Untertitel anzeigen",
+  "config_hold_completed": "Abgeschlossene Sitzung anzeigen, bis die nächste Putzsitzung startet",
   "config_accent_color": "Akzentfarbe",
   "config_tooth_color": "Zahnfarbe",
   "config_active_color": "Farbe aktiver Sektor",

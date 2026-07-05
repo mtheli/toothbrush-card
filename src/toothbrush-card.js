@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.12.0";
+export const CARD_VERSION = "0.13.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -54,6 +54,7 @@ export class ToothbrushCard extends LitElement {
         this._completed = false;
         this._completedDuration = 0;
         this._wasActiveSession = false;
+        this._sessionRoutineLength = 0;
     }
 
     connectedCallback() {
@@ -408,38 +409,54 @@ export class ToothbrushCard extends LitElement {
         const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
         const active = this._isActive(status);
 
-        // Completion latch (issue #4): keep showing the finished session after
-        // it ends. Neither integration keeps reporting a completed session —
-        // Oral-B reverts to "no sector" once it stops running and Sonicare
-        // powers itself off at the end — so the done state would otherwise
-        // vanish moments after brushing. We track the peak duration while
-        // active and, on the active->inactive transition, latch "completed" if
-        // a full routine was reached. The hold is released when the next
-        // session starts or the device becomes unavailable. Opt out with
-        // `hold_completed: false`.
+        // Completion latch (issues #4, #5): keep showing the finished session
+        // after it ends. Neither integration keeps reporting a completed
+        // session — Oral-B freezes its last advertised values once the brush
+        // stops broadcasting (sleepy device, entities stay available) and
+        // Sonicare powers itself off at the end — so the done state would
+        // otherwise vanish moments after brushing or never appear. We track
+        // the peak duration while active and, on the active->inactive
+        // transition, latch "completed" if a full routine was reached. The
+        // hold survives 'unavailable'/'unknown' and is released only when the
+        // next session starts. Opt out with `hold_completed: false`.
+        // The 0.9 tolerance covers Sonicare powering off a beat before the
+        // last duration sample lands exactly on the routine length.
         const holdCompleted = config.hold_completed !== false;
-        const deviceAvailable = status !== 'unavailable' && status !== 'unknown';
         if (active) {
             if (!this._wasActiveSession) {
                 // New session started — drop any held completion.
                 this._peakDuration = 0;
                 this._completed = false;
+                this._visitedSectors = null;
+                this._sessionRoutineLength = 0;
             }
             this._peakDuration = Math.max(this._peakDuration, duration);
+            if (routineLength > 0) {
+                // Snapshot the routine governing THIS session; at the end the
+                // routine_length sensor may already read unavailable (0).
+                this._sessionRoutineLength = routineLength;
+            }
         } else if (this._wasActiveSession) {
             // Session just ended — latch if (nearly) a full routine was reached.
-            // Tolerance covers Sonicare powering off a beat before the last
-            // duration sample lands exactly on the routine length.
-            const target = (routineLength || BRUSHING_DURATION) * 0.9;
-            this._completed = holdCompleted && this._peakDuration >= target;
+            const endTarget = (this._sessionRoutineLength || BRUSHING_DURATION) * 0.9;
+            this._completed = holdCompleted && this._peakDuration >= endTarget;
             this._completedDuration = this._peakDuration;
             this._peakDuration = 0;
-        }
-        if (!deviceAvailable) {
-            this._completed = false;
+        } else if (holdCompleted
+                && (!entityIds.routine_length || routineLength > 0)
+                && duration >= (routineLength || BRUSHING_DURATION) * 0.9) {
+            // Issue #5: also derive completion from the current state alone —
+            // the frozen post-session values prove a finished session even if
+            // the card never observed the transition (dashboard closed while
+            // brushing, or reloaded afterwards). Skipped while an existing
+            // routine_length sensor is unreadable, so an aborted long routine
+            // can't slip past the shorter default target. Math.max lets late
+            // post-session samples refine the shown time but never lower it.
+            this._completed = true;
+            this._completedDuration = Math.max(this._completedDuration, duration);
         }
         this._wasActiveSession = active;
-        const showCompleted = this._completed && !active;
+        const showCompleted = holdCompleted && this._completed && !active;
 
         // Mode selector
         const canSelectMode = entityIds.mode_select

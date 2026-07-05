@@ -203,6 +203,14 @@ export class ToothbrushCardEditor extends LitElement {
                     <span>${t(this.hass, 'config_subtitle')}</span>
                 </div>
 
+                <div class="field row">
+                    <ha-switch
+                        .checked=${this._config.hold_completed !== false}
+                        @change=${(ev) => this._valueChanged('hold_completed', ev.target.checked ? undefined : false)}
+                    ></ha-switch>
+                    <span>${t(this.hass, 'config_hold_completed')}</span>
+                </div>
+
                 <div class="field">
                     <div class="section-label">
                         <span>${t(this.hass, 'config_accent_color')}</span>
