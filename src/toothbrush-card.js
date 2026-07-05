@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.13.0";
+export const CARD_VERSION = "0.14.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -55,6 +55,64 @@ export class ToothbrushCard extends LitElement {
         this._completedDuration = 0;
         this._wasActiveSession = false;
         this._sessionRoutineLength = 0;
+        this._completedAt = 0;
+        this._holdDismissed = false;
+    }
+
+    // --- Held-session persistence (issue #4/#5 follow-up) ---
+    // The completion latch survives page reloads via localStorage: Oral-B
+    // brushes wipe their reported session data ~seconds after powering off,
+    // so after a reload there is often nothing left to re-derive from the
+    // sensors. Stored per device, cleared when the next session starts.
+
+    _holdStorageKey(deviceId) {
+        return `toothbrush-card-hold-${deviceId}`;
+    }
+
+    _loadHeldSession(deviceId) {
+        try {
+            const raw = localStorage.getItem(this._holdStorageKey(deviceId));
+            const held = raw ? JSON.parse(raw) : null;
+            if (!held) return null;
+            // A dismissed marker (X on the badge) suppresses re-deriving the
+            // same session from frozen sensor values until a new one starts.
+            if (held.dismissed) return { dismissed: true };
+            return held.completedAt > 0 && held.duration > 0 ? held : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    _dismissHold() {
+        this._completed = false;
+        this._completedAt = 0;
+        this._completedDuration = 0;
+        this._holdDismissed = true;
+        const deviceId = this.config?.device_id;
+        if (deviceId) {
+            try {
+                localStorage.setItem(
+                    this._holdStorageKey(deviceId),
+                    JSON.stringify({ dismissed: true })
+                );
+            } catch (e) { /* ignore */ }
+        }
+        this.requestUpdate();
+    }
+
+    _saveHeldSession(deviceId, completedAt, duration) {
+        try {
+            localStorage.setItem(
+                this._holdStorageKey(deviceId),
+                JSON.stringify({ completedAt, duration })
+            );
+        } catch (e) { /* storage full/blocked — hold just won't survive reloads */ }
+    }
+
+    _clearHeldSession(deviceId) {
+        try {
+            localStorage.removeItem(this._holdStorageKey(deviceId));
+        } catch (e) { /* ignore */ }
     }
 
     connectedCallback() {
@@ -76,7 +134,22 @@ export class ToothbrushCard extends LitElement {
         if (!config.device_id) {
             throw new Error('Please enter the device id');
         }
+        const deviceChanged = this.config?.device_id !== config.device_id;
         this.config = config;
+        if (deviceChanged) {
+            // Remap entities and drop the previous device's session state so a
+            // held recap from device A never renders for device B; then adopt
+            // device B's own persisted hold, if any.
+            this._entityIds = null;
+            this._peakDuration = 0;
+            this._wasActiveSession = false;
+            this._sessionRoutineLength = 0;
+            const held = this._loadHeldSession(config.device_id);
+            this._holdDismissed = !!held?.dismissed;
+            this._completed = !!held && !held.dismissed;
+            this._completedDuration = this._completed ? held.duration : 0;
+            this._completedAt = this._completed ? held.completedAt : 0;
+        }
         if (this._hass && !this._entityIds) {
             this._entityIds = this._findAndMapEntitiesInConfig(this._hass, config.device_id);
         }
@@ -427,8 +500,11 @@ export class ToothbrushCard extends LitElement {
                 // New session started — drop any held completion.
                 this._peakDuration = 0;
                 this._completed = false;
+                this._completedAt = 0;
+                this._holdDismissed = false;
                 this._visitedSectors = null;
                 this._sessionRoutineLength = 0;
+                this._clearHeldSession(config.device_id);
             }
             this._peakDuration = Math.max(this._peakDuration, duration);
             if (routineLength > 0) {
@@ -442,7 +518,11 @@ export class ToothbrushCard extends LitElement {
             this._completed = holdCompleted && this._peakDuration >= endTarget;
             this._completedDuration = this._peakDuration;
             this._peakDuration = 0;
-        } else if (holdCompleted
+            if (this._completed) {
+                this._completedAt = Date.now();
+                this._saveHeldSession(config.device_id, this._completedAt, this._completedDuration);
+            }
+        } else if (holdCompleted && !this._holdDismissed
                 && (!entityIds.routine_length || routineLength > 0)
                 && duration >= (routineLength || BRUSHING_DURATION) * 0.9) {
             // Issue #5: also derive completion from the current state alone —
@@ -452,11 +532,30 @@ export class ToothbrushCard extends LitElement {
             // routine_length sensor is unreadable, so an aborted long routine
             // can't slip past the shorter default target. Math.max lets late
             // post-session samples refine the shown time but never lower it.
+            // A timestamp restored from localStorage wins over the duration
+            // sensor's last_changed (survives HA restarts re-stamping it).
+            if (!this._completed) {
+                this._completedAt = Date.parse(
+                    hass.states[entityIds.duration]?.last_changed
+                ) || Date.now();
+            }
             this._completed = true;
-            this._completedDuration = Math.max(this._completedDuration, duration);
+            const refined = Math.max(this._completedDuration, duration);
+            if (refined !== this._completedDuration) {
+                this._completedDuration = refined;
+                this._saveHeldSession(config.device_id, this._completedAt, refined);
+            }
         }
         this._wasActiveSession = active;
-        const showCompleted = holdCompleted && this._completed && !active;
+        // hold_duration in hours; absent = 0.5 h default, explicit 0 = until
+        // the next session. After expiry the recap is merely hidden — a later
+        // setting change can re-show it.
+        const holdHours = config.hold_duration !== undefined
+            ? Number(config.hold_duration) || 0
+            : 0.5;
+        const holdExpired = holdHours > 0 && this._completedAt > 0
+            && Date.now() - this._completedAt > holdHours * 3600000;
+        const showCompleted = holdCompleted && this._completed && !active && !holdExpired;
 
         // Mode selector
         const canSelectMode = entityIds.mode_select
@@ -603,6 +702,21 @@ export class ToothbrushCard extends LitElement {
             : status !== 'unavailable' && status !== 'unknown';
         const btActive = active || batteryIsCharging;
 
+        // Age line under the done badge ("2 h ago") — a held recap must not
+        // read as a just-finished session the next morning. Ticks via the
+        // existing 1 s interval.
+        let completedAgo = '';
+        if (showCompleted && this._completedAt > 0) {
+            const mins = Math.floor((Date.now() - this._completedAt) / 60000);
+            if (mins < 1) {
+                completedAgo = t(hass, 'completed_just_now');
+            } else if (mins < 60) {
+                completedAgo = t(hass, 'completed_ago_minutes').replace('{n}', mins);
+            } else {
+                completedAgo = t(hass, 'completed_ago_hours').replace('{n}', Math.floor(mins / 60));
+            }
+        }
+
         return html`
             <ha-card style="${this._cardStyle()}">
                 <!-- Header -->
@@ -730,7 +844,11 @@ export class ToothbrushCard extends LitElement {
 
                 <!-- Done badge -->
                 <div class="done-badge ${isSuccess ? 'show' : ''}">
-                    <p>&#10003; ${t(hass, 'done_title')}</p>
+                    ${showCompleted ? html`
+                    <button class="done-dismiss"
+                            @click=${() => this._dismissHold()}>&times;</button>` : ''}
+                    <p>&#10003; ${t(hass, 'done_title')}${completedAgo
+                        ? html` <span class="done-age">(${completedAgo})</span>` : ''}</p>
                     <span>${t(hass, numSectors === 6 ? 'done_sextants' : 'done_quadrants')}</span>
                 </div>
             </ha-card>

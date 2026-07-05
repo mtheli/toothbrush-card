@@ -414,10 +414,26 @@ ha-card {
 /* ── DONE BADGE ── */
 .done-badge {
     display: none;
+    position: relative;
     background: var(--card-background-color, #f0fdf4);
     border-top: 1px solid #bbf7d0;
     padding: 10px 14px;
     text-align: center;
+}
+.done-dismiss {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: none;
+    border: none;
+    padding: 2px 4px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--secondary-text-color, #888);
+}
+.done-dismiss:hover {
+    color: var(--primary-text-color, #333);
 }
 .done-badge.show {
     display: block;
@@ -436,6 +452,11 @@ ha-card {
 .done-badge span {
     font-size: 11px;
     color: #16a34a;
+}
+.done-age {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--secondary-text-color, #888);
 }
 
 /* ── BRUSH HEAD INDICATOR ── */

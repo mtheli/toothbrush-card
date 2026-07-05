@@ -70,6 +70,28 @@ export class ToothbrushCardEditor extends LitElement {
         this._fireConfig(newConfig);
     }
 
+    // One dropdown drives both hold keys: 'off' → hold_completed:false,
+    // '0.5' (default) → no keys, anything else → hold_duration in hours.
+    _holdValue() {
+        if (this._config.hold_completed === false) return 'off';
+        return this._config.hold_duration !== undefined
+            ? String(this._config.hold_duration)
+            : '0.5';
+    }
+
+    _holdChanged(value) {
+        const newConfig = { ...this._config };
+        delete newConfig.hold_completed;
+        delete newConfig.hold_duration;
+        if (value === 'off') {
+            newConfig.hold_completed = false;
+        } else if (value !== undefined && value !== '0.5') {
+            newConfig.hold_duration = Number(value);
+        }
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+
     _deviceChanged(ev) {
         const deviceId = ev.detail.value;
         const newConfig = { ...this._config, device_id: deviceId };
@@ -203,12 +225,24 @@ export class ToothbrushCardEditor extends LitElement {
                     <span>${t(this.hass, 'config_subtitle')}</span>
                 </div>
 
-                <div class="field row">
-                    <ha-switch
-                        .checked=${this._config.hold_completed !== false}
-                        @change=${(ev) => this._valueChanged('hold_completed', ev.target.checked ? undefined : false)}
-                    ></ha-switch>
-                    <span>${t(this.hass, 'config_hold_completed')}</span>
+                <div class="field">
+                    <ha-selector
+                        .hass=${this.hass}
+                        .selector=${{ select: { mode: 'dropdown', options: [
+                            { value: 'off', label: t(this.hass, 'hold_off') },
+                            { value: '0.25', label: '15 min' },
+                            { value: '0.5', label: '30 min' },
+                            { value: '1', label: '1 h' },
+                            { value: '4', label: '4 h' },
+                            { value: '8', label: '8 h' },
+                            { value: '12', label: '12 h' },
+                            { value: '24', label: '24 h' },
+                            { value: '0', label: t(this.hass, 'hold_until_next_session') },
+                        ] } }}
+                        .label=${t(this.hass, 'config_hold_duration')}
+                        .value=${this._holdValue()}
+                        @value-changed=${(ev) => this._holdChanged(ev.detail.value)}
+                    ></ha-selector>
                 </div>
 
                 <div class="field">

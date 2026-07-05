@@ -88,7 +88,8 @@ The card is configured via the UI — just add it and select your toothbrush dev
 | done_color    | string   | `#bbf7d0` | Color of completed sectors (hex)           |
 | num_sectors   | 4 \| 6   | auto    | Override sector count. Auto-detected from the integration (Oral-B and Sonicare both expose it); manual override only needed as a fallback (e.g. unknown model or the diagnostic entity disabled) |
 | sector_order  | string[] | —       | Custom sector order (drag & drop in UI)      |
-| hold_completed | boolean | true    | Keep showing the finished session (done badge + final time) until the next brush. Set `false` to clear immediately when the brush stops. |
+| hold_duration | number   | 0.5     | How long to keep showing the finished session (done badge + final time + "x min ago"), in hours: `0.25`–`24`, or `0` = until the next brushing session starts. The held view survives page reloads and can be dismissed early with the ×  on the badge. |
+| hold_completed | boolean | true    | Legacy switch for the same feature: `false` disables holding the finished session entirely (same as "Off" in the editor). |
 
 ### YAML Example
 ```yaml
