@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit';
-import { QUADRANT_ZONES, SEXTANT_ZONES, ACCENT_COLORS } from './toothbrush-card.js';
+import { QUADRANT_ZONES, SEXTANT_ZONES, ACCENT_COLORS, SUPPORTED_INTEGRATIONS } from './toothbrush-card.js';
 import { t } from './translations.js';
 
 export class ToothbrushCardEditor extends LitElement {
@@ -90,6 +90,29 @@ export class ToothbrushCardEditor extends LitElement {
         }
         this._config = newConfig;
         this._fireConfig(newConfig);
+    }
+
+    _deviceOptions() {
+        const seen = new Map();
+        for (const entityId in this.hass.entities) {
+            const entity = this.hass.entities[entityId];
+            if (!entity.device_id || seen.has(entity.device_id)) continue;
+            const requiredKey = SUPPORTED_INTEGRATIONS[entity.platform];
+            if (!requiredKey || entity.translation_key !== requiredKey) continue;
+            const device = this.hass.devices?.[entity.device_id];
+            seen.set(entity.device_id, device?.name_by_user || device?.name || entity.device_id);
+        }
+        const options = [...seen.entries()]
+            .map(([value, label]) => ({ value, label }))
+            .sort((a, b) => a.label.localeCompare(b.label));
+        // Keep a manually configured device_id visible instead of "Unknown
+        // device selected", even if it doesn't qualify above.
+        const current = this._config.device_id;
+        if (current && !seen.has(current)) {
+            const device = this.hass.devices?.[current];
+            options.push({ value: current, label: device?.name_by_user || device?.name || current });
+        }
+        return options;
     }
 
     _deviceChanged(ev) {
@@ -202,7 +225,7 @@ export class ToothbrushCardEditor extends LitElement {
                 <div class="field">
                     <ha-selector
                         .hass=${this.hass}
-                        .selector=${{ device: { filter: [{ integration: 'oralb' }, { integration: 'philips_sonicare_ble' }], entity: [{ device_class: 'battery' }] } }}
+                        .selector=${{ select: { mode: 'dropdown', options: this._deviceOptions() } }}
                         .value=${this._config.device_id || ''}
                         .label=${t(this.hass, 'config_device') || 'Device'}
                         @value-changed=${this._deviceChanged}

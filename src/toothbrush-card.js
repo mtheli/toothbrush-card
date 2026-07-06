@@ -5,9 +5,20 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.14.0";
+export const CARD_VERSION = "0.15.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
+
+// Integration domain -> translation_key of the main state entity the card
+// binds to. A device is supported iff it carries that entity — exactly the
+// condition under which the card can render it, and one that sub-devices
+// (e.g. the Sonicare Brush Head/Connection) never meet. Drives both the
+// editor's device picker and getStubConfig; new integrations only need a
+// line here plus their entity mapping in _findAndMapEntitiesInConfig.
+export const SUPPORTED_INTEGRATIONS = {
+    oralb: 'toothbrush_state',
+    philips_sonicare_ble: 'handle_state',
+};
 
 export const QUADRANT_ZONES = ['lower_left', 'lower_right', 'upper_left', 'upper_right'];
 export const SEXTANT_ZONES = ['lower_left', 'lower_front', 'lower_right', 'upper_right', 'upper_front', 'upper_left'];
@@ -948,8 +959,7 @@ export class ToothbrushCard extends LitElement {
 
     static getStubConfig(hass) {
         const entry = Object.values(hass.entities).find(
-            (e) => (e.platform === "oralb" && e.translation_key === "toothbrush_state") ||
-                   (e.platform === "philips_sonicare_ble" && e.translation_key === "handle_state")
+            (e) => e.translation_key && SUPPORTED_INTEGRATIONS[e.platform] === e.translation_key
         );
         return { device_id: entry ? entry.device_id : "" };
     }
