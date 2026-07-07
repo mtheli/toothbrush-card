@@ -3948,3 +3948,4 @@ node_modules/lit-html/node/directives/when.js.map
 !/package-lock.json
 !/hacs.json
 scripts/__pycache__/
+TODO.md
