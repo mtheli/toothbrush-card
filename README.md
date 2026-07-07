@@ -15,6 +15,13 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 
 ![Oral-B](screenshots/OralB.png) ![Sonicare](screenshots/Sonicare.png)
 
+### Planned / In Progress
+
+| Brand | Status |
+|-------|--------|
+| Laifen | In progress — waiting on device testing ([#9](https://github.com/mtheli/toothbrush-card/issues/9)) |
+| Xiaomi (T700) | Under evaluation — limited BLE data, see [#7](https://github.com/mtheli/toothbrush-card/issues/7) |
+
 ---
 
 ## Features
