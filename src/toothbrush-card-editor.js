@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit';
-import { QUADRANT_ZONES, SEXTANT_ZONES, ACCENT_COLORS, SUPPORTED_INTEGRATIONS,
+import { QUADRANT_ZONES, SEXTANT_ZONES, ACCENT_COLORS, isMainStateEntity,
          LAYOUT_PROPS, CORNER_SLOTS, normalizeLayout, resolveLayoutForDevice,
          findDeviceEntities } from './toothbrush-card.js';
 import { t } from './translations.js';
@@ -99,8 +99,7 @@ export class ToothbrushCardEditor extends LitElement {
         for (const entityId in this.hass.entities) {
             const entity = this.hass.entities[entityId];
             if (!entity.device_id || seen.has(entity.device_id)) continue;
-            const requiredKey = SUPPORTED_INTEGRATIONS[entity.platform];
-            if (!requiredKey || entity.translation_key !== requiredKey) continue;
+            if (!isMainStateEntity(entity)) continue;
             const device = this.hass.devices?.[entity.device_id];
             seen.set(entity.device_id, device?.name_by_user || device?.name || entity.device_id);
         }

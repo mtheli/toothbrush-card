@@ -9,16 +9,28 @@ export const CARD_VERSION = "0.17.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
-// Integration domain -> translation_key of the main state entity the card
-// binds to. A device is supported iff it carries that entity — exactly the
-// condition under which the card can render it, and one that sub-devices
-// (e.g. the Sonicare Brush Head/Connection) never meet. Drives both the
-// editor's device picker and getStubConfig; new integrations only need a
-// line here plus their entity mapping in _findAndMapEntitiesInConfig.
+// Integration domain -> matcher for the main state entity the card binds to.
+// A device is supported iff it carries that entity — exactly the condition
+// under which the card can render it, and one that sub-devices (e.g. the
+// Sonicare Brush Head/Connection) never meet. Drives both the editor's
+// device picker and getStubConfig; new integrations only need a line here
+// plus their entity mapping in findDeviceEntities. Most integrations are
+// matched by translation_key; xiaomi_ble names its entities library-side
+// (no translation_key), so its main entity is recognized by entity_id
+// suffix instead (entity_ids are language-independent).
 export const SUPPORTED_INTEGRATIONS = {
-    oralb: 'toothbrush_state',
-    philips_sonicare_ble: 'handle_state',
+    oralb: { translationKey: 'toothbrush_state' },
+    philips_sonicare_ble: { translationKey: 'handle_state' },
+    xiaomi_ble: { idSuffix: '_toothbrush' },
 };
+
+// True when this entity is the main state entity of a supported integration.
+export function isMainStateEntity(entity) {
+    const m = SUPPORTED_INTEGRATIONS[entity.platform];
+    if (!m) return false;
+    if (m.translationKey) return entity.translation_key === m.translationKey;
+    return entity.entity_id.endsWith(m.idSuffix);
+}
 
 export const QUADRANT_ZONES = ['lower_left', 'lower_right', 'upper_left', 'upper_right'];
 export const SEXTANT_ZONES = ['lower_left', 'lower_front', 'lower_right', 'upper_right', 'upper_front', 'upper_left'];
@@ -52,6 +64,14 @@ export function resolveLayoutForDevice(layout, ids) {
     if (!ids) return layout;
     const hasPressure = !!(ids.pressure_state || ids.pressure);
     const hasIntensity = !!ids.intensity;
+    // Devices with neither contact feedback nor a mode reading (e.g. Xiaomi)
+    // would render a lone battery chip under the classic default; give them a
+    // battery/score/brush-head row instead. Only the untouched default is
+    // rewritten — an explicit layout is respected as-is.
+    if (layout.defaulted && !hasPressure && !hasIntensity
+        && !ids.mode && !ids.mode_select && ids.score) {
+        return { chips: ['battery', 'score', 'brush_head'], corners: {} };
+    }
     // Only the neutral default 'pressure' is rewritten, and only for handles
     // that have intensity but no pressure — an explicit choice is left intact so
     // a device exposing both can carry either (or both).
@@ -84,7 +104,9 @@ export function resolveLayoutForDevice(layout, ids) {
 export function normalizeLayout(config) {
     const raw = config?.layout;
     if (!raw || typeof raw !== 'object') {
-        return { chips: ['battery', 'pressure', 'mode'], corners: { top_right: 'brush_head' } };
+        // `defaulted` lets resolveLayoutForDevice swap in a device-appropriate
+        // default without ever touching an explicitly configured layout.
+        return { chips: ['battery', 'pressure', 'mode'], corners: { top_right: 'brush_head' }, defaulted: true };
     }
     const seen = new Set();
     const take = (p) => {
@@ -136,6 +158,22 @@ export function findDeviceEntities(hass, deviceId) {
 
         const state = hass.states[entityId];
         const deviceClass = state?.attributes?.device_class;
+
+        // xiaomi_ble: the library names entities itself (no translation_key),
+        // so readings are matched by entity_id suffix. The broadcast carries
+        // no live duration or sectors — those are synthesized from time.
+        if (entity.platform === 'xiaomi_ble') {
+            if (entity.entity_id.endsWith('_toothbrush')) {
+                entityKeys.status = entity.entity_id;
+            } else if (entity.entity_id.endsWith('_score')) {
+                entityKeys.score = entity.entity_id;
+            } else if (entity.entity_id.endsWith('_consumable')) {
+                // Xiaomi reports the percentage LEFT on the head; the card
+                // tracks wear, so the reading is inverted where it's used.
+                entityKeys.brushhead_wear = entity.entity_id;
+                entityKeys.brushhead_remaining = true;
+            }
+        }
 
         // Shared translation_keys (OralB + Sonicare >= 0.8)
         if (entity.translation_key === 'sector') {
@@ -578,7 +616,19 @@ export class ToothbrushCard extends LitElement {
             ? parseInt(hass.states[entityIds.number_of_sectors]?.state) || null
             : null;
         const numSectors = config.num_sectors || numSectorsFromEntity || 4;
-        const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
+        const statusEntityId = entityIds.base_entity;
+        const rawStatus = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
+        // Binary main state entities (xiaomi_ble) report plain on/off.
+        const status = rawStatus === 'on' ? 'running' : rawStatus === 'off' ? 'idle' : rawStatus;
+        const active = this._isActive(status);
+        // Without a duration entity (Xiaomi broadcasts no live timer) the
+        // session time is how long the state entity has been on — the card's
+        // 1s refresh keeps it ticking.
+        const duration = entityIds.duration
+            ? parseInt(hass.states[entityIds.duration]?.state) || 0
+            : (active && statusEntityId && hass.states[statusEntityId]?.last_changed
+                ? Math.max(0, Math.floor((Date.now() - new Date(hass.states[statusEntityId].last_changed).getTime()) / 1000))
+                : 0);
         // Pressure and intensity are distinct readings (a handle reports one or
         // the other): pressure is contact feedback with an ok/too-high reading,
         // intensity is a user-set power level. Each has its own chip, colours
@@ -602,17 +652,22 @@ export class ToothbrushCard extends LitElement {
         const mode = (modeSelectState?.state && modeSelectState.state !== 'unavailable')
             ? modeSelectState.state
             : (entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A');
-        const routineLength = entityIds.routine_length
-            ? parseInt(hass.states[entityIds.routine_length]?.state) || 0
-            : 0;
+        // Routine length: config override first, then the entity; synthetic-
+        // timer devices (no duration entity) fall back to the 2-minute default
+        // so the time-based sector path can run.
+        const routineLength = Number(config.routine_length)
+            || (entityIds.routine_length
+                ? parseInt(hass.states[entityIds.routine_length]?.state) || 0
+                : 0)
+            || (entityIds.duration ? 0 : BRUSHING_DURATION);
 
-        const brushheadWear = entityIds.brushhead_wear
+        let brushheadWear = entityIds.brushhead_wear
             ? parseFloat(hass.states[entityIds.brushhead_wear]?.state) || null
             : null;
-
-        const statusEntityId = entityIds.base_entity;
-        const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
-        const active = this._isActive(status);
+        // xiaomi_ble reports percentage left; the card tracks wear.
+        if (brushheadWear !== null && entityIds.brushhead_remaining) {
+            brushheadWear = 100 - brushheadWear;
+        }
 
         // Completion latch (issues #4, #5): keep showing the finished session
         // after it ends. Neither integration keeps reporting a completed
@@ -1192,9 +1247,7 @@ export class ToothbrushCard extends LitElement {
     }
 
     static getStubConfig(hass) {
-        const entry = Object.values(hass.entities).find(
-            (e) => e.translation_key && SUPPORTED_INTEGRATIONS[e.platform] === e.translation_key
-        );
+        const entry = Object.values(hass.entities).find(isMainStateEntity);
         return { device_id: entry ? entry.device_id : "" };
     }
 }

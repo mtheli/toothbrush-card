@@ -856,9 +856,22 @@ $7bfe0f8b5ad5b7ee$exports = "ha-card {\n  overflow: visible;\n  container-type: 
 const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.17.0";
 const $930552a63f9e9686$var$BRUSHING_DURATION = 120; // 2 minutes target
 const $930552a63f9e9686$export$1a6ef95039f86f17 = {
-    oralb: 'toothbrush_state',
-    philips_sonicare_ble: 'handle_state'
+    oralb: {
+        translationKey: 'toothbrush_state'
+    },
+    philips_sonicare_ble: {
+        translationKey: 'handle_state'
+    },
+    xiaomi_ble: {
+        idSuffix: '_toothbrush'
+    }
 };
+function $930552a63f9e9686$export$f8997d7b344b36dd(entity) {
+    const m = $930552a63f9e9686$export$1a6ef95039f86f17[entity.platform];
+    if (!m) return false;
+    if (m.translationKey) return entity.translation_key === m.translationKey;
+    return entity.entity_id.endsWith(m.idSuffix);
+}
 const $930552a63f9e9686$export$5055f2a665f9cd1e = [
     'lower_left',
     'lower_right',
@@ -933,6 +946,18 @@ function $930552a63f9e9686$export$367d6925611d406e(layout, ids) {
     if (!ids) return layout;
     const hasPressure = !!(ids.pressure_state || ids.pressure);
     const hasIntensity = !!ids.intensity;
+    // Devices with neither contact feedback nor a mode reading (e.g. Xiaomi)
+    // would render a lone battery chip under the classic default; give them a
+    // battery/score/brush-head row instead. Only the untouched default is
+    // rewritten — an explicit layout is respected as-is.
+    if (layout.defaulted && !hasPressure && !hasIntensity && !ids.mode && !ids.mode_select && ids.score) return {
+        chips: [
+            'battery',
+            'score',
+            'brush_head'
+        ],
+        corners: {}
+    };
     // Only the neutral default 'pressure' is rewritten, and only for handles
     // that have intensity but no pressure — an explicit choice is left intact so
     // a device exposing both can carry either (or both).
@@ -960,7 +985,9 @@ function $930552a63f9e9686$export$367d6925611d406e(layout, ids) {
 }
 function $930552a63f9e9686$export$d859d72b10c9a984(config) {
     const raw = config?.layout;
-    if (!raw || typeof raw !== 'object') return {
+    if (!raw || typeof raw !== 'object') // `defaulted` lets resolveLayoutForDevice swap in a device-appropriate
+    // default without ever touching an explicitly configured layout.
+    return {
         chips: [
             'battery',
             'pressure',
@@ -968,7 +995,8 @@ function $930552a63f9e9686$export$d859d72b10c9a984(config) {
         ],
         corners: {
             top_right: 'brush_head'
-        }
+        },
+        defaulted: true
     };
     const seen = new Set();
     const take = (p)=>{
@@ -1020,6 +1048,19 @@ function $930552a63f9e9686$export$23f5d0f4bf90bc55(hass, deviceId) {
         if (!entityKeys.integration && entity.platform) entityKeys.integration = entity.platform;
         const state = hass.states[entityId];
         const deviceClass = state?.attributes?.device_class;
+        // xiaomi_ble: the library names entities itself (no translation_key),
+        // so readings are matched by entity_id suffix. The broadcast carries
+        // no live duration or sectors — those are synthesized from time.
+        if (entity.platform === 'xiaomi_ble') {
+            if (entity.entity_id.endsWith('_toothbrush')) entityKeys.status = entity.entity_id;
+            else if (entity.entity_id.endsWith('_score')) entityKeys.score = entity.entity_id;
+            else if (entity.entity_id.endsWith('_consumable')) {
+                // Xiaomi reports the percentage LEFT on the head; the card
+                // tracks wear, so the reading is inverted where it's used.
+                entityKeys.brushhead_wear = entity.entity_id;
+                entityKeys.brushhead_remaining = true;
+            }
+        }
         // Shared translation_keys (OralB + Sonicare >= 0.8)
         if (entity.translation_key === 'sector') entityKeys.sector = entity.entity_id;
         else if (entity.translation_key === 'number_of_sectors') entityKeys.number_of_sectors = entity.entity_id;
@@ -1351,7 +1392,15 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         // Read sensor states
         const numSectorsFromEntity = entityIds.number_of_sectors ? parseInt(hass.states[entityIds.number_of_sectors]?.state) || null : null;
         const numSectors = config.num_sectors || numSectorsFromEntity || 4;
-        const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
+        const statusEntityId = entityIds.base_entity;
+        const rawStatus = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
+        // Binary main state entities (xiaomi_ble) report plain on/off.
+        const status = rawStatus === 'on' ? 'running' : rawStatus === 'off' ? 'idle' : rawStatus;
+        const active = this._isActive(status);
+        // Without a duration entity (Xiaomi broadcasts no live timer) the
+        // session time is how long the state entity has been on — the card's
+        // 1s refresh keeps it ticking.
+        const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : active && statusEntityId && hass.states[statusEntityId]?.last_changed ? Math.max(0, Math.floor((Date.now() - new Date(hass.states[statusEntityId].last_changed).getTime()) / 1000)) : 0;
         // Pressure and intensity are distinct readings (a handle reports one or
         // the other): pressure is contact feedback with an ok/too-high reading,
         // intensity is a user-set power level. Each has its own chip, colours
@@ -1367,11 +1416,13 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const batteryLevel = batteryUnavailable ? 0 : rawBattery;
         const modeSelectState = entityIds.mode_select ? hass.states[entityIds.mode_select] : null;
         const mode = modeSelectState?.state && modeSelectState.state !== 'unavailable' ? modeSelectState.state : entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A';
-        const routineLength = entityIds.routine_length ? parseInt(hass.states[entityIds.routine_length]?.state) || 0 : 0;
-        const brushheadWear = entityIds.brushhead_wear ? parseFloat(hass.states[entityIds.brushhead_wear]?.state) || null : null;
-        const statusEntityId = entityIds.base_entity;
-        const status = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
-        const active = this._isActive(status);
+        // Routine length: config override first, then the entity; synthetic-
+        // timer devices (no duration entity) fall back to the 2-minute default
+        // so the time-based sector path can run.
+        const routineLength = Number(config.routine_length) || (entityIds.routine_length ? parseInt(hass.states[entityIds.routine_length]?.state) || 0 : 0) || (entityIds.duration ? 0 : $930552a63f9e9686$var$BRUSHING_DURATION);
+        let brushheadWear = entityIds.brushhead_wear ? parseFloat(hass.states[entityIds.brushhead_wear]?.state) || null : null;
+        // xiaomi_ble reports percentage left; the card tracks wear.
+        if (brushheadWear !== null && entityIds.brushhead_remaining) brushheadWear = 100 - brushheadWear;
         // Completion latch (issues #4, #5): keep showing the finished session
         // after it ends. Neither integration keeps reporting a completed
         // session — Oral-B freezes its last advertised values once the brush
@@ -1872,7 +1923,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         return document.createElement('toothbrush-card-editor');
     }
     static getStubConfig(hass) {
-        const entry = Object.values(hass.entities).find((e)=>e.translation_key && $930552a63f9e9686$export$1a6ef95039f86f17[e.platform] === e.translation_key);
+        const entry = Object.values(hass.entities).find($930552a63f9e9686$export$f8997d7b344b36dd);
         return {
             device_id: entry ? entry.device_id : ""
         };
@@ -1974,8 +2025,7 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
         for(const entityId in this.hass.entities){
             const entity = this.hass.entities[entityId];
             if (!entity.device_id || seen.has(entity.device_id)) continue;
-            const requiredKey = (0, $930552a63f9e9686$export$1a6ef95039f86f17)[entity.platform];
-            if (!requiredKey || entity.translation_key !== requiredKey) continue;
+            if (!(0, $930552a63f9e9686$export$f8997d7b344b36dd)(entity)) continue;
             const device = this.hass.devices?.[entity.device_id];
             seen.set(entity.device_id, device?.name_by_user || device?.name || entity.device_id);
         }
