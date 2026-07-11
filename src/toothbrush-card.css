@@ -300,9 +300,11 @@ ha-card {
     align-items: center;
     position: relative;
 }
-/* Without the chips row the visual area directly follows the header — give
-   the teeth some breathing room at the top. */
-.card-header + .visual-area {
+/* Without the chips row the visual area directly follows the header (or,
+   with show_header off, opens the card) — give the teeth some breathing
+   room at the top. */
+.card-header + .visual-area,
+.visual-area:first-child {
     padding-top: 16px;
 }
 .tooth-wrap {
@@ -369,6 +371,19 @@ ha-card {
 .timer-display.active {
     color: var(--primary-color, #2563eb);
 }
+/* tooth_style: none — the timer stands alone instead of sitting inside the
+   tooth ring, so it grows for at-a-distance readability (panel setups). */
+.center-info.standalone {
+    position: static;
+    transform: none;
+    pointer-events: auto;
+    cursor: pointer;
+    padding: 10px 0 4px;
+}
+.center-info.standalone .timer-display {
+    font-size: 52px;
+    letter-spacing: -2px;
+}
 
 /* ── STATUS ── */
 /* Status line: bottom corner markers flank the status text in-flow, so both
@@ -420,8 +435,15 @@ ha-card {
     height: auto;
     padding: 0 14px 10px;
 }
+/* The track is sliced into one sub-bar per sector (small gaps mark the
+   boundaries); the time-based fill runs across them as before. */
 .progress-track {
     height: 4px;
+    display: flex;
+    gap: 3px;
+}
+.progress-seg {
+    flex: 1;
     background: var(--divider-color, #e5e7eb);
     border-radius: 2px;
     overflow: hidden;
@@ -531,8 +553,8 @@ ha-card {
 .corner-ico.gold,.corner-val.gold { color: #c47f16; }
 .corner-ico.teal,.corner-val.teal { color: #0d9488; }
 .brushhead-svg {
-    width: 16px;
-    height: 42px;
+    width: 17px;
+    height: 22px;
 }
 .brushhead-pct {
     font-size: 9px;

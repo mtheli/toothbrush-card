@@ -710,6 +710,7 @@ export class ToothbrushCard extends LitElement {
         if (activity === 'initializing') {
             return html`
                 <ha-card style="${this._cardStyle()}">
+                    ${config.show_header === false ? '' : html`
                     <div class="card-header">
                         <div class="header-title">
                             <div class="header-accent"></div>
@@ -732,7 +733,7 @@ export class ToothbrushCard extends LitElement {
                                 <circle cx="12" cy="19" r="1.5"/>
                             </svg>
                         </div>
-                    </div>
+                    </div>`}
                     <div class="init-wrap">
                         <div class="init-rings">
                             <div class="init-ring init-ring-1"></div>
@@ -862,21 +863,23 @@ export class ToothbrushCard extends LitElement {
         const scoreState = entityIds.score ? hass.states[entityIds.score]?.state : null;
         const scoreAvailable = scoreState && scoreState !== 'unavailable' && scoreState !== 'unknown';
 
-        // Shared brush-head glyph (the same shape the corner marker draws).
+        // Shared brush-head glyph (the same shape the corner marker draws):
+        // the head capsule in side view — bristles sticking out sideways, the
+        // typical Sonicare silhouette — at the same 22px height as the other
+        // corner icons.
         const headSvg = () => html`
-            <svg viewBox="0 0 24 72" class="brushhead-svg">
+            <svg viewBox="0 0 24 30" class="brushhead-svg">
                 <defs>
                     <clipPath id="bh-fill-${this._bhClipId}">
-                        <rect x="0" y="${brushheadWear * 0.72}" width="24" height="${72 - brushheadWear * 0.72}"/>
+                        <rect x="0" y="${brushheadWear * 0.30}" width="24" height="${30 - brushheadWear * 0.30}"/>
                     </clipPath>
                 </defs>
-                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="none" stroke="var(--secondary-text-color, #888)" stroke-width="2"/>
-                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="${this._getBrushheadColor(brushheadWear)}" opacity="0.3" clip-path="url(#bh-fill-${this._bhClipId})"/>
-                <line x1="7" y1="5" x2="17" y2="5" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
-                <line x1="6.5" y1="9" x2="17.5" y2="9" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
-                <line x1="6" y1="13" x2="18" y2="13" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
-                <line x1="6" y1="17" x2="18" y2="17" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
-                <line x1="6.5" y1="21" x2="17.5" y2="21" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
+                <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="none" stroke="var(--secondary-text-color, #888)" stroke-width="2"/>
+                <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="${this._getBrushheadColor(brushheadWear)}" opacity="0.3" clip-path="url(#bh-fill-${this._bhClipId})"/>
+                <line x1="10.5" y1="4" x2="3" y2="4" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
+                <line x1="10.5" y1="8" x2="2.5" y2="8" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
+                <line x1="10.5" y1="12" x2="3" y2="12" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
+                <line x1="10.5" y1="16" x2="4.5" y2="16" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
             </svg>`;
 
         // A property rendered as a full chip. Returns '' when the reading is
@@ -996,9 +999,15 @@ export class ToothbrushCard extends LitElement {
         const bottomLeftEl = layout.corners.bottom_left ? cornerEl('bottom_left', layout.corners.bottom_left) : '';
         const bottomRightEl = layout.corners.bottom_right ? cornerEl('bottom_right', layout.corners.bottom_right) : '';
 
+        const showHeader = config.show_header !== false;
+        // 'none' drops the tooth ring for a large standalone timer (compact
+        // panel setups); anything else renders the classic teeth graphic.
+        const showTeeth = config.tooth_style !== 'none';
+
         return html`
             <ha-card style="${this._cardStyle()}">
                 <!-- Header -->
+                ${showHeader ? html`
                 <div class="card-header">
                     <div class="header-title">
                         <div class="header-accent"></div>
@@ -1022,13 +1031,14 @@ export class ToothbrushCard extends LitElement {
                             <circle cx="12" cy="19" r="1.5"/>
                         </svg>
                     </div>
-                </div>
+                </div>` : ''}
 
                 <!-- Chips: configurable via layout.chips (omitted when empty) -->
                 ${chipEls.length ? html`<div class="chips-row">${chipEls}</div>` : ''}
 
                 <!-- Tooth visual -->
                 <div class="visual-area">
+                    ${showTeeth ? html`
                     <div class="tooth-wrap">
                         ${ToothSVG(sectorClassData, numSectors)}
                         <div class="center-info">
@@ -1038,7 +1048,13 @@ export class ToothbrushCard extends LitElement {
                                 ${this._formatTime(displayDuration)}
                             </div>
                         </div>
-                    </div>
+                    </div>` : html`
+                    <div class="center-info standalone" @click="${() => this._showMoreInfo(entityIds.duration)}">
+                        <span class="session-label">${t(hass, 'session')}</span>
+                        <div class="timer-display ${active ? 'active' : ''}">
+                            ${this._formatTime(displayDuration)}
+                        </div>
+                    </div>`}
 
                     <div class="status-row">
                         <div>${bottomLeftEl}</div>
@@ -1051,7 +1067,15 @@ export class ToothbrushCard extends LitElement {
 
                     <div class="progress-wrap ${active || isSuccess ? 'visible' : ''}">
                         <div class="progress-track">
-                            <div class="progress-fill" style="width: ${progressPct}%"></div>
+                            ${Array.from({ length: numSectors || 1 }, (_, i) => {
+                                // Same time-based fill as before, sliced into one
+                                // sub-bar per sector so the boundaries are visible.
+                                const n = numSectors || 1;
+                                const segPct = Math.max(0, Math.min(100, (progressPct / 100 * n - i) * 100));
+                                return html`<div class="progress-seg">
+                                    <div class="progress-fill" style="width: ${segPct}%"></div>
+                                </div>`;
+                            })}
                         </div>
                         <div class="progress-labels">
                             <span>${sectorLabel || ''}</span>

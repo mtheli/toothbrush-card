@@ -314,7 +314,7 @@ export class ToothbrushCardEditor extends LitElement {
         };
         const selector = (options) => ({ select: { mode: 'dropdown', options } });
         return html`
-            <div class="section-label">
+            <div class="group-label">
                 <span>${t(this.hass, 'config_layout')}</span>
                 <button class="reset-btn" ?disabled=${!this._config.layout}
                         @click=${this._resetLayout}>Reset</button>
@@ -360,6 +360,7 @@ export class ToothbrushCardEditor extends LitElement {
 
         return html`
             <div class="editor">
+                <div class="group-label">${t(this.hass, 'group_device')}</div>
                 <div class="field">
                     <ha-selector
                         .hass=${this.hass}
@@ -370,6 +371,16 @@ export class ToothbrushCardEditor extends LitElement {
                     ></ha-selector>
                 </div>
 
+                <div class="group-label">${t(this.hass, 'group_header')}</div>
+                <div class="field row">
+                    <ha-switch
+                        .checked=${this._config.show_header !== false}
+                        @change=${(ev) => this._valueChanged('show_header', ev.target.checked ? '' : false)}
+                    ></ha-switch>
+                    <span>${t(this.hass, 'config_show_header')}</span>
+                </div>
+
+                ${this._config.show_header !== false ? html`
                 <div class="field">
                     <ha-textfield
                         .label=${t(this.hass, 'config_title')}
@@ -384,26 +395,6 @@ export class ToothbrushCardEditor extends LitElement {
                         @change=${(ev) => this._valueChanged('show_subtitle', ev.target.checked)}
                     ></ha-switch>
                     <span>${t(this.hass, 'config_subtitle')}</span>
-                </div>
-
-                <div class="field">
-                    <ha-selector
-                        .hass=${this.hass}
-                        .selector=${{ select: { mode: 'dropdown', options: [
-                            { value: 'off', label: t(this.hass, 'hold_off') },
-                            { value: '0.25', label: '15 min' },
-                            { value: '0.5', label: '30 min' },
-                            { value: '1', label: '1 h' },
-                            { value: '4', label: '4 h' },
-                            { value: '8', label: '8 h' },
-                            { value: '12', label: '12 h' },
-                            { value: '24', label: '24 h' },
-                            { value: '0', label: t(this.hass, 'hold_until_next_session') },
-                        ] } }}
-                        .label=${t(this.hass, 'config_hold_duration')}
-                        .value=${this._holdValue()}
-                        @value-changed=${(ev) => this._holdChanged(ev.detail.value)}
-                    ></ha-selector>
                 </div>
 
                 <div class="field">
@@ -422,13 +413,28 @@ export class ToothbrushCardEditor extends LitElement {
                             </button>
                         `)}
                     </div>
+                </div>` : ''}
+
+                <div class="group-label">${t(this.hass, 'group_teeth')}</div>
+                <div class="field">
+                    <ha-selector
+                        .hass=${this.hass}
+                        .selector=${{ select: { mode: 'dropdown', options: [
+                            { value: 'teeth', label: t(this.hass, 'tooth_style_teeth') },
+                            { value: 'none', label: t(this.hass, 'tooth_style_none') },
+                        ] } }}
+                        .label=${t(this.hass, 'config_tooth_style')}
+                        .value=${this._config.tooth_style === 'none' ? 'none' : 'teeth'}
+                        @value-changed=${(ev) => this._valueChanged('tooth_style', ev.detail.value === 'none' ? 'none' : '')}
+                    ></ha-selector>
                 </div>
 
+                ${this._config.tooth_style !== 'none' ? html`
                 ${this._colorField('tooth_color', 'config_tooth_color', '#d1d5db')}
                 ${this._colorField('active_color', 'config_active_color', '#93c5fd')}
-                ${this._colorField('done_color', 'config_done_color', '#bbf7d0')}
+                ${this._colorField('done_color', 'config_done_color', '#bbf7d0')}` : ''}
 
-                ${this._config.device_id ? html`
+                ${this._config.device_id && this._config.tooth_style !== 'none' ? html`
                     <div class="field">
                         <ha-selector
                             .hass=${this.hass}
@@ -476,8 +482,30 @@ export class ToothbrushCardEditor extends LitElement {
                         `)}
                     </div>
 
-                    ${this._renderLayoutSection()}
                 ` : ''}
+
+                ${this._config.device_id ? this._renderLayoutSection() : ''}
+
+                <div class="group-label">${t(this.hass, 'group_behavior')}</div>
+                <div class="field">
+                    <ha-selector
+                        .hass=${this.hass}
+                        .selector=${{ select: { mode: 'dropdown', options: [
+                            { value: 'off', label: t(this.hass, 'hold_off') },
+                            { value: '0.25', label: '15 min' },
+                            { value: '0.5', label: '30 min' },
+                            { value: '1', label: '1 h' },
+                            { value: '4', label: '4 h' },
+                            { value: '8', label: '8 h' },
+                            { value: '12', label: '12 h' },
+                            { value: '24', label: '24 h' },
+                            { value: '0', label: t(this.hass, 'hold_until_next_session') },
+                        ] } }}
+                        .label=${t(this.hass, 'config_hold_duration')}
+                        .value=${this._holdValue()}
+                        @value-changed=${(ev) => this._holdChanged(ev.detail.value)}
+                    ></ha-selector>
+                </div>
             </div>
         `;
     }
@@ -507,6 +535,24 @@ export class ToothbrushCardEditor extends LitElement {
                 font-size: 14px;
                 margin: 20px 0 8px;
                 color: var(--primary-text-color);
+            }
+            .group-label {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--secondary-text-color, #888);
+                border-top: 1px solid var(--divider-color, #e5e7eb);
+                padding-top: 14px;
+                margin: 24px 0 12px;
+            }
+            .group-label:first-child {
+                border-top: none;
+                padding-top: 0;
+                margin-top: 0;
             }
             .reset-btn {
                 background: none;

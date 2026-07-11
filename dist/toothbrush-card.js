@@ -826,15 +826,15 @@ const $3cb0a15594fd43d6$export$1e083828221390e5 = {
 
 
 var $76eee68ef692a3c3$exports = {};
-$76eee68ef692a3c3$exports = JSON.parse('{"chip_battery":"Battery","chip_pressure":"Pressure","chip_intensity":"Intensity","chip_mode":"Mode","chip_score":"Score","chip_head":"Head","session":"Session","complete":"Complete","done_title":"Brushing complete!","done_sextants":"All 6 sextants finished","done_quadrants":"All 4 quadrants finished","pressure_low":"Low","pressure_normal":"Normal","pressure_medium":"Medium","pressure_high":"High","intensity_low":"Low","intensity_medium":"Medium","intensity_high":"High","status_idle":"Idle","status_running":"Running","status_charging":"Charging","status_selection_menu":"Selection Menu","status_initializing":"Connecting\u2026","status_unavailable":"Unavailable","status_unknown":"Unknown","status_off":"Off","status_standby":"Standby","status_run":"Running","status_charge":"Charging","status_shutdown":"Shutdown","zone_upper_right":"Upper right","zone_upper_front":"Upper front","zone_upper_left":"Upper left","zone_lower_left":"Lower left","zone_lower_front":"Lower front","zone_lower_right":"Lower right","mode_daily_clean":"Daily Clean","mode_deep_clean":"Deep Clean","mode_gum_care":"Gum Care","mode_intense":"Intense","mode_massage":"Massage","mode_off":"Off","mode_sensitive":"Sensitive","mode_settings":"Settings","mode_super_sensitive":"Super Sensitive","mode_tongue_cleaning":"Tongue Clean","mode_turbo":"Turbo","mode_whiten":"Whiten","mode_whitening":"Whitening","mode_unknown":"Unknown","mode_clean":"Clean","mode_white_plus":"White+","mode_gum_health":"Gum Health","mode_deep_clean_plus":"Deep Clean+","mode_tongue_care":"Tongue Care","config_device":"Device","config_title":"Title (Optional)","config_subtitle":"Show device name as subtitle","hold_off":"Off","config_hold_duration":"Keep finished session for","hold_until_next_session":"Until the next session","completed_just_now":"just now","completed_ago_minutes":"{n} min ago","completed_ago_hours":"{n} h ago","config_accent_color":"Accent color","config_tooth_color":"Tooth color","config_active_color":"Active sector color","config_done_color":"Completed sector color","config_num_sectors":"Number of sectors","config_sector_order":"Sector order","config_layout":"Layout","config_layout_hint":"Place each reading as a chip (top row, max 3) or a corner marker. Each reading can be used once.","config_layout_chips":"Chips (max. 3)","config_layout_chip":"Chip","config_layout_corners":"Corner markers","layout_none":"\u2014 None \u2014","pos_top_left":"Top left","pos_top_right":"Top right","pos_bottom_left":"Bottom left","pos_bottom_right":"Bottom right","config_sector_mode_device":"Sectors reported by device","config_sector_mode_time":"Sectors calculated from routine time","config_sector_revisit_hint":"Note: some modes revisit specific zones (e.g. Sonicare White+ polishes the front teeth again). Reordering zones here can be confusing in those modes if the brush\'s start-quadrant preference isn\'t adjusted accordingly.","config_select_device":"Please enter the device id"}');
+$76eee68ef692a3c3$exports = JSON.parse('{"chip_battery":"Battery","chip_pressure":"Pressure","chip_intensity":"Intensity","chip_mode":"Mode","chip_score":"Score","chip_head":"Head","session":"Session","complete":"Complete","done_title":"Brushing complete!","done_sextants":"All 6 sextants finished","done_quadrants":"All 4 quadrants finished","pressure_low":"Low","pressure_normal":"Normal","pressure_medium":"Medium","pressure_high":"High","intensity_low":"Low","intensity_medium":"Medium","intensity_high":"High","status_idle":"Idle","status_running":"Running","status_charging":"Charging","status_selection_menu":"Selection Menu","status_initializing":"Connecting\u2026","status_unavailable":"Unavailable","status_unknown":"Unknown","status_off":"Off","status_standby":"Standby","status_run":"Running","status_charge":"Charging","status_shutdown":"Shutdown","zone_upper_right":"Upper right","zone_upper_front":"Upper front","zone_upper_left":"Upper left","zone_lower_left":"Lower left","zone_lower_front":"Lower front","zone_lower_right":"Lower right","mode_daily_clean":"Daily Clean","mode_deep_clean":"Deep Clean","mode_gum_care":"Gum Care","mode_intense":"Intense","mode_massage":"Massage","mode_off":"Off","mode_sensitive":"Sensitive","mode_settings":"Settings","mode_super_sensitive":"Super Sensitive","mode_tongue_cleaning":"Tongue Clean","mode_turbo":"Turbo","mode_whiten":"Whiten","mode_whitening":"Whitening","mode_unknown":"Unknown","mode_clean":"Clean","mode_white_plus":"White+","mode_gum_health":"Gum Health","mode_deep_clean_plus":"Deep Clean+","mode_tongue_care":"Tongue Care","config_device":"Device","config_title":"Title (Optional)","config_subtitle":"Show device name as subtitle","hold_off":"Off","config_hold_duration":"Keep finished session for","hold_until_next_session":"Until the next session","completed_just_now":"just now","completed_ago_minutes":"{n} min ago","completed_ago_hours":"{n} h ago","config_accent_color":"Accent color","config_tooth_color":"Tooth color","config_active_color":"Active sector color","config_done_color":"Completed sector color","config_num_sectors":"Number of sectors","config_sector_order":"Sector order","config_layout":"Layout","config_layout_hint":"Place each reading as a chip (top row, max 3) or a corner marker. Each reading can be used once.","config_layout_chips":"Chips (max. 3)","config_layout_chip":"Chip","config_layout_corners":"Corner markers","layout_none":"\u2014 None \u2014","pos_top_left":"Top left","pos_top_right":"Top right","pos_bottom_left":"Bottom left","pos_bottom_right":"Bottom right","config_show_header":"Show header","config_tooth_style":"Style","tooth_style_teeth":"Teeth ring (default)","tooth_style_none":"Hidden \u2014 large timer + progress bar","group_device":"Device","group_header":"Header","group_teeth":"Teeth graphic","group_behavior":"Behavior","config_sector_mode_device":"Sectors reported by device","config_sector_mode_time":"Sectors calculated from routine time","config_sector_revisit_hint":"Note: some modes revisit specific zones (e.g. Sonicare White+ polishes the front teeth again). Reordering zones here can be confusing in those modes if the brush\'s start-quadrant preference isn\'t adjusted accordingly.","config_select_device":"Please enter the device id"}');
 
 
 var $238d401f28c1db46$exports = {};
-$238d401f28c1db46$exports = JSON.parse('{"chip_battery":"Akku","chip_pressure":"Druck","chip_intensity":"Intensit\xe4t","chip_mode":"Modus","chip_score":"Score","chip_head":"Kopf","session":"Sitzung","complete":"Fertig","done_title":"Putzen abgeschlossen!","done_sextants":"Alle 6 Sextanten fertig","done_quadrants":"Alle 4 Quadranten fertig","pressure_low":"Niedrig","pressure_normal":"Normal","pressure_medium":"Mittel","pressure_high":"Hoch","intensity_low":"Niedrig","intensity_medium":"Mittel","intensity_high":"Hoch","status_idle":"Bereit","status_running":"Putzen","status_charging":"Laden","status_selection_menu":"Auswahl","status_initializing":"Verbinde\u2026","status_unavailable":"Nicht verf\xfcgbar","status_unknown":"Unbekannt","status_off":"Aus","status_standby":"Bereit","status_run":"Putzen","status_charge":"Laden","status_shutdown":"Ausschalten","zone_upper_right":"Oben rechts","zone_upper_front":"Oben vorne","zone_upper_left":"Oben links","zone_lower_left":"Unten links","zone_lower_front":"Unten vorne","zone_lower_right":"Unten rechts","mode_daily_clean":"T\xe4gliche Reinigung","mode_deep_clean":"Tiefenreinigung","mode_gum_care":"Zahnfleischschutz","mode_intense":"Intensiv","mode_massage":"Massage","mode_off":"Aus","mode_sensitive":"Sensitiv","mode_settings":"Einstellungen","mode_super_sensitive":"Extrasensitiv","mode_tongue_cleaning":"Zungenreinigung","mode_turbo":"Turbo","mode_whiten":"Aufhellen","mode_whitening":"Aufhellung","mode_unknown":"Unbekannt","mode_clean":"Reinigung","mode_white_plus":"White+","mode_gum_health":"Zahnfleischschutz","mode_deep_clean_plus":"Tiefenreinigung+","mode_tongue_care":"Zungenpflege","config_device":"Ger\xe4t","config_title":"Titel (Optional)","config_subtitle":"Ger\xe4tename als Untertitel anzeigen","hold_off":"Aus","config_hold_duration":"Abgeschlossene Sitzung anzeigen f\xfcr","hold_until_next_session":"Bis zur n\xe4chsten Sitzung","completed_just_now":"gerade eben","completed_ago_minutes":"vor {n} min","completed_ago_hours":"vor {n} Std.","config_accent_color":"Akzentfarbe","config_tooth_color":"Zahnfarbe","config_active_color":"Farbe aktiver Sektor","config_done_color":"Farbe fertiger Sektor","config_num_sectors":"Anzahl Sektoren","config_sector_order":"Sektorreihenfolge","config_layout":"Layout","config_layout_hint":"Jeden Wert als Chip (obere Reihe, max. 3) oder als Eck-Markierung platzieren. Jeder Wert nur einmal.","config_layout_chips":"Chips (max. 3)","config_layout_chip":"Chip","config_layout_corners":"Eck-Markierungen","layout_none":"\u2014 Keine \u2014","pos_top_left":"Oben links","pos_top_right":"Oben rechts","pos_bottom_left":"Unten links","pos_bottom_right":"Unten rechts","config_sector_mode_device":"Sektoren vom Ger\xe4t gemeldet","config_sector_mode_time":"Sektoren aus Putzzeit berechnet","config_sector_revisit_hint":"Hinweis: Manche Modi kehren zu bestimmten Zonen zur\xfcck (z.B. poliert Sonicare White+ die Frontz\xe4hne erneut). Eine abweichende Reihenfolge kann in diesen Modi verwirrend wirken, wenn der Startquadrant der B\xfcrste nicht entsprechend angepasst ist.","config_select_device":"Bitte Ger\xe4te-ID eingeben"}');
+$238d401f28c1db46$exports = JSON.parse('{"chip_battery":"Akku","chip_pressure":"Druck","chip_intensity":"Intensit\xe4t","chip_mode":"Modus","chip_score":"Score","chip_head":"Kopf","session":"Sitzung","complete":"Fertig","done_title":"Putzen abgeschlossen!","done_sextants":"Alle 6 Sextanten fertig","done_quadrants":"Alle 4 Quadranten fertig","pressure_low":"Niedrig","pressure_normal":"Normal","pressure_medium":"Mittel","pressure_high":"Hoch","intensity_low":"Niedrig","intensity_medium":"Mittel","intensity_high":"Hoch","status_idle":"Bereit","status_running":"Putzen","status_charging":"Laden","status_selection_menu":"Auswahl","status_initializing":"Verbinde\u2026","status_unavailable":"Nicht verf\xfcgbar","status_unknown":"Unbekannt","status_off":"Aus","status_standby":"Bereit","status_run":"Putzen","status_charge":"Laden","status_shutdown":"Ausschalten","zone_upper_right":"Oben rechts","zone_upper_front":"Oben vorne","zone_upper_left":"Oben links","zone_lower_left":"Unten links","zone_lower_front":"Unten vorne","zone_lower_right":"Unten rechts","mode_daily_clean":"T\xe4gliche Reinigung","mode_deep_clean":"Tiefenreinigung","mode_gum_care":"Zahnfleischschutz","mode_intense":"Intensiv","mode_massage":"Massage","mode_off":"Aus","mode_sensitive":"Sensitiv","mode_settings":"Einstellungen","mode_super_sensitive":"Extrasensitiv","mode_tongue_cleaning":"Zungenreinigung","mode_turbo":"Turbo","mode_whiten":"Aufhellen","mode_whitening":"Aufhellung","mode_unknown":"Unbekannt","mode_clean":"Reinigung","mode_white_plus":"White+","mode_gum_health":"Zahnfleischschutz","mode_deep_clean_plus":"Tiefenreinigung+","mode_tongue_care":"Zungenpflege","config_device":"Ger\xe4t","config_title":"Titel (Optional)","config_subtitle":"Ger\xe4tename als Untertitel anzeigen","hold_off":"Aus","config_hold_duration":"Abgeschlossene Sitzung anzeigen f\xfcr","hold_until_next_session":"Bis zur n\xe4chsten Sitzung","completed_just_now":"gerade eben","completed_ago_minutes":"vor {n} min","completed_ago_hours":"vor {n} Std.","config_accent_color":"Akzentfarbe","config_tooth_color":"Zahnfarbe","config_active_color":"Farbe aktiver Sektor","config_done_color":"Farbe fertiger Sektor","config_num_sectors":"Anzahl Sektoren","config_sector_order":"Sektorreihenfolge","config_layout":"Layout","config_layout_hint":"Jeden Wert als Chip (obere Reihe, max. 3) oder als Eck-Markierung platzieren. Jeder Wert nur einmal.","config_layout_chips":"Chips (max. 3)","config_layout_chip":"Chip","config_layout_corners":"Eck-Markierungen","layout_none":"\u2014 Keine \u2014","pos_top_left":"Oben links","pos_top_right":"Oben rechts","pos_bottom_left":"Unten links","pos_bottom_right":"Unten rechts","config_show_header":"Header anzeigen","config_tooth_style":"Stil","tooth_style_teeth":"Zahnkranz (Standard)","tooth_style_none":"Ausgeblendet \u2014 gro\xdfer Timer + Fortschrittsbalken","group_device":"Ger\xe4t","group_header":"Header","group_teeth":"Zahn-Grafik","group_behavior":"Verhalten","config_sector_mode_device":"Sektoren vom Ger\xe4t gemeldet","config_sector_mode_time":"Sektoren aus Putzzeit berechnet","config_sector_revisit_hint":"Hinweis: Manche Modi kehren zu bestimmten Zonen zur\xfcck (z.B. poliert Sonicare White+ die Frontz\xe4hne erneut). Eine abweichende Reihenfolge kann in diesen Modi verwirrend wirken, wenn der Startquadrant der B\xfcrste nicht entsprechend angepasst ist.","config_select_device":"Bitte Ger\xe4te-ID eingeben"}');
 
 
 var $450b7740649a7c34$exports = {};
-$450b7740649a7c34$exports = JSON.parse('{"chip_battery":"Batterij","chip_pressure":"Druk","chip_intensity":"Intensiteit","chip_mode":"Modus","chip_score":"Score","chip_head":"Kop","session":"Sessie","complete":"Afgerond","done_title":"Klaar met poetsen!","done_sextants":"Alle 6 sectoren afgerond","done_quadrants":"Alle 4 sectoren afgerond","pressure_low":"Laag","pressure_normal":"Normaal","pressure_medium":"Midden","pressure_high":"Hoog","intensity_low":"Laag","intensity_medium":"Midden","intensity_high":"Hoog","status_idle":"Rustend","status_running":"Draait","status_charging":"Opladen","status_selection_menu":"Selectie Menu","status_initializing":"Verbinden\u2026","status_unavailable":"Niet beschikbaar","status_unknown":"Onbekend","status_off":"Uit","status_standby":"Standby","status_run":"Draait","status_charge":"Laden","status_shutdown":"Afsluiten","zone_upper_right":"Boven rechts","zone_upper_front":"Boven voor","zone_upper_left":"Boven links","zone_lower_left":"Onder links","zone_lower_front":"Onder voor","zone_lower_right":"Onder rechts","mode_daily_clean":"Dagelijkse reiniging","mode_deep_clean":"Diepe reiniging","mode_gum_care":"Tandvlees verzorging","mode_intense":"Intens","mode_massage":"Massage","mode_off":"Uit","mode_sensitive":"Voorzichtig","mode_settings":"Instellingen","mode_super_sensitive":"Super voorzichtig","mode_tongue_cleaning":"Tong reiniging","mode_turbo":"Turbo","mode_whiten":"Bleken","mode_whitening":"Bleken","mode_unknown":"Onbekend","mode_clean":"Reinigen","mode_white_plus":"Bleek+","mode_gum_health":"Tandvlees gezondheid","mode_deep_clean_plus":"Diepe reiniging+","mode_tongue_care":"Tongreiniging","config_device":"Apparaat","config_title":"Titel (optioneel)","config_subtitle":"Toon apparaatnaam als onderschrift","hold_off":"Uit","config_hold_duration":"Voltooide sessie tonen gedurende","hold_until_next_session":"Tot de volgende sessie","completed_just_now":"zojuist","completed_ago_minutes":"{n} min geleden","completed_ago_hours":"{n} u geleden","config_accent_color":"Accentkleur","config_tooth_color":"Tandkleur","config_active_color":"Kleur actieve sector","config_done_color":"Kleur voltooide sector","config_num_sectors":"Aantal sectoren","config_sector_order":"Sectorvolgorde","config_layout":"Lay-out","config_layout_hint":"Plaats elke waarde als chip (bovenste rij, max. 3) of als hoek-markering. Elke waarde \xe9\xe9n keer.","config_layout_chips":"Chips (max. 3)","config_layout_chip":"Chip","config_layout_corners":"Hoek-markeringen","layout_none":"\u2014 Geen \u2014","pos_top_left":"Linksboven","pos_top_right":"Rechtsboven","pos_bottom_left":"Linksonder","pos_bottom_right":"Rechtsonder","config_sector_mode_device":"Sectoren gerapporteerd door apparaat","config_sector_mode_time":"Sectoren berekend op basis van routine tijd","config_sector_revisit_hint":"Let op: sommige modi bezoeken bepaalde zones opnieuw (bijv. Sonicare White+ poetst de voortanden nogmaals). Een afwijkende volgorde kan in die modi verwarrend zijn als de startkwadrant-voorkeur van de borstel niet wordt aangepast.","config_select_device":"Vul het apparaat-id in"}');
+$450b7740649a7c34$exports = JSON.parse('{"chip_battery":"Batterij","chip_pressure":"Druk","chip_intensity":"Intensiteit","chip_mode":"Modus","chip_score":"Score","chip_head":"Kop","session":"Sessie","complete":"Afgerond","done_title":"Klaar met poetsen!","done_sextants":"Alle 6 sectoren afgerond","done_quadrants":"Alle 4 sectoren afgerond","pressure_low":"Laag","pressure_normal":"Normaal","pressure_medium":"Midden","pressure_high":"Hoog","intensity_low":"Laag","intensity_medium":"Midden","intensity_high":"Hoog","status_idle":"Rustend","status_running":"Draait","status_charging":"Opladen","status_selection_menu":"Selectie Menu","status_initializing":"Verbinden\u2026","status_unavailable":"Niet beschikbaar","status_unknown":"Onbekend","status_off":"Uit","status_standby":"Standby","status_run":"Draait","status_charge":"Laden","status_shutdown":"Afsluiten","zone_upper_right":"Boven rechts","zone_upper_front":"Boven voor","zone_upper_left":"Boven links","zone_lower_left":"Onder links","zone_lower_front":"Onder voor","zone_lower_right":"Onder rechts","mode_daily_clean":"Dagelijkse reiniging","mode_deep_clean":"Diepe reiniging","mode_gum_care":"Tandvlees verzorging","mode_intense":"Intens","mode_massage":"Massage","mode_off":"Uit","mode_sensitive":"Voorzichtig","mode_settings":"Instellingen","mode_super_sensitive":"Super voorzichtig","mode_tongue_cleaning":"Tong reiniging","mode_turbo":"Turbo","mode_whiten":"Bleken","mode_whitening":"Bleken","mode_unknown":"Onbekend","mode_clean":"Reinigen","mode_white_plus":"Bleek+","mode_gum_health":"Tandvlees gezondheid","mode_deep_clean_plus":"Diepe reiniging+","mode_tongue_care":"Tongreiniging","config_device":"Apparaat","config_title":"Titel (optioneel)","config_subtitle":"Toon apparaatnaam als onderschrift","hold_off":"Uit","config_hold_duration":"Voltooide sessie tonen gedurende","hold_until_next_session":"Tot de volgende sessie","completed_just_now":"zojuist","completed_ago_minutes":"{n} min geleden","completed_ago_hours":"{n} u geleden","config_accent_color":"Accentkleur","config_tooth_color":"Tandkleur","config_active_color":"Kleur actieve sector","config_done_color":"Kleur voltooide sector","config_num_sectors":"Aantal sectoren","config_sector_order":"Sectorvolgorde","config_layout":"Lay-out","config_layout_hint":"Plaats elke waarde als chip (bovenste rij, max. 3) of als hoek-markering. Elke waarde \xe9\xe9n keer.","config_layout_chips":"Chips (max. 3)","config_layout_chip":"Chip","config_layout_corners":"Hoek-markeringen","layout_none":"\u2014 Geen \u2014","pos_top_left":"Linksboven","pos_top_right":"Rechtsboven","pos_bottom_left":"Linksonder","pos_bottom_right":"Rechtsonder","config_show_header":"Koptekst tonen","config_tooth_style":"Stijl","tooth_style_teeth":"Tandenring (standaard)","tooth_style_none":"Verborgen \u2014 grote timer + voortgangsbalk","group_device":"Apparaat","group_header":"Koptekst","group_teeth":"Tandenweergave","group_behavior":"Gedrag","config_sector_mode_device":"Sectoren gerapporteerd door apparaat","config_sector_mode_time":"Sectoren berekend op basis van routine tijd","config_sector_revisit_hint":"Let op: sommige modi bezoeken bepaalde zones opnieuw (bijv. Sonicare White+ poetst de voortanden nogmaals). Een afwijkende volgorde kan in die modi verwarrend zijn als de startkwadrant-voorkeur van de borstel niet wordt aangepast.","config_select_device":"Vul het apparaat-id in"}');
 
 
 const $d8078e452c66bdbe$var$LOCALES = {
@@ -850,7 +850,7 @@ function $d8078e452c66bdbe$export$625550452a3fa3ec(hass, key) {
 
 
 var $7bfe0f8b5ad5b7ee$exports = {};
-$7bfe0f8b5ad5b7ee$exports = "ha-card {\n  overflow: visible;\n  container-type: inline-size;\n}\n\n.card-header {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n  border-top-left-radius: var(--ha-card-border-radius, 12px);\n  border-top-right-radius: var(--ha-card-border-radius, 12px);\n  justify-content: space-between;\n  align-items: center;\n  padding: 16px 18px 12px;\n  display: flex;\n  position: relative;\n  overflow: hidden;\n}\n\n.card-header:before {\n  content: \"\";\n  background: var(--accent-color, transparent);\n  opacity: .12;\n  pointer-events: none;\n  transition: background .5s;\n  position: absolute;\n  inset: 0;\n}\n\n.header-accent {\n  background: var(--accent-color);\n  border-radius: 3px;\n  flex-shrink: 0;\n  width: 4px;\n  height: 28px;\n  transition: background .4s;\n}\n\n.header-title {\n  align-items: center;\n  gap: 8px;\n  display: flex;\n}\n\n.header-title h2 {\n  color: var(--primary-text-color);\n  letter-spacing: -.01em;\n  margin: 0;\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.header-sub {\n  color: var(--secondary-text-color);\n  font-size: 12px;\n  font-weight: 400;\n}\n\n.header-icons {\n  align-items: center;\n  gap: 10px;\n  display: flex;\n}\n\n.header-icons svg:not(.conn-icon) {\n  width: 16px;\n  height: 16px;\n}\n\n.conn-icon {\n  width: 18px;\n  height: 18px;\n  color: var(--primary-color, #3b82f6);\n  fill: currentColor;\n  cursor: pointer;\n  opacity: 1;\n  transition: color .4s, opacity .4s;\n}\n\n.conn-icon.active {\n  color: #0082fc;\n}\n\n.conn-icon.disconnected {\n  color: var(--disabled-text-color, #9ca3af);\n  opacity: .3;\n}\n\n.more-info-btn {\n  cursor: pointer;\n  opacity: .5;\n  transition: opacity .2s;\n  color: var(--secondary-text-color) !important;\n}\n\n.more-info-btn:hover {\n  opacity: 1;\n}\n\n.init-wrap {\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  padding: 24px 0 32px;\n  display: flex;\n  overflow: hidden;\n}\n\n.init-rings {\n  flex-shrink: 0;\n  justify-content: center;\n  align-items: center;\n  width: 180px;\n  height: 180px;\n  display: flex;\n  position: relative;\n}\n\n.init-ring {\n  border: 2px solid var(--primary-color, #3b82f6);\n  opacity: 0;\n  border-radius: 50%;\n  animation: 3s ease-out infinite initPulse;\n  position: absolute;\n}\n\n.init-ring-1 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 0s;\n}\n\n.init-ring-2 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 1s;\n}\n\n.init-ring-3 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 2s;\n}\n\n@keyframes initPulse {\n  0% {\n    opacity: .6;\n    width: 70px;\n    height: 70px;\n  }\n\n  100% {\n    opacity: 0;\n    width: 190px;\n    height: 190px;\n  }\n}\n\n.init-bt {\n  z-index: 1;\n  width: 52px;\n  height: 52px;\n  animation: 2s ease-in-out infinite initBtPulse;\n  position: relative;\n}\n\n.init-bt svg {\n  width: 52px;\n  height: 52px;\n}\n\n@keyframes initBtPulse {\n  0%, 100% {\n    opacity: .5;\n    transform: scale(.95);\n  }\n\n  50% {\n    opacity: 1;\n    transform: scale(1.05);\n  }\n}\n\n.init-label {\n  color: var(--primary-color, #3b82f6);\n  margin-top: 6px;\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.chips-row {\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n  padding: 12px 14px;\n  display: grid;\n}\n\n.chip {\n  background: var(--card-background-color, #f9fafb);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  cursor: pointer;\n  border-radius: 10px;\n  grid-template-rows: auto auto;\n  grid-template-columns: auto 1fr;\n  align-items: center;\n  gap: 1px 8px;\n  padding: 8px 10px;\n  display: grid;\n}\n\n.chip-icon {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.chip-icon ha-icon {\n  --mdc-icon-size: 24px;\n}\n\n.chip-icon.green {\n  color: #16a34a;\n}\n\n.chip-icon.blue {\n  color: #2563eb;\n}\n\n.chip-icon.amber {\n  color: #d97706;\n}\n\n.chip-icon.red {\n  color: #dc2626;\n}\n\n.chip-icon.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.chip-icon.int-low {\n  color: #0891b2;\n}\n\n.chip-icon.int-med {\n  color: #7c3aed;\n}\n\n.chip-icon.int-high {\n  color: #db2777;\n}\n\n.chip-icon.gold {\n  color: #c47f16;\n}\n\n.chip-icon.teal {\n  color: #0d9488;\n}\n\n.chip-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .06em;\n  font-size: 9px;\n  font-weight: 600;\n}\n\n.chip-value {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 12px;\n  font-weight: 700;\n  line-height: 1;\n  overflow: hidden;\n}\n\n.chip-value.green {\n  color: #16a34a;\n}\n\n.chip-value.blue {\n  color: #2563eb;\n}\n\n.chip-value.amber {\n  color: #d97706;\n}\n\n.chip-value.red {\n  color: #dc2626;\n}\n\n.chip-value.int-low {\n  color: #0891b2;\n}\n\n.chip-value.int-med {\n  color: #7c3aed;\n}\n\n.chip-value.int-high {\n  color: #db2777;\n}\n\n.chip-value.gold {\n  color: #c47f16;\n}\n\n.chip-value.teal {\n  color: #0d9488;\n}\n\n.chip-value.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.pressure-bars {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: flex-end;\n  gap: 2px;\n  display: flex;\n}\n\n.pb {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  width: 4px;\n  transition: background .3s;\n}\n\n.pb:first-child {\n  height: 5px;\n}\n\n.pb:nth-child(2) {\n  height: 9px;\n}\n\n.pb:nth-child(3) {\n  height: 13px;\n}\n\n.pb:nth-child(4) {\n  height: 18px;\n}\n\n.p-low .pb:first-child {\n  background: #f59e0b;\n}\n\n.p-normal .pb:first-child, .p-normal .pb:nth-child(2) {\n  background: #22c55e;\n}\n\n.p-high .pb {\n  background: #ef4444;\n}\n\n.mode-chip-wrap {\n  position: relative;\n}\n\n.chip.selectable {\n  cursor: pointer;\n}\n\n.mode-caret {\n  opacity: .5;\n  font-size: 10px;\n}\n\n.chip-select-hint {\n  display: none;\n}\n\n.dropdown-backdrop {\n  z-index: 9;\n  position: fixed;\n  inset: 0;\n}\n\n.mode-dropdown {\n  z-index: 10;\n  background: var(--card-background-color, #fff);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  border-radius: 12px;\n  min-width: 160px;\n  animation: .15s ease-out dropdown-in;\n  position: absolute;\n  top: calc(100% + 4px);\n  right: 0;\n  overflow: hidden;\n  box-shadow: 0 4px 16px #0000001f;\n}\n\n@keyframes dropdown-in {\n  from {\n    opacity: 0;\n    transform: translateY(-4px);\n  }\n\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n.mode-option {\n  cursor: pointer;\n  color: var(--primary-text-color);\n  align-items: center;\n  gap: 10px;\n  padding: 10px 14px;\n  font-size: 13px;\n  font-weight: 500;\n  transition: background .15s;\n  display: flex;\n}\n\n.mode-option:hover {\n  background: var(--secondary-background-color, #f3f4f6);\n}\n\n.mode-option.active {\n  color: #2563eb;\n  font-weight: 600;\n}\n\n.mode-option ha-icon {\n  --mdc-icon-size: 20px;\n  color: inherit;\n}\n\n.mode-option:not(:last-child) {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n}\n\n.visual-area {\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 14px 10px;\n  display: flex;\n  position: relative;\n}\n\n.card-header + .visual-area {\n  padding-top: 16px;\n}\n\n.tooth-wrap {\n  justify-content: center;\n  align-items: center;\n  width: 210px;\n  height: 210px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-svg {\n  width: 100%;\n  height: 100%;\n}\n\n.zone {\n  fill: var(--tb-tooth-color, var(--divider-color, #f3f4f6));\n  transition: fill .3s;\n}\n\n.brushing .zone {\n  fill: var(--tb-active-color, #93c5fd);\n  animation: .8s ease-in-out infinite alternate brush-zone;\n}\n\n@keyframes brush-zone {\n  from {\n    opacity: .6;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.done .zone {\n  fill: var(--tb-done-color, #bbf7d0) !important;\n}\n\n.center-info {\n  text-align: center;\n  pointer-events: none;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.session-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .1em;\n  margin-bottom: 2px;\n  font-size: 9px;\n  font-weight: 600;\n  display: block;\n}\n\n.timer-display {\n  color: var(--primary-text-color);\n  letter-spacing: -1px;\n  font-variant-numeric: tabular-nums;\n  font-size: 30px;\n  font-weight: 400;\n  line-height: 1;\n  transition: color .4s;\n}\n\n.timer-display.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-row {\n  grid-template-columns: 66px 1fr 66px;\n  align-items: center;\n  width: calc(100% + 8px);\n  margin: 2px -4px 10px;\n  display: grid;\n}\n\n.status-row .card-corner {\n  position: static;\n}\n\n.status-text-wrap {\n  text-align: center;\n  cursor: pointer;\n}\n\n.status-main {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 14px;\n  font-weight: 600;\n  transition: color .4s;\n}\n\n.status-main.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-sub {\n  color: var(--secondary-text-color);\n  text-transform: capitalize;\n  margin-top: 1px;\n  font-size: 11px;\n}\n\n.progress-wrap {\n  opacity: 0;\n  width: 100%;\n  height: 0;\n  padding: 0 14px;\n  transition: opacity .4s, height .4s;\n  overflow: hidden;\n}\n\n.progress-wrap.visible {\n  opacity: 1;\n  height: auto;\n  padding: 0 14px 10px;\n}\n\n.progress-track {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  height: 4px;\n  overflow: hidden;\n}\n\n.progress-fill {\n  background: linear-gradient(90deg, #3b82f6, #22c55e);\n  border-radius: 2px;\n  height: 100%;\n  transition: width .5s;\n}\n\n.progress-labels {\n  color: var(--secondary-text-color);\n  justify-content: space-between;\n  margin-top: 4px;\n  font-size: 10px;\n  display: flex;\n}\n\n.progress-labels span:first-child {\n  text-transform: capitalize;\n}\n\n.done-badge {\n  background: var(--card-background-color, #f0fdf4);\n  text-align: center;\n  border-top: 1px solid #bbf7d0;\n  padding: 10px 14px;\n  display: none;\n  position: relative;\n}\n\n.done-dismiss {\n  cursor: pointer;\n  color: var(--secondary-text-color, #888);\n  background: none;\n  border: none;\n  padding: 2px 4px;\n  font-size: 16px;\n  line-height: 1;\n  position: absolute;\n  top: 6px;\n  right: 10px;\n}\n\n.done-dismiss:hover {\n  color: var(--primary-text-color, #333);\n}\n\n.done-badge.show {\n  animation: .4s cubic-bezier(.34, 1.56, .64, 1) pop-in;\n  display: block;\n}\n\n@keyframes pop-in {\n  from {\n    opacity: 0;\n    transform: scaleY(.7);\n  }\n\n  to {\n    opacity: 1;\n    transform: scaleY(1);\n  }\n}\n\n.done-badge p {\n  color: #15803d;\n  margin: 0;\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.done-badge span {\n  color: #16a34a;\n  font-size: 11px;\n}\n\n.done-age {\n  color: var(--secondary-text-color, #888);\n  font-size: 11px;\n  font-weight: 400;\n}\n\n.card-corner {\n  cursor: pointer;\n  opacity: .85;\n  z-index: 1;\n  flex-direction: column;\n  align-items: center;\n  gap: 1px;\n  width: 66px;\n  transition: opacity .2s;\n  display: flex;\n  position: absolute;\n}\n\n.card-corner:hover {\n  opacity: 1;\n}\n\n.card-corner.tl {\n  top: 6px;\n  left: 10px;\n}\n\n.card-corner.tr {\n  top: 6px;\n  right: 10px;\n}\n\n.corner-ico {\n  --mdc-icon-size: 22px;\n  width: 22px;\n  height: 22px;\n}\n\n.corner-lbl {\n  letter-spacing: .06em;\n  text-transform: uppercase;\n  color: var(--secondary-text-color);\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  max-width: 100%;\n  font-size: 8px;\n  font-weight: 700;\n  overflow: hidden;\n}\n\n.corner-val {\n  font-variant-numeric: tabular-nums;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  max-width: 100%;\n  font-size: 11px;\n  font-weight: 800;\n  overflow: hidden;\n}\n\n.corner-ico.green, .corner-val.green {\n  color: #16a34a;\n}\n\n.corner-ico.blue, .corner-val.blue {\n  color: #2563eb;\n}\n\n.corner-ico.amber, .corner-val.amber {\n  color: #d97706;\n}\n\n.corner-ico.red, .corner-val.red {\n  color: #dc2626;\n}\n\n.corner-ico.muted, .corner-val.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.corner-ico.int-low, .corner-val.int-low {\n  color: #0891b2;\n}\n\n.corner-ico.int-med, .corner-val.int-med {\n  color: #7c3aed;\n}\n\n.corner-ico.int-high, .corner-val.int-high {\n  color: #db2777;\n}\n\n.corner-ico.gold, .corner-val.gold {\n  color: #c47f16;\n}\n\n.corner-ico.teal, .corner-val.teal {\n  color: #0d9488;\n}\n\n.brushhead-svg {\n  width: 16px;\n  height: 42px;\n}\n\n.brushhead-pct {\n  color: var(--secondary-text-color);\n  font-size: 9px;\n  font-weight: 600;\n}\n\n@container (width <= 350px) {\n  .chip {\n    grid-template-columns: 1fr;\n    justify-items: center;\n    row-gap: 0;\n    padding: 8px 4px;\n    position: relative;\n  }\n\n  .chip-icon, .pressure-bars {\n    grid-row: auto;\n  }\n\n  .chip-label, .chip-value {\n    display: none;\n  }\n\n  .chip-select-hint {\n    --mdc-icon-size: 12px;\n    color: #2563eb;\n    opacity: .6;\n    display: block;\n    position: absolute;\n    bottom: 2px;\n    right: 2px;\n  }\n\n  .tooth-wrap {\n    width: 180px;\n    height: 180px;\n  }\n\n  .timer-display {\n    font-size: 26px;\n  }\n\n  .card-corner {\n    width: 54px;\n  }\n\n  .card-corner.tl {\n    left: 2px;\n  }\n\n  .card-corner.tr {\n    right: 2px;\n  }\n\n  .status-row {\n    grid-template-columns: 54px 1fr 54px;\n    width: calc(100% + 24px);\n    margin-left: -12px;\n    margin-right: -12px;\n  }\n}\n";
+$7bfe0f8b5ad5b7ee$exports = "ha-card {\n  overflow: visible;\n  container-type: inline-size;\n}\n\n.card-header {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n  border-top-left-radius: var(--ha-card-border-radius, 12px);\n  border-top-right-radius: var(--ha-card-border-radius, 12px);\n  justify-content: space-between;\n  align-items: center;\n  padding: 16px 18px 12px;\n  display: flex;\n  position: relative;\n  overflow: hidden;\n}\n\n.card-header:before {\n  content: \"\";\n  background: var(--accent-color, transparent);\n  opacity: .12;\n  pointer-events: none;\n  transition: background .5s;\n  position: absolute;\n  inset: 0;\n}\n\n.header-accent {\n  background: var(--accent-color);\n  border-radius: 3px;\n  flex-shrink: 0;\n  width: 4px;\n  height: 28px;\n  transition: background .4s;\n}\n\n.header-title {\n  align-items: center;\n  gap: 8px;\n  display: flex;\n}\n\n.header-title h2 {\n  color: var(--primary-text-color);\n  letter-spacing: -.01em;\n  margin: 0;\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.header-sub {\n  color: var(--secondary-text-color);\n  font-size: 12px;\n  font-weight: 400;\n}\n\n.header-icons {\n  align-items: center;\n  gap: 10px;\n  display: flex;\n}\n\n.header-icons svg:not(.conn-icon) {\n  width: 16px;\n  height: 16px;\n}\n\n.conn-icon {\n  width: 18px;\n  height: 18px;\n  color: var(--primary-color, #3b82f6);\n  fill: currentColor;\n  cursor: pointer;\n  opacity: 1;\n  transition: color .4s, opacity .4s;\n}\n\n.conn-icon.active {\n  color: #0082fc;\n}\n\n.conn-icon.disconnected {\n  color: var(--disabled-text-color, #9ca3af);\n  opacity: .3;\n}\n\n.more-info-btn {\n  cursor: pointer;\n  opacity: .5;\n  transition: opacity .2s;\n  color: var(--secondary-text-color) !important;\n}\n\n.more-info-btn:hover {\n  opacity: 1;\n}\n\n.init-wrap {\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  padding: 24px 0 32px;\n  display: flex;\n  overflow: hidden;\n}\n\n.init-rings {\n  flex-shrink: 0;\n  justify-content: center;\n  align-items: center;\n  width: 180px;\n  height: 180px;\n  display: flex;\n  position: relative;\n}\n\n.init-ring {\n  border: 2px solid var(--primary-color, #3b82f6);\n  opacity: 0;\n  border-radius: 50%;\n  animation: 3s ease-out infinite initPulse;\n  position: absolute;\n}\n\n.init-ring-1 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 0s;\n}\n\n.init-ring-2 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 1s;\n}\n\n.init-ring-3 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 2s;\n}\n\n@keyframes initPulse {\n  0% {\n    opacity: .6;\n    width: 70px;\n    height: 70px;\n  }\n\n  100% {\n    opacity: 0;\n    width: 190px;\n    height: 190px;\n  }\n}\n\n.init-bt {\n  z-index: 1;\n  width: 52px;\n  height: 52px;\n  animation: 2s ease-in-out infinite initBtPulse;\n  position: relative;\n}\n\n.init-bt svg {\n  width: 52px;\n  height: 52px;\n}\n\n@keyframes initBtPulse {\n  0%, 100% {\n    opacity: .5;\n    transform: scale(.95);\n  }\n\n  50% {\n    opacity: 1;\n    transform: scale(1.05);\n  }\n}\n\n.init-label {\n  color: var(--primary-color, #3b82f6);\n  margin-top: 6px;\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.chips-row {\n  grid-template-columns: 1fr 1fr 1fr;\n  gap: 8px;\n  padding: 12px 14px;\n  display: grid;\n}\n\n.chip {\n  background: var(--card-background-color, #f9fafb);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  cursor: pointer;\n  border-radius: 10px;\n  grid-template-rows: auto auto;\n  grid-template-columns: auto 1fr;\n  align-items: center;\n  gap: 1px 8px;\n  padding: 8px 10px;\n  display: grid;\n}\n\n.chip-icon {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.chip-icon ha-icon {\n  --mdc-icon-size: 24px;\n}\n\n.chip-icon.green {\n  color: #16a34a;\n}\n\n.chip-icon.blue {\n  color: #2563eb;\n}\n\n.chip-icon.amber {\n  color: #d97706;\n}\n\n.chip-icon.red {\n  color: #dc2626;\n}\n\n.chip-icon.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.chip-icon.int-low {\n  color: #0891b2;\n}\n\n.chip-icon.int-med {\n  color: #7c3aed;\n}\n\n.chip-icon.int-high {\n  color: #db2777;\n}\n\n.chip-icon.gold {\n  color: #c47f16;\n}\n\n.chip-icon.teal {\n  color: #0d9488;\n}\n\n.chip-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .06em;\n  font-size: 9px;\n  font-weight: 600;\n}\n\n.chip-value {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 12px;\n  font-weight: 700;\n  line-height: 1;\n  overflow: hidden;\n}\n\n.chip-value.green {\n  color: #16a34a;\n}\n\n.chip-value.blue {\n  color: #2563eb;\n}\n\n.chip-value.amber {\n  color: #d97706;\n}\n\n.chip-value.red {\n  color: #dc2626;\n}\n\n.chip-value.int-low {\n  color: #0891b2;\n}\n\n.chip-value.int-med {\n  color: #7c3aed;\n}\n\n.chip-value.int-high {\n  color: #db2777;\n}\n\n.chip-value.gold {\n  color: #c47f16;\n}\n\n.chip-value.teal {\n  color: #0d9488;\n}\n\n.chip-value.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.pressure-bars {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: flex-end;\n  gap: 2px;\n  display: flex;\n}\n\n.pb {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  width: 4px;\n  transition: background .3s;\n}\n\n.pb:first-child {\n  height: 5px;\n}\n\n.pb:nth-child(2) {\n  height: 9px;\n}\n\n.pb:nth-child(3) {\n  height: 13px;\n}\n\n.pb:nth-child(4) {\n  height: 18px;\n}\n\n.p-low .pb:first-child {\n  background: #f59e0b;\n}\n\n.p-normal .pb:first-child, .p-normal .pb:nth-child(2) {\n  background: #22c55e;\n}\n\n.p-high .pb {\n  background: #ef4444;\n}\n\n.mode-chip-wrap {\n  position: relative;\n}\n\n.chip.selectable {\n  cursor: pointer;\n}\n\n.mode-caret {\n  opacity: .5;\n  font-size: 10px;\n}\n\n.chip-select-hint {\n  display: none;\n}\n\n.dropdown-backdrop {\n  z-index: 9;\n  position: fixed;\n  inset: 0;\n}\n\n.mode-dropdown {\n  z-index: 10;\n  background: var(--card-background-color, #fff);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  border-radius: 12px;\n  min-width: 160px;\n  animation: .15s ease-out dropdown-in;\n  position: absolute;\n  top: calc(100% + 4px);\n  right: 0;\n  overflow: hidden;\n  box-shadow: 0 4px 16px #0000001f;\n}\n\n@keyframes dropdown-in {\n  from {\n    opacity: 0;\n    transform: translateY(-4px);\n  }\n\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n.mode-option {\n  cursor: pointer;\n  color: var(--primary-text-color);\n  align-items: center;\n  gap: 10px;\n  padding: 10px 14px;\n  font-size: 13px;\n  font-weight: 500;\n  transition: background .15s;\n  display: flex;\n}\n\n.mode-option:hover {\n  background: var(--secondary-background-color, #f3f4f6);\n}\n\n.mode-option.active {\n  color: #2563eb;\n  font-weight: 600;\n}\n\n.mode-option ha-icon {\n  --mdc-icon-size: 20px;\n  color: inherit;\n}\n\n.mode-option:not(:last-child) {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n}\n\n.visual-area {\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 14px 10px;\n  display: flex;\n  position: relative;\n}\n\n.card-header + .visual-area, .visual-area:first-child {\n  padding-top: 16px;\n}\n\n.tooth-wrap {\n  justify-content: center;\n  align-items: center;\n  width: 210px;\n  height: 210px;\n  display: flex;\n  position: relative;\n}\n\n.tooth-svg {\n  width: 100%;\n  height: 100%;\n}\n\n.zone {\n  fill: var(--tb-tooth-color, var(--divider-color, #f3f4f6));\n  transition: fill .3s;\n}\n\n.brushing .zone {\n  fill: var(--tb-active-color, #93c5fd);\n  animation: .8s ease-in-out infinite alternate brush-zone;\n}\n\n@keyframes brush-zone {\n  from {\n    opacity: .6;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.done .zone {\n  fill: var(--tb-done-color, #bbf7d0) !important;\n}\n\n.center-info {\n  text-align: center;\n  pointer-events: none;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.session-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .1em;\n  margin-bottom: 2px;\n  font-size: 9px;\n  font-weight: 600;\n  display: block;\n}\n\n.timer-display {\n  color: var(--primary-text-color);\n  letter-spacing: -1px;\n  font-variant-numeric: tabular-nums;\n  font-size: 30px;\n  font-weight: 400;\n  line-height: 1;\n  transition: color .4s;\n}\n\n.timer-display.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.center-info.standalone {\n  pointer-events: auto;\n  cursor: pointer;\n  padding: 10px 0 4px;\n  position: static;\n  transform: none;\n}\n\n.center-info.standalone .timer-display {\n  letter-spacing: -2px;\n  font-size: 52px;\n}\n\n.status-row {\n  grid-template-columns: 66px 1fr 66px;\n  align-items: center;\n  width: calc(100% + 8px);\n  margin: 2px -4px 10px;\n  display: grid;\n}\n\n.status-row .card-corner {\n  position: static;\n}\n\n.status-text-wrap {\n  text-align: center;\n  cursor: pointer;\n}\n\n.status-main {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-size: 14px;\n  font-weight: 600;\n  transition: color .4s;\n}\n\n.status-main.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-sub {\n  color: var(--secondary-text-color);\n  text-transform: capitalize;\n  margin-top: 1px;\n  font-size: 11px;\n}\n\n.progress-wrap {\n  opacity: 0;\n  width: 100%;\n  height: 0;\n  padding: 0 14px;\n  transition: opacity .4s, height .4s;\n  overflow: hidden;\n}\n\n.progress-wrap.visible {\n  opacity: 1;\n  height: auto;\n  padding: 0 14px 10px;\n}\n\n.progress-track {\n  gap: 3px;\n  height: 4px;\n  display: flex;\n}\n\n.progress-seg {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  flex: 1;\n  overflow: hidden;\n}\n\n.progress-fill {\n  background: linear-gradient(90deg, #3b82f6, #22c55e);\n  border-radius: 2px;\n  height: 100%;\n  transition: width .5s;\n}\n\n.progress-labels {\n  color: var(--secondary-text-color);\n  justify-content: space-between;\n  margin-top: 4px;\n  font-size: 10px;\n  display: flex;\n}\n\n.progress-labels span:first-child {\n  text-transform: capitalize;\n}\n\n.done-badge {\n  background: var(--card-background-color, #f0fdf4);\n  text-align: center;\n  border-top: 1px solid #bbf7d0;\n  padding: 10px 14px;\n  display: none;\n  position: relative;\n}\n\n.done-dismiss {\n  cursor: pointer;\n  color: var(--secondary-text-color, #888);\n  background: none;\n  border: none;\n  padding: 2px 4px;\n  font-size: 16px;\n  line-height: 1;\n  position: absolute;\n  top: 6px;\n  right: 10px;\n}\n\n.done-dismiss:hover {\n  color: var(--primary-text-color, #333);\n}\n\n.done-badge.show {\n  animation: .4s cubic-bezier(.34, 1.56, .64, 1) pop-in;\n  display: block;\n}\n\n@keyframes pop-in {\n  from {\n    opacity: 0;\n    transform: scaleY(.7);\n  }\n\n  to {\n    opacity: 1;\n    transform: scaleY(1);\n  }\n}\n\n.done-badge p {\n  color: #15803d;\n  margin: 0;\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.done-badge span {\n  color: #16a34a;\n  font-size: 11px;\n}\n\n.done-age {\n  color: var(--secondary-text-color, #888);\n  font-size: 11px;\n  font-weight: 400;\n}\n\n.card-corner {\n  cursor: pointer;\n  opacity: .85;\n  z-index: 1;\n  flex-direction: column;\n  align-items: center;\n  gap: 1px;\n  width: 66px;\n  transition: opacity .2s;\n  display: flex;\n  position: absolute;\n}\n\n.card-corner:hover {\n  opacity: 1;\n}\n\n.card-corner.tl {\n  top: 6px;\n  left: 10px;\n}\n\n.card-corner.tr {\n  top: 6px;\n  right: 10px;\n}\n\n.corner-ico {\n  --mdc-icon-size: 22px;\n  width: 22px;\n  height: 22px;\n}\n\n.corner-lbl {\n  letter-spacing: .06em;\n  text-transform: uppercase;\n  color: var(--secondary-text-color);\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  max-width: 100%;\n  font-size: 8px;\n  font-weight: 700;\n  overflow: hidden;\n}\n\n.corner-val {\n  font-variant-numeric: tabular-nums;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  max-width: 100%;\n  font-size: 11px;\n  font-weight: 800;\n  overflow: hidden;\n}\n\n.corner-ico.green, .corner-val.green {\n  color: #16a34a;\n}\n\n.corner-ico.blue, .corner-val.blue {\n  color: #2563eb;\n}\n\n.corner-ico.amber, .corner-val.amber {\n  color: #d97706;\n}\n\n.corner-ico.red, .corner-val.red {\n  color: #dc2626;\n}\n\n.corner-ico.muted, .corner-val.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.corner-ico.int-low, .corner-val.int-low {\n  color: #0891b2;\n}\n\n.corner-ico.int-med, .corner-val.int-med {\n  color: #7c3aed;\n}\n\n.corner-ico.int-high, .corner-val.int-high {\n  color: #db2777;\n}\n\n.corner-ico.gold, .corner-val.gold {\n  color: #c47f16;\n}\n\n.corner-ico.teal, .corner-val.teal {\n  color: #0d9488;\n}\n\n.brushhead-svg {\n  width: 17px;\n  height: 22px;\n}\n\n.brushhead-pct {\n  color: var(--secondary-text-color);\n  font-size: 9px;\n  font-weight: 600;\n}\n\n@container (width <= 350px) {\n  .chip {\n    grid-template-columns: 1fr;\n    justify-items: center;\n    row-gap: 0;\n    padding: 8px 4px;\n    position: relative;\n  }\n\n  .chip-icon, .pressure-bars {\n    grid-row: auto;\n  }\n\n  .chip-label, .chip-value {\n    display: none;\n  }\n\n  .chip-select-hint {\n    --mdc-icon-size: 12px;\n    color: #2563eb;\n    opacity: .6;\n    display: block;\n    position: absolute;\n    bottom: 2px;\n    right: 2px;\n  }\n\n  .tooth-wrap {\n    width: 180px;\n    height: 180px;\n  }\n\n  .timer-display {\n    font-size: 26px;\n  }\n\n  .card-corner {\n    width: 54px;\n  }\n\n  .card-corner.tl {\n    left: 2px;\n  }\n\n  .card-corner.tr {\n    right: 2px;\n  }\n\n  .status-row {\n    grid-template-columns: 54px 1fr 54px;\n    width: calc(100% + 24px);\n    margin-left: -12px;\n    margin-right: -12px;\n  }\n}\n";
 
 
 const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.16.0";
@@ -1445,6 +1445,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const activity = entityIds.activity ? hass.states[entityIds.activity]?.state : null;
         if (activity === 'initializing') return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                 <ha-card style="${this._cardStyle()}">
+                    ${config.show_header === false ? '' : (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                     <div class="card-header">
                         <div class="header-title">
                             <div class="header-accent"></div>
@@ -1467,7 +1468,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                                 <circle cx="12" cy="19" r="1.5"/>
                             </svg>
                         </div>
-                    </div>
+                    </div>`}
                     <div class="init-wrap">
                         <div class="init-rings">
                             <div class="init-ring init-ring-1"></div>
@@ -1564,21 +1565,23 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         const brushheadPct = brushheadWear !== null ? Math.round(100 - brushheadWear) : null;
         const scoreState = entityIds.score ? hass.states[entityIds.score]?.state : null;
         const scoreAvailable = scoreState && scoreState !== 'unavailable' && scoreState !== 'unknown';
-        // Shared brush-head glyph (the same shape the corner marker draws).
+        // Shared brush-head glyph (the same shape the corner marker draws):
+        // the head capsule in side view — bristles sticking out sideways, the
+        // typical Sonicare silhouette — at the same 22px height as the other
+        // corner icons.
         const headSvg = ()=>(0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
-            <svg viewBox="0 0 24 72" class="brushhead-svg">
+            <svg viewBox="0 0 24 30" class="brushhead-svg">
                 <defs>
                     <clipPath id="bh-fill-${this._bhClipId}">
-                        <rect x="0" y="${brushheadWear * 0.72}" width="24" height="${72 - brushheadWear * 0.72}"/>
+                        <rect x="0" y="${brushheadWear * 0.30}" width="24" height="${30 - brushheadWear * 0.30}"/>
                     </clipPath>
                 </defs>
-                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="none" stroke="var(--secondary-text-color, #888)" stroke-width="2"/>
-                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="${this._getBrushheadColor(brushheadWear)}" opacity="0.3" clip-path="url(#bh-fill-${this._bhClipId})"/>
-                <line x1="7" y1="5" x2="17" y2="5" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
-                <line x1="6.5" y1="9" x2="17.5" y2="9" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
-                <line x1="6" y1="13" x2="18" y2="13" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
-                <line x1="6" y1="17" x2="18" y2="17" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
-                <line x1="6.5" y1="21" x2="17.5" y2="21" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
+                <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="none" stroke="var(--secondary-text-color, #888)" stroke-width="2"/>
+                <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="${this._getBrushheadColor(brushheadWear)}" opacity="0.3" clip-path="url(#bh-fill-${this._bhClipId})"/>
+                <line x1="10.5" y1="4" x2="3" y2="4" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
+                <line x1="10.5" y1="8" x2="2.5" y2="8" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
+                <line x1="10.5" y1="12" x2="3" y2="12" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
+                <line x1="10.5" y1="16" x2="4.5" y2="16" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
             </svg>`;
         // A property rendered as a full chip. Returns '' when the reading is
         // absent on this device, so the slot collapses instead of showing '–'.
@@ -1697,9 +1700,14 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         ].filter((pos)=>layout.corners[pos]).map((pos)=>cornerEl(pos, layout.corners[pos])).filter((x)=>x !== '');
         const bottomLeftEl = layout.corners.bottom_left ? cornerEl('bottom_left', layout.corners.bottom_left) : '';
         const bottomRightEl = layout.corners.bottom_right ? cornerEl('bottom_right', layout.corners.bottom_right) : '';
+        const showHeader = config.show_header !== false;
+        // 'none' drops the tooth ring for a large standalone timer (compact
+        // panel setups); anything else renders the classic teeth graphic.
+        const showTeeth = config.tooth_style !== 'none';
         return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
             <ha-card style="${this._cardStyle()}">
                 <!-- Header -->
+                ${showHeader ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                 <div class="card-header">
                     <div class="header-title">
                         <div class="header-accent"></div>
@@ -1723,13 +1731,14 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                             <circle cx="12" cy="19" r="1.5"/>
                         </svg>
                     </div>
-                </div>
+                </div>` : ''}
 
                 <!-- Chips: configurable via layout.chips (omitted when empty) -->
                 ${chipEls.length ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`<div class="chips-row">${chipEls}</div>` : ''}
 
                 <!-- Tooth visual -->
                 <div class="visual-area">
+                    ${showTeeth ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                     <div class="tooth-wrap">
                         ${(0, $84db147239ed44e7$export$d760b013da4dfa06)(sectorClassData, numSectors)}
                         <div class="center-info">
@@ -1739,7 +1748,13 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
                                 ${this._formatTime(displayDuration)}
                             </div>
                         </div>
-                    </div>
+                    </div>` : (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+                    <div class="center-info standalone" @click="${()=>this._showMoreInfo(entityIds.duration)}">
+                        <span class="session-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(hass, 'session')}</span>
+                        <div class="timer-display ${active ? 'active' : ''}">
+                            ${this._formatTime(displayDuration)}
+                        </div>
+                    </div>`}
 
                     <div class="status-row">
                         <div>${bottomLeftEl}</div>
@@ -1752,7 +1767,17 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
 
                     <div class="progress-wrap ${active || isSuccess ? 'visible' : ''}">
                         <div class="progress-track">
-                            <div class="progress-fill" style="width: ${progressPct}%"></div>
+                            ${Array.from({
+            length: numSectors || 1
+        }, (_, i)=>{
+            // Same time-based fill as before, sliced into one
+            // sub-bar per sector so the boundaries are visible.
+            const n = numSectors || 1;
+            const segPct = Math.max(0, Math.min(100, (progressPct / 100 * n - i) * 100));
+            return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`<div class="progress-seg">
+                                    <div class="progress-fill" style="width: ${segPct}%"></div>
+                                </div>`;
+        })}
                         </div>
                         <div class="progress-labels">
                             <span>${sectorLabel || ''}</span>
@@ -2185,7 +2210,7 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
                 }
             });
         return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
-            <div class="section-label">
+            <div class="group-label">
                 <span>${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_layout')}</span>
                 <button class="reset-btn" ?disabled=${!this._config.layout}
                         @click=${this._resetLayout}>Reset</button>
@@ -2231,6 +2256,7 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
         const isCustom = this._config.sector_order?.length === numSectors && JSON.stringify(this._config.sector_order) !== JSON.stringify(defaultOrder);
         return (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
             <div class="editor">
+                <div class="group-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'group_device')}</div>
                 <div class="field">
                     <ha-selector
                         .hass=${this.hass}
@@ -2246,6 +2272,16 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
                     ></ha-selector>
                 </div>
 
+                <div class="group-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'group_header')}</div>
+                <div class="field row">
+                    <ha-switch
+                        .checked=${this._config.show_header !== false}
+                        @change=${(ev)=>this._valueChanged('show_header', ev.target.checked ? '' : false)}
+                    ></ha-switch>
+                    <span>${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_show_header')}</span>
+                </div>
+
+                ${this._config.show_header !== false ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                 <div class="field">
                     <ha-textfield
                         .label=${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_title')}
@@ -2260,58 +2296,6 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
                         @change=${(ev)=>this._valueChanged('show_subtitle', ev.target.checked)}
                     ></ha-switch>
                     <span>${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_subtitle')}</span>
-                </div>
-
-                <div class="field">
-                    <ha-selector
-                        .hass=${this.hass}
-                        .selector=${{
-            select: {
-                mode: 'dropdown',
-                options: [
-                    {
-                        value: 'off',
-                        label: (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'hold_off')
-                    },
-                    {
-                        value: '0.25',
-                        label: '15 min'
-                    },
-                    {
-                        value: '0.5',
-                        label: '30 min'
-                    },
-                    {
-                        value: '1',
-                        label: '1 h'
-                    },
-                    {
-                        value: '4',
-                        label: '4 h'
-                    },
-                    {
-                        value: '8',
-                        label: '8 h'
-                    },
-                    {
-                        value: '12',
-                        label: '12 h'
-                    },
-                    {
-                        value: '24',
-                        label: '24 h'
-                    },
-                    {
-                        value: '0',
-                        label: (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'hold_until_next_session')
-                    }
-                ]
-            }
-        }}
-                        .label=${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_hold_duration')}
-                        .value=${this._holdValue()}
-                        @value-changed=${(ev)=>this._holdChanged(ev.detail.value)}
-                    ></ha-selector>
                 </div>
 
                 <div class="field">
@@ -2330,13 +2314,39 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
                             </button>
                         `)}
                     </div>
+                </div>` : ''}
+
+                <div class="group-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'group_teeth')}</div>
+                <div class="field">
+                    <ha-selector
+                        .hass=${this.hass}
+                        .selector=${{
+            select: {
+                mode: 'dropdown',
+                options: [
+                    {
+                        value: 'teeth',
+                        label: (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'tooth_style_teeth')
+                    },
+                    {
+                        value: 'none',
+                        label: (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'tooth_style_none')
+                    }
+                ]
+            }
+        }}
+                        .label=${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_tooth_style')}
+                        .value=${this._config.tooth_style === 'none' ? 'none' : 'teeth'}
+                        @value-changed=${(ev)=>this._valueChanged('tooth_style', ev.detail.value === 'none' ? 'none' : '')}
+                    ></ha-selector>
                 </div>
 
+                ${this._config.tooth_style !== 'none' ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                 ${this._colorField('tooth_color', 'config_tooth_color', '#d1d5db')}
                 ${this._colorField('active_color', 'config_active_color', '#93c5fd')}
-                ${this._colorField('done_color', 'config_done_color', '#bbf7d0')}
+                ${this._colorField('done_color', 'config_done_color', '#bbf7d0')}` : ''}
 
-                ${this._config.device_id ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
+                ${this._config.device_id && this._config.tooth_style !== 'none' ? (0, $d33ef1320595a3ac$export$c0bb0b647f701bb5)`
                     <div class="field">
                         <ha-selector
                             .hass=${this.hass}
@@ -2399,8 +2409,62 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
                         `)}
                     </div>
 
-                    ${this._renderLayoutSection()}
                 ` : ''}
+
+                ${this._config.device_id ? this._renderLayoutSection() : ''}
+
+                <div class="group-label">${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'group_behavior')}</div>
+                <div class="field">
+                    <ha-selector
+                        .hass=${this.hass}
+                        .selector=${{
+            select: {
+                mode: 'dropdown',
+                options: [
+                    {
+                        value: 'off',
+                        label: (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'hold_off')
+                    },
+                    {
+                        value: '0.25',
+                        label: '15 min'
+                    },
+                    {
+                        value: '0.5',
+                        label: '30 min'
+                    },
+                    {
+                        value: '1',
+                        label: '1 h'
+                    },
+                    {
+                        value: '4',
+                        label: '4 h'
+                    },
+                    {
+                        value: '8',
+                        label: '8 h'
+                    },
+                    {
+                        value: '12',
+                        label: '12 h'
+                    },
+                    {
+                        value: '24',
+                        label: '24 h'
+                    },
+                    {
+                        value: '0',
+                        label: (0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'hold_until_next_session')
+                    }
+                ]
+            }
+        }}
+                        .label=${(0, $d8078e452c66bdbe$export$625550452a3fa3ec)(this.hass, 'config_hold_duration')}
+                        .value=${this._holdValue()}
+                        @value-changed=${(ev)=>this._holdChanged(ev.detail.value)}
+                    ></ha-selector>
+                </div>
             </div>
         `;
     }
@@ -2429,6 +2493,24 @@ class $2e9f76afc74d559a$export$eec44ce80a6d3e24 extends (0, $528e4332d1e3099e$ex
                 font-size: 14px;
                 margin: 20px 0 8px;
                 color: var(--primary-text-color);
+            }
+            .group-label {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--secondary-text-color, #888);
+                border-top: 1px solid var(--divider-color, #e5e7eb);
+                padding-top: 14px;
+                margin: 24px 0 12px;
+            }
+            .group-label:first-child {
+                border-top: none;
+                padding-top: 0;
+                margin-top: 0;
             }
             .reset-btn {
                 background: none;
