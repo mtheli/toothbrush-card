@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.15.0";
+export const CARD_VERSION = "0.16.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -332,6 +332,7 @@ export class ToothbrushCard extends LitElement {
     _findAndMapEntitiesInConfig(hass, deviceId) {
         const entityKeys = {
             sector: null, duration: null, mode: null, pressure: null,
+            pressure_state: null,
             battery: null, status: null, base_entity: null,
             number_of_sectors: null, model_number: null,
             routine_length: null, integration: null,
@@ -373,6 +374,12 @@ export class ToothbrushCard extends LitElement {
                 entityKeys.mode = entity.entity_id;
             } else if (entity.translation_key === 'pressure_alert') {
                 entityKeys.pressure = entity.entity_id;
+            } else if (entity.translation_key === 'pressure_state') {
+                // Categorical pressure state (ok / optimal / too_high). Kept
+                // separate so it can take precedence over the raw grams
+                // 'pressure' sensor and the 'intensity' fallback regardless of
+                // entity iteration order.
+                entityKeys.pressure_state = entity.entity_id;
             } else if (entity.translation_key === 'intensity') {
                 if (!entityKeys.pressure) entityKeys.pressure = entity.entity_id;
             } else if (entity.translation_key === 'model_number') {
@@ -470,10 +477,16 @@ export class ToothbrushCard extends LitElement {
             : null;
         const numSectors = config.num_sectors || numSectorsFromEntity || 4;
         const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
-        const rawPressure = entityIds.pressure ? hass.states[entityIds.pressure]?.state || 'N/A' : 'N/A';
+        // Prefer the categorical pressure-state entity over the raw grams
+        // sensor / intensity fallback — it is the one that carries an
+        // ok / optimal / too_high reading.
+        const pressureEntity = entityIds.pressure_state || entityIds.pressure;
+        const rawPressure = pressureEntity ? hass.states[pressureEntity]?.state || 'N/A' : 'N/A';
         const pressure = rawPressure === 'unavailable' || rawPressure === 'unknown'
             ? '–'
-            : rawPressure === 'on' ? 'high' : rawPressure === 'off' ? 'normal' : rawPressure;
+            : rawPressure === 'on' || rawPressure === 'too_high' ? 'high'
+            : rawPressure === 'off' || rawPressure === 'ok' || rawPressure === 'optimal' ? 'normal'
+            : rawPressure;
         const rawBattery = entityIds.battery ? hass.states[entityIds.battery]?.state : null;
         const batteryUnavailable = !rawBattery || rawBattery === 'unavailable' || rawBattery === 'unknown';
         const batteryLevel = batteryUnavailable ? 0 : rawBattery;
@@ -766,7 +779,7 @@ export class ToothbrushCard extends LitElement {
                         <div class="chip-value ${batteryColor}">${batteryUnavailable ? '–' : html`${batteryLevel}%`}</div>
                     </div>
 
-                    <div class="chip" @click="${() => this._showMoreInfo(entityIds.pressure)}">
+                    <div class="chip" @click="${() => this._showMoreInfo(pressureEntity)}">
                         <div class="pressure-bars ${pressureClass}">
                             <div class="pb"></div><div class="pb"></div>
                             <div class="pb"></div><div class="pb"></div>
