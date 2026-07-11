@@ -14,13 +14,9 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 | Philips Sonicare | `philips_sonicare_ble` | [philips_sonicare_ble](https://github.com/mtheli/philips_sonicare_ble) (custom component) |
 | Xiaomi (T700) | `xiaomi_ble` | [Xiaomi BLE](https://www.home-assistant.io/integrations/xiaomi_ble/) (official, built into HA Core) — beta: the passive broadcast has no live timer/sectors, so the card shows a synthesized session timer with time-based quadrants, plus battery, score and brush-head chips |
 
+**Planned / in progress:** Laifen — waiting on device testing ([#9](https://github.com/mtheli/toothbrush-card/issues/9))
+
 ![Oral-B](screenshots/OralB.png) ![Sonicare](screenshots/Sonicare.png)
-
-### Planned / In Progress
-
-| Brand | Status |
-|-------|--------|
-| Laifen | In progress — waiting on device testing ([#9](https://github.com/mtheli/toothbrush-card/issues/9)) |
 
 ---
 
