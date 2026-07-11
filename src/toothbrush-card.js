@@ -36,6 +36,197 @@ export const ACCENT_COLORS = [
     { name: 'White',        color: '#FFFFFF' },
 ];
 
+// Placeable readings and the four corner slots — shared by the card renderer
+// and the editor so both agree on what can go where.
+export const LAYOUT_PROPS = ['battery', 'pressure', 'intensity', 'mode', 'score', 'brush_head'];
+export const CORNER_SLOTS = ['top_left', 'top_right', 'bottom_left', 'bottom_right'];
+
+/**
+ * Contact-feedback is exposed as either pressure or intensity, never both, and
+ * which one a handle reports isn't known until a device is selected. The stored
+ * layout uses a neutral `pressure` token by default; here we swap it to the one
+ * the device actually provides (and vice-versa), then drop any duplicate the
+ * swap may create, so the card and editor agree on the concrete reading.
+ */
+export function resolveLayoutForDevice(layout, ids) {
+    if (!ids) return layout;
+    const hasPressure = !!(ids.pressure_state || ids.pressure);
+    const hasIntensity = !!ids.intensity;
+    // Only the neutral default 'pressure' is rewritten, and only for handles
+    // that have intensity but no pressure — an explicit choice is left intact so
+    // a device exposing both can carry either (or both).
+    const swap = (p) => {
+        if (p === 'pressure' && !hasPressure && hasIntensity) return 'intensity';
+        return p;
+    };
+    const seen = new Set();
+    const keep = (p) => {
+        const q = swap(p);
+        if (seen.has(q)) return null;
+        seen.add(q);
+        return q;
+    };
+    const chips = layout.chips.map(keep).filter(Boolean);
+    const corners = {};
+    for (const [k, v] of Object.entries(layout.corners)) {
+        const q = keep(v);
+        if (q) corners[k] = q;
+    }
+    return { chips, corners };
+}
+
+/**
+ * Resolve the configurable property placement. Without `layout:` the card keeps
+ * its historical arrangement, so existing dashboards render unchanged. A
+ * property may appear once across chips and corners (first occurrence wins) and
+ * the chip row is capped at three.
+ */
+export function normalizeLayout(config) {
+    const raw = config?.layout;
+    if (!raw || typeof raw !== 'object') {
+        return { chips: ['battery', 'pressure', 'mode'], corners: { top_right: 'brush_head' } };
+    }
+    const seen = new Set();
+    const take = (p) => {
+        if (!LAYOUT_PROPS.includes(p) || seen.has(p)) return false;
+        seen.add(p);
+        return true;
+    };
+    const chips = [];
+    if (Array.isArray(raw.chips)) {
+        for (const p of raw.chips) {
+            if (chips.length >= 3) break;
+            if (take(p)) chips.push(p);
+        }
+    }
+    const corners = {};
+    for (const pos of CORNER_SLOTS) {
+        const p = raw.corners?.[pos];
+        if (p && take(p)) corners[pos] = p;
+    }
+    return { chips, corners };
+}
+
+/**
+ * Map a device's entities to the card's logical readings. Pure (no card
+ * instance needed) so the editor can share it to decide which readings a
+ * device actually provides.
+ */
+export function findDeviceEntities(hass, deviceId) {
+    const entityKeys = {
+        sector: null, duration: null, mode: null, pressure: null,
+        pressure_state: null, intensity: null,
+        battery: null, status: null, base_entity: null,
+        number_of_sectors: null, model_number: null,
+        routine_length: null, integration: null,
+        brushhead_wear: null, activity: null,
+        mode_select: null, esp_bridge_alive: null,
+        ble_connected: null, score: null
+    };
+
+    const allEntities = hass.entities;
+
+    for (const entityId in allEntities) {
+        const entity = allEntities[entityId];
+        if (entity.device_id !== deviceId) continue;
+
+        if (!entityKeys.integration && entity.platform) {
+            entityKeys.integration = entity.platform;
+        }
+
+        const state = hass.states[entityId];
+        const deviceClass = state?.attributes?.device_class;
+
+        // Shared translation_keys (OralB + Sonicare >= 0.8)
+        if (entity.translation_key === 'sector') {
+            entityKeys.sector = entity.entity_id;
+        } else if (entity.translation_key === 'number_of_sectors') {
+            entityKeys.number_of_sectors = entity.entity_id;
+        } else if (entity.translation_key === 'mode') {
+            entityKeys.mode = entity.entity_id;
+        } else if (entity.translation_key === 'pressure') {
+            entityKeys.pressure = entity.entity_id;
+        } else if (entity.translation_key === 'toothbrush_state') {
+            entityKeys.status = entity.entity_id;
+        }
+
+        // Sonicare translation_keys
+        if (entity.translation_key === 'handle_state') {
+            entityKeys.status = entity.entity_id;
+        } else if (entity.translation_key === 'brushing_mode') {
+            entityKeys.mode = entity.entity_id;
+        } else if (entity.translation_key === 'pressure_alert') {
+            entityKeys.pressure = entity.entity_id;
+        } else if (entity.translation_key === 'pressure_state') {
+            // Categorical pressure state (ok / optimal / too_high). Kept
+            // separate so it can take precedence over the raw grams
+            // 'pressure' sensor and the 'intensity' fallback regardless of
+            // entity iteration order.
+            entityKeys.pressure_state = entity.entity_id;
+        } else if (entity.translation_key === 'intensity') {
+            entityKeys.intensity = entity.entity_id;
+        } else if (entity.translation_key === 'model_number') {
+            entityKeys.model_number = entity.entity_id;
+        } else if (entity.translation_key === 'activity') {
+            entityKeys.activity = entity.entity_id;
+        } else if (entity.translation_key === 'brushing_time') {
+            entityKeys.duration = entity.entity_id;
+        } else if (entity.translation_key === 'brushing_mode_select') {
+            entityKeys.mode_select = entity.entity_id;
+        } else if (entity.translation_key === 'esp_bridge_alive') {
+            entityKeys.esp_bridge_alive = entity.entity_id;
+        } else if (entity.translation_key === 'routine_length') {
+            entityKeys.routine_length = entity.entity_id;
+        }
+
+        if (deviceClass) {
+            if (entityKeys.battery === null && deviceClass === 'battery') {
+                entityKeys.battery = entity.entity_id;
+            } else if (entityKeys.duration === null && deviceClass === 'duration') {
+                entityKeys.duration = entity.entity_id;
+            }
+        }
+
+        if (entityKeys.status === null && entityKeys.base_entity === null) {
+            if (!entity.entity_id.includes('_') || entity.entity_id.endsWith(deviceId)) {
+                entityKeys.base_entity = entity.entity_id;
+            }
+        }
+    }
+
+    if (entityKeys.status !== null) {
+        entityKeys.base_entity = entityKeys.status;
+        entityKeys.status = null;
+    }
+
+    // Search related devices (child + same config entry) for additional entities
+    if (hass.devices) {
+        const mainDevice = hass.devices[deviceId];
+        const configEntries = mainDevice?.config_entries || [];
+        const relatedDevices = Object.values(hass.devices).filter(d =>
+            d.id !== deviceId && (
+                d.via_device_id === deviceId ||
+                d.config_entries?.some(ce => configEntries.includes(ce))
+            )
+        );
+        for (const related of relatedDevices) {
+            for (const entityId in allEntities) {
+                const entity = allEntities[entityId];
+                if (entity.device_id !== related.id) continue;
+                if (entity.translation_key === 'brushhead_wear') {
+                    entityKeys.brushhead_wear = entity.entity_id;
+                } else if (entity.translation_key === 'esp_bridge_alive') {
+                    entityKeys.esp_bridge_alive = entity.entity_id;
+                } else if (entity.translation_key === 'ble_connected') {
+                    entityKeys.ble_connected = entity.entity_id;
+                }
+            }
+        }
+    }
+
+    return entityKeys;
+}
+
 
 export class ToothbrushCard extends LitElement {
 
@@ -340,6 +531,10 @@ export class ToothbrushCard extends LitElement {
         return 'muted';
     }
 
+    _normalizeLayout(config) {
+        return normalizeLayout(config);
+    }
+
     _isActive(status) {
         return status === 'running' || status === 'run';
     }
@@ -348,118 +543,7 @@ export class ToothbrushCard extends LitElement {
      * Searching for all needed entities.
      */
     _findAndMapEntitiesInConfig(hass, deviceId) {
-        const entityKeys = {
-            sector: null, duration: null, mode: null, pressure: null,
-            pressure_state: null, intensity: null,
-            battery: null, status: null, base_entity: null,
-            number_of_sectors: null, model_number: null,
-            routine_length: null, integration: null,
-            brushhead_wear: null, activity: null,
-            mode_select: null, esp_bridge_alive: null,
-            ble_connected: null
-        };
-
-        const allEntities = hass.entities;
-
-        for (const entityId in allEntities) {
-            const entity = allEntities[entityId];
-            if (entity.device_id !== deviceId) continue;
-
-            if (!entityKeys.integration && entity.platform) {
-                entityKeys.integration = entity.platform;
-            }
-
-            const state = hass.states[entityId];
-            const deviceClass = state?.attributes?.device_class;
-
-            // Shared translation_keys (OralB + Sonicare >= 0.8)
-            if (entity.translation_key === 'sector') {
-                entityKeys.sector = entity.entity_id;
-            } else if (entity.translation_key === 'number_of_sectors') {
-                entityKeys.number_of_sectors = entity.entity_id;
-            } else if (entity.translation_key === 'mode') {
-                entityKeys.mode = entity.entity_id;
-            } else if (entity.translation_key === 'pressure') {
-                entityKeys.pressure = entity.entity_id;
-            } else if (entity.translation_key === 'toothbrush_state') {
-                entityKeys.status = entity.entity_id;
-            }
-
-            // Sonicare translation_keys
-            if (entity.translation_key === 'handle_state') {
-                entityKeys.status = entity.entity_id;
-            } else if (entity.translation_key === 'brushing_mode') {
-                entityKeys.mode = entity.entity_id;
-            } else if (entity.translation_key === 'pressure_alert') {
-                entityKeys.pressure = entity.entity_id;
-            } else if (entity.translation_key === 'pressure_state') {
-                // Categorical pressure state (ok / optimal / too_high). Kept
-                // separate so it can take precedence over the raw grams
-                // 'pressure' sensor and the 'intensity' fallback regardless of
-                // entity iteration order.
-                entityKeys.pressure_state = entity.entity_id;
-            } else if (entity.translation_key === 'intensity') {
-                entityKeys.intensity = entity.entity_id;
-            } else if (entity.translation_key === 'model_number') {
-                entityKeys.model_number = entity.entity_id;
-            } else if (entity.translation_key === 'activity') {
-                entityKeys.activity = entity.entity_id;
-            } else if (entity.translation_key === 'brushing_time') {
-                entityKeys.duration = entity.entity_id;
-            } else if (entity.translation_key === 'brushing_mode_select') {
-                entityKeys.mode_select = entity.entity_id;
-            } else if (entity.translation_key === 'esp_bridge_alive') {
-                entityKeys.esp_bridge_alive = entity.entity_id;
-            } else if (entity.translation_key === 'routine_length') {
-                entityKeys.routine_length = entity.entity_id;
-            }
-
-            if (deviceClass) {
-                if (entityKeys.battery === null && deviceClass === 'battery') {
-                    entityKeys.battery = entity.entity_id;
-                } else if (entityKeys.duration === null && deviceClass === 'duration') {
-                    entityKeys.duration = entity.entity_id;
-                }
-            }
-
-            if (entityKeys.status === null && entityKeys.base_entity === null) {
-                if (!entity.entity_id.includes('_') || entity.entity_id.endsWith(deviceId)) {
-                    entityKeys.base_entity = entity.entity_id;
-                }
-            }
-        }
-
-        if (entityKeys.status !== null) {
-            entityKeys.base_entity = entityKeys.status;
-            entityKeys.status = null;
-        }
-
-        // Search related devices (child + same config entry) for additional entities
-        if (hass.devices) {
-            const mainDevice = hass.devices[deviceId];
-            const configEntries = mainDevice?.config_entries || [];
-            const relatedDevices = Object.values(hass.devices).filter(d =>
-                d.id !== deviceId && (
-                    d.via_device_id === deviceId ||
-                    d.config_entries?.some(ce => configEntries.includes(ce))
-                )
-            );
-            for (const related of relatedDevices) {
-                for (const entityId in allEntities) {
-                    const entity = allEntities[entityId];
-                    if (entity.device_id !== related.id) continue;
-                    if (entity.translation_key === 'brushhead_wear') {
-                        entityKeys.brushhead_wear = entity.entity_id;
-                    } else if (entity.translation_key === 'esp_bridge_alive') {
-                        entityKeys.esp_bridge_alive = entity.entity_id;
-                    } else if (entity.translation_key === 'ble_connected') {
-                        entityKeys.ble_connected = entity.entity_id;
-                    }
-                }
-            }
-        }
-
-        return entityKeys;
+        return findDeviceEntities(hass, deviceId);
     }
 
     render() {
@@ -495,23 +579,22 @@ export class ToothbrushCard extends LitElement {
             : null;
         const numSectors = config.num_sectors || numSectorsFromEntity || 4;
         const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
-        // Prefer the categorical pressure-state entity over the raw grams
-        // sensor — it carries the ok / optimal / too_high reading. Only when a
-        // handle exposes no pressure at all (e.g. the Kids handle) do we fall
-        // back to its intensity reading — a user-set power level, not contact
-        // pressure. Intensity gets its own chip (own label, speedometer icon,
-        // neutral level colours) and never the red "too high" pressure look.
+        // Pressure and intensity are distinct readings (a handle reports one or
+        // the other): pressure is contact feedback with an ok/too-high reading,
+        // intensity is a user-set power level. Each has its own chip, colours
+        // and icon and is placed independently in the layout.
         const pressureEntity = entityIds.pressure_state || entityIds.pressure;
-        const isIntensity = !pressureEntity && !!entityIds.intensity;
-        const metricEntity = pressureEntity || entityIds.intensity;
-        const rawPressure = metricEntity ? hass.states[metricEntity]?.state || 'N/A' : 'N/A';
-        const metricUnavailable = rawPressure === 'unavailable' || rawPressure === 'unknown';
-        const pressure = metricUnavailable
+        const rawPressure = pressureEntity ? hass.states[pressureEntity]?.state || 'N/A' : 'N/A';
+        const pressure = rawPressure === 'unavailable' || rawPressure === 'unknown'
             ? '–'
             : rawPressure === 'on' || rawPressure === 'too_high' ? 'high'
             : rawPressure === 'off' || rawPressure === 'ok' || rawPressure === 'optimal' ? 'normal'
             : rawPressure;
-        const intensity = metricUnavailable ? '–' : rawPressure;
+        const intensityEntity = entityIds.intensity;
+        const rawIntensity = intensityEntity ? hass.states[intensityEntity]?.state || 'N/A' : 'N/A';
+        const intensity = rawIntensity === 'unavailable' || rawIntensity === 'unknown' || rawIntensity === 'N/A'
+            ? '–'
+            : rawIntensity;
         const rawBattery = entityIds.battery ? hass.states[entityIds.battery]?.state : null;
         const batteryUnavailable = !rawBattery || rawBattery === 'unavailable' || rawBattery === 'unknown';
         const batteryLevel = batteryUnavailable ? 0 : rawBattery;
@@ -772,6 +855,147 @@ export class ToothbrushCard extends LitElement {
             }
         }
 
+        // ---- Configurable property placement (chips + corners) ----
+        const layout = resolveLayoutForDevice(this._normalizeLayout(config), entityIds);
+        const POS_CLASS = { top_left: 'tl', top_right: 'tr', bottom_left: 'bl', bottom_right: 'br' };
+        const brushheadPct = brushheadWear !== null ? Math.round(100 - brushheadWear) : null;
+        const scoreState = entityIds.score ? hass.states[entityIds.score]?.state : null;
+        const scoreAvailable = scoreState && scoreState !== 'unavailable' && scoreState !== 'unknown';
+
+        // Shared brush-head glyph (the same shape the corner marker draws).
+        const headSvg = () => html`
+            <svg viewBox="0 0 24 72" class="brushhead-svg">
+                <defs>
+                    <clipPath id="bh-fill-${this._bhClipId}">
+                        <rect x="0" y="${brushheadWear * 0.72}" width="24" height="${72 - brushheadWear * 0.72}"/>
+                    </clipPath>
+                </defs>
+                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="none" stroke="var(--secondary-text-color, #888)" stroke-width="2"/>
+                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="${this._getBrushheadColor(brushheadWear)}" opacity="0.3" clip-path="url(#bh-fill-${this._bhClipId})"/>
+                <line x1="7" y1="5" x2="17" y2="5" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
+                <line x1="6.5" y1="9" x2="17.5" y2="9" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
+                <line x1="6" y1="13" x2="18" y2="13" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
+                <line x1="6" y1="17" x2="18" y2="17" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
+                <line x1="6.5" y1="21" x2="17.5" y2="21" stroke="var(--secondary-text-color, #888)" stroke-width="1.1"/>
+            </svg>`;
+
+        // A property rendered as a full chip. Returns '' when the reading is
+        // absent on this device, so the slot collapses instead of showing '–'.
+        const chipEl = (prop) => {
+            switch (prop) {
+                case 'battery':
+                    if (!entityIds.battery) return '';
+                    return html`<div class="chip" @click="${() => this._showMoreInfo(entityIds.battery)}">
+                        <div class="chip-icon ${batteryColor}"><ha-icon icon="${batteryIconName}"></ha-icon></div>
+                        <span class="chip-label">${t(hass, 'chip_battery')}</span>
+                        <div class="chip-value ${batteryColor}">${batteryUnavailable ? '–' : html`${batteryLevel}%`}</div>
+                    </div>`;
+                case 'pressure':
+                    if (!pressureEntity) return '';
+                    return html`<div class="chip" @click="${() => this._showMoreInfo(pressureEntity)}">
+                        <div class="pressure-bars ${pressureClass}">
+                            <div class="pb"></div><div class="pb"></div><div class="pb"></div><div class="pb"></div>
+                        </div>
+                        <span class="chip-label">${t(hass, 'chip_pressure')}</span>
+                        <div class="chip-value ${pressureColor}">${displayPressure}</div>
+                    </div>`;
+                case 'intensity':
+                    if (!intensityEntity) return '';
+                    return html`<div class="chip" @click="${() => this._showMoreInfo(intensityEntity)}">
+                        <div class="chip-icon ${intensityColor}"><ha-icon icon="${intensityIcon}"></ha-icon></div>
+                        <span class="chip-label">${t(hass, 'chip_intensity')}</span>
+                        <div class="chip-value ${intensityColor}">${displayIntensity}</div>
+                    </div>`;
+                case 'mode':
+                    if (!entityIds.mode && !entityIds.mode_select) return '';
+                    return html`<div class="mode-chip-wrap">
+                        <div class="chip ${canSelectMode ? 'selectable' : ''}" @click="${() => this._handleModeChipClick()}">
+                            <div class="chip-icon ${modeUnavailable ? 'muted' : 'blue'}"><ha-icon icon="${modeIcon}"></ha-icon></div>
+                            <span class="chip-label">${t(hass, 'chip_mode')}</span>
+                            <div class="chip-value ${modeUnavailable ? '' : 'blue'}">${modeLabel}${canSelectMode ? html`<span class="mode-caret"> ▾</span>` : ''}</div>
+                            ${canSelectMode ? html`<ha-icon class="chip-select-hint" icon="mdi:chevron-down"></ha-icon>` : ''}
+                        </div>
+                        ${this._showModeDropdown && canSelectMode ? html`
+                            <div class="dropdown-backdrop" @click="${() => this._closeModeDropdown()}"></div>
+                            <div class="mode-dropdown">
+                                ${modeOptions.map(opt => html`
+                                    <div class="mode-option ${opt === mode ? 'active' : ''}"
+                                         @click="${(e) => { e.stopPropagation(); this._selectMode(opt); }}">
+                                        <ha-icon icon="${this._getModeIcon(opt)}"></ha-icon>
+                                        <span>${this._getModeLabel(opt)}</span>
+                                    </div>
+                                `)}
+                            </div>
+                        ` : ''}
+                    </div>`;
+                case 'score':
+                    if (!scoreAvailable) return '';
+                    return html`<div class="chip" @click="${() => this._showMoreInfo(entityIds.score)}">
+                        <div class="chip-icon gold"><ha-icon icon="mdi:star"></ha-icon></div>
+                        <span class="chip-label">${t(hass, 'chip_score')}</span>
+                        <div class="chip-value gold">${scoreState}</div>
+                    </div>`;
+                case 'brush_head':
+                    if (brushheadPct === null) return '';
+                    return html`<div class="chip" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
+                        <div class="chip-icon teal"><ha-icon icon="mdi:toothbrush-electric"></ha-icon></div>
+                        <span class="chip-label">${t(hass, 'chip_head')}</span>
+                        <div class="chip-value teal">${brushheadPct}%</div>
+                    </div>`;
+                default:
+                    return '';
+            }
+        };
+
+        // A property rendered as a compact corner marker (icon + label + value).
+        // brush_head keeps its richer fill glyph; everything else is icon+value.
+        const cornerEl = (pos, prop) => {
+            const cls = POS_CLASS[pos];
+            if (prop === 'brush_head') {
+                if (brushheadPct === null) return '';
+                return html`<div class="card-corner ${cls} brushhead-indicator" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
+                    ${headSvg()}
+                    <span class="corner-lbl">${t(hass, 'chip_head')}</span>
+                    <span class="corner-val teal">${brushheadPct}%</span>
+                </div>`;
+            }
+            const marker = (entityId, icon, colorClass, label, value) => html`
+                <div class="card-corner ${cls}" @click="${() => this._showMoreInfo(entityId)}">
+                    <ha-icon class="corner-ico ${colorClass}" icon="${icon}"></ha-icon>
+                    <span class="corner-lbl">${label}</span>
+                    <span class="corner-val ${colorClass}">${value}</span>
+                </div>`;
+            switch (prop) {
+                case 'battery':
+                    if (!entityIds.battery) return '';
+                    return marker(entityIds.battery, batteryIconName, batteryColor, t(hass, 'chip_battery'), batteryUnavailable ? '–' : html`${batteryLevel}%`);
+                case 'pressure':
+                    if (!pressureEntity) return '';
+                    return marker(pressureEntity, 'mdi:gauge', pressureColor, t(hass, 'chip_pressure'), displayPressure);
+                case 'intensity':
+                    if (!intensityEntity) return '';
+                    return marker(intensityEntity, intensityIcon, intensityColor, t(hass, 'chip_intensity'), displayIntensity);
+                case 'mode':
+                    if (!entityIds.mode && !entityIds.mode_select) return '';
+                    return marker(entityIds.mode_select || entityIds.mode, modeIcon, modeUnavailable ? 'muted' : 'blue', t(hass, 'chip_mode'), modeLabel);
+                case 'score':
+                    if (!scoreAvailable) return '';
+                    return marker(entityIds.score, 'mdi:star', 'gold', t(hass, 'chip_score'), scoreState);
+                default:
+                    return '';
+            }
+        };
+
+        const chipEls = layout.chips.map(chipEl).filter(x => x !== '');
+        // Top corners overlay the visual area (absolute); bottom corners render
+        // in-flow inside the status row so they stay on the status-text line.
+        const topCornerEls = ['top_left', 'top_right']
+            .filter(pos => layout.corners[pos])
+            .map(pos => cornerEl(pos, layout.corners[pos]))
+            .filter(x => x !== '');
+        const bottomLeftEl = layout.corners.bottom_left ? cornerEl('bottom_left', layout.corners.bottom_left) : '';
+        const bottomRightEl = layout.corners.bottom_right ? cornerEl('bottom_right', layout.corners.bottom_right) : '';
+
         return html`
             <ha-card style="${this._cardStyle()}">
                 <!-- Header -->
@@ -800,57 +1024,8 @@ export class ToothbrushCard extends LitElement {
                     </div>
                 </div>
 
-                <!-- Chips: Battery / Pressure / Mode -->
-                <div class="chips-row">
-                    <div class="chip" @click="${() => this._showMoreInfo(entityIds.battery)}">
-                        <div class="chip-icon ${batteryColor}">
-                            <ha-icon icon="${batteryIconName}"></ha-icon>
-                        </div>
-                        <span class="chip-label">${t(hass, 'chip_battery')}</span>
-                        <div class="chip-value ${batteryColor}">${batteryUnavailable ? '–' : html`${batteryLevel}%`}</div>
-                    </div>
-
-                    <div class="chip" @click="${() => this._showMoreInfo(metricEntity)}">
-                        ${isIntensity ? html`
-                            <div class="chip-icon ${intensityColor}">
-                                <ha-icon icon="${intensityIcon}"></ha-icon>
-                            </div>
-                            <span class="chip-label">${t(hass, 'chip_intensity')}</span>
-                            <div class="chip-value ${intensityColor}">${displayIntensity}</div>
-                        ` : html`
-                            <div class="pressure-bars ${pressureClass}">
-                                <div class="pb"></div><div class="pb"></div>
-                                <div class="pb"></div><div class="pb"></div>
-                            </div>
-                            <span class="chip-label">${t(hass, 'chip_pressure')}</span>
-                            <div class="chip-value ${pressureColor}">${displayPressure}</div>
-                        `}
-                    </div>
-
-                    <div class="mode-chip-wrap">
-                        <div class="chip ${canSelectMode ? 'selectable' : ''}"
-                             @click="${() => this._handleModeChipClick()}">
-                            <div class="chip-icon ${modeUnavailable ? 'muted' : 'blue'}">
-                                <ha-icon icon="${modeIcon}"></ha-icon>
-                            </div>
-                            <span class="chip-label">${t(hass, 'chip_mode')}</span>
-                            <div class="chip-value ${modeUnavailable ? '' : 'blue'}">${modeLabel}${canSelectMode ? html`<span class="mode-caret"> ▾</span>` : ''}</div>
-                            ${canSelectMode ? html`<ha-icon class="chip-select-hint" icon="mdi:chevron-down"></ha-icon>` : ''}
-                        </div>
-                        ${this._showModeDropdown && canSelectMode ? html`
-                            <div class="dropdown-backdrop" @click="${() => this._closeModeDropdown()}"></div>
-                            <div class="mode-dropdown">
-                                ${modeOptions.map(opt => html`
-                                    <div class="mode-option ${opt === mode ? 'active' : ''}"
-                                         @click="${(e) => { e.stopPropagation(); this._selectMode(opt); }}">
-                                        <ha-icon icon="${this._getModeIcon(opt)}"></ha-icon>
-                                        <span>${this._getModeLabel(opt)}</span>
-                                    </div>
-                                `)}
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
+                <!-- Chips: configurable via layout.chips (omitted when empty) -->
+                ${chipEls.length ? html`<div class="chips-row">${chipEls}</div>` : ''}
 
                 <!-- Tooth visual -->
                 <div class="visual-area">
@@ -865,9 +1040,13 @@ export class ToothbrushCard extends LitElement {
                         </div>
                     </div>
 
-                    <div class="status-text-wrap" @click="${() => this._showMoreInfo(entityIds.base_entity)}">
-                        <div class="status-main ${active ? 'active' : ''}">${displayStatus}</div>
-                        ${sectorLabel ? html`<div class="status-sub">${sectorLabel}</div>` : ''}
+                    <div class="status-row">
+                        <div>${bottomLeftEl}</div>
+                        <div class="status-text-wrap" @click="${() => this._showMoreInfo(entityIds.base_entity)}">
+                            <div class="status-main ${active ? 'active' : ''}">${displayStatus}</div>
+                            ${sectorLabel ? html`<div class="status-sub">${sectorLabel}</div>` : ''}
+                        </div>
+                        <div>${bottomRightEl}</div>
                     </div>
 
                     <div class="progress-wrap ${active || isSuccess ? 'visible' : ''}">
@@ -881,28 +1060,7 @@ export class ToothbrushCard extends LitElement {
                         </div>
                     </div>
 
-                    ${brushheadWear !== null ? html`
-                        <div class="brushhead-indicator" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
-                            <svg viewBox="0 0 24 72" class="brushhead-svg">
-                                <defs>
-                                    <clipPath id="bh-fill-${this._bhClipId}">
-                                        <rect x="0" y="${brushheadWear * 0.72}" width="24" height="${72 - brushheadWear * 0.72}"/>
-                                    </clipPath>
-                                </defs>
-                                <!-- Brush head: wide oval top, thin neck, narrow handle -->
-                                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="none" stroke="var(--divider-color, #bbb)" stroke-width="1.2"/>
-                                <!-- Fill -->
-                                <path d="M4,6 C4,2 7,0 12,0 C17,0 20,2 20,6 L20,22 C20,26 18,28 16,29 L16,31 C17,31.5 17.5,32 17.5,33 L17.5,34 C17.5,35 17,35.5 16,36 L16,64 C16,68 15,71 12,71 C9,71 8,68 8,64 L8,36 C7,35.5 6.5,35 6.5,34 L6.5,33 C6.5,32 7,31.5 8,31 L8,29 C6,28 4,26 4,22 Z" fill="${this._getBrushheadColor(brushheadWear)}" opacity="0.3" clip-path="url(#bh-fill-${this._bhClipId})"/>
-                                <!-- Bristle rows -->
-                                <line x1="7" y1="5" x2="17" y2="5" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
-                                <line x1="6.5" y1="9" x2="17.5" y2="9" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
-                                <line x1="6" y1="13" x2="18" y2="13" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
-                                <line x1="6" y1="17" x2="18" y2="17" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
-                                <line x1="6.5" y1="21" x2="17.5" y2="21" stroke="var(--divider-color, #bbb)" stroke-width="0.7"/>
-                            </svg>
-                            <span class="brushhead-pct">${Math.round(100 - brushheadWear)}%</span>
-                        </div>
-                    ` : ''}
+                    ${topCornerEls}
                 </div>
 
                 <!-- Done badge -->

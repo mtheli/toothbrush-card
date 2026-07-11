@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit';
-import { QUADRANT_ZONES, SEXTANT_ZONES, ACCENT_COLORS, SUPPORTED_INTEGRATIONS } from './toothbrush-card.js';
+import { QUADRANT_ZONES, SEXTANT_ZONES, ACCENT_COLORS, SUPPORTED_INTEGRATIONS,
+         LAYOUT_PROPS, CORNER_SLOTS, normalizeLayout, resolveLayoutForDevice,
+         findDeviceEntities } from './toothbrush-card.js';
 import { t } from './translations.js';
 
 export class ToothbrushCardEditor extends LitElement {
@@ -187,6 +189,98 @@ export class ToothbrushCardEditor extends LitElement {
         this._fireConfig(newConfig);
     }
 
+    // --- Layout (property placement) ---
+    _deviceIds() {
+        if (!this.hass || !this._config?.device_id) return {};
+        return findDeviceEntities(this.hass, this._config.device_id);
+    }
+
+    // Effective layout as fixed-length editor slots: chips padded to 3, all four
+    // corner keys present (empty string = unset). Resolved for the device so the
+    // shared contact slot reads as the reading it actually has (intensity vs
+    // pressure).
+    _editorLayout() {
+        const ids = this._deviceIds();
+        const avail = this._availableSet(ids);
+        const eff = resolveLayoutForDevice(normalizeLayout(this._config), ids);
+        // Drop readings the device doesn't have so the editor never shows a slot
+        // filled with something that can't render (e.g. the default head corner
+        // on a handle without a brush-head sensor).
+        const availChips = eff.chips.filter(p => avail.has(p));
+        const chips = [availChips[0] || '', availChips[1] || '', availChips[2] || ''];
+        const corners = {};
+        for (const k of CORNER_SLOTS) corners[k] = avail.has(eff.corners[k]) ? eff.corners[k] : '';
+        return { chips, corners };
+    }
+
+    // Properties already placed in a slot other than `except` — excluded from
+    // that slot's menu so every reading is used at most once.
+    _usedElsewhere(except) {
+        const L = this._editorLayout();
+        const used = new Set();
+        L.chips.forEach((p, i) => { if (p && `chip${i}` !== except) used.add(p); });
+        for (const k of CORNER_SLOTS) { if (L.corners[k] && `corner${k}` !== except) used.add(L.corners[k]); }
+        return used;
+    }
+
+    // Readings this device actually provides — everything else is hidden from
+    // the menus so we never offer a chip that could not render. Pressure and
+    // intensity are offered independently whenever the device exposes them (some
+    // handles report both), so either can be placed.
+    _availableSet(ids) {
+        const a = new Set();
+        if (ids.battery) a.add('battery');
+        if (ids.pressure_state || ids.pressure) a.add('pressure');
+        if (ids.intensity) a.add('intensity');
+        if (ids.mode || ids.mode_select) a.add('mode');
+        if (ids.score) a.add('score');
+        if (ids.brushhead_wear) a.add('brush_head');
+        return a;
+    }
+
+    _propLabel(prop) {
+        return t(this.hass, 'chip_' + (prop === 'brush_head' ? 'head' : prop)) || prop;
+    }
+
+    _propOptions(current, usedElsewhere, avail) {
+        const opts = [{ value: 'none', label: t(this.hass, 'layout_none') || '—' }];
+        for (const p of LAYOUT_PROPS) {
+            if (p !== current && !avail.has(p)) continue;
+            if (p === current || !usedElsewhere.has(p)) {
+                opts.push({ value: p, label: this._propLabel(p) });
+            }
+        }
+        return opts;
+    }
+
+    _writeLayout(L) {
+        const chips = L.chips.filter(Boolean);
+        const corners = {};
+        for (const k of CORNER_SLOTS) { if (L.corners[k]) corners[k] = L.corners[k]; }
+        const newConfig = { ...this._config, layout: { chips, corners } };
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+
+    _layoutChipChanged(i, value) {
+        const L = this._editorLayout();
+        L.chips[i] = value === 'none' ? '' : value;
+        this._writeLayout(L);
+    }
+
+    _layoutCornerChanged(pos, value) {
+        const L = this._editorLayout();
+        L.corners[pos] = value === 'none' ? '' : value;
+        this._writeLayout(L);
+    }
+
+    _resetLayout() {
+        const newConfig = { ...this._config };
+        delete newConfig.layout;
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+
     _colorField(key, labelKey, fallback) {
         const value = this._config[key] || '';
         return html`
@@ -208,6 +302,50 @@ export class ToothbrushCardEditor extends LitElement {
                     ></ha-textfield>
                 </div>
             </div>
+        `;
+    }
+
+    _renderLayoutSection() {
+        const L = this._editorLayout();
+        const avail = this._availableSet(this._deviceIds());
+        const posLabels = {
+            top_left: 'pos_top_left', top_right: 'pos_top_right',
+            bottom_left: 'pos_bottom_left', bottom_right: 'pos_bottom_right',
+        };
+        const selector = (options) => ({ select: { mode: 'dropdown', options } });
+        return html`
+            <div class="section-label">
+                <span>${t(this.hass, 'config_layout')}</span>
+                <button class="reset-btn" ?disabled=${!this._config.layout}
+                        @click=${this._resetLayout}>Reset</button>
+            </div>
+            <div class="sector-mode-hint">${t(this.hass, 'config_layout_hint')}</div>
+
+            <div class="sub-label">${t(this.hass, 'config_layout_chips')}</div>
+            ${[0, 1, 2].map(i => html`
+                <div class="field">
+                    <ha-selector
+                        .hass=${this.hass}
+                        .selector=${selector(this._propOptions(L.chips[i], this._usedElsewhere('chip' + i), avail))}
+                        .label=${`${t(this.hass, 'config_layout_chip')} ${i + 1}`}
+                        .value=${L.chips[i] || 'none'}
+                        @value-changed=${(ev) => this._layoutChipChanged(i, ev.detail.value)}
+                    ></ha-selector>
+                </div>
+            `)}
+
+            <div class="sub-label">${t(this.hass, 'config_layout_corners')}</div>
+            ${CORNER_SLOTS.map(k => html`
+                <div class="field">
+                    <ha-selector
+                        .hass=${this.hass}
+                        .selector=${selector(this._propOptions(L.corners[k], this._usedElsewhere('corner' + k), avail))}
+                        .label=${t(this.hass, posLabels[k])}
+                        .value=${L.corners[k] || 'none'}
+                        @value-changed=${(ev) => this._layoutCornerChanged(k, ev.detail.value)}
+                    ></ha-selector>
+                </div>
+            `)}
         `;
     }
 
@@ -337,6 +475,8 @@ export class ToothbrushCardEditor extends LitElement {
                             </div>
                         `)}
                     </div>
+
+                    ${this._renderLayoutSection()}
                 ` : ''}
             </div>
         `;
@@ -377,14 +517,24 @@ export class ToothbrushCardEditor extends LitElement {
                 cursor: pointer;
                 color: var(--primary-text-color);
             }
-            .reset-btn:hover {
+            .reset-btn:hover:not([disabled]) {
                 background: var(--secondary-background-color, #f5f5f5);
+            }
+            .reset-btn[disabled] {
+                opacity: 0.4;
+                cursor: default;
             }
             .sector-mode-hint {
                 font-size: 12px;
                 color: var(--secondary-text-color, #888);
                 font-style: italic;
                 margin-bottom: 8px;
+            }
+            .sub-label {
+                font-size: 13px;
+                font-weight: 500;
+                color: var(--secondary-text-color, #888);
+                margin: 12px 0 6px;
             }
             .sector-revisit-hint {
                 font-size: 11px;

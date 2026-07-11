@@ -177,6 +177,8 @@ ha-card {
 .chip-icon.int-low  { color: #0891b2; }
 .chip-icon.int-med  { color: #7c3aed; }
 .chip-icon.int-high { color: #db2777; }
+.chip-icon.gold { color: #c47f16; }
+.chip-icon.teal { color: #0d9488; }
 .chip-label {
     font-size: 9px;
     font-weight: 600;
@@ -201,6 +203,8 @@ ha-card {
 .chip-value.int-low  { color: #0891b2; }
 .chip-value.int-med  { color: #7c3aed; }
 .chip-value.int-high { color: #db2777; }
+.chip-value.gold { color: #c47f16; }
+.chip-value.teal { color: #0d9488; }
 .chip-value.muted { color: var(--disabled-text-color, #9ca3af); }
 
 /* Pressure bars (replaces icon in chip) */
@@ -362,9 +366,22 @@ ha-card {
 }
 
 /* ── STATUS ── */
+/* Status line: bottom corner markers flank the status text in-flow, so both
+   always share the same line and nothing shifts when the progress row below
+   appears or disappears. */
+.status-row {
+    /* Extends 4px past the visual-area padding (14px) so the 66px columns
+       start at 10px — the same offset as the absolute top corners, putting
+       top and bottom markers on one vertical axis. */
+    width: calc(100% + 8px);
+    margin: 2px -4px 10px;
+    display: grid;
+    grid-template-columns: 66px 1fr 66px;
+    align-items: center;
+}
+.status-row .card-corner { position: static; }
 .status-text-wrap {
     text-align: center;
-    margin: 2px 0 10px;
     cursor: pointer;
 }
 .status-main {
@@ -417,6 +434,8 @@ ha-card {
     color: var(--secondary-text-color);
     margin-top: 4px;
 }
+/* Sector label matches the capitalized status-sub ("Lower Front"). */
+.progress-labels span:first-child { text-transform: capitalize; }
 
 /* ── DONE BADGE ── */
 .done-badge {
@@ -467,21 +486,45 @@ ha-card {
 }
 
 /* ── BRUSH HEAD INDICATOR ── */
-.brushhead-indicator {
+/* Configurable corner markers (inline icon + value in any of 4 corners) */
+.card-corner {
     position: absolute;
-    top: 8px;
-    right: 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 1px;
+    /* Fixed width so all four markers share the same center axis regardless
+       of how wide their value text is (e.g. "0%" vs "Gum Care"). */
+    width: 66px;
     cursor: pointer;
-    opacity: 0.8;
+    opacity: 0.85;
     transition: opacity 0.2s;
+    z-index: 1;
 }
-.brushhead-indicator:hover {
-    opacity: 1;
+.card-corner:hover { opacity: 1; }
+.card-corner.tl { top: 6px; left: 10px; }
+.card-corner.tr { top: 6px; right: 10px; }
+/* bl/br carry no offsets: bottom markers render inside .status-row. */
+.corner-ico { --mdc-icon-size: 22px; width: 22px; height: 22px; }
+.corner-lbl {
+    font-size: 8px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--secondary-text-color); font-weight: 700;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+.corner-val {
+    font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.corner-ico.green,.corner-val.green { color: #16a34a; }
+.corner-ico.blue,.corner-val.blue { color: #2563eb; }
+.corner-ico.amber,.corner-val.amber { color: #d97706; }
+.corner-ico.red,.corner-val.red { color: #dc2626; }
+.corner-ico.muted,.corner-val.muted { color: var(--disabled-text-color, #9ca3af); }
+.corner-ico.int-low,.corner-val.int-low { color: #0891b2; }
+.corner-ico.int-med,.corner-val.int-med { color: #7c3aed; }
+.corner-ico.int-high,.corner-val.int-high { color: #db2777; }
+.corner-ico.gold,.corner-val.gold { color: #c47f16; }
+.corner-ico.teal,.corner-val.teal { color: #0d9488; }
 .brushhead-svg {
     width: 16px;
     height: 42px;
@@ -521,4 +564,14 @@ ha-card {
         height: 180px;
     }
     .timer-display { font-size: 26px; }
+    /* Nudge the corner markers outward so they clear the tooth arc. */
+    .card-corner { width: 54px; }
+    .card-corner.tl { left: 2px; }
+    .card-corner.tr { right: 2px; }
+    .status-row {
+        grid-template-columns: 54px 1fr 54px;
+        width: calc(100% + 24px);
+        margin-left: -12px;
+        margin-right: -12px;
+    }
 }
