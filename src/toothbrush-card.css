@@ -300,6 +300,11 @@ ha-card {
     align-items: center;
     position: relative;
 }
+/* Without the chips row the visual area directly follows the header — give
+   the teeth some breathing room at the top. */
+.card-header + .visual-area {
+    padding-top: 16px;
+}
 .tooth-wrap {
     position: relative;
     width: 210px;
