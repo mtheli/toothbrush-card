@@ -89,7 +89,10 @@ The card is configured via the UI — just add it and select your toothbrush dev
 | device_id     | string   | —       | **(required)** Toothbrush device to use      |
 | title         | string   | —       | Custom title (default: manufacturer)         |
 | show_subtitle | boolean  | true    | Show device name as subtitle                 |
+| show_header   | boolean  | true    | `false` hides the whole card header (title, connection icons, menu) — useful for compact wall-panel dashboards |
 | accent_color  | string   | —       | Header accent color (hex, e.g. `#0085FF`)    |
+| tooth_style   | `teeth` \| `none` | `teeth` | `none` hides the tooth ring and shows a large standalone timer instead; the sector-segmented progress bar still shows where you are |
+| layout        | object   | —       | Place the readings (`battery`, `pressure`, `intensity`, `mode`, `score`, `brush_head`) freely: up to three chips in the top row (`layout.chips`) and four corner markers (`layout.corners.top_left` … `bottom_right`). Each reading can be used once; omitting `layout` keeps the classic arrangement. Editable in the UI. |
 | tooth_color   | string   | divider color | Idle tooth color (hex). Set this if the teeth are invisible against your theme background |
 | active_color  | string   | `#93c5fd` | Color of the currently-brushing sector (hex) |
 | done_color    | string   | `#bbf7d0` | Color of completed sectors (hex)           |
@@ -108,6 +111,24 @@ accent_color: "#0085FF"
 tooth_color: "#d1d5db"
 active_color: "#93c5fd"
 done_color: "#bbf7d0"
+```
+
+### Compact example (small wall panels)
+
+Two of these fit side by side on a 480×480 panel (e.g. NSPanel Pro) —
+no header, no tooth ring, big timer, battery and mode flanking the
+status line:
+
+```yaml
+type: custom:toothbrush-card
+device_id: 1234567890abcdef
+show_header: false
+tooth_style: none
+layout:
+  chips: []
+  corners:
+    bottom_left: battery
+    bottom_right: mode
 ```
 
 ## Supported Languages
