@@ -40,15 +40,17 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 
 ## Supported Data Points
 
-| Sensor    | Oral-B                          | Philips Sonicare                          |
-|-----------|---------------------------------|-------------------------------------------|
-| Status    | idle, running, charging, …      | off, standby, run, charge, …              |
-| Sector    | Reported by device (1–6)        | Calculated from routine time (4 or 6 sectors, configurable) |
-| Duration  | Brushing session (seconds)      | Brushing time (seconds)                   |
-| Pressure  | low, normal, high               | —                                         |
-| Intensity | —                               | low, medium, high                         |
-| Mode      | Daily Clean, Sensitive, Turbo, …| Clean, White+, Gum Health, Deep Clean+    |
-| Battery   | Battery level (%)               | Battery level (%)                          |
+| Sensor    | Oral-B                          | Philips Sonicare                          | Xiaomi (T700, beta)                     |
+|-----------|---------------------------------|-------------------------------------------|------------------------------------------|
+| Status    | idle, running, charging, …      | off, standby, run, charge, …              | running / idle (from the on/off state)   |
+| Sector    | Reported by device (1–6)        | Calculated from routine time (4 or 6 sectors, configurable) | Calculated from routine time (4 quadrants × 30 s) |
+| Duration  | Brushing session (seconds)      | Brushing time (seconds)                   | Synthesized (time since the brush turned on) |
+| Pressure  | low, normal, high               | normal, high (pressure state on newer handles, pressure alert on others) | —                                        |
+| Intensity | —                               | low, medium, high                         | —                                        |
+| Mode      | Daily Clean, Sensitive, Turbo, …| Clean, White+, Gum Health, Deep Clean+    | —                                        |
+| Score     | —                               | —                                         | 0–100 (reported after each session)      |
+| Brush head| —                               | Wear (%)                                  | Condition (%)                            |
+| Battery   | Battery level (%)               | Battery level (%)                          | Battery level (%)                        |
 
 ## Community
 
