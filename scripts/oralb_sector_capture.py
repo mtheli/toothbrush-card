@@ -22,6 +22,15 @@ do not pause the brush between sectors, just move it:
     python3 oralb_sector_capture.py --json oralb_capture.json
     python3 oralb_sector_capture.py --mac XX:XX:XX:XX:XX:XX  # lock to one device
 
+Post-session phase (issue #4)
+-----------------------------
+To also diagnose "card clears data shortly after brushing", DO NOT Ctrl+C when
+the routine ends. Put the brush down and leave the script running for a few
+more minutes. A heartbeat line prints every ~15 s showing the age of the last
+advertisement, so you can watch whether the brush keeps emitting idle frames
+(brush_time resets to 0 while still advertising) or simply goes silent (offline).
+The end-of-run summary prints a post-session timeline with the exact timings.
+
 Output
 ------
 Human-readable live log + optional JSON file that can be attached to a GitHub
@@ -62,7 +71,25 @@ KNOWN_SECTOR_BYTES = {
     41, 42, 43, 47, 55,  # "success"
 }
 
-STATES = {2: "idle", 3: "running"}
+# Mirrors the public oralb_ble library's STATES table (oralb_ble/parser.py) so
+# our live log matches what the Home Assistant integration reports. States not
+# listed here (seen empirically: 10 right after a session) fall back to
+# "unknown_<n>" — those are the interesting post-session frames for issue #4.
+STATES = {
+    0: "unknown",
+    1: "initializing",
+    2: "idle",
+    3: "running",
+    4: "charging",
+    5: "setup",
+    6: "flight menu",
+    8: "selection menu",
+    9: "off",
+    113: "final test",
+    114: "pcb test",
+    115: "sleeping",
+    116: "transport",
+}
 
 
 @dataclass
@@ -119,14 +146,18 @@ def parse_manufacturer(data: bytes) -> dict[str, int | bool | str | None]:
     return out
 
 
+HEARTBEAT_INTERVAL = 15  # seconds between "still listening" lines
+
+
 class Capture:
     def __init__(self, mac_filter: str | None, json_path: Path | None):
         self.mac_filter = mac_filter.upper() if mac_filter else None
         self.json_path = json_path
         self.records: list[Advertisement] = []
-        self.last_sector_by_mac: dict[str, int | None] = {}
+        self.last_record_by_mac: dict[str, Advertisement] = {}
         self.unknown_seen: set[int] = set()
         self._stop = asyncio.Event()
+        self._capture_end: float | None = None
 
     def _callback(self, device: BLEDevice, adv: AdvertisementData) -> None:
         mfr = adv.manufacturer_data.get(ORALB_MANUFACTURER_ID)
@@ -148,29 +179,43 @@ class Capture:
         )
         self.records.append(record)
 
-        # Live output: only print on interesting events so smartmatic's log
-        # isn't flooded with duplicates.
+        # Live output: only print on interesting events so the log isn't
+        # flooded with duplicates. Issue #3 cares about sector changes; issue #4
+        # cares about state transitions and the post-session brush_time reset.
         s = record.sector
-        prev = self.last_sector_by_mac.get(device.address)
-        is_new_sector = s is not None and s != prev
+        prev = self.last_record_by_mac.get(device.address)
+        is_new_sector = s is not None and (prev is None or s != prev.sector)
         is_unknown = bool(record.unknown_sector) and s not in self.unknown_seen
+        state_changed = prev is not None and prev.state != record.state
+        time_reset = (
+            prev is not None
+            and prev.brush_time is not None and prev.brush_time > 0
+            and record.brush_time == 0
+        )
 
-        if is_new_sector or is_unknown:
-            marker = "???" if record.unknown_sector else "   "
-            tag = ""
-            if record.unknown_sector:
-                tag = " [UNKNOWN — CAPTURE THIS!]"
+        if is_new_sector or is_unknown or state_changed or time_reset:
+            events: list[str] = []
+            if is_unknown:
+                events.append("UNKNOWN — CAPTURE THIS!")
                 self.unknown_seen.add(s)  # type: ignore[arg-type]
+            if state_changed:
+                events.append(f"state {prev.state_label}→{record.state_label}")
+            if time_reset:
+                events.append("brush_time → 0 (post-session clear)")
+            marker = "???" if record.unknown_sector else "   "
+            tag = ("  [" + "; ".join(events) + "]") if events else ""
             state_str = f"{record.state}/{record.state_label}" if record.state is not None else "?"
+            sector_str = f"0x{s:02X}({s})" if s is not None else "?"
             print(
                 f"[{time.strftime('%H:%M:%S')}] {marker} {device.address}"
                 f"  state={state_str:<12} pressure={record.pressure}"
                 f"  time={record.brush_time}s  mode={record.mode}"
-                f"  sector=0x{s:02X}({s})"
+                f"  sector={sector_str}"
                 f"  timer={record.sector_timer}  N={record.number_of_sectors}"
                 f"  raw={record.raw_hex}{tag}"
             )
-            self.last_sector_by_mac[device.address] = s
+
+        self.last_record_by_mac[device.address] = record
 
     async def run(self) -> None:
         print("=" * 78)
@@ -190,12 +235,40 @@ class Capture:
 
         scanner = BleakScanner(detection_callback=self._callback)
         await scanner.start()
+        heartbeat = asyncio.ensure_future(self._heartbeat())
         try:
             await self._stop.wait()
         finally:
+            heartbeat.cancel()
+            await asyncio.gather(heartbeat, return_exceptions=True)
             await scanner.stop()
 
+    async def _heartbeat(self) -> None:
+        """Periodic 'still listening' line so the quiet post-session phase
+        doesn't look like the script has hung, and so advertising silence
+        (brush gone offline) is visible live as a growing 'last advert' age."""
+        while not self._stop.is_set():
+            try:
+                await asyncio.wait_for(self._stop.wait(), timeout=HEARTBEAT_INTERVAL)
+            except asyncio.TimeoutError:
+                pass
+            if self._stop.is_set():
+                break
+            now = time.time()
+            if not self.last_record_by_mac:
+                print(f"[{time.strftime('%H:%M:%S')}]  ♥ waiting for first advertisement …")
+                continue
+            for mac, rec in self.last_record_by_mac.items():
+                age = now - rec.ts
+                sector_str = f"0x{rec.sector:02X}" if rec.sector is not None else "?"
+                silence = "  <— advertising stopped?" if age > HEARTBEAT_INTERVAL else ""
+                print(
+                    f"[{time.strftime('%H:%M:%S')}]  ♥ {mac}  last advert {age:4.0f}s ago"
+                    f"  state={rec.state_label}  time={rec.brush_time}s  sector={sector_str}{silence}"
+                )
+
     def stop(self) -> None:
+        self._capture_end = time.time()
         self._stop.set()
 
     def summarise(self) -> None:
@@ -231,6 +304,8 @@ class Capture:
                 tag = "  <— UNKNOWN" if s in unknown else ""
                 print(f"    0x{s:02X} ({s:>3}): {by_sector[s]:>4}{tag}")
 
+            self._print_post_session_timeline(recs)
+
         # Save JSON if requested
         if self.json_path:
             payload = {
@@ -243,6 +318,62 @@ class Capture:
             print(f"\nWrote {len(self.records)} records to {self.json_path}")
             print("→ Attach this file to a GitHub issue at")
             print("  https://github.com/Bluetooth-Devices/oralb-ble/issues")
+
+    def _print_post_session_timeline(self, recs: list[Advertisement]) -> None:
+        """Issue #4: after the last 'running' advert, when does the brush clear
+        brushing_time/sector, and does it keep advertising idle frames or go
+        silent (offline)? All timings are relative to the last running advert."""
+        running = [r for r in recs if r.state_label == "running"]
+        print("\n  Post-session timeline (issue #4):")
+        if not running:
+            print("    no 'running' advertisements seen — was the motor on?")
+            return
+
+        last_run = running[-1]
+        last_run_iso = time.strftime("%H:%M:%S", time.localtime(last_run.ts))
+        print(
+            f"    last 'running' advert at {last_run_iso}"
+            f"  (time={last_run.brush_time}s, sector=0x{last_run.sector:02X})"
+            if last_run.sector is not None
+            else f"    last 'running' advert at {last_run_iso}  (time={last_run.brush_time}s)"
+        )
+
+        post = [r for r in recs if r.ts > last_run.ts]
+        if not post:
+            print("    no advertisements after the last running frame — brush went")
+            print("    silent immediately (likely offline within a frame or two).")
+            return
+
+        first_zero = next((r for r in post if r.brush_time == 0), None)
+        if first_zero is not None:
+            dt = first_zero.ts - last_run.ts
+            sec = f"0x{first_zero.sector:02X}" if first_zero.sector is not None else "?"
+            print(
+                f"    brush_time first hit 0 at +{dt:.0f}s"
+                f"  (state={first_zero.state_label}, sector={sec})"
+                f"  → idle frame, NOT offline"
+            )
+        else:
+            print("    brush_time never reset to 0 in the captured window")
+
+        last = post[-1]
+        gap = (self._capture_end or time.time()) - last.ts
+        last_iso = time.strftime("%H:%M:%S", time.localtime(last.ts))
+        total_idle = last.ts - last_run.ts
+        print(
+            f"    last advert overall at {last_iso}"
+            f"  ({total_idle:.0f}s after session end)"
+        )
+        if gap > 2 * HEARTBEAT_INTERVAL:
+            print(
+                f"    then SILENCE for {gap:.0f}s until capture stopped"
+                f"  → brush stopped advertising (went offline)"
+            )
+        else:
+            print(
+                f"    still advertising when capture stopped ({gap:.0f}s gap)"
+                f"  → run longer to see the brush go offline"
+            )
 
 
 def main() -> int:
