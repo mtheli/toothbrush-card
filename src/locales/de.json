@@ -16,6 +16,10 @@
   "pressure_medium": "Mittel",
   "pressure_high": "Hoch",
 
+  "intensity_low": "Niedrig",
+  "intensity_medium": "Mittel",
+  "intensity_high": "Hoch",
+
   "status_idle": "Bereit",
   "status_running": "Putzen",
   "status_charging": "Laden",

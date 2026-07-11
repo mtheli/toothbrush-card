@@ -16,6 +16,10 @@
   "pressure_medium": "Midden",
   "pressure_high": "Hoog",
 
+  "intensity_low": "Laag",
+  "intensity_medium": "Midden",
+  "intensity_high": "Hoog",
+
   "status_idle": "Rustend",
   "status_running": "Draait",
   "status_charging": "Opladen",

@@ -322,6 +322,24 @@ export class ToothbrushCard extends LitElement {
         return '';
     }
 
+    _getIntensityIcon(intensity) {
+        // Graded speedometer, matching the integration's intensity control.
+        const v = String(intensity).toLowerCase();
+        if (v === 'high') return 'mdi:speedometer';
+        if (v === 'low') return 'mdi:speedometer-slow';
+        return 'mdi:speedometer-medium';
+    }
+
+    _getIntensityColor(intensity) {
+        // Own, non-alarming level scale — intensity is a chosen setting, so a
+        // high level must never read as a warning (unlike pressure's red).
+        const v = String(intensity).toLowerCase();
+        if (v === 'high') return 'int-high';
+        if (v === 'medium') return 'int-med';
+        if (v === 'low') return 'int-low';
+        return 'muted';
+    }
+
     _isActive(status) {
         return status === 'running' || status === 'run';
     }
@@ -332,7 +350,7 @@ export class ToothbrushCard extends LitElement {
     _findAndMapEntitiesInConfig(hass, deviceId) {
         const entityKeys = {
             sector: null, duration: null, mode: null, pressure: null,
-            pressure_state: null,
+            pressure_state: null, intensity: null,
             battery: null, status: null, base_entity: null,
             number_of_sectors: null, model_number: null,
             routine_length: null, integration: null,
@@ -381,7 +399,7 @@ export class ToothbrushCard extends LitElement {
                 // entity iteration order.
                 entityKeys.pressure_state = entity.entity_id;
             } else if (entity.translation_key === 'intensity') {
-                if (!entityKeys.pressure) entityKeys.pressure = entity.entity_id;
+                entityKeys.intensity = entity.entity_id;
             } else if (entity.translation_key === 'model_number') {
                 entityKeys.model_number = entity.entity_id;
             } else if (entity.translation_key === 'activity') {
@@ -478,15 +496,22 @@ export class ToothbrushCard extends LitElement {
         const numSectors = config.num_sectors || numSectorsFromEntity || 4;
         const duration = entityIds.duration ? parseInt(hass.states[entityIds.duration]?.state) || 0 : 0;
         // Prefer the categorical pressure-state entity over the raw grams
-        // sensor / intensity fallback — it is the one that carries an
-        // ok / optimal / too_high reading.
+        // sensor — it carries the ok / optimal / too_high reading. Only when a
+        // handle exposes no pressure at all (e.g. the Kids handle) do we fall
+        // back to its intensity reading — a user-set power level, not contact
+        // pressure. Intensity gets its own chip (own label, speedometer icon,
+        // neutral level colours) and never the red "too high" pressure look.
         const pressureEntity = entityIds.pressure_state || entityIds.pressure;
-        const rawPressure = pressureEntity ? hass.states[pressureEntity]?.state || 'N/A' : 'N/A';
-        const pressure = rawPressure === 'unavailable' || rawPressure === 'unknown'
+        const isIntensity = !pressureEntity && !!entityIds.intensity;
+        const metricEntity = pressureEntity || entityIds.intensity;
+        const rawPressure = metricEntity ? hass.states[metricEntity]?.state || 'N/A' : 'N/A';
+        const metricUnavailable = rawPressure === 'unavailable' || rawPressure === 'unknown';
+        const pressure = metricUnavailable
             ? '–'
             : rawPressure === 'on' || rawPressure === 'too_high' ? 'high'
             : rawPressure === 'off' || rawPressure === 'ok' || rawPressure === 'optimal' ? 'normal'
             : rawPressure;
+        const intensity = metricUnavailable ? '–' : rawPressure;
         const rawBattery = entityIds.battery ? hass.states[entityIds.battery]?.state : null;
         const batteryUnavailable = !rawBattery || rawBattery === 'unavailable' || rawBattery === 'unknown';
         const batteryLevel = batteryUnavailable ? 0 : rawBattery;
@@ -706,6 +731,8 @@ export class ToothbrushCard extends LitElement {
         const batteryIconName = batteryUnavailable ? 'mdi:battery-unknown' : this._getBatteryIcon(batteryLevel, batteryIsCharging);
         const pressureColor = this._getPressureColor(pressure);
         const pressureClass = this._getPressureClass(pressure);
+        const intensityIcon = this._getIntensityIcon(intensity);
+        const intensityColor = this._getIntensityColor(intensity);
         const modeUnavailable = mode === 'unavailable' || mode === 'unknown' || mode === 'N/A';
         const modeIcon = modeUnavailable ? 'mdi:brush-variant' : this._getModeIcon(mode);
         const modeLabel = modeUnavailable ? '–' : this._getModeLabel(mode);
@@ -721,6 +748,10 @@ export class ToothbrushCard extends LitElement {
         const displayPressure = t(hass, pressureKey) !== pressureKey
             ? t(hass, pressureKey)
             : pressure.replace(/_/g, ' ');
+        const intensityKey = 'intensity_' + String(intensity).toLowerCase();
+        const displayIntensity = t(hass, intensityKey) !== intensityKey
+            ? t(hass, intensityKey)
+            : intensity.replace(/_/g, ' ');
         const btConnected = entityIds.ble_connected
             ? hass.states[entityIds.ble_connected]?.state === 'on'
             : status !== 'unavailable' && status !== 'unknown';
@@ -779,13 +810,21 @@ export class ToothbrushCard extends LitElement {
                         <div class="chip-value ${batteryColor}">${batteryUnavailable ? '–' : html`${batteryLevel}%`}</div>
                     </div>
 
-                    <div class="chip" @click="${() => this._showMoreInfo(pressureEntity)}">
-                        <div class="pressure-bars ${pressureClass}">
-                            <div class="pb"></div><div class="pb"></div>
-                            <div class="pb"></div><div class="pb"></div>
-                        </div>
-                        <span class="chip-label">${t(hass, 'chip_pressure')}</span>
-                        <div class="chip-value ${pressureColor}">${displayPressure}</div>
+                    <div class="chip" @click="${() => this._showMoreInfo(metricEntity)}">
+                        ${isIntensity ? html`
+                            <div class="chip-icon ${intensityColor}">
+                                <ha-icon icon="${intensityIcon}"></ha-icon>
+                            </div>
+                            <span class="chip-label">${t(hass, 'chip_intensity')}</span>
+                            <div class="chip-value ${intensityColor}">${displayIntensity}</div>
+                        ` : html`
+                            <div class="pressure-bars ${pressureClass}">
+                                <div class="pb"></div><div class="pb"></div>
+                                <div class="pb"></div><div class="pb"></div>
+                            </div>
+                            <span class="chip-label">${t(hass, 'chip_pressure')}</span>
+                            <div class="chip-value ${pressureColor}">${displayPressure}</div>
+                        `}
                     </div>
 
                     <div class="mode-chip-wrap">
@@ -795,7 +834,7 @@ export class ToothbrushCard extends LitElement {
                                 <ha-icon icon="${modeIcon}"></ha-icon>
                             </div>
                             <span class="chip-label">${t(hass, 'chip_mode')}</span>
-                            <div class="chip-value ${modeUnavailable ? '' : 'blue'}" style="font-size:12px;">${modeLabel}${canSelectMode ? html`<span class="mode-caret"> ▾</span>` : ''}</div>
+                            <div class="chip-value ${modeUnavailable ? '' : 'blue'}">${modeLabel}${canSelectMode ? html`<span class="mode-caret"> ▾</span>` : ''}</div>
                             ${canSelectMode ? html`<ha-icon class="chip-select-hint" icon="mdi:chevron-down"></ha-icon>` : ''}
                         </div>
                         ${this._showModeDropdown && canSelectMode ? html`
