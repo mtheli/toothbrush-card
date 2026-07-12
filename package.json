@@ -1,7 +1,7 @@
 {
   "source": "src/index.js",
   "module": "dist/toothbrush-card.js",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "targets": {
     "module": {
       "includeNodeModules": true
@@ -9,9 +9,11 @@
   },
   "scripts": {
     "watch": "parcel watch",
-    "build": "parcel build src/index.js --dist-dir dist --no-source-maps"
+    "build": "parcel build src/index.js --dist-dir dist --no-source-maps",
+    "icons": "node scripts/gen_icon_overview.mjs"
   },
   "devDependencies": {
+    "@mdi/js": "^7.4.47",
     "@parcel/transformer-inline-string": "^2.16.1",
     "parcel": "^2.16.1"
   },

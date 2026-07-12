@@ -1,0 +1,210 @@
+// Generates docs/icon-overview.html: every state icon the card can show,
+// with its trigger condition, MDI name and colour value.
+//
+// The state conditions, icon names and palette below mirror the logic in
+// src/toothbrush-card.js (_getBatteryIcon, _getBatteryChipColor,
+// _getPressureClass, _getIntensityIcon, MODE_ICONS, score tiers, headSvg)
+// and must be kept in sync when that logic changes.
+//
+// Usage:  node scripts/gen_icon_overview.mjs
+// PNG:    chromium --headless --screenshot=docs/icon-overview.png \
+//           --window-size=1120,2900 --hide-scrollbars docs/icon-overview.html
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import {
+    mdiBatteryUnknown, mdiBatteryAlertVariantOutline,
+    mdiBattery10, mdiBattery20, mdiBattery30, mdiBattery40, mdiBattery50,
+    mdiBattery60, mdiBattery70, mdiBattery80, mdiBattery90, mdiBattery,
+    mdiBatteryCharging, mdiGauge, mdiSpeedometerSlow, mdiSpeedometerMedium,
+    mdiSpeedometer, mdiStarOutline, mdiStarHalfFull, mdiStar, mdiRepeatOnce,
+    mdiWater, mdiToothOutline, mdiShapeCirclePlus, mdiSpa, mdiPower,
+    mdiFeather, mdiCogOutline, mdiGateAnd, mdiCarTurbocharger, mdiShimmer,
+    mdiToothbrushElectric, mdiEmoticonTongueOutline, mdiBrushVariant,
+} from '@mdi/js';
+
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+const iconsJs = readFileSync(join(repoRoot, 'src/icons.js'), 'utf8');
+const conn = {};
+for (const key of ['bluetooth', 'lan_connect', 'lan_disconnect']) {
+    conn[key] = iconsJs.match(new RegExp(`${key}: '([^']+)'`))[1];
+}
+
+// Card palette (chip colour classes)
+const C = {
+    green: '#16a34a', amber: '#d97706', red: '#dc2626', gold: '#c47f16',
+    blue: '#2563eb', muted: '#9ca3af',
+    intLow: '#0891b2', intMed: '#7c3aed', intHigh: '#db2777',
+    primary: '#3b82f6', btActive: '#0082fc',
+};
+
+const svg = (path, color, opacity = 1, size = 28) =>
+    `<svg width="${size}" height="${size}" viewBox="0 0 24 24" style="opacity:${opacity}"><path fill="${color}" d="${path}"/></svg>`;
+
+const cell = (iconHtml, state, name, hex) => `
+    <div class="cell">
+      <div class="ic">${iconHtml}</div>
+      <div class="st">${state}</div>
+      <div class="nm">${name}</div>
+      <div class="hx"><span class="sw" style="background:${hex.split(' ')[0]}"></span>${hex}</div>
+    </div>`;
+
+const section = (title, note, cells) => `
+  <div class="section">
+    <h2>${title}</h2>
+    ${note ? `<p class="note">${note}</p>` : ''}
+    <div class="grid">${cells.join('')}</div>
+  </div>`;
+
+// Brush-head glyph: capsule with quarter-step fill, as drawn by headSvg()
+const headSvg = (steps, color, size = 28) => {
+    const clipY = 30 - steps * 7.5;
+    const cap = 'M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z';
+    const id = `hf${steps}${color.slice(1)}`;
+    return `<svg width="${Math.round(size * 0.8)}" height="${size}" viewBox="0 0 24 30">
+      <defs><clipPath id="${id}"><rect x="0" y="${clipY}" width="24" height="${30 - clipY}"/></clipPath></defs>
+      <path d="${cap}" fill="${color}" opacity=".8" clip-path="url(#${id})"/>
+      <path d="${cap}" fill="none" stroke="#888" stroke-width="2"/>
+      <g stroke="#888" stroke-width="1.7"><line x1="10.5" y1="4" x2="3" y2="4"/><line x1="10.5" y1="8" x2="2.5" y2="8"/><line x1="10.5" y1="12" x2="3" y2="12"/><line x1="10.5" y1="16" x2="4.5" y2="16"/></g>
+    </svg>`;
+};
+
+// Pressure bars as drawn in the chip (4 bars, heights 5/9/13/18)
+const pressureBars = (active, color) => {
+    const h = [5, 9, 13, 18];
+    return `<svg width="30" height="22" viewBox="0 0 30 22">${h.map((hh, i) =>
+        `<rect x="${i * 7.5}" y="${20 - hh}" width="5" height="${hh}" rx="1.5" fill="${
+            (active === 'all' || i < active) ? color : '#e5e7eb'}"/>`).join('')}</svg>`;
+};
+
+const sections = [];
+
+sections.push(section('Header — connection icons', 'Card-own SVG paths (CONN_ICONS in icons.js), 18px.', [
+    cell(svg(conn.bluetooth, C.primary), 'BT connected', 'bluetooth', 'var(--primary-color, #3b82f6)'),
+    cell(svg(conn.bluetooth, C.btActive), 'BT active (session)', 'bluetooth', '#0082fc'),
+    cell(svg(conn.bluetooth, C.muted, 0.3), 'BT disconnected', 'bluetooth', '#9ca3af op.0.3'),
+    cell(svg(conn.lan_connect, C.primary), 'ESP bridge online', 'lan_connect', 'var(--primary-color, #3b82f6)'),
+    cell(svg(conn.lan_disconnect, C.muted, 0.3), 'ESP bridge offline', 'lan_disconnect', '#9ca3af op.0.3'),
+    cell(`<svg width="28" height="28" viewBox="0 0 24 24" style="opacity:.5"><g fill="#6b7280"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></g></svg>`, 'more info (⋮)', 'card-own dots', 'var(--secondary-text-color) op.0.5'),
+]));
+
+const batLevels = [
+    [mdiBatteryUnknown, 'unavailable', 'battery-unknown', C.muted, '#9ca3af (muted)'],
+    [mdiBatteryAlertVariantOutline, '≤ 5 %', 'battery-alert-variant-outline', C.red, '#dc2626'],
+    [mdiBattery10, '6–15 %', 'battery-10', C.red, '#dc2626'],
+    [mdiBattery20, '16–20 %', 'battery-20', C.amber, '#d97706'],
+    [mdiBattery30, '21–30 %', 'battery-30', C.amber, '#d97706'],
+    [mdiBattery40, '31–40 %', 'battery-40', C.green, '#16a34a'],
+    [mdiBattery50, '41–50 %', 'battery-50', C.green, '#16a34a'],
+    [mdiBattery60, '51–60 %', 'battery-60', C.green, '#16a34a'],
+    [mdiBattery70, '61–70 %', 'battery-70', C.green, '#16a34a'],
+    [mdiBattery80, '71–80 %', 'battery-80', C.green, '#16a34a'],
+    [mdiBattery90, '81–90 %', 'battery-90', C.green, '#16a34a'],
+    [mdiBattery, '91–100 %', 'battery', C.green, '#16a34a'],
+    [mdiBatteryCharging, 'charging (any level)', 'battery-charging', C.green, 'colour follows level'],
+];
+sections.push(section('Battery — chip + corner', 'Icon step: ceil(level/10)·10 (_getBatteryIcon) · colour: ≤15 red, ≤30 amber, otherwise green (_getBatteryChipColor).', batLevels.map(([p, s, n, c, hx]) => cell(svg(p, c), s, `mdi:${n}`, hx))));
+
+sections.push(section('Pressure — chip (bars) + corner (gauge)', 'In the chip the bars replace the icon; the corner marker uses mdi:gauge in the same colour.', [
+    cell(pressureBars(1, C.amber), 'low', 'bars 1/4', '#d97706'),
+    cell(pressureBars(2, C.green), 'normal / medium', 'bars 2/4', '#16a34a'),
+    cell(pressureBars('all', C.red), 'high', 'bars 4/4', '#dc2626'),
+    cell(svg(mdiGauge, C.amber), 'low (corner)', 'mdi:gauge', '#d97706'),
+    cell(svg(mdiGauge, C.green), 'normal (corner)', 'mdi:gauge', '#16a34a'),
+    cell(svg(mdiGauge, C.red), 'high (corner)', 'mdi:gauge', '#dc2626'),
+]));
+
+sections.push(section('Intensity — chip + corner', 'Deliberately NOT the traffic-light palette: intensity is a chosen setting, a high level must never read as a warning.', [
+    cell(svg(mdiSpeedometerSlow, C.intLow), 'low', 'mdi:speedometer-slow', '#0891b2'),
+    cell(svg(mdiSpeedometerMedium, C.intMed), 'medium (default)', 'mdi:speedometer-medium', '#7c3aed'),
+    cell(svg(mdiSpeedometer, C.intHigh), 'high', 'mdi:speedometer', '#db2777'),
+]));
+
+const modes = [
+    ['daily_clean', mdiRepeatOnce, 'repeat-once'],
+    ['deep_clean / deep_clean_plus', mdiWater, 'water'],
+    ['gum_care / gum_health', mdiToothOutline, 'tooth-outline'],
+    ['intense', mdiShapeCirclePlus, 'shape-circle-plus'],
+    ['massage', mdiSpa, 'spa'],
+    ['off', mdiPower, 'power'],
+    ['sensitive / super_sensitive', mdiFeather, 'feather'],
+    ['settings', mdiCogOutline, 'cog-outline'],
+    ['tongue_cleaning', mdiGateAnd, 'gate-and'],
+    ['turbo', mdiCarTurbocharger, 'car-turbocharger'],
+    ['whiten(ing) / white_plus', mdiShimmer, 'shimmer'],
+    ['clean', mdiToothbrushElectric, 'toothbrush-electric'],
+    ['tongue_care', mdiEmoticonTongueOutline, 'emoticon-tongue-outline'],
+    ['unknown mode', mdiBrushVariant, 'brush-variant (default)'],
+];
+sections.push(section('Mode — chip + corner', 'All modes share one blue; only "unavailable" is muted.',
+    modes.map(([s, p, n]) => cell(svg(p, C.blue), s, `mdi:${n}`, '#2563eb'))
+        .concat([cell(svg(mdiBrushVariant, C.muted), 'unavailable', 'mdi:brush-variant', '#9ca3af (muted)')])));
+
+sections.push(section('Score — chip + corner', 'Star step + traffic-light colour; the value text takes the same colour. Non-numeric scores keep the full gold star.', [
+    cell(svg(mdiStarOutline, C.red), '&lt; 60', 'mdi:star-outline', '#dc2626'),
+    cell(svg(mdiStarHalfFull, C.amber), '60–84', 'mdi:star-half-full', '#d97706'),
+    cell(svg(mdiStar, C.gold), '≥ 85', 'mdi:star', '#c47f16'),
+    cell(svg(mdiStar, C.gold), 'non-numeric', 'mdi:star', '#c47f16'),
+]));
+
+sections.push(section('Brush head — chip + corner', 'Card-own glyph. Fill steps in quarters (by % remaining); colour follows wear (_getBrushheadColor): &gt;40 green, 21–40 amber, ≤20 red → 6 visible states. The value text takes the same colour (like battery).', [
+    cell(headSvg(4, C.green), '100–76 %', '4/4 segments', '#16a34a'),
+    cell(headSvg(3, C.green), '75–51 %', '3/4 segments', '#16a34a'),
+    cell(headSvg(2, C.green), '50–41 %', '2/4 segments', '#16a34a'),
+    cell(headSvg(2, C.amber), '40–26 %', '2/4 segments', '#d97706'),
+    cell(headSvg(1, C.amber), '25–21 %', '1/4 segments', '#d97706'),
+    cell(headSvg(1, C.red), '20–0 %', '1/4 segments', '#dc2626'),
+]));
+
+const swatch = (hex, role, where) => `
+    <div class="cell">
+      <div class="ic"><span class="bigsw" style="background:${hex}"></span></div>
+      <div class="st">${role}</div>
+      <div class="nm">${where}</div>
+      <div class="hx">${hex}</div>
+    </div>`;
+sections.push(section('Other colour roles (not state icons)', 'Design tones — deliberately outside the traffic-light palette.', [
+    swatch('#2563eb', 'Chip blue', 'mode chip, selector, compact hint'),
+    swatch('#3b82f6', 'Progress start', 'gradient start (blue)'),
+    swatch('#16a34a', 'Progress end', 'gradient end (= traffic-light green)'),
+    swatch('#bbf7d0', 'Tooth "brushed"', 'tooth-ring fill + banner border'),
+    swatch('#f0fdf4', 'Banner background', '"Brushing complete!" strip'),
+    swatch('#15803d', 'Banner text', '"Brushing complete!" strip'),
+    swatch('#0082fc', 'BT active blue', 'bluetooth icon during a session'),
+    swatch('#9ca3af', 'Muted', 'unavailable states, disconnected icons'),
+]));
+
+const html = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Toothbrush Card — icon &amp; colour reference</title>
+<style>
+  body { margin:0; padding:28px; background:#1c1c1e; font-family:Roboto,sans-serif; }
+  h1 { text-align:center; color:#e5e7eb; font-size:18px; font-weight:600; margin:0 0 4px; }
+  .sub { text-align:center; color:#9ca3af; font-size:12px; margin:0 0 24px; }
+  .section { background:#fff; border-radius:12px; padding:16px 18px; max-width:1060px;
+             margin:0 auto 20px; box-shadow:0 4px 16px rgba(0,0,0,.4); }
+  h2 { font-size:14px; color:#212121; margin:0 0 2px; }
+  .note { font-size:11px; color:#6b7280; margin:0 0 12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  .cell { border:1px solid #e5e7eb; border-radius:10px; padding:10px 8px 8px;
+          display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .ic { height:32px; display:flex; align-items:center; }
+  .st { font-size:11px; font-weight:700; color:#212121; text-align:center; }
+  .nm { font-size:10px; color:#6b7280; text-align:center; }
+  .hx { font-size:10px; font-family:monospace; color:#374151; display:flex; align-items:center; gap:4px; }
+  .sw { width:10px; height:10px; border-radius:3px; display:inline-block; border:1px solid #d1d5db; }
+  .bigsw { width:44px; height:26px; border-radius:6px; display:inline-block; border:1px solid #d1d5db; }
+</style>
+</head>
+<body>
+<h1>Toothbrush Card — icon &amp; colour reference</h1>
+<p class="sub">Traffic-light palette: green #16a34a · amber #d97706 · red #dc2626 · gold #c47f16 — generated by scripts/gen_icon_overview.mjs</p>
+${sections.join('\n')}
+</body>
+</html>
+`;
+mkdirSync(join(repoRoot, 'docs'), { recursive: true });
+writeFileSync(join(repoRoot, 'docs/icon-overview.html'), html);
+console.log('written: docs/icon-overview.html,', html.length, 'bytes');

@@ -35,6 +35,7 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 - Configurable tooth, active-sector, and completed-sector colors
 - Configurable sector order with drag & drop and up/down buttons
 - Responsive layout with container queries (icon-only chips on narrow cards)
+- State-driven icons: battery, pressure, score and brush head step their icon shape and colour with the value, so they stay readable even icon-only — see the [icon & colour reference](docs/ICONS.md)
 - Multi-language support (auto-detects Home Assistant language)
 - Light and dark mode support via HA CSS variables
 
