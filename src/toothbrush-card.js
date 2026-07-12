@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.19.0";
+export const CARD_VERSION = "0.20.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -36,7 +36,7 @@ export function isMainStateEntity(entity) {
 // The track is sliced into one sub-bar per sector, so each sub-bar gets
 // its slice of this gradient instead of restarting it per segment.
 const PROGRESS_GRADIENT_FROM = [0x3b, 0x82, 0xf6];
-const PROGRESS_GRADIENT_TO = [0x22, 0xc5, 0x5e];
+const PROGRESS_GRADIENT_TO = [0x16, 0xa3, 0x4a];
 
 function progressColorAt(fraction) {
     const c = PROGRESS_GRADIENT_FROM.map((v, i) =>
@@ -929,20 +929,33 @@ export class ToothbrushCard extends LitElement {
         const brushheadPct = brushheadWear !== null ? Math.round(100 - brushheadWear) : null;
         const scoreState = entityIds.score ? hass.states[entityIds.score]?.state : null;
         const scoreAvailable = scoreState && scoreState !== 'unavailable' && scoreState !== 'unknown';
+        // Star shape and colour both step with the score so the icon still
+        // reads in the compact icon-only layout (non-numeric scores keep the
+        // neutral full gold star).
+        const scoreNum = parseFloat(scoreState);
+        const scoreTier = !scoreAvailable || isNaN(scoreNum) || scoreNum >= 85 ? 2
+            : scoreNum >= 60 ? 1 : 0;
+        const scoreIcon = ['mdi:star-outline', 'mdi:star-half-full', 'mdi:star'][scoreTier];
+        const scoreColor = ['red', 'amber', 'gold'][scoreTier];
 
-        // Shared brush-head glyph (the same shape the corner marker draws):
-        // the head capsule in side view — bristles sticking out sideways, the
-        // typical Sonicare silhouette — at the same 22px height as the other
-        // corner icons.
+        // Shared brush-head glyph (chip icon and corner marker): the head
+        // capsule in side view — bristles sticking out sideways, the typical
+        // Sonicare silhouette. The fill steps in quarters instead of tracking
+        // the exact percentage: at icon size a continuous fill is unreadable,
+        // discrete jumps are not.
+        const bhSteps = brushheadPct > 75 ? 4 : brushheadPct > 50 ? 3 : brushheadPct > 25 ? 2 : 1;
+        const bhClipY = 30 - bhSteps * 7.5;
+        const bhColor = this._getBrushheadColor(brushheadWear);
+        const bhFillHex = { green: '#16a34a', amber: '#d97706', red: '#dc2626' }[bhColor];
         const headSvg = () => html`
             <svg viewBox="0 0 24 30" class="brushhead-svg">
                 <defs>
                     <clipPath id="bh-fill-${this._bhClipId}">
-                        <rect x="0" y="${brushheadWear * 0.30}" width="24" height="${30 - brushheadWear * 0.30}"/>
+                        <rect x="0" y="${bhClipY}" width="24" height="${30 - bhClipY}"/>
                     </clipPath>
                 </defs>
                 <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="none" stroke="var(--secondary-text-color, #888)" stroke-width="2"/>
-                <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="${this._getBrushheadColor(brushheadWear)}" opacity="0.3" clip-path="url(#bh-fill-${this._bhClipId})"/>
+                <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="${bhFillHex}" opacity="0.8" clip-path="url(#bh-fill-${this._bhClipId})"/>
                 <line x1="10.5" y1="4" x2="3" y2="4" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
                 <line x1="10.5" y1="8" x2="2.5" y2="8" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
                 <line x1="10.5" y1="12" x2="3" y2="12" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
@@ -1001,16 +1014,16 @@ export class ToothbrushCard extends LitElement {
                 case 'score':
                     if (!scoreAvailable) return '';
                     return html`<div class="chip" @click="${() => this._showMoreInfo(entityIds.score)}">
-                        <div class="chip-icon gold"><ha-icon icon="mdi:star"></ha-icon></div>
+                        <div class="chip-icon ${scoreColor}"><ha-icon icon="${scoreIcon}"></ha-icon></div>
                         <span class="chip-label">${t(hass, 'chip_score')}</span>
-                        <div class="chip-value gold">${scoreState}</div>
+                        <div class="chip-value ${scoreColor}">${scoreState}</div>
                     </div>`;
                 case 'brush_head':
                     if (brushheadPct === null) return '';
                     return html`<div class="chip" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
-                        <div class="chip-icon teal"><ha-icon icon="mdi:toothbrush-electric"></ha-icon></div>
+                        <div class="chip-icon">${headSvg()}</div>
                         <span class="chip-label">${t(hass, 'chip_head')}</span>
-                        <div class="chip-value teal">${brushheadPct}%</div>
+                        <div class="chip-value ${bhColor}">${brushheadPct}%</div>
                     </div>`;
                 default:
                     return '';
@@ -1026,7 +1039,7 @@ export class ToothbrushCard extends LitElement {
                 return html`<div class="card-corner ${cls} brushhead-indicator" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
                     ${headSvg()}
                     <span class="corner-lbl">${t(hass, 'chip_head')}</span>
-                    <span class="corner-val teal">${brushheadPct}%</span>
+                    <span class="corner-val ${bhColor}">${brushheadPct}%</span>
                 </div>`;
             }
             const marker = (entityId, icon, colorClass, label, value) => html`
@@ -1050,7 +1063,7 @@ export class ToothbrushCard extends LitElement {
                     return marker(entityIds.mode_select || entityIds.mode, modeIcon, modeUnavailable ? 'muted' : 'blue', t(hass, 'chip_mode'), modeLabel);
                 case 'score':
                     if (!scoreAvailable) return '';
-                    return marker(entityIds.score, 'mdi:star', 'gold', t(hass, 'chip_score'), scoreState);
+                    return marker(entityIds.score, scoreIcon, scoreColor, t(hass, 'chip_score'), scoreState);
                 default:
                     return '';
             }
@@ -1174,15 +1187,11 @@ export class ToothbrushCard extends LitElement {
     }
 
     _getBrushheadColor(wear) {
-        if (wear >= 80) return '#ef4444';
-        if (wear >= 60) return '#f59e0b';
-        return '#22c55e';
-    }
-
-    _getBatteryColor(level) {
-        if (level <= 15) return 'red';
-        if (level <= 30) return 'orange';
-        return 'var(--paper-item-icon-color)';
+        // Chip colour class (green/amber/red), shared by the glyph fill and
+        // the value text so head matches the battery chip sitting next to it.
+        if (wear >= 80) return 'red';
+        if (wear >= 60) return 'amber';
+        return 'green';
     }
 
     _getBatteryIcon(level, is_charging) {

@@ -169,6 +169,10 @@ ha-card {
 .chip-icon ha-icon {
     --mdc-icon-size: 24px;
 }
+.chip-icon .brushhead-svg {
+    width: 19px;
+    height: 24px;
+}
 .chip-icon.green { color: #16a34a; }
 .chip-icon.blue  { color: #2563eb; }
 .chip-icon.amber { color: #d97706; }
@@ -178,7 +182,6 @@ ha-card {
 .chip-icon.int-med  { color: #7c3aed; }
 .chip-icon.int-high { color: #db2777; }
 .chip-icon.gold { color: #c47f16; }
-.chip-icon.teal { color: #0d9488; }
 .chip-label {
     font-size: 9px;
     font-weight: 600;
@@ -204,7 +207,6 @@ ha-card {
 .chip-value.int-med  { color: #7c3aed; }
 .chip-value.int-high { color: #db2777; }
 .chip-value.gold { color: #c47f16; }
-.chip-value.teal { color: #0d9488; }
 .chip-value.muted { color: var(--disabled-text-color, #9ca3af); }
 
 /* Pressure bars (replaces icon in chip) */
@@ -225,10 +227,10 @@ ha-card {
 .pb:nth-child(2) { height: 9px; }
 .pb:nth-child(3) { height: 13px; }
 .pb:nth-child(4) { height: 18px; }
-.p-low .pb:nth-child(1) { background: #f59e0b; }
+.p-low .pb:nth-child(1) { background: #d97706; }
 .p-normal .pb:nth-child(1),
-.p-normal .pb:nth-child(2) { background: #22c55e; }
-.p-high .pb { background: #ef4444; }
+.p-normal .pb:nth-child(2) { background: #16a34a; }
+.p-high .pb { background: #dc2626; }
 
 /* ── MODE SELECTOR ── */
 .mode-chip-wrap {
@@ -552,7 +554,6 @@ ha-card {
 .corner-ico.int-med,.corner-val.int-med { color: #7c3aed; }
 .corner-ico.int-high,.corner-val.int-high { color: #db2777; }
 .corner-ico.gold,.corner-val.gold { color: #c47f16; }
-.corner-ico.teal,.corner-val.teal { color: #0d9488; }
 .brushhead-svg {
     width: 17px;
     height: 22px;
