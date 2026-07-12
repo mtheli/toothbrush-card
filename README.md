@@ -6,15 +6,21 @@
 
 A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) designed to visualize **electric toothbrushes** via Bluetooth LE integrations.
 
-### Supported Integrations
+### Toothbrush Integrations
 
-| Brand | Integration | Link |
-|-------|------------|------|
-| Oral-B | `oralb` | [Oral-B Integration](https://www.home-assistant.io/integrations/oralb/) (official, built into HA Core) |
-| Philips Sonicare | `philips_sonicare_ble` | [philips_sonicare_ble](https://github.com/mtheli/philips_sonicare_ble) (custom component) |
-| Xiaomi (T700) | `xiaomi_ble` | [Xiaomi BLE](https://www.home-assistant.io/integrations/xiaomi_ble/) (official, built into HA Core) — verified on a real T700: the passive broadcast has no live timer/sectors, so the card shows a synthesized session timer with time-based quadrants, plus battery, score and brush-head chips |
+| Brand | Integration | Status | Notes |
+| :--- | :--- | :---: | :--- |
+| Oral-B | [`oralb`](https://www.home-assistant.io/integrations/oralb/) (official, built into HA Core) | ✅ | Live timer and device-reported sectors |
+| Philips Sonicare | [`philips_sonicare_ble`](https://github.com/mtheli/philips_sonicare_ble) (custom component) | ✅ | Live timer, time-based sectors |
+| Xiaomi T700 | [`xiaomi_ble`](https://www.home-assistant.io/integrations/xiaomi_ble/) (official, built into HA Core) | ✅ | Verified on a real T700 — the passive broadcast has no live timer/sectors, so the card shows a synthesized session timer with time-based quadrants, plus battery, score and brush-head chips |
+| Laifen | [`laifen_ble`](https://github.com/UrbanTechIO/Laifen) (custom component) | 🧪 | Groundwork done, waiting on device testing ([#9](https://github.com/mtheli/toothbrush-card/issues/9)) |
+| Other Xiaomi models (T500, …) | `xiaomi_ble` | 🧪 | Untested — likely close to the T700; test reports welcome |
+| Oclean | [`oclean_ble`](https://github.com/deniskie/ha-oclean-integration) (custom component) | ⏸️ | Rich per-zone statistics, but only after a session ends — no live brushing state the card could animate. Will revisit if a live status entity becomes available |
+| Playbrush | — | ⏸️ | No Home Assistant integration available yet |
 
-**Planned / in progress:** Laifen — waiting on device testing ([#9](https://github.com/mtheli/toothbrush-card/issues/9))
+✅ supported · 🧪 in progress / testers wanted · ⏸️ not yet sensible
+
+Want support for another brush? [Open an issue](https://github.com/mtheli/toothbrush-card/issues) — an integration with a live brushing state is the main requirement.
 
 ![Oral-B](screenshots/OralB.png) ![Sonicare](screenshots/Sonicare.png)
 
