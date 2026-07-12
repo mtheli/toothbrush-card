@@ -448,9 +448,10 @@ ha-card {
     border-radius: 2px;
     overflow: hidden;
 }
+/* Fill background is set inline: each sub-bar gets its slice of the
+   full-track blue→green gradient. */
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3b82f6, #22c55e);
     border-radius: 2px;
     transition: width 0.5s ease;
 }

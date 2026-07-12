@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.18.0";
+export const CARD_VERSION = "0.19.0";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
@@ -30,6 +30,18 @@ export function isMainStateEntity(entity) {
     if (!m) return false;
     if (m.translationKey) return entity.translation_key === m.translationKey;
     return entity.entity_id.endsWith(m.idSuffix);
+}
+
+// Progress-bar gradient endpoints (blue → green across the full track).
+// The track is sliced into one sub-bar per sector, so each sub-bar gets
+// its slice of this gradient instead of restarting it per segment.
+const PROGRESS_GRADIENT_FROM = [0x3b, 0x82, 0xf6];
+const PROGRESS_GRADIENT_TO = [0x22, 0xc5, 0x5e];
+
+function progressColorAt(fraction) {
+    const c = PROGRESS_GRADIENT_FROM.map((v, i) =>
+        Math.round(v + (PROGRESS_GRADIENT_TO[i] - v) * fraction));
+    return `rgb(${c[0]},${c[1]},${c[2]})`;
 }
 
 export const QUADRANT_ZONES = ['lower_left', 'lower_right', 'upper_left', 'upper_right'];
@@ -1127,8 +1139,9 @@ export class ToothbrushCard extends LitElement {
                                 // sub-bar per sector so the boundaries are visible.
                                 const n = numSectors || 1;
                                 const segPct = Math.max(0, Math.min(100, (progressPct / 100 * n - i) * 100));
+                                const fill = `width: ${segPct}%; background: linear-gradient(90deg, ${progressColorAt(i / n)}, ${progressColorAt((i + segPct / 100) / n)})`;
                                 return html`<div class="progress-seg">
-                                    <div class="progress-fill" style="width: ${segPct}%"></div>
+                                    <div class="progress-fill" style="${fill}"></div>
                                 </div>`;
                             })}
                         </div>
