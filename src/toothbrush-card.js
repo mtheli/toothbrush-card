@@ -729,21 +729,22 @@ export class ToothbrushCard extends LitElement {
             // the card never observed the transition (dashboard closed while
             // brushing, or reloaded afterwards). Skipped while an existing
             // routine_length sensor is unreadable, so an aborted long routine
-            // can't slip past the shorter default target. Math.max lets late
-            // post-session samples refine the shown time but never lower it.
-            // A timestamp restored from localStorage wins over the duration
-            // sensor's last_changed (survives HA restarts re-stamping it).
-            if (!this._completed) {
+            // can't slip past the shorter default target.
+            // Issue #11: the hold restored from localStorage may belong to an
+            // OLDER session. A reading that differs from the held duration is
+            // a newer session (or a late tail sample of it — brush_time still
+            // ticks up for a few seconds after the end), so adopt its
+            // timestamp and value, downwards too. An identical reading is the
+            // same session: an HA restart restores the exact value but
+            // re-stamps last_changed, so there the held timestamp wins.
+            if (!this._completed || duration !== this._completedDuration) {
                 this._completedAt = Date.parse(
                     hass.states[entityIds.duration]?.last_changed
                 ) || Date.now();
+                this._completedDuration = duration;
+                this._saveHeldSession(config.device_id, this._completedAt, duration);
             }
             this._completed = true;
-            const refined = Math.max(this._completedDuration, duration);
-            if (refined !== this._completedDuration) {
-                this._completedDuration = refined;
-                this._saveHeldSession(config.device_id, this._completedAt, refined);
-            }
         }
         this._wasActiveSession = active;
         // hold_duration in hours; absent = 0.5 h default, explicit 0 = until
