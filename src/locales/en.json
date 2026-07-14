@@ -98,5 +98,7 @@
   "config_sector_mode_device": "Sectors reported by device",
   "config_sector_mode_time": "Sectors calculated from routine time",
   "config_sector_revisit_hint": "Note: some modes revisit specific zones (e.g. Sonicare White+ polishes the front teeth again). Reordering zones here can be confusing in those modes if the brush's start-quadrant preference isn't adjusted accordingly.",
-  "config_select_device": "Please enter the device id"
+  "config_select_device": "Please enter the device id",
+  "config_reset_all": "Reset all options",
+  "config_reset_all_confirm": "Reset all options to their defaults? The device selection is kept."
 }

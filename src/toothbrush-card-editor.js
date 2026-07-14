@@ -280,6 +280,18 @@ export class ToothbrushCardEditor extends LitElement {
         this._fireConfig(newConfig);
     }
 
+    get _hasCustomOptions() {
+        return Object.keys(this._config).some(k => k !== 'type' && k !== 'device_id');
+    }
+
+    _resetAll() {
+        if (!confirm(t(this.hass, 'config_reset_all_confirm'))) return;
+        const newConfig = { type: this._config.type };
+        if (this._config.device_id) newConfig.device_id = this._config.device_id;
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+
     _colorField(key, labelKey, fallback) {
         const value = this._config[key] || '';
         return html`
@@ -505,6 +517,11 @@ export class ToothbrushCardEditor extends LitElement {
                         @value-changed=${(ev) => this._holdChanged(ev.detail.value)}
                     ></ha-selector>
                 </div>
+
+                <button class="reset-all-btn" ?disabled=${!this._hasCustomOptions}
+                        @click=${this._resetAll}>
+                    ${t(this.hass, 'config_reset_all')}
+                </button>
             </div>
         `;
     }
@@ -566,6 +583,26 @@ export class ToothbrushCardEditor extends LitElement {
                 background: var(--secondary-background-color, #f5f5f5);
             }
             .reset-btn[disabled] {
+                opacity: 0.4;
+                cursor: default;
+            }
+            .reset-all-btn {
+                display: block;
+                width: 100%;
+                margin-top: 24px;
+                padding: 8px 12px;
+                background: none;
+                border: 1px solid var(--divider-color, #e0e0e0);
+                border-radius: 8px;
+                font-size: 13px;
+                cursor: pointer;
+                color: var(--error-color, #db4437);
+            }
+            .reset-all-btn:hover:not([disabled]) {
+                border-color: var(--error-color, #db4437);
+                background: var(--secondary-background-color, #f5f5f5);
+            }
+            .reset-all-btn[disabled] {
                 opacity: 0.4;
                 cursor: default;
             }
