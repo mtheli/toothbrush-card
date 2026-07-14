@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.20.0";
+export const CARD_VERSION = "0.20.1";
 
 const BRUSHING_DURATION = 120; // 2 minutes target
 
