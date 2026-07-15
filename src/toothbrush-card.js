@@ -673,9 +673,12 @@ export class ToothbrushCard extends LitElement {
                 : 0)
             || (entityIds.duration ? 0 : BRUSHING_DURATION);
 
-        let brushheadWear = entityIds.brushhead_wear
-            ? parseFloat(hass.states[entityIds.brushhead_wear]?.state) || null
-            : null;
+        // A brand-new head legitimately reports 0.0 wear (issue #12), so only
+        // a non-numeric state (unavailable/unknown) hides the reading.
+        const brushheadWearRaw = entityIds.brushhead_wear
+            ? parseFloat(hass.states[entityIds.brushhead_wear]?.state)
+            : NaN;
+        let brushheadWear = Number.isFinite(brushheadWearRaw) ? brushheadWearRaw : null;
         // xiaomi_ble reports percentage left; the card tracks wear.
         if (brushheadWear !== null && entityIds.brushhead_remaining) {
             brushheadWear = 100 - brushheadWear;

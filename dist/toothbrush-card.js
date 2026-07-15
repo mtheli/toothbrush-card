@@ -1437,7 +1437,10 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         // timer devices (no duration entity) fall back to the 2-minute default
         // so the time-based sector path can run.
         const routineLength = Number(config.routine_length) || (entityIds.routine_length ? parseInt(hass.states[entityIds.routine_length]?.state) || 0 : 0) || (entityIds.duration ? 0 : $930552a63f9e9686$var$BRUSHING_DURATION);
-        let brushheadWear = entityIds.brushhead_wear ? parseFloat(hass.states[entityIds.brushhead_wear]?.state) || null : null;
+        // A brand-new head legitimately reports 0.0 wear (issue #12), so only
+        // a non-numeric state (unavailable/unknown) hides the reading.
+        const brushheadWearRaw = entityIds.brushhead_wear ? parseFloat(hass.states[entityIds.brushhead_wear]?.state) : NaN;
+        let brushheadWear = Number.isFinite(brushheadWearRaw) ? brushheadWearRaw : null;
         // xiaomi_ble reports percentage left; the card tracks wear.
         if (brushheadWear !== null && entityIds.brushhead_remaining) brushheadWear = 100 - brushheadWear;
         // Completion latch (issues #4, #5): keep showing the finished session
