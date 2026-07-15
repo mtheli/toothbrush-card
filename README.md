@@ -121,7 +121,7 @@ The card is configured via the UI — just add it and select your toothbrush dev
 
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
-| layout        | object   | —       | Place the readings (`battery`, `pressure`, `intensity`, `mode`, `score`, `brush_head`) freely: up to three chips in the top row (`layout.chips`) and four corner markers (`layout.corners.top_left` … `bottom_right`). Each reading can be used once; omitting `layout` keeps the classic arrangement. Editable in the UI. |
+| layout        | object   | —       | Place the readings (`battery`, `pressure`, `intensity`, `mode`, `score`, `brush_head`, `head_type`) freely: up to three chips in the top row (`layout.chips`) and four corner markers (`layout.corners.top_left` … `bottom_right`). Each reading can be used once; omitting `layout` keeps the classic arrangement. Editable in the UI. |
 
 ### Behavior
 

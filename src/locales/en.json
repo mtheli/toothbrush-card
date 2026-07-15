@@ -5,6 +5,7 @@
   "chip_mode": "Mode",
   "chip_score": "Score",
   "chip_head": "Head",
+  "chip_head_type": "Head Type",
 
   "session": "Session",
   "complete": "Complete",

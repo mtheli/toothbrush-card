@@ -417,6 +417,66 @@
   </div>
 
   <div class="section">
+    <h2>Head type — chip + corner</h2>
+    <p class="note">Neutral, no state colours: the type is information, not a warning. Wide layout: mdi:toothbrush + short family name. Compact icon-only layout: the family letter (the A in "A3") is tucked under the icon. Name and letter come from the type sensor’s family_name/family_letter attributes (single source in the integration; C/W/G/A/S official, T/N stand-ins for TongueCare+ and non-RFID). Without the attributes the full state text is shown, wrapped/clamped to two lines, with a plain icon. Hidden while no head is attached.</p>
+    <div class="grid">
+    <div class="cell">
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#212121" d="M12.91 6.43L15.03 8.55L16.09 7.5L15.03 6.43L17.86 3.6L18.92 4.66L20 3.6L17.86 1.5M3 20.57L4.43 22L14.5 11.9L16.63 11.19L21.4 6.43C22.18 5.65 22.18 4.38 21.4 3.6L15.55 9.44L13.43 10.15Z"/></svg></div>
+      <div class="st">any type (wide)</div>
+      <div class="nm">mdi:toothbrush</div>
+      <div class="hx"><span class="sw" style="background:#212121"></span>#212121 (theme text)</div>
+    </div>
+    <div class="cell">
+      <div class="ic"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px"><svg width="22" height="22" viewBox="0 0 24 24" style="opacity:1"><path fill="#212121" d="M12.91 6.43L15.03 8.55L16.09 7.5L15.03 6.43L17.86 3.6L18.92 4.66L20 3.6L17.86 1.5M3 20.57L4.43 22L14.5 11.9L16.63 11.19L21.4 6.43C22.18 5.65 22.18 4.38 21.4 3.6L15.55 9.44L13.43 10.15Z"/></svg><span style="font-size:9px;font-weight:800;line-height:1;color:#212121">C</span></span></div>
+      <div class="st">Clean (compact)</div>
+      <div class="nm">family_letter attr</div>
+      <div class="hx"><span class="sw" style="background:#212121"></span>#212121 (theme text)</div>
+    </div>
+    <div class="cell">
+      <div class="ic"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px"><svg width="22" height="22" viewBox="0 0 24 24" style="opacity:1"><path fill="#212121" d="M12.91 6.43L15.03 8.55L16.09 7.5L15.03 6.43L17.86 3.6L18.92 4.66L20 3.6L17.86 1.5M3 20.57L4.43 22L14.5 11.9L16.63 11.19L21.4 6.43C22.18 5.65 22.18 4.38 21.4 3.6L15.55 9.44L13.43 10.15Z"/></svg><span style="font-size:9px;font-weight:800;line-height:1;color:#212121">W</span></span></div>
+      <div class="st">White (compact)</div>
+      <div class="nm">family_letter attr</div>
+      <div class="hx"><span class="sw" style="background:#212121"></span>#212121 (theme text)</div>
+    </div>
+    <div class="cell">
+      <div class="ic"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px"><svg width="22" height="22" viewBox="0 0 24 24" style="opacity:1"><path fill="#212121" d="M12.91 6.43L15.03 8.55L16.09 7.5L15.03 6.43L17.86 3.6L18.92 4.66L20 3.6L17.86 1.5M3 20.57L4.43 22L14.5 11.9L16.63 11.19L21.4 6.43C22.18 5.65 22.18 4.38 21.4 3.6L15.55 9.44L13.43 10.15Z"/></svg><span style="font-size:9px;font-weight:800;line-height:1;color:#212121">G</span></span></div>
+      <div class="st">Gums (compact)</div>
+      <div class="nm">family_letter attr</div>
+      <div class="hx"><span class="sw" style="background:#212121"></span>#212121 (theme text)</div>
+    </div>
+    <div class="cell">
+      <div class="ic"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px"><svg width="22" height="22" viewBox="0 0 24 24" style="opacity:1"><path fill="#212121" d="M12.91 6.43L15.03 8.55L16.09 7.5L15.03 6.43L17.86 3.6L18.92 4.66L20 3.6L17.86 1.5M3 20.57L4.43 22L14.5 11.9L16.63 11.19L21.4 6.43C22.18 5.65 22.18 4.38 21.4 3.6L15.55 9.44L13.43 10.15Z"/></svg><span style="font-size:9px;font-weight:800;line-height:1;color:#212121">T</span></span></div>
+      <div class="st">Tongue (compact)</div>
+      <div class="nm">family_letter attr</div>
+      <div class="hx"><span class="sw" style="background:#212121"></span>#212121 (theme text)</div>
+    </div>
+    <div class="cell">
+      <div class="ic"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px"><svg width="22" height="22" viewBox="0 0 24 24" style="opacity:1"><path fill="#212121" d="M12.91 6.43L15.03 8.55L16.09 7.5L15.03 6.43L17.86 3.6L18.92 4.66L20 3.6L17.86 1.5M3 20.57L4.43 22L14.5 11.9L16.63 11.19L21.4 6.43C22.18 5.65 22.18 4.38 21.4 3.6L15.55 9.44L13.43 10.15Z"/></svg><span style="font-size:9px;font-weight:800;line-height:1;color:#212121">A</span></span></div>
+      <div class="st">All-in-One (compact)</div>
+      <div class="nm">family_letter attr</div>
+      <div class="hx"><span class="sw" style="background:#212121"></span>#212121 (theme text)</div>
+    </div>
+    <div class="cell">
+      <div class="ic"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px"><svg width="22" height="22" viewBox="0 0 24 24" style="opacity:1"><path fill="#212121" d="M12.91 6.43L15.03 8.55L16.09 7.5L15.03 6.43L17.86 3.6L18.92 4.66L20 3.6L17.86 1.5M3 20.57L4.43 22L14.5 11.9L16.63 11.19L21.4 6.43C22.18 5.65 22.18 4.38 21.4 3.6L15.55 9.44L13.43 10.15Z"/></svg><span style="font-size:9px;font-weight:800;line-height:1;color:#212121">S</span></span></div>
+      <div class="st">Sensitive (compact)</div>
+      <div class="nm">family_letter attr</div>
+      <div class="hx"><span class="sw" style="background:#212121"></span>#212121 (theme text)</div>
+    </div>
+    <div class="cell">
+      <div class="ic"><span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px"><svg width="22" height="22" viewBox="0 0 24 24" style="opacity:1"><path fill="#212121" d="M12.91 6.43L15.03 8.55L16.09 7.5L15.03 6.43L17.86 3.6L18.92 4.66L20 3.6L17.86 1.5M3 20.57L4.43 22L14.5 11.9L16.63 11.19L21.4 6.43C22.18 5.65 22.18 4.38 21.4 3.6L15.55 9.44L13.43 10.15Z"/></svg><span style="font-size:9px;font-weight:800;line-height:1;color:#212121">N</span></span></div>
+      <div class="st">Non-RFID (compact)</div>
+      <div class="nm">family_letter attr</div>
+      <div class="hx"><span class="sw" style="background:#212121"></span>#212121 (theme text)</div>
+    </div>
+    <div class="cell">
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#212121" d="M12.91 6.43L15.03 8.55L16.09 7.5L15.03 6.43L17.86 3.6L18.92 4.66L20 3.6L17.86 1.5M3 20.57L4.43 22L14.5 11.9L16.63 11.19L21.4 6.43C22.18 5.65 22.18 4.38 21.4 3.6L15.55 9.44L13.43 10.15Z"/></svg></div>
+      <div class="st">no attributes (compact)</div>
+      <div class="nm">mdi:toothbrush</div>
+      <div class="hx"><span class="sw" style="background:#212121"></span>#212121 (theme text)</div>
+    </div></div>
+  </div>
+
+  <div class="section">
     <h2>Other colour roles (not state icons)</h2>
     <p class="note">Design tones — deliberately outside the traffic-light palette.</p>
     <div class="grid">

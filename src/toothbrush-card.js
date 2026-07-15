@@ -62,7 +62,7 @@ export const ACCENT_COLORS = [
 
 // Placeable readings and the four corner slots — shared by the card renderer
 // and the editor so both agree on what can go where.
-export const LAYOUT_PROPS = ['battery', 'pressure', 'intensity', 'mode', 'score', 'brush_head'];
+export const LAYOUT_PROPS = ['battery', 'pressure', 'intensity', 'mode', 'score', 'brush_head', 'head_type'];
 export const CORNER_SLOTS = ['top_left', 'top_right', 'bottom_left', 'bottom_right'];
 
 /**
@@ -153,7 +153,7 @@ export function findDeviceEntities(hass, deviceId) {
         battery: null, status: null, base_entity: null,
         number_of_sectors: null, model_number: null,
         routine_length: null, integration: null,
-        brushhead_wear: null, activity: null,
+        brushhead_wear: null, brushhead_type: null, activity: null,
         mode_select: null, esp_bridge_alive: null,
         ble_connected: null, score: null
     };
@@ -265,6 +265,8 @@ export function findDeviceEntities(hass, deviceId) {
                 if (entity.device_id !== related.id) continue;
                 if (entity.translation_key === 'brushhead_wear') {
                     entityKeys.brushhead_wear = entity.entity_id;
+                } else if (entity.translation_key === 'brushhead_type') {
+                    entityKeys.brushhead_type = entity.entity_id;
                 } else if (entity.translation_key === 'esp_bridge_alive') {
                     entityKeys.esp_bridge_alive = entity.entity_id;
                 } else if (entity.translation_key === 'ble_connected') {
@@ -942,6 +944,22 @@ export class ToothbrushCard extends LitElement {
         const scoreIcon = ['mdi:star-outline', 'mdi:star-half-full', 'mdi:star'][scoreTier];
         const scoreColor = ['red', 'amber', 'gold'][scoreTier];
 
+        // Brush head type (issue #13): the type sensor carries the short
+        // family name and the family letter (the A in "A3") as attributes —
+        // one source for every head type. Integrations without them get the
+        // full formatted enum text (two-line) and no compact letter. Hidden
+        // while no head is attached (state unknown), matching the wear
+        // reading.
+        const headTypeState = entityIds.brushhead_type ? hass.states[entityIds.brushhead_type] : null;
+        const headTypeAttrs = headTypeState?.attributes || {};
+        const headTypeLabel = headTypeState
+                && headTypeState.state !== 'unavailable' && headTypeState.state !== 'unknown'
+            ? (headTypeAttrs.family_name
+                || (hass.formatEntityState ? hass.formatEntityState(headTypeState) : headTypeState.state))
+            : null;
+        const headTypeWrap = headTypeLabel && !headTypeAttrs.family_name;
+        const headTypeLetter = headTypeLabel ? headTypeAttrs.family_letter || null : null;
+
         // Shared brush-head glyph (chip icon and corner marker): the head
         // capsule in side view — bristles sticking out sideways, the typical
         // Sonicare silhouette. The fill steps in quarters instead of tracking
@@ -1029,6 +1047,18 @@ export class ToothbrushCard extends LitElement {
                         <span class="chip-label">${t(hass, 'chip_head')}</span>
                         <div class="chip-value ${bhColor}">${brushheadPct}%</div>
                     </div>`;
+                case 'head_type':
+                    if (!headTypeLabel) return '';
+                    // In the icon-only compact layout the family letter takes
+                    // the icon's place, so the chip still tells the type.
+                    return html`<div class="chip" @click="${() => this._showMoreInfo(entityIds.brushhead_type)}">
+                        <div class="chip-icon ${headTypeLetter ? 'has-letter' : ''}">
+                            <ha-icon icon="mdi:toothbrush"></ha-icon>
+                            ${headTypeLetter ? html`<span class="head-type-letter">${headTypeLetter}</span>` : ''}
+                        </div>
+                        <span class="chip-label">${t(hass, 'chip_head_type')}</span>
+                        <div class="chip-value prose ${headTypeWrap ? 'wrap' : ''}">${headTypeLabel}</div>
+                    </div>`;
                 default:
                     return '';
             }
@@ -1068,6 +1098,11 @@ export class ToothbrushCard extends LitElement {
                 case 'score':
                     if (!scoreAvailable) return '';
                     return marker(entityIds.score, scoreIcon, scoreColor, t(hass, 'chip_score'), scoreState);
+                case 'head_type':
+                    if (!headTypeLabel) return '';
+                    // Fallback labels ride 'wrap' through the colorClass slot:
+                    // two-line value, no color. Short labels fit as-is.
+                    return marker(entityIds.brushhead_type, 'mdi:toothbrush', headTypeWrap ? 'wrap' : '', t(hass, 'chip_head_type'), headTypeLabel);
                 default:
                     return '';
             }

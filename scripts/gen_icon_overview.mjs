@@ -8,7 +8,7 @@
 //
 // Usage:  node scripts/gen_icon_overview.mjs
 // PNG:    chromium --headless --screenshot=docs/icon-overview.png \
-//           --window-size=1120,2900 --hide-scrollbars docs/icon-overview.html
+//           --window-size=1120,2560 --hide-scrollbars docs/icon-overview.html
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -21,6 +21,7 @@ import {
     mdiWater, mdiToothOutline, mdiShapeCirclePlus, mdiSpa, mdiPower,
     mdiFeather, mdiCogOutline, mdiGateAnd, mdiCarTurbocharger, mdiShimmer,
     mdiToothbrushElectric, mdiEmoticonTongueOutline, mdiBrushVariant,
+    mdiToothbrush,
 } from '@mdi/js';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -154,6 +155,20 @@ sections.push(section('Brush head — chip + corner', 'Card-own glyph. Fill step
     cell(headSvg(2, C.amber), '40–26 %', '2/4 segments', '#d97706'),
     cell(headSvg(1, C.amber), '25–21 %', '1/4 segments', '#d97706'),
     cell(headSvg(1, C.red), '20–0 %', '1/4 segments', '#dc2626'),
+]));
+
+const letterGlyph = (letter) =>
+    `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px">${svg(mdiToothbrush, '#212121', 1, 22)}<span style="font-size:9px;font-weight:800;line-height:1;color:#212121">${letter}</span></span>`;
+sections.push(section('Head type — chip + corner', 'Neutral, no state colours: the type is information, not a warning. Wide layout: mdi:toothbrush + short family name. Compact icon-only layout: the family letter (the A in "A3") is tucked under the icon. Name and letter come from the type sensor’s family_name/family_letter attributes (single source in the integration; C/W/G/A/S official, T/N stand-ins for TongueCare+ and non-RFID). Without the attributes the full state text is shown, wrapped/clamped to two lines, with a plain icon. Hidden while no head is attached.', [
+    cell(svg(mdiToothbrush, '#212121'), 'any type (wide)', 'mdi:toothbrush', '#212121 (theme text)'),
+    cell(letterGlyph('C'), 'Clean (compact)', 'family_letter attr', '#212121 (theme text)'),
+    cell(letterGlyph('W'), 'White (compact)', 'family_letter attr', '#212121 (theme text)'),
+    cell(letterGlyph('G'), 'Gums (compact)', 'family_letter attr', '#212121 (theme text)'),
+    cell(letterGlyph('T'), 'Tongue (compact)', 'family_letter attr', '#212121 (theme text)'),
+    cell(letterGlyph('A'), 'All-in-One (compact)', 'family_letter attr', '#212121 (theme text)'),
+    cell(letterGlyph('S'), 'Sensitive (compact)', 'family_letter attr', '#212121 (theme text)'),
+    cell(letterGlyph('N'), 'Non-RFID (compact)', 'family_letter attr', '#212121 (theme text)'),
+    cell(svg(mdiToothbrush, '#212121'), 'no attributes (compact)', 'mdi:toothbrush', '#212121 (theme text)'),
 ]));
 
 const swatch = (hex, role, where) => `

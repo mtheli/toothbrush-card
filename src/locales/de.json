@@ -5,6 +5,7 @@
   "chip_mode": "Modus",
   "chip_score": "Score",
   "chip_head": "Kopf",
+  "chip_head_type": "Kopftyp",
 
   "session": "Sitzung",
   "complete": "Fertig",

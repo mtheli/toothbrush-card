@@ -234,6 +234,7 @@ export class ToothbrushCardEditor extends LitElement {
         if (ids.mode || ids.mode_select) a.add('mode');
         if (ids.score) a.add('score');
         if (ids.brushhead_wear) a.add('brush_head');
+        if (ids.brushhead_type) a.add('head_type');
         return a;
     }
 

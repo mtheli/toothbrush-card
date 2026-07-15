@@ -5,6 +5,8 @@ colour value. Battery, pressure, score and brush head share one traffic-light
 palette (green `#16a34a` · amber `#d97706` · red `#dc2626` · gold `#c47f16`),
 so the same tone always means the same thing. Intensity deliberately uses its
 own non-alarming scale — a high intensity is a chosen setting, not a warning.
+The head type stays neutral (theme text colour) for the same reason: it is
+information, not a state.
 
 All icons stay readable in the compact icon-only layout (card width ≤ 350 px,
 where chip labels and values are hidden): the icon shape and colour alone
@@ -22,7 +24,7 @@ The overview is generated from `@mdi/js` and the card's own SVG paths:
 ```sh
 node scripts/gen_icon_overview.mjs
 chromium --headless --screenshot=docs/icon-overview.png \
-  --window-size=1120,2170 --hide-scrollbars docs/icon-overview.html
+  --window-size=1120,2560 --hide-scrollbars docs/icon-overview.html
 ```
 
 The state conditions and palette in the script mirror the card logic in

@@ -169,6 +169,13 @@ ha-card {
 .chip-icon ha-icon {
     --mdc-icon-size: 24px;
 }
+/* Head-type family letter: shown as a small badge tucked under the brush
+   icon, only in the compact icon-only layout (container query below). */
+.head-type-letter {
+    display: none;
+    font-weight: 800;
+    color: var(--primary-text-color);
+}
 .chip-icon .brushhead-svg {
     width: 19px;
     height: 24px;
@@ -208,6 +215,18 @@ ha-card {
 .chip-value.int-high { color: #db2777; }
 .chip-value.gold { color: #c47f16; }
 .chip-value.muted { color: var(--disabled-text-color, #9ca3af); }
+/* Prose values (head type): keep the given casing ("All-in-One", not
+   "All-In-One"); long fallback labels additionally wrap to two lines. */
+.chip-value.prose { text-transform: none; }
+.chip-value.wrap {
+    white-space: normal;
+    font-size: 11px;
+    line-height: 1.15;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
 
 /* Pressure bars (replaces icon in chip) */
 .pressure-bars {
@@ -545,6 +564,11 @@ ha-card {
     font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums;
     max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+.corner-val.wrap {
+    white-space: normal; font-size: 10px; line-height: 1.15; text-align: center;
+    display: -webkit-box; -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; line-clamp: 2;
+}
 .corner-ico.green,.corner-val.green { color: #16a34a; }
 .corner-ico.blue,.corner-val.blue { color: #2563eb; }
 .corner-ico.amber,.corner-val.amber { color: #d97706; }
@@ -578,6 +602,17 @@ ha-card {
     }
     .chip-label, .chip-value {
         display: none;
+    }
+    /* Subscript tucked into the brush glyph's free lower-right corner, so
+       icon + letter read as one glyph and the chip keeps its height. */
+    .chip-icon.has-letter { position: relative; }
+    .chip-icon.has-letter .head-type-letter {
+        display: block;
+        position: absolute;
+        bottom: -1px;
+        right: -4px;
+        font-size: 10px;
+        line-height: 1;
     }
     .chip-select-hint {
         display: block;
