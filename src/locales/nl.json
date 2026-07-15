@@ -106,6 +106,7 @@
   "config_sector_mode_time": "Sectoren berekend op basis van routine tijd",
   "config_sector_revisit_hint": "Let op: sommige modi bezoeken bepaalde zones opnieuw (bijv. Sonicare White+ poetst de voortanden nogmaals). Een afwijkende volgorde kan in die modi verwarrend zijn als de startkwadrant-voorkeur van de borstel niet wordt aangepast.",
   "config_select_device": "Vul het apparaat-id in",
+  "device_not_found": "Tandenborstel-apparaat niet gevonden — kies je apparaat in de kaart-editor.",
   "config_reset_all": "Alle opties resetten",
   "config_reset_all_confirm": "Alle opties terugzetten naar standaard? De apparaatkeuze blijft behouden."
 }

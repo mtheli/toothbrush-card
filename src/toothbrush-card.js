@@ -615,6 +615,13 @@ export class ToothbrushCard extends LitElement {
 
         const entityIds = this._entityIds;
         const device = hass.devices[config.device_id];
+        if (!device) {
+            // The config points at a device this instance doesn't have
+            // (deleted, or a dashboard copied from another install). A
+            // render-time throw would just die unseen in the update promise
+            // and leave a dead card — show a hint instead.
+            return html`<ha-card><div class="device-not-found">${t(hass, 'device_not_found')}</div></ha-card>`;
+        }
         const deviceName = device.name;
         const manufacturer = device.manufacturer || '';
         const modelNumber = entityIds.model_number
