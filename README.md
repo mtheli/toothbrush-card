@@ -106,7 +106,7 @@ The card is configured via the UI — just add it and select your toothbrush dev
 | show_subtitle | boolean  | true    | Show device name as subtitle                 |
 | accent_color  | string   | —       | Header accent color (hex, e.g. `#0085FF`)    |
 
-### Teeth graphic
+### Visualization
 
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
@@ -114,6 +114,13 @@ The card is configured via the UI — just add it and select your toothbrush dev
 | tooth_color   | string   | divider color | Idle tooth color (hex). Set this if the teeth are invisible against your theme background |
 | active_color  | string   | `#93c5fd` | Color of the currently-brushing sector (hex) |
 | done_color    | string   | `#bbf7d0` | Color of completed sectors (hex)           |
+| progress_size | string   | `slim`  | Height of the progress bar: `slim` (4 px), `bold` (8 px) or `xl` (12 px) — the bigger sizes keep the bar readable from a distance on wall panels. |
+| scale         | number   | `1.0`   | Scales the visual area — tooth ring, timer, status, corner markers and progress bar — between `0.8` and `2.0` for at-a-distance readability. Header and chips keep their size. |
+
+### Sectors
+
+| Option        | Type     | Default | Description                                  |
+|---------------|----------|---------|----------------------------------------------|
 | num_sectors   | 4 \| 6   | auto    | Override sector count. Auto-detected from the integration (Oral-B and Sonicare both expose it); manual override only needed as a fallback (e.g. unknown model or the diagnostic entity disabled) |
 | sector_order  | string[] | —       | Custom sector order (drag & drop in UI)      |
 

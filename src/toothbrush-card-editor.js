@@ -317,6 +317,46 @@ export class ToothbrushCardEditor extends LitElement {
         `;
     }
 
+    // The three tooth colors as one compact row under a shared heading;
+    // the heading's Reset clears all of them.
+    _colorRow() {
+        const items = [
+            ['tooth_color', 'color_tooth', '#d1d5db'],
+            ['active_color', 'color_active', '#93c5fd'],
+            ['done_color', 'color_done', '#bbf7d0'],
+        ];
+        const anySet = items.some(([key]) => this._config[key]);
+        return html`
+            <div class="field">
+                <div class="section-label">
+                    <span>${t(this.hass, 'config_tooth_colors')}</span>
+                    ${anySet ? html`
+                        <button class="reset-btn" @click=${this._resetColors}>Reset</button>
+                    ` : ''}
+                </div>
+                <div class="color-row">
+                    ${items.map(([key, labelKey, fallback]) => html`
+                        <div class="color-item">
+                            <input type="color" class="color-input"
+                                   .value=${this._config[key] || fallback}
+                                   @input=${(ev) => this._valueChanged(key, ev.target.value)}>
+                            <span class="color-item-lbl">${t(this.hass, labelKey)}</span>
+                        </div>
+                    `)}
+                </div>
+            </div>
+        `;
+    }
+
+    _resetColors = () => {
+        const newConfig = { ...this._config };
+        delete newConfig.tooth_color;
+        delete newConfig.active_color;
+        delete newConfig.done_color;
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    };
+
     _renderLayoutSection() {
         const L = this._editorLayout();
         const avail = this._availableSet(this._deviceIds());
@@ -385,6 +425,31 @@ export class ToothbrushCardEditor extends LitElement {
                 ></ha-selector>
             </div>
         `;
+    }
+
+    // 1 is the default and maps to no config key.
+    _scaleChanged(value) {
+        const newConfig = { ...this._config };
+        const n = Number(value);
+        if (!Number.isFinite(n) || n === 1) {
+            delete newConfig.scale;
+        } else {
+            newConfig.scale = Math.round(n * 10) / 10;
+        }
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+
+    // 'slim' is the default and maps to no config key.
+    _progressSizeChanged(value) {
+        const newConfig = { ...this._config };
+        if (!value || value === 'slim') {
+            delete newConfig.progress_size;
+        } else {
+            newConfig.progress_size = value;
+        }
+        this._config = newConfig;
+        this._fireConfig(newConfig);
     }
 
     // 'remaining' is the default and maps to no config key.
@@ -469,6 +534,28 @@ export class ToothbrushCardEditor extends LitElement {
                 <div class="field">
                     <ha-selector
                         .hass=${this.hass}
+                        .selector=${{ number: { min: 0.8, max: 2, step: 0.1, mode: 'slider' } }}
+                        .label=${t(this.hass, 'config_scale')}
+                        .value=${Number(this._config.scale) || 1}
+                        @value-changed=${(ev) => this._scaleChanged(ev.detail.value)}
+                    ></ha-selector>
+                </div>
+                <div class="field">
+                    <ha-selector
+                        .hass=${this.hass}
+                        .selector=${{ select: { mode: 'dropdown', options: [
+                            { value: 'slim', label: t(this.hass, 'progress_size_slim') },
+                            { value: 'bold', label: t(this.hass, 'progress_size_bold') },
+                            { value: 'xl', label: t(this.hass, 'progress_size_xl') },
+                        ] } }}
+                        .label=${t(this.hass, 'config_progress_size')}
+                        .value=${this._config.progress_size || 'slim'}
+                        @value-changed=${(ev) => this._progressSizeChanged(ev.detail.value)}
+                    ></ha-selector>
+                </div>
+                <div class="field">
+                    <ha-selector
+                        .hass=${this.hass}
                         .selector=${{ select: { mode: 'dropdown', options: [
                             { value: 'teeth', label: t(this.hass, 'tooth_style_teeth') },
                             { value: 'none', label: t(this.hass, 'tooth_style_none') },
@@ -479,12 +566,10 @@ export class ToothbrushCardEditor extends LitElement {
                     ></ha-selector>
                 </div>
 
-                ${this._config.tooth_style !== 'none' ? html`
-                ${this._colorField('tooth_color', 'config_tooth_color', '#d1d5db')}
-                ${this._colorField('active_color', 'config_active_color', '#93c5fd')}
-                ${this._colorField('done_color', 'config_done_color', '#bbf7d0')}` : ''}
+                ${this._config.tooth_style !== 'none' ? this._colorRow() : ''}
 
                 ${this._config.device_id && this._config.tooth_style !== 'none' ? html`
+                    <div class="group-label">${t(this.hass, 'group_sectors')}</div>
                     <div class="field">
                         <ha-selector
                             .hass=${this.hass}
@@ -745,6 +830,24 @@ export class ToothbrushCardEditor extends LitElement {
                 display: flex;
                 align-items: center;
                 gap: 10px;
+            }
+            .color-row {
+                display: flex;
+                gap: 16px;
+            }
+            .color-item {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+            }
+            .color-item .color-input {
+                width: 100%;
+            }
+            .color-item-lbl {
+                font-size: 11px;
+                color: var(--secondary-text-color);
             }
             .color-input {
                 width: 40px;

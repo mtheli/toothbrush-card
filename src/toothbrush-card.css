@@ -342,8 +342,8 @@ ha-card {
 }
 .tooth-wrap {
     position: relative;
-    width: 210px;
-    height: 210px;
+    width: calc(210px * var(--tb-scale, 1));
+    height: calc(210px * var(--tb-scale, 1));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -384,7 +384,7 @@ ha-card {
     pointer-events: none;
 }
 .session-label {
-    font-size: 9px;
+    font-size: calc(9px * var(--tb-scale, 1));
     font-weight: 600;
     color: var(--secondary-text-color);
     text-transform: uppercase;
@@ -393,7 +393,7 @@ ha-card {
     margin-bottom: 2px;
 }
 .timer-display {
-    font-size: 30px;
+    font-size: calc(30px * var(--tb-scale, 1));
     font-weight: 400;
     color: var(--primary-text-color);
     line-height: 1;
@@ -414,7 +414,7 @@ ha-card {
     padding: 10px 0 4px;
 }
 .center-info.standalone .timer-display {
-    font-size: 52px;
+    font-size: calc(52px * var(--tb-scale, 1));
     letter-spacing: -2px;
 }
 
@@ -429,7 +429,7 @@ ha-card {
     width: calc(100% + 8px);
     margin: 2px -4px 10px;
     display: grid;
-    grid-template-columns: 66px 1fr 66px;
+    grid-template-columns: calc(66px * var(--tb-scale, 1)) 1fr calc(66px * var(--tb-scale, 1));
     align-items: center;
 }
 .status-row .card-corner { position: static; }
@@ -438,7 +438,7 @@ ha-card {
     cursor: pointer;
 }
 .status-main {
-    font-size: 14px;
+    font-size: calc(14px * var(--tb-scale, 1));
     font-weight: 600;
     color: var(--primary-text-color);
     text-transform: capitalize;
@@ -448,7 +448,7 @@ ha-card {
     color: var(--primary-color, #2563eb);
 }
 .status-sub {
-    font-size: 11px;
+    font-size: calc(11px * var(--tb-scale, 1));
     color: var(--secondary-text-color);
     margin-top: 1px;
     text-transform: capitalize;
@@ -471,27 +471,30 @@ ha-card {
 /* The track is sliced into one sub-bar per sector (small gaps mark the
    boundaries); the time-based fill runs across them as before. */
 .progress-track {
-    height: 4px;
+    height: calc(var(--tb-bar-height, 4px) * var(--tb-scale, 1));
     display: flex;
     gap: 3px;
 }
+/* progress_size option (issue #8): a more prominent bar for wall panels. */
+.progress-wrap.bar-bold { --tb-bar-height: 8px; }
+.progress-wrap.bar-xl { --tb-bar-height: 12px; }
 .progress-seg {
     flex: 1;
     background: var(--divider-color, #e5e7eb);
-    border-radius: 2px;
+    border-radius: calc(var(--tb-bar-height, 4px) * var(--tb-scale, 1) / 2);
     overflow: hidden;
 }
 /* Fill background is set inline: each sub-bar gets its slice of the
    full-track blue→green gradient. */
 .progress-fill {
     height: 100%;
-    border-radius: 2px;
+    border-radius: calc(var(--tb-bar-height, 4px) * var(--tb-scale, 1) / 2);
     transition: width 0.5s ease;
 }
 .progress-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 10px;
+    font-size: calc(10px * var(--tb-scale, 1));
     color: var(--secondary-text-color);
     margin-top: 4px;
 }
@@ -556,7 +559,7 @@ ha-card {
     gap: 1px;
     /* Fixed width so all four markers share the same center axis regardless
        of how wide their value text is (e.g. "0%" vs "Gum Care"). */
-    width: 66px;
+    width: calc(66px * var(--tb-scale, 1));
     cursor: pointer;
     opacity: 0.85;
     transition: opacity 0.2s;
@@ -566,18 +569,18 @@ ha-card {
 .card-corner.tl { top: 6px; left: 10px; }
 .card-corner.tr { top: 6px; right: 10px; }
 /* bl/br carry no offsets: bottom markers render inside .status-row. */
-.corner-ico { --mdc-icon-size: 22px; width: 22px; height: 22px; }
+.corner-ico { --mdc-icon-size: calc(22px * var(--tb-scale, 1)); width: calc(22px * var(--tb-scale, 1)); height: calc(22px * var(--tb-scale, 1)); }
 .corner-lbl {
-    font-size: 8px; letter-spacing: 0.06em; text-transform: uppercase;
+    font-size: calc(8px * var(--tb-scale, 1)); letter-spacing: 0.06em; text-transform: uppercase;
     color: var(--secondary-text-color); font-weight: 700;
     max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .corner-val {
-    font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums;
+    font-size: calc(11px * var(--tb-scale, 1)); font-weight: 800; font-variant-numeric: tabular-nums;
     max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .corner-val.wrap {
-    white-space: normal; font-size: 10px; line-height: 1.15; text-align: center;
+    white-space: normal; font-size: calc(10px * var(--tb-scale, 1)); line-height: 1.15; text-align: center;
     display: -webkit-box; -webkit-box-orient: vertical;
     -webkit-line-clamp: 2; line-clamp: 2;
 }
@@ -591,8 +594,8 @@ ha-card {
 .corner-ico.int-high,.corner-val.int-high { color: #db2777; }
 .corner-ico.gold,.corner-val.gold { color: #c47f16; }
 .brushhead-svg {
-    width: 17px;
-    height: 22px;
+    width: calc(17px * var(--tb-scale, 1));
+    height: calc(22px * var(--tb-scale, 1));
 }
 .brushhead-pct {
     font-size: 9px;
@@ -636,16 +639,16 @@ ha-card {
         opacity: 0.6;
     }
     .tooth-wrap {
-        width: 180px;
-        height: 180px;
+        width: calc(180px * var(--tb-scale, 1));
+        height: calc(180px * var(--tb-scale, 1));
     }
-    .timer-display { font-size: 26px; }
+    .timer-display { font-size: calc(26px * var(--tb-scale, 1)); }
     /* Nudge the corner markers outward so they clear the tooth arc. */
-    .card-corner { width: 54px; }
+    .card-corner { width: calc(54px * var(--tb-scale, 1)); }
     .card-corner.tl { left: 2px; }
     .card-corner.tr { right: 2px; }
     .status-row {
-        grid-template-columns: 54px 1fr 54px;
+        grid-template-columns: calc(54px * var(--tb-scale, 1)) 1fr calc(54px * var(--tb-scale, 1));
         width: calc(100% + 24px);
         margin-left: -12px;
         margin-right: -12px;

@@ -427,6 +427,12 @@ export class ToothbrushCard extends LitElement {
         if (c.tooth_color) style += `; --tb-tooth-color: ${c.tooth_color}`;
         if (c.active_color) style += `; --tb-active-color: ${c.active_color}`;
         if (c.done_color) style += `; --tb-done-color: ${c.done_color}`;
+        // Visual-area scale (issue #8): ring, timer, status, corner markers
+        // and progress bar. Header and chips keep their size.
+        const scale = Number(c.scale);
+        if (Number.isFinite(scale) && scale > 0 && scale !== 1) {
+            style += `; --tb-scale: ${Math.min(2, Math.max(0.8, scale))}`;
+        }
         return style;
     }
 
@@ -1206,7 +1212,7 @@ export class ToothbrushCard extends LitElement {
                         <div>${bottomRightEl}</div>
                     </div>
 
-                    <div class="progress-wrap ${active || isSuccess ? 'visible' : ''}">
+                    <div class="progress-wrap ${active || isSuccess ? 'visible' : ''} ${config.progress_size === 'bold' ? 'bar-bold' : config.progress_size === 'xl' ? 'bar-xl' : ''}">
                         <div class="progress-track">
                             ${Array.from({ length: numSectors || 1 }, (_, i) => {
                                 // Same time-based fill as before, sliced into one
