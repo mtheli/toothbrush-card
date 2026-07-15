@@ -111,7 +111,7 @@ export function resolveLayoutForDevice(layout, ids) {
  * Resolve the configurable property placement. Without `layout:` the card keeps
  * its historical arrangement, so existing dashboards render unchanged. A
  * property may appear once across chips and corners (first occurrence wins) and
- * the chip row is capped at three.
+ * the chip row is capped at four.
  */
 export function normalizeLayout(config) {
     const raw = config?.layout;
@@ -129,7 +129,7 @@ export function normalizeLayout(config) {
     const chips = [];
     if (Array.isArray(raw.chips)) {
         for (const p of raw.chips) {
-            if (chips.length >= 3) break;
+            if (chips.length >= 4) break;
             if (take(p)) chips.push(p);
         }
     }
@@ -153,7 +153,8 @@ export function findDeviceEntities(hass, deviceId) {
         battery: null, status: null, base_entity: null,
         number_of_sectors: null, model_number: null,
         routine_length: null, integration: null,
-        brushhead_wear: null, brushhead_type: null, activity: null,
+        brushhead_wear: null, brushhead_type: null,
+        brushhead_sessions: null, activity: null,
         mode_select: null, esp_bridge_alive: null,
         ble_connected: null, score: null
     };
@@ -267,6 +268,8 @@ export function findDeviceEntities(hass, deviceId) {
                     entityKeys.brushhead_wear = entity.entity_id;
                 } else if (entity.translation_key === 'brushhead_type') {
                     entityKeys.brushhead_type = entity.entity_id;
+                } else if (entity.translation_key === 'brushhead_sessions_left') {
+                    entityKeys.brushhead_sessions = entity.entity_id;
                 } else if (entity.translation_key === 'esp_bridge_alive') {
                     entityKeys.esp_bridge_alive = entity.entity_id;
                 } else if (entity.translation_key === 'ble_connected') {
@@ -965,6 +968,18 @@ export class ToothbrushCard extends LitElement {
         // Sonicare silhouette. The fill steps in quarters instead of tracking
         // the exact percentage: at icon size a continuous fill is unreadable,
         // discrete jumps are not.
+        // Head value display (issue #14): % remaining (default), % used, or
+        // the integration's estimated sessions left. Sessions fall back to
+        // remaining when the sensor is missing or unreadable; the glyph fill
+        // and colour always follow wear.
+        const headSessionsRaw = entityIds.brushhead_sessions
+            ? parseInt(hass.states[entityIds.brushhead_sessions]?.state)
+            : NaN;
+        const headValue = config.head_display === 'used' && brushheadWear !== null
+            ? `${Math.round(brushheadWear)}%`
+            : config.head_display === 'sessions' && Number.isFinite(headSessionsRaw)
+                ? `${headSessionsRaw}×`
+                : `${brushheadPct}%`;
         const bhSteps = brushheadPct > 75 ? 4 : brushheadPct > 50 ? 3 : brushheadPct > 25 ? 2 : 1;
         const bhClipY = 30 - bhSteps * 7.5;
         const bhColor = this._getBrushheadColor(brushheadWear);
@@ -1045,7 +1060,7 @@ export class ToothbrushCard extends LitElement {
                     return html`<div class="chip" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
                         <div class="chip-icon">${headSvg()}</div>
                         <span class="chip-label">${t(hass, 'chip_head')}</span>
-                        <div class="chip-value ${bhColor}">${brushheadPct}%</div>
+                        <div class="chip-value ${bhColor}">${headValue}</div>
                     </div>`;
                 case 'head_type':
                     if (!headTypeLabel) return '';
@@ -1073,7 +1088,7 @@ export class ToothbrushCard extends LitElement {
                 return html`<div class="card-corner ${cls} brushhead-indicator" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
                     ${headSvg()}
                     <span class="corner-lbl">${t(hass, 'chip_head')}</span>
-                    <span class="corner-val ${bhColor}">${brushheadPct}%</span>
+                    <span class="corner-val ${bhColor}">${headValue}</span>
                 </div>`;
             }
             const marker = (entityId, icon, colorClass, label, value) => html`

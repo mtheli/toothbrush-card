@@ -142,10 +142,17 @@ ha-card {
 
 /* ── CHIPS: Battery / Pressure / Mode ── */
 .chips-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    /* Flex instead of a fixed 3-column grid: 1–4 chips always share the
+       row evenly, with no empty slot when fewer are configured. */
+    display: flex;
     gap: 8px;
     padding: 12px 14px;
+}
+/* Direct children, not .chip: the mode chip sits inside .mode-chip-wrap,
+   and the wrapper is what must share the row evenly. */
+.chips-row > * {
+    flex: 1;
+    min-width: 0;
 }
 .chip {
     background: var(--card-background-color, #f9fafb);

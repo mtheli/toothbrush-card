@@ -194,7 +194,7 @@ export class ToothbrushCardEditor extends LitElement {
         return findDeviceEntities(this.hass, this._config.device_id);
     }
 
-    // Effective layout as fixed-length editor slots: chips padded to 3, all four
+    // Effective layout as fixed-length editor slots: chips padded to 4, all four
     // corner keys present (empty string = unset). Resolved for the device so the
     // shared contact slot reads as the reading it actually has (intensity vs
     // pressure).
@@ -206,7 +206,7 @@ export class ToothbrushCardEditor extends LitElement {
         // filled with something that can't render (e.g. the default head corner
         // on a handle without a brush-head sensor).
         const availChips = eff.chips.filter(p => avail.has(p));
-        const chips = [availChips[0] || '', availChips[1] || '', availChips[2] || ''];
+        const chips = [0, 1, 2, 3].map(i => availChips[i] || '');
         const corners = {};
         for (const k of CORNER_SLOTS) corners[k] = avail.has(eff.corners[k]) ? eff.corners[k] : '';
         return { chips, corners };
@@ -334,7 +334,7 @@ export class ToothbrushCardEditor extends LitElement {
             <div class="sector-mode-hint">${t(this.hass, 'config_layout_hint')}</div>
 
             <div class="sub-label">${t(this.hass, 'config_layout_chips')}</div>
-            ${[0, 1, 2].map(i => html`
+            ${[0, 1, 2, 3].map(i => html`
                 <div class="field">
                     <ha-selector
                         .hass=${this.hass}
@@ -359,6 +359,44 @@ export class ToothbrushCardEditor extends LitElement {
                 </div>
             `)}
         `;
+    }
+
+    // Own section: how readings are displayed, as opposed to the layout
+    // section, which is about where they sit.
+    _renderValueDisplaySection() {
+        const ids = this._deviceIds();
+        if (!this._availableSet(ids).has('brush_head')) return '';
+        return html`
+            <div class="group-label">${t(this.hass, 'group_value_display')}</div>
+            <div class="sector-mode-hint">${t(this.hass, 'config_value_display_hint')}</div>
+            <div class="field">
+                <ha-selector
+                    .hass=${this.hass}
+                    .selector=${{ select: { mode: 'dropdown', options: [
+                        { value: 'remaining', label: t(this.hass, 'head_display_remaining') },
+                        { value: 'used', label: t(this.hass, 'head_display_used') },
+                        ...(ids?.brushhead_sessions
+                            ? [{ value: 'sessions', label: t(this.hass, 'head_display_sessions') }]
+                            : []),
+                    ] } }}
+                    .label=${t(this.hass, 'config_head_display')}
+                    .value=${this._config.head_display || 'remaining'}
+                    @value-changed=${(ev) => this._headDisplayChanged(ev.detail.value)}
+                ></ha-selector>
+            </div>
+        `;
+    }
+
+    // 'remaining' is the default and maps to no config key.
+    _headDisplayChanged(value) {
+        const newConfig = { ...this._config };
+        if (!value || value === 'remaining') {
+            delete newConfig.head_display;
+        } else {
+            newConfig.head_display = value;
+        }
+        this._config = newConfig;
+        this._fireConfig(newConfig);
     }
 
     render() {
@@ -497,6 +535,8 @@ export class ToothbrushCardEditor extends LitElement {
                 ` : ''}
 
                 ${this._config.device_id ? this._renderLayoutSection() : ''}
+
+                ${this._config.device_id ? this._renderValueDisplaySection() : ''}
 
                 <div class="group-label">${t(this.hass, 'group_behavior')}</div>
                 <div class="field">
