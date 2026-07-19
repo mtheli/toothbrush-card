@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { QUADRANT_ZONES, SEXTANT_ZONES, ACCENT_COLORS, isMainStateEntity,
          LAYOUT_PROPS, CORNER_SLOTS, normalizeLayout, resolveLayoutForDevice,
-         findDeviceEntities } from './toothbrush-card.js';
+         findDeviceEntities, CARD_VERSION, BUILD_DATE } from './toothbrush-card.js';
 import { t } from './translations.js';
 
 export class ToothbrushCardEditor extends LitElement {
@@ -307,11 +307,11 @@ export class ToothbrushCardEditor extends LitElement {
                     <input type="color" class="color-input"
                            .value=${value || fallback}
                            @input=${(ev) => this._valueChanged(key, ev.target.value)}>
-                    <ha-textfield
+                    <ha-input
                         .value=${value}
                         .placeholder=${fallback}
                         @input=${(ev) => this._valueChanged(key, ev.target.value)}
-                    ></ha-textfield>
+                    ></ha-input>
                 </div>
             </div>
         `;
@@ -497,11 +497,11 @@ export class ToothbrushCardEditor extends LitElement {
 
                 ${this._config.show_header !== false ? html`
                 <div class="field">
-                    <ha-textfield
+                    <ha-input
                         .label=${t(this.hass, 'config_title')}
                         .value=${this._config.title || ''}
                         @input=${(ev) => this._valueChanged('title', ev.target.value)}
-                    ></ha-textfield>
+                    ></ha-input>
                 </div>
 
                 <div class="field row">
@@ -648,6 +648,10 @@ export class ToothbrushCardEditor extends LitElement {
                         @click=${this._resetAll}>
                     ${t(this.hass, 'config_reset_all')}
                 </button>
+
+                <div class="build-info">
+                    Toothbrush Card v${CARD_VERSION} · Build ${BUILD_DATE}
+                </div>
             </div>
         `;
     }
@@ -665,7 +669,7 @@ export class ToothbrushCardEditor extends LitElement {
                 align-items: center;
                 gap: 12px;
             }
-            ha-textfield {
+            ha-input {
                 display: block;
                 width: 100%;
             }
@@ -731,6 +735,13 @@ export class ToothbrushCardEditor extends LitElement {
             .reset-all-btn[disabled] {
                 opacity: 0.4;
                 cursor: default;
+            }
+            .build-info {
+                margin-top: 16px;
+                text-align: center;
+                font-size: 11px;
+                color: var(--secondary-text-color, #727272);
+                opacity: 0.8;
             }
             .sector-mode-hint {
                 font-size: 12px;
@@ -859,7 +870,7 @@ export class ToothbrushCardEditor extends LitElement {
                 cursor: pointer;
                 flex-shrink: 0;
             }
-            .color-field ha-textfield {
+            .color-field ha-input {
                 flex: 1;
             }
             .color-grid {

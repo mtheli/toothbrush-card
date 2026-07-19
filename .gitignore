@@ -8,3 +8,6 @@ TODO.md
 !/hacs.json
 !/package.json
 !/package-lock.json
+
+# Generated at build time (build timestamp shown in editor)
+src/build-info.js
