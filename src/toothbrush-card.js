@@ -166,7 +166,7 @@ export function findDeviceEntities(hass, deviceId) {
         brushhead_wear: null, brushhead_type: null,
         brushhead_sessions: null, activity: null,
         mode_select: null, esp_bridge_alive: null,
-        ble_connected: null, score: null
+        ble_connected: null, score: null, pacer_30s: null
     };
 
     const allEntities = hass.entities;
@@ -234,6 +234,10 @@ export function findDeviceEntities(hass, deviceId) {
                 entityKeys.pressure = entityId;
             } else if (match('binary_sensor', 'connection', '_connection')) {
                 entityKeys.ble_connected = entityId;
+            } else if (match('switch', 'reminder_30s', '_30s_reminder')) {
+                // The handle's own 30-second pacer — used to align the
+                // card's time-based sectors with the device's buzz rhythm.
+                entityKeys.pacer_30s = entityId;
             } else if (entityKeys.battery === null && deviceClass === 'battery') {
                 entityKeys.battery = entityId;
             }
@@ -699,7 +703,7 @@ export class ToothbrushCard extends LitElement {
         const numSectorsFromEntity = entityIds.number_of_sectors
             ? parseInt(hass.states[entityIds.number_of_sectors]?.state) || null
             : null;
-        const numSectors = config.num_sectors || numSectorsFromEntity || 4;
+        let numSectors = config.num_sectors || numSectorsFromEntity || 4;
         const statusEntityId = entityIds.base_entity;
         // Lowercased: laifen_ble capitalizes its states (Running/Idle/Unknown).
         const rawStatus = (statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown')
@@ -748,6 +752,17 @@ export class ToothbrushCard extends LitElement {
         const routineLength = Number(config.routine_length)
             || Math.round(routineFromEntity)
             || (entityIds.sector ? 0 : BRUSHING_DURATION);
+        // With the handle's 30-second pacer enabled, the brush itself buzzes
+        // every 30s — advance the time-based sectors in the same rhythm so
+        // card and handle switch zones together. Only counts with an
+        // anatomical zone mapping (4/6) are eligible: 4 is the default
+        // already, so just the 6×30s case (3-minute routine) changes here.
+        // An explicit sector configuration always wins.
+        if (entityIds.pacer_30s && !config.num_sectors && !numSectorsFromEntity
+            && hass.states[entityIds.pacer_30s]?.state === 'on'
+            && Math.round(routineLength / 30) === 6) {
+            numSectors = 6;
+        }
 
         // A brand-new head legitimately reports 0.0 wear (issue #12), so only
         // a non-numeric state (unavailable/unknown) hides the reading.
