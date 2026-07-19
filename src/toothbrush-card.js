@@ -22,19 +22,24 @@ const BRUSHING_DURATION = 120; // 2 minutes target
 // plus their entity mapping in findDeviceEntities. Most integrations are
 // matched by translation_key; xiaomi_ble names its entities library-side
 // (no translation_key), so its main entity is recognized by entity_id
-// suffix instead (entity_ids are language-independent).
+// suffix instead (entity_ids are language-independent). laifen_ble carries
+// both matchers: releases up to 3.0.2 have no translation_keys but always
+// create English entity_ids, later releases have translation_keys but may
+// localize entity_ids on non-English installs.
 export const SUPPORTED_INTEGRATIONS = {
     oralb: { translationKey: 'toothbrush_state' },
     philips_sonicare_ble: { translationKey: 'handle_state' },
     xiaomi_ble: { idSuffix: '_toothbrush' },
+    laifen_ble: { translationKey: 'status', idSuffix: '_status' },
 };
 
 // True when this entity is the main state entity of a supported integration.
 export function isMainStateEntity(entity) {
     const m = SUPPORTED_INTEGRATIONS[entity.platform];
     if (!m) return false;
-    if (m.translationKey) return entity.translation_key === m.translationKey;
-    return entity.entity_id.endsWith(m.idSuffix);
+    return (m.translationKey && entity.translation_key === m.translationKey)
+        || (m.idSuffix && entity.entity_id.endsWith(m.idSuffix))
+        || false;
 }
 
 // Progress-bar gradient endpoints (blue → green across the full track).
@@ -191,6 +196,48 @@ export function findDeviceEntities(hass, deviceId) {
                 entityKeys.brushhead_wear = entity.entity_id;
                 entityKeys.brushhead_remaining = true;
             }
+        }
+
+        // laifen_ble: handled entirely here (note the continue) because two of
+        // its translation_keys collide with mappings below — its `mode` exists
+        // as both sensor and select, and its `brushing_time` is the configured
+        // session length in minutes, not the elapsed time the shared branch
+        // expects. Releases up to 3.0.2 ship no translation_keys, so every
+        // role also matches by entity_id suffix (always English there).
+        if (entity.platform === 'laifen_ble') {
+            const tk = entity.translation_key;
+            const domain = entityId.split('.')[0];
+            const match = (dom, key, suffix) =>
+                domain === dom && (tk === key || (!tk && entityId.endsWith(suffix)));
+            if (match('sensor', 'status', '_status')) {
+                entityKeys.status = entityId;
+            } else if (match('sensor', 'timer', '_timer')) {
+                // Synthetic elapsed seconds; keeps counting across short
+                // pauses and only resets after ~60s of idle.
+                entityKeys.duration = entityId;
+            } else if (match('sensor', 'brushing_duration', '_brushing_duration')) {
+                // Configured session length in seconds (models with an
+                // adjustable duration). Preferred over brushing_time.
+                entityKeys.routine_length = entityId;
+                entityKeys.routine_length_minutes = false;
+            } else if (match('sensor', 'brushing_time', '_brushing_time')
+                && entityKeys.routine_length === null) {
+                // Session length in minutes; fixed-duration models report 0,
+                // which the renderer treats as "unknown" (2-minute default).
+                entityKeys.routine_length = entityId;
+                entityKeys.routine_length_minutes = true;
+            } else if (match('select', 'mode', '_mode')) {
+                entityKeys.mode_select = entityId;
+            } else if (match('sensor', 'mode', '_mode')) {
+                entityKeys.mode = entityId;
+            } else if (match('binary_sensor', 'over_pressure_active', '_pressing_too_hard')) {
+                entityKeys.pressure = entityId;
+            } else if (match('binary_sensor', 'connection', '_connection')) {
+                entityKeys.ble_connected = entityId;
+            } else if (entityKeys.battery === null && deviceClass === 'battery') {
+                entityKeys.battery = entityId;
+            }
+            continue;
         }
 
         // Shared translation_keys (OralB + Sonicare >= 0.8)
@@ -602,7 +649,9 @@ export class ToothbrushCard extends LitElement {
     }
 
     _isActive(status) {
-        return status === 'running' || status === 'run';
+        // Case-insensitive: laifen_ble reports capitalized states.
+        const s = String(status).toLowerCase();
+        return s === 'running' || s === 'run';
     }
 
     /**
@@ -652,7 +701,9 @@ export class ToothbrushCard extends LitElement {
             : null;
         const numSectors = config.num_sectors || numSectorsFromEntity || 4;
         const statusEntityId = entityIds.base_entity;
-        const rawStatus = statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown';
+        // Lowercased: laifen_ble capitalizes its states (Running/Idle/Unknown).
+        const rawStatus = (statusEntityId ? hass.states[statusEntityId]?.state || 'unknown' : 'unknown')
+            .toLowerCase();
         // Binary main state entities (xiaomi_ble) report plain on/off.
         const status = rawStatus === 'on' ? 'running' : rawStatus === 'off' ? 'idle' : rawStatus;
         const active = this._isActive(status);
@@ -687,14 +738,16 @@ export class ToothbrushCard extends LitElement {
         const mode = (modeSelectState?.state && modeSelectState.state !== 'unavailable')
             ? modeSelectState.state
             : (entityIds.mode ? hass.states[entityIds.mode]?.state || 'N/A' : 'N/A');
-        // Routine length: config override first, then the entity; synthetic-
-        // timer devices (no duration entity) fall back to the 2-minute default
-        // so the time-based sector path can run.
+        // Routine length: config override first, then the entity (some report
+        // minutes, possibly fractional); devices without a sector entity fall
+        // back to the 2-minute default so the time-based sector path can run.
+        const routineFromEntity = entityIds.routine_length
+            ? (parseFloat(hass.states[entityIds.routine_length]?.state) || 0)
+                * (entityIds.routine_length_minutes ? 60 : 1)
+            : 0;
         const routineLength = Number(config.routine_length)
-            || (entityIds.routine_length
-                ? parseInt(hass.states[entityIds.routine_length]?.state) || 0
-                : 0)
-            || (entityIds.duration ? 0 : BRUSHING_DURATION);
+            || Math.round(routineFromEntity)
+            || (entityIds.sector ? 0 : BRUSHING_DURATION);
 
         // A brand-new head legitimately reports 0.0 wear (issue #12), so only
         // a non-numeric state (unavailable/unknown) hides the reading.
