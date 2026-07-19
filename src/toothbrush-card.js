@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.23.0";
+export const CARD_VERSION = "0.24.0";
 // BUILD_DATE is stamped into src/build-info.js by scripts/gen_build_info.mjs,
 // which the "build" script runs first. That file is generated (gitignored), so
 // the value is "dev" only for editor/dev use before a build. Shown in the
