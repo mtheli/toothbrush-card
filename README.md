@@ -169,6 +169,10 @@ layout:
     bottom_right: mode
 ```
 
+The compact view (`tooth_style: none`) — shown here with the header and chips still enabled:
+
+![Compact](screenshots/Compact.png)
+
 ## Supported Languages
 
 | Language | Code |
