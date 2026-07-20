@@ -197,6 +197,8 @@ npm install
 npm run build
 ```
 
+Contributing a BLE capture for a protocol issue? See [`scripts/oralb/`](scripts/oralb/).
+
 ## Disclaimer
 
 This is an independent community project and is not affiliated with, endorsed by, or sponsored by Philips or Oral-B. All product names, trademarks, and registered trademarks are property of their respective owners.
