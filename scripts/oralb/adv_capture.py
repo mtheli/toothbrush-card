@@ -5,12 +5,10 @@ Oral-B BLE Advertisement Capture
 
 Purpose
 -------
-Capture the raw manufacturer-data bytes that an Oral-B IO toothbrush broadcasts
-during a brushing session, so we can build a complete SECTOR_MAP for the
-`Bluetooth-Devices/oralb-ble` Python library.
-
-The library currently only decodes sectors 1-4; brushes reporting 6 sectors
-(e.g. IO Series 10) emit unknown byte values for sectors 5 and 6.
+Capture the raw manufacturer-data bytes that an Oral-B toothbrush broadcasts
+during a brushing session, to validate/extend the advertisement decoding in
+the `Bluetooth-Devices/oralb-ble` Python library (sector byte, pressure/status
+byte) and to diagnose post-session behaviour.
 
 Usage
 -----
@@ -18,9 +16,19 @@ Start the script, then run a FULL brushing session. Keep the motor running
 and spend ~5-10 seconds brushing each sector before moving to the next —
 do not pause the brush between sectors, just move it:
 
-    python3 oralb_sector_capture.py
-    python3 oralb_sector_capture.py --json oralb_capture.json
-    python3 oralb_sector_capture.py --mac XX:XX:XX:XX:XX:XX  # lock to one device
+    python3 scripts/oralb/adv_capture.py
+    python3 scripts/oralb/adv_capture.py --json capture.json
+    python3 scripts/oralb/adv_capture.py --mac XX:XX:XX:XX:XX:XX  # lock to one device
+
+Pressure/status byte
+--------------------
+A line is printed whenever the pressure/status byte changes, with a bitfield
+reading, so button presses and high-pressure events are visible live. To
+exercise the bits during a session: hold each button for 1-2 seconds and push
+too hard at least once. The power-off press at the end is captured
+automatically — the brush keeps advertising for a while after switch-off.
+Values unknown to upstream (they surface as "unknown pressure N" sensor
+states in Home Assistant) are flagged UNMAPPED.
 
 Post-session phase (issue #4)
 -----------------------------
@@ -71,6 +79,17 @@ KNOWN_SECTOR_BYTES = {
     41, 42, 43, 47, 55,  # "success"
 }
 
+# Current upstream PRESSURE mapping (oralb_ble 1.1.1). Values outside this
+# set surface as "unknown pressure N" sensor states in Home Assistant.
+KNOWN_PRESSURE_BYTES = {
+    0, 16, 32, 48, 50, 54, 56, 58,
+    80, 82, 86, 90,
+    114, 118, 122,
+    144, 146, 150, 154,
+    178, 182, 186,
+    192, 240, 242,
+}
+
 # Mirrors the public oralb_ble library's STATES table (oralb_ble/parser.py) so
 # our live log matches what the Home Assistant integration reports. States not
 # listed here (seen empirically: 10 right after a session) fall back to
@@ -90,6 +109,20 @@ STATES = {
     115: "sleeping",
     116: "transport",
 }
+
+
+def pressure_flags(value: int) -> str:
+    """Bitfield reading of the pressure/status byte, derived from the
+    upstream PRESSURE table: bit 7 = high pressure, bit 3 = power button,
+    bit 2 = mode button. The remaining bits carry no known meaning."""
+    flags = []
+    if value & 0x08:
+        flags.append("power-btn")
+    if value & 0x04:
+        flags.append("mode-btn")
+    if value & 0x80:
+        flags.append("high")
+    return "+".join(flags) if flags else "normal"
 
 
 @dataclass
@@ -114,6 +147,7 @@ class Advertisement:
     sector_timer: int | None = None
     number_of_sectors: int | None = None
     unknown_sector: bool = False
+    unknown_pressure: bool = False
 
 
 def parse_manufacturer(data: bytes) -> dict[str, int | bool | str | None]:
@@ -122,7 +156,7 @@ def parse_manufacturer(data: bytes) -> dict[str, int | bool | str | None]:
         "model_type": None, "state": None, "state_label": None,
         "pressure": None, "brush_time": None, "mode": None,
         "sector": None, "sector_timer": None, "number_of_sectors": None,
-        "unknown_sector": False,
+        "unknown_sector": False, "unknown_pressure": False,
     }
     if len(data) > 1:
         out["model_type"] = data[1]
@@ -131,6 +165,7 @@ def parse_manufacturer(data: bytes) -> dict[str, int | bool | str | None]:
         out["state_label"] = STATES.get(data[3], f"unknown_{data[3]}")
     if len(data) > 4:
         out["pressure"] = data[4]
+        out["unknown_pressure"] = data[4] not in KNOWN_PRESSURE_BYTES
     if len(data) > 6:
         out["brush_time"] = data[5] * 60 + data[6]
     if len(data) > 7:
@@ -181,25 +216,31 @@ class Capture:
 
         # Live output: only print on interesting events so the log isn't
         # flooded with duplicates. Issue #3 cares about sector changes; issue #4
-        # cares about state transitions and the post-session brush_time reset.
+        # cares about state transitions and the post-session brush_time reset;
+        # the pressure/status byte carries button presses and pressure events.
         s = record.sector
+        p = record.pressure
         prev = self.last_record_by_mac.get(device.address)
         is_new_sector = s is not None and (prev is None or s != prev.sector)
         is_unknown = bool(record.unknown_sector) and s not in self.unknown_seen
         state_changed = prev is not None and prev.state != record.state
+        pressure_changed = p is not None and (prev is None or p != prev.pressure)
         time_reset = (
             prev is not None
             and prev.brush_time is not None and prev.brush_time > 0
             and record.brush_time == 0
         )
 
-        if is_new_sector or is_unknown or state_changed or time_reset:
+        if is_new_sector or is_unknown or state_changed or pressure_changed or time_reset:
             events: list[str] = []
             if is_unknown:
                 events.append("UNKNOWN — CAPTURE THIS!")
                 self.unknown_seen.add(s)  # type: ignore[arg-type]
             if state_changed:
                 events.append(f"state {prev.state_label}→{record.state_label}")
+            if pressure_changed:
+                unmapped = " UNMAPPED!" if record.unknown_pressure else ""
+                events.append(f"pressure {p}=0b{p:08b} {pressure_flags(p)}{unmapped}")
             if time_reset:
                 events.append("brush_time → 0 (post-session clear)")
             marker = "???" if record.unknown_sector else "   "
@@ -219,15 +260,16 @@ class Capture:
 
     async def run(self) -> None:
         print("=" * 78)
-        print("Oral-B BLE Sector Capture")
+        print("Oral-B BLE Advertisement Capture")
         print("=" * 78)
         if self.mac_filter:
             print(f"Filtering for MAC: {self.mac_filter}")
         else:
             print("Listening to ALL Oral-B devices in range.")
         print("Start a brushing session and keep the motor running through")
-        print("every sector, spending ~5-10 seconds in each one. Press Ctrl+C")
-        print("once the routine ends.")
+        print("every sector, spending ~5-10 seconds in each one. For the")
+        print("pressure/status bits: hold each button 1-2 s and push too hard")
+        print("once. Press Ctrl+C once the routine (and post-session) ends.")
         if self.json_path:
             print(f"JSON output: {self.json_path}")
         print("=" * 78)
@@ -304,14 +346,32 @@ class Capture:
                 tag = "  <— UNKNOWN" if s in unknown else ""
                 print(f"    0x{s:02X} ({s:>3}): {by_sector[s]:>4}{tag}")
 
+            # Count each distinct pressure/status byte
+            by_pressure: dict[int, int] = {}
+            unmapped: set[int] = set()
+            for r in recs:
+                if r.pressure is None:
+                    continue
+                by_pressure[r.pressure] = by_pressure.get(r.pressure, 0) + 1
+                if r.unknown_pressure:
+                    unmapped.add(r.pressure)
+            print("  pressure byte → count (bits, flags):")
+            for p in sorted(by_pressure):
+                tag = "  <— UNMAPPED UPSTREAM" if p in unmapped else ""
+                print(
+                    f"    {p:>3} 0b{p:08b} ({pressure_flags(p)}):"
+                    f" {by_pressure[p]:>4}{tag}"
+                )
+
             self._print_post_session_timeline(recs)
 
         # Save JSON if requested
         if self.json_path:
             payload = {
                 "generated_at": datetime.now(tz=timezone.utc).isoformat(),
-                "oralb_ble_version_reference": "1.1.0",
+                "oralb_ble_version_reference": "1.1.1",
                 "known_sector_bytes": sorted(KNOWN_SECTOR_BYTES),
+                "known_pressure_bytes": sorted(KNOWN_PRESSURE_BYTES),
                 "advertisements": [asdict(r) for r in self.records],
             }
             self.json_path.write_text(json.dumps(payload, indent=2))
