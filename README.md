@@ -65,7 +65,7 @@ The compact view (`tooth_style: none`) — shown here with the header and chips 
 | Language | Code | Comment |
 |----------|------|---------|
 | English     | en | |
-| Dansk       | da | needs to be verified ([#16](https://github.com/mtheli/toothbrush-card/issues/16)) |
+| Dansk       | da | |
 | Deutsch     | de | |
 | Nederlands  | nl | |
 | Русский     | ru | needs to be verified ([#15](https://github.com/mtheli/toothbrush-card/issues/15)) |
