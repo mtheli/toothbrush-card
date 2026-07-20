@@ -61,7 +61,9 @@ Want support for another brush? [Open an issue](https://github.com/mtheli/toothb
 
 ## Community
 
-- [Smartes Badezimmer? So hilft dir ein Shelly Wall Display beim Zähneputzen & Rasieren!](https://www.youtube.com/watch?v=ROI91x2Swv8) — Video by [@smartmatic](https://github.com/smartmatic) showing the card on a Shelly Wall Display alongside the Philips Shaver integration (German)
+[<img src="https://img.youtube.com/vi/ROI91x2Swv8/maxresdefault.jpg" alt="Smartes Badezimmer? So hilft dir ein Shelly Wall Display beim Zähneputzen & Rasieren!" width="480">](https://www.youtube.com/watch?v=ROI91x2Swv8)
+
+[Smartes Badezimmer? So hilft dir ein Shelly Wall Display beim Zähneputzen & Rasieren!](https://www.youtube.com/watch?v=ROI91x2Swv8) — Video by [@smartmatic](https://github.com/smartmatic) showing the card on a Shelly Wall Display alongside the Philips Shaver integration (German)
 
 ## Installation
 
