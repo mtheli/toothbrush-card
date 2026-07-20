@@ -40,7 +40,7 @@ The readings the card can show depend on what each integration provides:
 
 **Tested devices**
 
-- **Oral-B:** iO Series 5, iO 6, iO 8, iO 10, Pro Series D601
+- **Oral-B:** iO Series 6, iO 7/8/9 (Type 3758), iO 10, Pro Series D601
 - **Sonicare:** DiamondClean 9000 (HX992x), Prestige 9900 (HX999x), 7400 series (HX742x), HX960x, HX993x, Sonicare for Kids
 - **Xiaomi:** T700 · T500 uses the same integration and is expected to work — test reports welcome!
 - **Laifen:** Wave / Wave Pro
