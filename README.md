@@ -69,7 +69,7 @@ The compact view (`tooth_style: none`) — shown here with the header and chips 
 | Deutsch     | de | |
 | Nederlands  | nl | |
 | Русский     | ru | needs to be verified ([#15](https://github.com/mtheli/toothbrush-card/issues/15)) |
-| Slovenščina | sl | needs to be verified ([#17](https://github.com/mtheli/toothbrush-card/issues/17)) |
+| Slovenščina | sl | |
 
 The card automatically detects the language configured in your Home Assistant instance (per-user profile setting). A specific language can also be forced per card with the `language` YAML option. If your language is not yet supported, it falls back to English. Contributions for additional languages are welcome — just add a new JSON file in `src/locales/`.
 
