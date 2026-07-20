@@ -185,7 +185,7 @@ The card automatically detects the language configured in your Home Assistant in
 
 ## Known Issues
 
-- **6-sector brushes (IO Series):** The [oralb_ble integration](https://github.com/Bluetooth-Devices/oralb-ble) only maps sectors 1–4. When a 6-sector brush reaches sectors 5 or 6, the integration incorrectly reports them as sector 4. The card includes a client-side workaround that tracks brushing progress and auto-advances past duplicate sectors, but the root cause needs to be fixed upstream in the oralb_ble parser.
+- **6-sector brushes (IO Series):** Older versions of the [oralb_ble library](https://github.com/Bluetooth-Devices/oralb-ble) only map sectors 1–4, so 6-sector brushes see sectors 5/6 reported as sector 4 or as `unknown_sector_code_N`. This is fixed upstream ([oralb-ble#180](https://github.com/Bluetooth-Devices/oralb-ble/pull/180), shipping with Home Assistant 2026.8). Until you are on 2026.8, the card's built-in workaround tracks brushing progress and auto-advances past duplicate sectors.
 - **iO Series 10 + iOsense charger:** The iOsense smart charger pairs with the brush and holds its own Bluetooth connection to it whenever the charger is powered (that is how it shows real-time feedback on its LEDs). While that connection is active, the brush stops broadcasting the advertisements that the Home Assistant Oral-B integration listens for — so no entities update during brushing, regardless of how good your Bluetooth proxy or adapter is. Workaround: power the charger only when you actually want to charge (e.g. via a smart plug). See [#3](https://github.com/mtheli/toothbrush-card/issues/3) for details.
 
 ## Development
