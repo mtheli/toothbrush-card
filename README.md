@@ -22,7 +22,13 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 
 Want support for another brush? [Open an issue](https://github.com/mtheli/toothbrush-card/issues) — an integration with a live brushing state is the main requirement.
 
+## Screenshots
+
 ![Oral-B](screenshots/OralB.png) ![Sonicare](screenshots/Sonicare.png)
+
+The compact view (`tooth_style: none`) — shown here with the header and chips still enabled:
+
+![Compact](screenshots/Compact.png)
 
 ---
 
@@ -171,9 +177,7 @@ layout:
     bottom_right: mode
 ```
 
-The compact view (`tooth_style: none`) — shown here with the header and chips still enabled:
-
-![Compact](screenshots/Compact.png)
+A screenshot of the compact view is in the [Screenshots](#screenshots) section at the top.
 
 ## Supported Languages
 
