@@ -11,3 +11,7 @@ TODO.md
 
 # Generated at build time (build timestamp shown in editor)
 src/build-info.js
+
+# btmon captures (contain device MAC addresses)
+*.snoop
+*.btsnoop
