@@ -181,11 +181,14 @@ A screenshot of the compact view is in the [Screenshots](#screenshots) section a
 
 ## Supported Languages
 
-| Language | Code |
-|----------|------|
-| English    | en   |
-| Deutsch    | de   |
-| Nederlands | nl   |
+| Language | Code | |
+|----------|------|---|
+| English     | en | |
+| Dansk       | da | AI-generated — native-speaker review welcome |
+| Deutsch     | de | |
+| Nederlands  | nl | |
+| Русский     | ru | AI-generated — native-speaker review welcome |
+| Slovenščina | sl | AI-generated — native-speaker review welcome |
 
 The card automatically detects the language configured in your Home Assistant instance. If your language is not yet supported, it falls back to English. Contributions for additional languages are welcome — just add a new JSON file in `src/locales/`.
 

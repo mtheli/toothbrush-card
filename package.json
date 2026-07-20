@@ -1,7 +1,7 @@
 {
   "source": "src/index.js",
   "module": "dist/toothbrush-card.js",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "targets": {
     "module": {
       "includeNodeModules": true
