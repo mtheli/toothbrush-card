@@ -8,17 +8,47 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 
 ### Toothbrush Integrations
 
-| Brand | Integration | Status | Notes |
-| :--- | :--- | :---: | :--- |
-| Oral-B | [`oralb`](https://www.home-assistant.io/integrations/oralb/) (official, built into HA Core) | ✅ | Live timer and device-reported sectors |
-| Philips Sonicare | [`philips_sonicare_ble`](https://github.com/mtheli/philips_sonicare_ble) (custom component) | ✅ | Live timer, time-based sectors |
-| Xiaomi T700 | [`xiaomi_ble`](https://www.home-assistant.io/integrations/xiaomi_ble/) (official, built into HA Core) | ✅ | Verified on a real T700 — the passive broadcast has no live timer/sectors, so the card shows a synthesized session timer with time-based quadrants, plus battery, score and brush-head chips |
-| Laifen | [`laifen_ble`](https://github.com/UrbanTechIO/Laifen) (custom component) | ✅ | Live timer, time-based sectors (aligned with the handle's 30s pacer when enabled), mode select, battery and (Wave Pro) pressure warning — for Wave and Wave Pro, works with laifen_ble 3.0.2 and newer |
-| Other Xiaomi models (T500, …) | `xiaomi_ble` | 🧪 | Untested — likely close to the T700; test reports welcome |
-| Oclean | [`oclean_ble`](https://github.com/deniskie/ha-oclean-integration) (custom component) | ⏸️ | Rich per-zone statistics, but only after a session ends — no live brushing state the card could animate. Will revisit if a live status entity becomes available |
-| Playbrush | — | ⏸️ | No Home Assistant integration available yet |
+| Brand | Integration | Status |
+| :--- | :--- | :---: |
+| Oral-B | [`oralb`](https://www.home-assistant.io/integrations/oralb/) (built into HA Core) | ✅ |
+| Philips Sonicare | [`philips_sonicare_ble`](https://github.com/mtheli/philips_sonicare_ble) (custom component) | ✅ |
+| Xiaomi | [`xiaomi_ble`](https://www.home-assistant.io/integrations/xiaomi_ble/) (built into HA Core) | ✅ |
+| Laifen | [`laifen_ble`](https://github.com/UrbanTechIO/Laifen) (custom component) | ✅ |
+| Oclean | [`oclean_ble`](https://github.com/deniskie/ha-oclean-integration) (custom component) | ⏸️ |
+| Playbrush | — | ⏸️ |
 
-✅ supported · 🧪 in progress / testers wanted · ⏸️ not yet sensible
+✅ supported · ⏸️ not yet sensible
+
+The readings the card can show depend on what each integration provides:
+
+| Reading | Oral-B | Sonicare | Xiaomi | Laifen |
+|---|:-:|:-:|:-:|:-:|
+| Live timer | ✓ | ✓ | ○ ¹ | ✓ |
+| Sectors | device-reported | integration-derived ⁴ | time-based ¹ | time-based ² |
+| Battery | ✓ | ✓ | ✓ | ✓ |
+| Pressure | ✓ | ✓ | — | ✓ ³ |
+| Intensity | — | ✓ | — | — |
+| Mode | ✓ | ✓ + select | — | ✓ + select |
+| Score | — | — | ✓ | — |
+| Brush head | — | wear · type · sessions | wear | — |
+| Connection | ✓ | ✓ + ESP bridge | ✓ | ✓ |
+
+¹ the Xiaomi broadcast has no live timer/sectors — the card synthesizes a session timer with time-based quadrants\
+² aligned with the handle's 30s pacer when enabled\
+³ pressure warning, Wave Pro only (needs laifen_ble 3.0.2+)\
+⁴ anatomical sectors provided by the integration's sector sensor, including revisit modes (e.g. White+); the card falls back to its own time-based calculation if the sensor is absent
+
+**Tested devices**
+
+- **Oral-B:** iO Series 5, iO 6, iO 8, iO 10, Pro Series D601
+- **Sonicare:** DiamondClean 9000 (HX992x), Prestige 9900 (HX999x), 7400 series (HX742x), HX960x, HX993x, Sonicare for Kids
+- **Xiaomi:** T700 · T500 uses the same integration and is expected to work — test reports welcome!
+- **Laifen:** Wave / Wave Pro
+
+#### Not yet sensible
+
+- **Oclean** (`oclean_ble`) — rich per-zone statistics, but only after a session ends; no live brushing state the card could animate. Will revisit if a live status entity becomes available.
+- **Playbrush** — no Home Assistant integration available yet.
 
 Want support for another brush? [Open an issue](https://github.com/mtheli/toothbrush-card/issues) — an integration with a live brushing state is the main requirement.
 
@@ -29,6 +59,19 @@ Want support for another brush? [Open an issue](https://github.com/mtheli/toothb
 The compact view (`tooth_style: none`) — shown here with the header and chips still enabled:
 
 ![Compact](screenshots/Compact.png)
+
+## Supported Languages
+
+| Language | Code | Comment |
+|----------|------|---------|
+| English     | en | |
+| Dansk       | da | needs to be verified ([#16](https://github.com/mtheli/toothbrush-card/issues/16)) |
+| Deutsch     | de | |
+| Nederlands  | nl | |
+| Русский     | ru | needs to be verified ([#15](https://github.com/mtheli/toothbrush-card/issues/15)) |
+| Slovenščina | sl | needs to be verified ([#17](https://github.com/mtheli/toothbrush-card/issues/17)) |
+
+The card automatically detects the language configured in your Home Assistant instance. If your language is not yet supported, it falls back to English. Contributions for additional languages are welcome — just add a new JSON file in `src/locales/`.
 
 ---
 
@@ -42,7 +85,7 @@ The compact view (`tooth_style: none`) — shown here with the header and chips 
 - Sector-segmented progress bar based on the brushing target (uses the device routine length when available)
 - Success badge when all sectors are complete
 - Automatic entity discovery — no manual YAML required
-- Sector tracking: device-reported (Oral-B) or time-based calculation (Sonicare, Xiaomi)
+- Sector tracking: device-reported (Oral-B), integration-derived (Sonicare) or time-based calculation (Xiaomi, Laifen)
 - Configurable title, subtitle, and accent color
 - Configurable tooth, active-sector, and completed-sector colors
 - Configurable sector order with drag & drop and up/down buttons
@@ -50,20 +93,6 @@ The compact view (`tooth_style: none`) — shown here with the header and chips 
 - State-driven icons: battery, pressure, score and brush head step their icon shape and colour with the value, so they stay readable even icon-only — see the [icon & colour reference](docs/ICONS.md)
 - Multi-language support (auto-detects Home Assistant language)
 - Light and dark mode support via HA CSS variables
-
-## Supported Data Points
-
-| Sensor    | Oral-B                          | Philips Sonicare                          | Xiaomi (T700, beta)                     |
-|-----------|---------------------------------|-------------------------------------------|------------------------------------------|
-| Status    | idle, running, charging, …      | off, standby, run, charge, …              | running / idle (from the on/off state)   |
-| Sector    | Reported by device (1–6)        | Calculated from routine time (4 or 6 sectors, configurable) | Calculated from routine time (4 quadrants × 30 s) |
-| Duration  | Brushing session (seconds)      | Brushing time (seconds)                   | Synthesized (time since the brush turned on) |
-| Pressure  | low, normal, high               | normal, high (pressure state on newer handles, pressure alert on others) | —                                        |
-| Intensity | —                               | low, medium, high                         | —                                        |
-| Mode      | Daily Clean, Sensitive, Turbo, …| Clean, White+, Gum Health, Deep Clean+    | —                                        |
-| Score     | —                               | —                                         | 0–100 (reported after each session)      |
-| Brush head| —                               | Wear (%)                                  | Condition (%)                            |
-| Battery   | Battery level (%)               | Battery level (%)                          | Battery level (%)                        |
 
 ## Community
 
@@ -178,19 +207,6 @@ layout:
 ```
 
 A screenshot of the compact view is in the [Screenshots](#screenshots) section at the top.
-
-## Supported Languages
-
-| Language | Code | |
-|----------|------|---|
-| English     | en | |
-| Dansk       | da | AI-generated — native-speaker review welcome |
-| Deutsch     | de | |
-| Nederlands  | nl | |
-| Русский     | ru | AI-generated — native-speaker review welcome |
-| Slovenščina | sl | AI-generated — native-speaker review welcome |
-
-The card automatically detects the language configured in your Home Assistant instance. If your language is not yet supported, it falls back to English. Contributions for additional languages are welcome — just add a new JSON file in `src/locales/`.
 
 ## Known Issues
 
