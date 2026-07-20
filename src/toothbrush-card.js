@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.25.0";
+export const CARD_VERSION = "0.25.1";
 // BUILD_DATE is stamped into src/build-info.js by scripts/gen_build_info.mjs,
 // which the "build" script runs first. That file is generated (gitignored), so
 // the value is "dev" only for editor/dev use before a build. Shown in the
@@ -666,8 +666,11 @@ export class ToothbrushCard extends LitElement {
     }
 
     render() {
-        const hass = this._hass;
         const config = this.config;
+        // config.language overrides the HA profile language for this card (#17)
+        const hass = config?.language && this._hass
+            ? Object.assign(Object.create(this._hass), { language: config.language })
+            : this._hass;
 
         if (!hass || !config || !this._entityIds) {
             if (hass && config?.device_id) {

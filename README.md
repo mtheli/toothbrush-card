@@ -71,7 +71,7 @@ The compact view (`tooth_style: none`) — shown here with the header and chips 
 | Русский     | ru | needs to be verified ([#15](https://github.com/mtheli/toothbrush-card/issues/15)) |
 | Slovenščina | sl | needs to be verified ([#17](https://github.com/mtheli/toothbrush-card/issues/17)) |
 
-The card automatically detects the language configured in your Home Assistant instance. If your language is not yet supported, it falls back to English. Contributions for additional languages are welcome — just add a new JSON file in `src/locales/`.
+The card automatically detects the language configured in your Home Assistant instance (per-user profile setting). A specific language can also be forced per card with the `language` YAML option. If your language is not yet supported, it falls back to English. Contributions for additional languages are welcome — just add a new JSON file in `src/locales/`.
 
 ---
 
@@ -175,6 +175,7 @@ The card is configured via the UI — just add it and select your toothbrush dev
 | hold_duration | number   | 0.5     | How long to keep showing the finished session (done badge + final time + "x min ago"), in hours: `0.25`–`24`, or `0` = until the next brushing session starts. The held view survives page reloads and can be dismissed early with the ×  on the badge. |
 | hold_completed | boolean | true    | Legacy switch for the same feature: `false` disables holding the finished session entirely (same as "Off" in the editor). |
 | routine_length | number  | auto    | Override the routine length in seconds (YAML only). Normally read from the device; mainly for brushes without one (e.g. Xiaomi, default `120`) whose session timer is synthesized |
+| language      | string   | auto    | Force the card language (YAML only): `en`, `da`, `de`, `nl`, `ru` or `sl`. Defaults to your Home Assistant profile language. Useful for shared wall panels or trying out a translation without changing your profile. |
 
 ### YAML Example
 ```yaml
