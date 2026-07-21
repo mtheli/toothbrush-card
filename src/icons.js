@@ -14,6 +14,7 @@ export const MODE_ICONS = {
     "off": "mdi:power",
     "sensitive": "mdi:feather",
     "settings": "mdi:cog-outline",
+    "smart_adapt": "mdi:auto-fix",
     "super_sensitive": "mdi:feather",
     "tongue_cleaning": "mdi:gate-and",
     "turbo": "mdi:car-turbocharger",

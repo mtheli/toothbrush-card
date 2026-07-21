@@ -90,10 +90,9 @@ KNOWN_PRESSURE_BYTES = {
     192, 240, 242,
 }
 
-# Mirrors the public oralb_ble library's STATES table (oralb_ble/parser.py) so
-# our live log matches what the Home Assistant integration reports. States not
-# listed here (seen empirically: 10 right after a session) fall back to
-# "unknown_<n>" — those are the interesting post-session frames for issue #4.
+# Mirrors the public oralb_ble library's STATES table (oralb_ble/parser.py,
+# oralb-ble >= 1.1.3) so our live log matches what the Home Assistant
+# integration reports. States not listed here fall back to "unknown_<n>".
 STATES = {
     0: "unknown",
     1: "initializing",
@@ -104,6 +103,7 @@ STATES = {
     6: "flight menu",
     8: "selection menu",
     9: "off",
+    10: "post brushing statistics",
     113: "final test",
     114: "pcb test",
     115: "sleeping",
