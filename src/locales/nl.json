@@ -13,6 +13,9 @@
   "done_title": "Klaar met poetsen!",
   "done_sextants": "Alle 6 sectoren afgerond",
   "done_quadrants": "Alle 4 sectoren afgerond",
+  "aborted_title": "Poetsen voortijdig gestopt",
+  "aborted_quadrants": "{x} van {y} sectoren afgerond",
+  "aborted_sextants": "{x} van {y} sectoren afgerond",
 
   "pressure_low": "Laag",
   "pressure_normal": "Normaal",
@@ -118,7 +121,7 @@
   "group_device": "Apparaat",
   "group_header": "Koptekst",
   "group_teeth": "Visualisatie",
-  "group_behavior": "Gedrag",
+  "group_recap": "Sessieoverzicht",
   "group_sectors": "Sectoren",
   "group_value_display": "Waardeweergave",
   "config_value_display_hint": "Deze instellingen gelden alleen wanneer de waarde ook wordt weergegeven, dus geplaatst als chip of hoek-markering.",

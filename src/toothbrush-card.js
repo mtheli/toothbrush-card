@@ -13,6 +13,9 @@ export const CARD_VERSION = "0.26.0";
 export { BUILD_DATE } from './build-info.js';
 
 const BRUSHING_DURATION = 120; // 2 minutes target
+// Runs shorter than this are button fumbles, not brushing attempts — they
+// neither become a recap nor replace one.
+const MIN_RECAP_SECONDS = 10;
 
 // Integration domain -> matcher for the main state entity the card binds to.
 // A device is supported iff it carries that entity — exactly the condition
@@ -370,29 +373,27 @@ export class ToothbrushCard extends LitElement {
         this._sessionRoutineLength = 0;
         this._completedAt = 0;
         this._holdDismissed = false;
+        this._historyRecapState = null;
+        this._stashedRecap = null;
+        this._completedIsFull = false;
     }
 
-    // --- Held-session persistence (issue #4/#5 follow-up) ---
-    // The completion latch survives page reloads via localStorage: Oral-B
-    // brushes wipe their reported session data ~seconds after powering off,
-    // so after a reload there is often nothing left to re-derive from the
-    // sensors. Stored per device, cleared when the next session starts.
+    // --- Dismiss persistence (issue #4/#5/#11) ---
+    // localStorage only stores the dismissed marker (× on the badge) per
+    // device — it suppresses re-deriving the same session until a new one
+    // starts. The recap itself is re-derived on load from frozen sensor
+    // values or recorder history, so it works on any browser or device.
 
     _holdStorageKey(deviceId) {
         return `toothbrush-card-hold-${deviceId}`;
     }
 
-    _loadHeldSession(deviceId) {
+    _loadDismissed(deviceId) {
         try {
             const raw = localStorage.getItem(this._holdStorageKey(deviceId));
-            const held = raw ? JSON.parse(raw) : null;
-            if (!held) return null;
-            // A dismissed marker (X on the badge) suppresses re-deriving the
-            // same session from frozen sensor values until a new one starts.
-            if (held.dismissed) return { dismissed: true };
-            return held.completedAt > 0 && held.duration > 0 ? held : null;
+            return !!(raw && JSON.parse(raw)?.dismissed);
         } catch (e) {
-            return null;
+            return false;
         }
     }
 
@@ -413,19 +414,97 @@ export class ToothbrushCard extends LitElement {
         this.requestUpdate();
     }
 
-    _saveHeldSession(deviceId, completedAt, duration) {
-        try {
-            localStorage.setItem(
-                this._holdStorageKey(deviceId),
-                JSON.stringify({ completedAt, duration })
-            );
-        } catch (e) { /* storage full/blocked — hold just won't survive reloads */ }
-    }
-
-    _clearHeldSession(deviceId) {
+    _clearDismissed(deviceId) {
         try {
             localStorage.removeItem(this._holdStorageKey(deviceId));
         } catch (e) { /* ignore */ }
+    }
+
+    // --- History recap (issue #11) ---
+    // When the post-session values are already wiped, the last session is
+    // rebuilt from recorder history: one WebSocket query for the duration
+    // entity, then a scan for the last "mountain" (rise to a peak, then
+    // wiped back to 0). Only the peak and its timestamp are needed — the
+    // completed view renders all zones as done. Opt out with
+    // `history_recap: false`.
+
+    async _maybeLoadRecapFromHistory(hass, config, entityIds, routineTarget) {
+        if (this._historyRecapState) return;
+        this._historyRecapState = 'pending';
+        const holdHours = config.hold_duration !== undefined
+            ? Number(config.hold_duration) || 0
+            : 0.5;
+        // Sessions older than the hold window would be hidden anyway; with
+        // hold_duration: 0 ("until next session") there is no time limit, so
+        // look back generously — the recorder returns only what it still
+        // retains (purge default: 10 days).
+        const windowHours = holdHours > 0 ? holdHours : 30 * 24;
+        const end = new Date();
+        const start = new Date(end.getTime() - windowHours * 3600000);
+        let rows = [];
+        try {
+            const resp = await hass.callWS({
+                type: 'history/history_during_period',
+                start_time: start.toISOString(),
+                end_time: end.toISOString(),
+                entity_ids: [entityIds.duration],
+                minimal_response: true,
+                no_attributes: true,
+                significant_changes_only: false,
+            });
+            rows = resp?.[entityIds.duration] || [];
+        } catch (e) {
+            // recorder unavailable or entity excluded — keep today's behavior
+            console.warn('toothbrush-card: history recap query failed', e);
+            return;
+        } finally {
+            this._historyRecapState = 'done';
+        }
+        // The world may have moved on while the query ran.
+        if (this._completed || this._wasActiveSession || this._holdDismissed) return;
+        const session = this._lastSessionFromHistory(rows, MIN_RECAP_SECONDS);
+        if (!session) return;
+        this._completed = true;
+        // routineTarget is the CURRENT routine length — history can't know
+        // which routine governed the past session. Close enough: switching
+        // routines between sessions merely misjudges completeness once.
+        this._completedIsFull = session.duration >= routineTarget * 0.9;
+        this._completedDuration = session.duration;
+        this._completedAt = session.endedAt;
+        this.requestUpdate();
+    }
+
+    _lastSessionFromHistory(rows, minDuration) {
+        // rows: chronological history states; WS compressed keys are
+        // s/lu (state / last_updated epoch seconds), REST-style objects
+        // use state/last_updated. Returns the newest "mountain" that
+        // reached minDuration — shorter blips are skipped, so a button
+        // fumble after a real session doesn't hide the recap.
+        let last = null;
+        let peak = 0;
+        let peakTs = 0;
+        let prev = 0;
+        for (const row of rows) {
+            const v = parseFloat(row.s !== undefined ? row.s : row.state);
+            if (!Number.isFinite(v)) continue;
+            const ts = row.lu !== undefined
+                ? row.lu * 1000
+                : Date.parse(row.last_updated) || 0;
+            // A rise out of zero (or a big drop while still positive — two
+            // sessions without an observed wipe in between) starts a new
+            // mountain; otherwise the peak just keeps growing.
+            if (v > 0 && (prev <= 0 || v < prev - 60)) {
+                if (peak >= minDuration) last = { duration: peak, endedAt: peakTs };
+                peak = v;
+                peakTs = ts;
+            } else if (v >= peak) {
+                peak = v;
+                peakTs = ts;
+            }
+            prev = v;
+        }
+        if (peak >= minDuration) last = { duration: peak, endedAt: peakTs };
+        return last;
     }
 
     connectedCallback() {
@@ -457,11 +536,13 @@ export class ToothbrushCard extends LitElement {
             this._peakDuration = 0;
             this._wasActiveSession = false;
             this._sessionRoutineLength = 0;
-            const held = this._loadHeldSession(config.device_id);
-            this._holdDismissed = !!held?.dismissed;
-            this._completed = !!held && !held.dismissed;
-            this._completedDuration = this._completed ? held.duration : 0;
-            this._completedAt = this._completed ? held.completedAt : 0;
+            this._holdDismissed = this._loadDismissed(config.device_id);
+            this._completed = false;
+            this._completedDuration = 0;
+            this._completedAt = 0;
+            this._historyRecapState = null;
+            this._stashedRecap = null;
+            this._completedIsFull = false;
         }
         if (this._hass && !this._entityIds) {
             this._entityIds = this._findAndMapEntitiesInConfig(this._hass, config.device_id);
@@ -793,14 +874,22 @@ export class ToothbrushCard extends LitElement {
         const holdCompleted = config.hold_completed !== false;
         if (active) {
             if (!this._wasActiveSession) {
-                // New session started — drop any held completion.
+                // New session started — stash the held recap: a real session
+                // replaces it, a seconds-long button fumble restores it.
+                this._stashedRecap = this._completed
+                    ? {
+                        duration: this._completedDuration,
+                        at: this._completedAt,
+                        full: this._completedIsFull,
+                    }
+                    : null;
                 this._peakDuration = 0;
                 this._completed = false;
                 this._completedAt = 0;
                 this._holdDismissed = false;
                 this._visitedSectors = null;
                 this._sessionRoutineLength = 0;
-                this._clearHeldSession(config.device_id);
+                this._clearDismissed(config.device_id);
             }
             this._peakDuration = Math.max(this._peakDuration, duration);
             if (routineLength > 0) {
@@ -809,39 +898,63 @@ export class ToothbrushCard extends LitElement {
                 this._sessionRoutineLength = routineLength;
             }
         } else if (this._wasActiveSession) {
-            // Session just ended — latch if (nearly) a full routine was reached.
+            // Session just ended — latch it: full and aborted sessions both
+            // get a recap (differently worded); a button fumble shorter than
+            // MIN_RECAP_SECONDS brings the stashed recap back instead.
             const endTarget = (this._sessionRoutineLength || BRUSHING_DURATION) * 0.9;
-            this._completed = holdCompleted && this._peakDuration >= endTarget;
-            this._completedDuration = this._peakDuration;
-            this._peakDuration = 0;
-            if (this._completed) {
+            if (holdCompleted && this._peakDuration >= MIN_RECAP_SECONDS) {
+                this._completed = true;
+                this._completedIsFull = this._peakDuration >= endTarget;
+                this._completedDuration = this._peakDuration;
                 this._completedAt = Date.now();
-                this._saveHeldSession(config.device_id, this._completedAt, this._completedDuration);
+            } else if (holdCompleted && this._stashedRecap) {
+                this._completed = true;
+                this._completedIsFull = this._stashedRecap.full;
+                this._completedDuration = this._stashedRecap.duration;
+                this._completedAt = this._stashedRecap.at;
+            } else {
+                this._completed = false;
+                this._completedIsFull = false;
+                this._completedDuration = 0;
+                this._completedAt = 0;
             }
+            this._peakDuration = 0;
+            this._stashedRecap = null;
         } else if (holdCompleted && !this._holdDismissed
                 && (!entityIds.routine_length || routineLength > 0)
-                && duration >= (routineLength || BRUSHING_DURATION) * 0.9) {
-            // Issue #5: also derive completion from the current state alone —
-            // the frozen post-session values prove a finished session even if
-            // the card never observed the transition (dashboard closed while
-            // brushing, or reloaded afterwards). Skipped while an existing
+                && duration >= MIN_RECAP_SECONDS) {
+            // Issue #5: also derive the recap from the current state alone —
+            // the frozen post-session values describe the last session even
+            // if the card never observed the transition (dashboard closed
+            // while brushing, or reloaded afterwards). Whether it counts as
+            // completed is gated below; skipped while an existing
             // routine_length sensor is unreadable, so an aborted long routine
             // can't slip past the shorter default target.
-            // Issue #11: the hold restored from localStorage may belong to an
-            // OLDER session. A reading that differs from the held duration is
+            // Issue #11: a reading that differs from the adopted duration is
             // a newer session (or a late tail sample of it — brush_time still
             // ticks up for a few seconds after the end), so adopt its
-            // timestamp and value, downwards too. An identical reading is the
-            // same session: an HA restart restores the exact value but
-            // re-stamps last_changed, so there the held timestamp wins.
+            // timestamp and value, downwards too.
             if (!this._completed || duration !== this._completedDuration) {
                 this._completedAt = Date.parse(
                     hass.states[entityIds.duration]?.last_changed
                 ) || Date.now();
                 this._completedDuration = duration;
-                this._saveHeldSession(config.device_id, this._completedAt, duration);
             }
             this._completed = true;
+            this._completedIsFull =
+                duration >= (routineLength || BRUSHING_DURATION) * 0.9;
+        } else if (holdCompleted && !this._holdDismissed && !this._completed
+                && config.history_recap !== false
+                && (!entityIds.routine_length || routineLength > 0)
+                && entityIds.duration) {
+            // Issue #11: Oral-B wipes the reported session values ~seconds
+            // after powering off (and an aborted run can leave a frozen
+            // below-target value), so the current state often proves
+            // nothing. Rebuild the last completed session from recorder
+            // history (once per device per page load).
+            this._maybeLoadRecapFromHistory(
+                hass, config, entityIds, routineLength || BRUSHING_DURATION
+            );
         }
         this._wasActiveSession = active;
         // hold_duration in hours; absent = 0.5 h default, explicit 0 = until
@@ -852,7 +965,9 @@ export class ToothbrushCard extends LitElement {
             : 0.5;
         const holdExpired = holdHours > 0 && this._completedAt > 0
             && Date.now() - this._completedAt > holdHours * 3600000;
-        const showCompleted = holdCompleted && this._completed && !active && !holdExpired;
+        const showRecap = holdCompleted && this._completed && !active && !holdExpired;
+        const showCompleted = showRecap && this._completedIsFull;
+        const showAborted = showRecap && !this._completedIsFull;
 
         // Mode selector
         const canSelectMode = entityIds.mode_select
@@ -936,7 +1051,7 @@ export class ToothbrushCard extends LitElement {
         if (showCompleted) {
             sector = 'success';
         }
-        const displayDuration = showCompleted ? this._completedDuration : duration;
+        const displayDuration = showRecap ? this._completedDuration : duration;
 
         // Computed values
         const defaultOrder = numSectors === 6 ? SEXTANT_ZONES : QUADRANT_ZONES;
@@ -1010,7 +1125,7 @@ export class ToothbrushCard extends LitElement {
         // read as a just-finished session the next morning. Ticks via the
         // existing 1 s interval.
         let completedAgo = '';
-        if (showCompleted && this._completedAt > 0) {
+        if (showRecap && this._completedAt > 0) {
             const mins = Math.floor((Date.now() - this._completedAt) / 60000);
             if (mins < 1) {
                 completedAgo = t(hass, 'completed_just_now');
@@ -1288,7 +1403,7 @@ export class ToothbrushCard extends LitElement {
                         <div>${bottomRightEl}</div>
                     </div>
 
-                    <div class="progress-wrap ${active || isSuccess ? 'visible' : ''} ${config.progress_size === 'bold' ? 'bar-bold' : config.progress_size === 'xl' ? 'bar-xl' : ''}">
+                    <div class="progress-wrap ${active || isSuccess || showAborted ? 'visible' : ''} ${config.progress_size === 'bold' ? 'bar-bold' : config.progress_size === 'xl' ? 'bar-xl' : ''}">
                         <div class="progress-track">
                             ${Array.from({ length: numSectors || 1 }, (_, i) => {
                                 // Same time-based fill as before, sliced into one
@@ -1312,13 +1427,20 @@ export class ToothbrushCard extends LitElement {
                 </div>
 
                 <!-- Done badge -->
-                <div class="done-badge ${isSuccess ? 'show' : ''}">
-                    ${showCompleted ? html`
+                <div class="done-badge ${isSuccess || showAborted ? 'show' : ''} ${showAborted ? 'aborted' : ''}">
+                    ${showRecap ? html`
                     <button class="done-dismiss"
                             @click=${() => this._dismissHold()}>&times;</button>` : ''}
+                    ${showAborted ? html`
+                    <p>${t(hass, 'aborted_title')}${completedAgo
+                        ? html` <span class="done-age">(${completedAgo})</span>` : ''}</p>
+                    <span>${t(hass, numSectors === 6 ? 'aborted_sextants' : 'aborted_quadrants')
+                        .replace('{x}', Math.min(numSectors || 4, Math.floor(
+                            displayDuration / (targetDuration / (numSectors || 4)))))
+                        .replace('{y}', numSectors || 4)}</span>` : html`
                     <p>&#10003; ${t(hass, 'done_title')}${completedAgo
                         ? html` <span class="done-age">(${completedAgo})</span>` : ''}</p>
-                    <span>${t(hass, numSectors === 6 ? 'done_sextants' : 'done_quadrants')}</span>
+                    <span>${t(hass, numSectors === 6 ? 'done_sextants' : 'done_quadrants')}</span>`}
                 </div>
             </ha-card>
         `;

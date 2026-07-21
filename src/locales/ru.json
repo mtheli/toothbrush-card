@@ -13,6 +13,9 @@
   "done_title": "Чистка завершена!",
   "done_sextants": "Все 6 секстантов готовы",
   "done_quadrants": "Все 4 квадранта готовы",
+  "aborted_title": "Чистка прервана раньше времени",
+  "aborted_quadrants": "{x} из {y} квадрантов готово",
+  "aborted_sextants": "{x} из {y} секстантов готово",
 
   "pressure_low": "Слабый",
   "pressure_normal": "Нормальный",
@@ -118,7 +121,7 @@
   "group_device": "Устройство",
   "group_header": "Шапка",
   "group_teeth": "Визуализация",
-  "group_behavior": "Поведение",
+  "group_recap": "Итоги сеанса",
   "group_sectors": "Секторы",
   "group_value_display": "Отображение значений",
   "config_value_display_hint": "Эти настройки действуют, только если значение отображается — то есть размещено как чип или угловой маркер.",

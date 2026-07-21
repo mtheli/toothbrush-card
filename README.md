@@ -168,12 +168,20 @@ The card is configured via the UI — just add it and select your toothbrush dev
 | head_display  | string   | `remaining` | What the brush-head reading shows: `remaining` (% left), `used` (% worn), or `sessions` (estimated sessions left — needs the integration's Sessions Left sensor, falls back to `remaining` without it). |
 | layout        | object   | —       | Place the readings (`battery`, `pressure`, `intensity`, `mode`, `score`, `brush_head`, `head_type`) freely: up to four chips in the top row (`layout.chips`) and four corner markers (`layout.corners.top_left` … `bottom_right`). Each reading can be used once; omitting `layout` keeps the classic arrangement. Editable in the UI. |
 
-### Behavior
+### Session recap
+
+After a session ends the card keeps showing it as a banner: green "Brushing complete!" for a (nearly) full routine, amber "Brushing stopped early — x of y quadrants finished" for an aborted one. The recap is rebuilt from recorder history on load, so it works on any browser or device; the × on the banner dismisses it in the current browser until the next session.
 
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
-| hold_duration | number   | 0.5     | How long to keep showing the finished session (done badge + final time + "x min ago"), in hours: `0.25`–`24`, or `0` = until the next brushing session starts. The held view survives page reloads and can be dismissed early with the ×  on the badge. |
-| hold_completed | boolean | true    | Legacy switch for the same feature: `false` disables holding the finished session entirely (same as "Off" in the editor). |
+| hold_duration | number   | 0.5     | How long to keep showing the recap banner, in hours: `0.25`–`24`, or `0` = until the next brushing session starts. |
+| hold_completed | boolean | true    | Legacy switch for the same feature: `false` disables the recap banner entirely (same as "Off" in the editor). |
+| history_recap | boolean | true    | Rebuild the recap from recorder history when the card loads with nothing else to show (fresh browser or other device, sensor values already cleared by the brush). Uses one history query for the duration sensor; `false` disables it. |
+
+### Misc
+
+| Option        | Type     | Default | Description                                  |
+|---------------|----------|---------|----------------------------------------------|
 | routine_length | number  | auto    | Override the routine length in seconds (YAML only). Normally read from the device; mainly for brushes without one (e.g. Xiaomi, default `120`) whose session timer is synthesized |
 | language      | string   | auto    | Force the card language (YAML only): `en`, `da`, `de`, `nl`, `ru` or `sl`. Defaults to your Home Assistant profile language. Useful for shared wall panels or trying out a translation without changing your profile. |
 

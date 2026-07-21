@@ -13,6 +13,9 @@
   "done_title": "Brushing complete!",
   "done_sextants": "All 6 sextants finished",
   "done_quadrants": "All 4 quadrants finished",
+  "aborted_title": "Brushing stopped early",
+  "aborted_quadrants": "{x} of {y} quadrants finished",
+  "aborted_sextants": "{x} of {y} sextants finished",
 
   "pressure_low": "Low",
   "pressure_normal": "Normal",
@@ -118,7 +121,7 @@
   "group_device": "Device",
   "group_header": "Header",
   "group_teeth": "Visualization",
-  "group_behavior": "Behavior",
+  "group_recap": "Session recap",
   "group_sectors": "Sectors",
   "group_value_display": "Value display",
   "config_value_display_hint": "These settings only take effect while the reading is actually shown, i.e. placed as a chip or corner marker.",

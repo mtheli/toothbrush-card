@@ -13,6 +13,9 @@
   "done_title": "Putzen abgeschlossen!",
   "done_sextants": "Alle 6 Sextanten fertig",
   "done_quadrants": "Alle 4 Quadranten fertig",
+  "aborted_title": "Putzen vorzeitig abgebrochen",
+  "aborted_quadrants": "{x} von {y} Quadranten fertig",
+  "aborted_sextants": "{x} von {y} Sextanten fertig",
 
   "pressure_low": "Niedrig",
   "pressure_normal": "Normal",
@@ -118,7 +121,7 @@
   "group_device": "Gerät",
   "group_header": "Header",
   "group_teeth": "Visualisierung",
-  "group_behavior": "Verhalten",
+  "group_recap": "Sitzungs-Rückblick",
   "group_sectors": "Sektoren",
   "group_value_display": "Werte-Darstellung",
   "config_value_display_hint": "Diese Einstellungen wirken nur, wenn der jeweilige Wert auch angezeigt wird, also als Chip oder Eck-Markierung platziert ist.",

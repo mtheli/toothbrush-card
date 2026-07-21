@@ -623,7 +623,7 @@ export class ToothbrushCardEditor extends LitElement {
 
                 ${this._config.device_id ? this._renderValueDisplaySection() : ''}
 
-                <div class="group-label">${t(this.hass, 'group_behavior')}</div>
+                <div class="group-label">${t(this.hass, 'group_recap')}</div>
                 <div class="field">
                     <ha-selector
                         .hass=${this.hass}

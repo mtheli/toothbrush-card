@@ -13,6 +13,9 @@
   "done_title": "Ščetkanje končano!",
   "done_sextants": "Vseh 6 sekstantov končanih",
   "done_quadrants": "Vsi 4 kvadranti končani",
+  "aborted_title": "Ščetkanje predčasno prekinjeno",
+  "aborted_quadrants": "{x} od {y} kvadrantov končanih",
+  "aborted_sextants": "{x} od {y} sekstantov končanih",
 
   "pressure_low": "Nizek",
   "pressure_normal": "Normalen",
@@ -118,7 +121,7 @@
   "group_device": "Naprava",
   "group_header": "Naslovna vrstica",
   "group_teeth": "Vizualizacija",
-  "group_behavior": "Vedenje",
+  "group_recap": "Povzetek seje",
   "group_sectors": "Sektorji",
   "group_value_display": "Prikaz vrednosti",
   "config_value_display_hint": "Te nastavitve učinkujejo le, kadar je vrednost dejansko prikazana, torej postavljena kot čip ali kotna oznaka.",

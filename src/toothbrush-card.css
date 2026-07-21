@@ -548,6 +548,12 @@ ha-card {
     font-weight: 400;
     color: var(--secondary-text-color, #888);
 }
+/* Aborted-session variant: amber instead of green. */
+.done-badge.aborted {
+    border-top-color: #fde68a;
+}
+.done-badge.aborted p { color: #b45309; }
+.done-badge.aborted span { color: #d97706; }
 
 /* ── BRUSH HEAD INDICATOR ── */
 /* Configurable corner markers (inline icon + value in any of 4 corners) */
