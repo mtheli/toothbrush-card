@@ -60,6 +60,8 @@ The compact view (`tooth_style: none`) — shown here with the header and chips 
 
 ![Compact](screenshots/Compact.png)
 
+Wondering what a specific icon or colour means? The [icon & colour reference](docs/ICONS.md) shows every state icon the card can display, with its trigger condition and colour.
+
 ## Supported Languages
 
 | Language | Code | Comment |
