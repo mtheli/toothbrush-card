@@ -83,7 +83,7 @@ The card automatically detects the language configured in your Home Assistant in
 - Compact panel mode: hideable header and tooth ring with a large standalone timer (two cards fit side by side on a 480×480 wall panel)
 - Bluetooth connection status indicator (Pantone 285 blue)
 - Sector-segmented progress bar based on the brushing target (uses the device routine length when available)
-- Success badge when all sectors are complete
+- Session recap banner: green when the routine was completed, amber with partial progress when brushing stopped early — rebuilt from recorder history, so it shows on any browser or device
 - Automatic entity discovery — no manual YAML required
 - Sector tracking: device-reported (Oral-B), integration-derived (Sonicare) or time-based calculation (Xiaomi, Laifen)
 - Configurable title, subtitle, and accent color
