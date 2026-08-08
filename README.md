@@ -11,6 +11,7 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 | Brand | Integration | Status |
 | :--- | :--- | :---: |
 | Oral-B | [`oralb`](https://www.home-assistant.io/integrations/oralb/) (built into HA Core) | ✅ |
+| Oral-B | [`oralb_live`](https://github.com/thomasgregg/oralb-ha) (custom component) | ✅ |
 | Philips Sonicare | [`philips_sonicare_ble`](https://github.com/mtheli/philips_sonicare_ble) (custom component) | ✅ |
 | Xiaomi | [`xiaomi_ble`](https://www.home-assistant.io/integrations/xiaomi_ble/) (built into HA Core) | ✅ |
 | Laifen | [`laifen_ble`](https://github.com/UrbanTechIO/Laifen) (custom component) | ✅ |
@@ -21,7 +22,7 @@ A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) 
 
 The readings the card can show depend on what each integration provides:
 
-| Reading | Oral-B | Sonicare | Xiaomi | Laifen |
+| Reading | Oral-B ⁵ | Sonicare | Xiaomi | Laifen |
 |---|:-:|:-:|:-:|:-:|
 | Live timer | ✓ | ✓ | ○ ¹ | ✓ |
 | Sectors | device-reported | integration-derived ⁴ | time-based ¹ | time-based ² |
@@ -36,7 +37,8 @@ The readings the card can show depend on what each integration provides:
 ¹ the Xiaomi broadcast has no live timer/sectors — the card synthesizes a session timer with time-based quadrants\
 ² aligned with the handle's 30s pacer when enabled\
 ³ pressure warning, Wave Pro only (needs laifen_ble 3.0.2+)\
-⁴ anatomical sectors provided by the integration's sector sensor, including revisit modes (e.g. White+); the card falls back to its own time-based calculation if the sensor is absent
+⁴ anatomical sectors provided by the integration's sector sensor, including revisit modes (e.g. White+); the card falls back to its own time-based calculation if the sensor is absent\
+⁵ applies to both `oralb` and `oralb_live` — the latter mirrors the built-in integration's entities, so the card reads it identically. Its extra sensors (smiley, battery time remaining, refill/brush-head counters) are not shown yet, see [#20](https://github.com/mtheli/toothbrush-card/issues/20)
 
 **Tested devices**
 

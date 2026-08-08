@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.27.0";
+export const CARD_VERSION = "0.28.0-beta.1";
 // BUILD_DATE is stamped into src/build-info.js by scripts/gen_build_info.mjs,
 // which the "build" script runs first. That file is generated (gitignored), so
 // the value is "dev" only for editor/dev use before a build. Shown in the
@@ -31,6 +31,10 @@ const MIN_RECAP_SECONDS = 10;
 // localize entity_ids on non-English installs.
 export const SUPPORTED_INTEGRATIONS = {
     oralb: { translationKey: 'toothbrush_state' },
+    // Oral-B Live (custom integration) mirrors the built-in oralb translation
+    // keys on purpose, so every reading below maps through the shared branch
+    // in findDeviceEntities and no separate handling is needed.
+    oralb_live: { translationKey: 'toothbrush_state' },
     philips_sonicare_ble: { translationKey: 'handle_state' },
     xiaomi_ble: { idSuffix: '_toothbrush' },
     laifen_ble: { translationKey: 'status', idSuffix: '_status' },
