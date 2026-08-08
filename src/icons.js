@@ -8,6 +8,10 @@ export const MODE_ICONS = {
     // OralB modes
     "daily_clean": "mdi:repeat-once",
     "deep_clean": "mdi:water",
+    // oralb_live spells two modes differently from the built-in oralb
+    // integration: gentle_white has no counterpart there at all, and
+    // tongue_clean is its name for tongue_cleaning.
+    "gentle_white": "mdi:shimmer",
     "gum_care": "mdi:tooth-outline",
     "intense": "mdi:shape-circle-plus",
     "massage": "mdi:spa",
@@ -16,6 +20,7 @@ export const MODE_ICONS = {
     "settings": "mdi:cog-outline",
     "smart_adapt": "mdi:auto-fix",
     "super_sensitive": "mdi:feather",
+    "tongue_clean": "mdi:gate-and",
     "tongue_cleaning": "mdi:gate-and",
     "turbo": "mdi:car-turbocharger",
     "whiten": "mdi:shimmer",
