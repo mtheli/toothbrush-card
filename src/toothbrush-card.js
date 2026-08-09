@@ -431,6 +431,13 @@ export class ToothbrushCard extends LitElement {
     // wiped back to 0). Only the peak and its timestamp are needed — the
     // completed view renders all zones as done. Opt out with
     // `history_recap: false`.
+    //
+    // The routine length rides along in the same query (issue #18). It decides
+    // whether the session counts as complete, and the current state is the
+    // wrong source for it twice over: it describes the routine set *now*, not
+    // the one that governed the past session, and an integration that connects
+    // actively (oralb_live) reports it as unavailable once the brush is back on
+    // the charger — precisely when this rebuild has to run.
 
     async _maybeLoadRecapFromHistory(hass, config, entityIds, routineTarget) {
         if (this._historyRecapState) return;
@@ -446,17 +453,23 @@ export class ToothbrushCard extends LitElement {
         const end = new Date();
         const start = new Date(end.getTime() - windowHours * 3600000);
         let rows = [];
+        let routineRows = [];
         try {
             const resp = await hass.callWS({
                 type: 'history/history_during_period',
                 start_time: start.toISOString(),
                 end_time: end.toISOString(),
-                entity_ids: [entityIds.duration],
+                entity_ids: entityIds.routine_length
+                    ? [entityIds.duration, entityIds.routine_length]
+                    : [entityIds.duration],
                 minimal_response: true,
                 no_attributes: true,
                 significant_changes_only: false,
             });
             rows = resp?.[entityIds.duration] || [];
+            routineRows = entityIds.routine_length
+                ? resp?.[entityIds.routine_length] || []
+                : [];
         } catch (e) {
             // recorder unavailable or entity excluded — keep today's behavior
             console.warn('toothbrush-card: history recap query failed', e);
@@ -468,11 +481,16 @@ export class ToothbrushCard extends LitElement {
         if (this._completed || this._wasActiveSession || this._holdDismissed) return;
         const session = this._lastSessionFromHistory(rows, MIN_RECAP_SECONDS);
         if (!session) return;
+        // History first, the current state only as a fallback; without either,
+        // the plain default applies — but not for a device that does report a
+        // routine, since measuring an aborted long routine against the short
+        // default would announce it as complete.
+        const target = this._routineAtFromHistory(routineRows, session.endedAt, entityIds)
+            || routineTarget
+            || (entityIds.routine_length ? 0 : BRUSHING_DURATION);
+        if (!target) return;
         this._completed = true;
-        // routineTarget is the CURRENT routine length — history can't know
-        // which routine governed the past session. Close enough: switching
-        // routines between sessions merely misjudges completeness once.
-        this._completedIsFull = session.duration >= routineTarget * 0.9;
+        this._completedIsFull = session.duration >= target * 0.9;
         this._completedDuration = session.duration;
         this._completedAt = session.endedAt;
         this.requestUpdate();
@@ -509,6 +527,26 @@ export class ToothbrushCard extends LitElement {
         }
         if (peak >= minDuration) last = { duration: peak, endedAt: peakTs };
         return last;
+    }
+
+    _routineAtFromHistory(rows, endedAt, entityIds) {
+        // The routine length in force when that session ended — rows are
+        // chronological, so the last one at or before the peak wins. Same unit
+        // handling as the live read. 0 means history could not say (entity not
+        // recorded, or only written after the session).
+        let seconds = 0;
+        for (const row of rows) {
+            const ts = row.lu !== undefined
+                ? row.lu * 1000
+                : Date.parse(row.last_updated) || 0;
+            if (ts > endedAt) break;
+            const v = parseFloat(row.s !== undefined ? row.s : row.state);
+            // Skips unavailable/unknown, which is the whole point here.
+            if (Number.isFinite(v) && v > 0) {
+                seconds = Math.round(v * (entityIds.routine_length_minutes ? 60 : 1));
+            }
+        }
+        return seconds;
     }
 
     connectedCallback() {
@@ -949,16 +987,17 @@ export class ToothbrushCard extends LitElement {
                 duration >= (routineLength || BRUSHING_DURATION) * 0.9;
         } else if (holdCompleted && !this._holdDismissed && !this._completed
                 && config.history_recap !== false
-                && (!entityIds.routine_length || routineLength > 0)
                 && entityIds.duration) {
             // Issue #11: Oral-B wipes the reported session values ~seconds
             // after powering off (and an aborted run can leave a frozen
             // below-target value), so the current state often proves
             // nothing. Rebuild the last completed session from recorder
             // history (once per device per page load).
-            this._maybeLoadRecapFromHistory(
-                hass, config, entityIds, routineLength || BRUSHING_DURATION
-            );
+            // Issue #18: deliberately no routine_length gate — the query
+            // resolves the target from history and declines the recap itself
+            // if neither source can name one, so an integration whose sensors
+            // go unavailable on disconnect still gets its session back.
+            this._maybeLoadRecapFromHistory(hass, config, entityIds, routineLength);
         }
         this._wasActiveSession = active;
         // hold_duration in hours; absent = 0.5 h default, explicit 0 = until
