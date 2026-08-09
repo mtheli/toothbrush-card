@@ -5,7 +5,7 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
-export const CARD_VERSION = "0.28.0-beta.1";
+export const CARD_VERSION = "0.28.0";
 // BUILD_DATE is stamped into src/build-info.js by scripts/gen_build_info.mjs,
 // which the "build" script runs first. That file is generated (gitignored), so
 // the value is "dev" only for editor/dev use before a build. Shown in the
@@ -1124,6 +1124,14 @@ export class ToothbrushCard extends LitElement {
             ? hass.states[entityIds.ble_connected]?.state === 'on'
             : status !== 'unavailable' && status !== 'unknown';
         const btActive = active || batteryIsCharging;
+        // Charging station (oralb_live): the handle talks through an iO Sense
+        // instead of holding its single BLE slot for us. Both facts sit on the
+        // main entity, so no extra entity lookup is needed. Deliberately not a
+        // health signal — an idle station is the normal state between sessions,
+        // and losing it only degrades the integration to advertisements.
+        const baseAttrs = hass.states[entityIds.base_entity]?.attributes || {};
+        const hasCharger = !!baseAttrs.charger_address;
+        const viaCharger = baseAttrs.data_source === 'charger_bridge';
 
         // Age line under the done badge ("2 h ago") — a held recap must not
         // read as a just-finished session the next morning. Ticks via the
@@ -1361,6 +1369,12 @@ export class ToothbrushCard extends LitElement {
                              viewBox="0 0 24 24" fill="currentColor">
                             <path d="${CONN_ICONS.bluetooth}"/>
                         </svg>
+                        ${hasCharger ? html`
+                        <svg class="conn-icon ${viaCharger ? 'active' : ''}" viewBox="0 0 24 24" fill="currentColor"
+                             @click="${() => this._showMoreInfo(entityIds.base_entity)}">
+                            <title>${viaCharger ? t(hass, 'conn_via_charger') : t(hass, 'conn_charger_paired')}</title>
+                            <path d="${CONN_ICONS.charger}"/>
+                        </svg>` : ''}
                         ${entityIds.esp_bridge_alive ? html`
                         <svg class="conn-icon ${espConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
                              @click="${() => this._showMoreInfo(entityIds.esp_bridge_alive)}">

@@ -1,4 +1,7 @@
 {
+  "conn_via_charger": "Live-gegevens via het oplaadstation",
+  "conn_charger_paired": "Oplaadstation gekoppeld",
+
   "chip_battery": "Batterij",
   "chip_pressure": "Druk",
   "chip_intensity": "Intensiteit",

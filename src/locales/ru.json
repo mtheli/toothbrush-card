@@ -1,4 +1,7 @@
 {
+  "conn_via_charger": "Данные в реальном времени через зарядную станцию",
+  "conn_charger_paired": "Зарядная станция сопряжена",
+
   "chip_battery": "Батарея",
   "chip_pressure": "Нажим",
   "chip_intensity": "Интенсивность",

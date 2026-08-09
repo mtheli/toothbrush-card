@@ -1,4 +1,7 @@
 {
+  "conn_via_charger": "Live data via the charging station",
+  "conn_charger_paired": "Charging station paired",
+
   "chip_battery": "Battery",
   "chip_pressure": "Pressure",
   "chip_intensity": "Intensity",

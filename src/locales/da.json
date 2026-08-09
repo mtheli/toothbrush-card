@@ -1,4 +1,7 @@
 {
+  "conn_via_charger": "Livedata via ladestationen",
+  "conn_charger_paired": "Ladestation parret",
+
   "chip_battery": "Batteri",
   "chip_pressure": "Tryk",
   "chip_intensity": "Intensitet",

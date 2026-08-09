@@ -1,4 +1,7 @@
 {
+  "conn_via_charger": "Podatki v živo prek polnilne postaje",
+  "conn_charger_paired": "Polnilna postaja povezana",
+
   "chip_battery": "Baterija",
   "chip_pressure": "Pritisk",
   "chip_intensity": "Intenzivnost",

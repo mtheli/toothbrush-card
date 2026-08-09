@@ -1,4 +1,7 @@
 {
+  "conn_via_charger": "Live-Daten über die Ladestation",
+  "conn_charger_paired": "Ladestation gekoppelt",
+
   "chip_battery": "Akku",
   "chip_pressure": "Druck",
   "chip_intensity": "Intensität",
