@@ -239,7 +239,12 @@ git clone https://github.com/mtheli/toothbrush-card.git
 cd toothbrush-card
 npm install
 npm run build
+npm test
 ```
+
+`npm test` replays a real captured brushing session through the built card and
+checks what it renders, so it runs after `npm run build`. It needs no
+dependencies beyond Node itself — see [`test/`](test/).
 
 Contributing a BLE capture for a protocol issue? See [`scripts/oralb/`](scripts/oralb/).
 

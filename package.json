@@ -10,6 +10,7 @@
   "scripts": {
     "watch": "parcel watch",
     "build": "node scripts/gen_build_info.mjs && parcel build src/index.js --dist-dir dist --no-source-maps",
+    "test": "node --test \"test/**/*.test.mjs\"",
     "icons": "node scripts/gen_icon_overview.mjs"
   },
   "devDependencies": {
