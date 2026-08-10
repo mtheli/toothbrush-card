@@ -1,0 +1,54 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Tests against src
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Pinned to what development runs on. Lowering it needs checking,
+          # not guessing: the module hooks in test/helpers/src-loader.mjs need
+          # module.register() (Node >= 20.6) and the recap tests need
+          # mock.timers with Date support (Node >= 20.11).
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      # Runs against src/, so no build is needed and a failure points at a
+      # line in the source.
+      - run: npm test
+
+  bundle:
+    name: Tests against the built bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      # The same suite against dist/. This is the run that proves Parcel
+      # produced a working artifact - the src/ job cannot.
+      - run: npm run test:dist
+      - name: Check the committed bundle is current
+        run: |
+          # test:dist has just rebuilt dist/. It is committed, so a fresh build
+          # should reproduce it - except for BUILD_DATE, which is stamped per
+          # build and accounts for exactly one changed line.
+          stat=$(git diff --numstat -- dist/)
+          if [ -z "$stat" ]; then
+            echo "dist/ is byte-identical to a fresh build."
+          elif [ "$stat" = "$(printf '1\t1\tdist/toothbrush-card.js')" ]; then
+            echo "dist/ matches src/ - only the build stamp differs."
+          else
+            echo "::error::dist/ is out of date. Run 'npm run build' and commit the result."
+            git diff --stat -- dist/
+            exit 1
+          fi
