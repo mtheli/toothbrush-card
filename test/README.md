@@ -15,6 +15,15 @@ touches while loading, the card class is taken from the registry, and
 is captured by wrapping `_getSectorData` and `_getSectorLabel`, so nothing has
 to be parsed back out of a lit template.
 
+`helpers/laifen-integration.mjs` works differently, because laifen_ble connects
+to the handle instead of listening for advertisements: there is nothing to
+decode and no capture to replay, so the fixture is the entity registry plus the
+states, built per release (3.0.2 / 3.0.3), model (Wave / Wave Pro) and install
+language. It is transcribed from the integration's own sources — see the file
+header for which ones. Those tests read the mapping straight out of
+`findDeviceEntities` and render once mid-session to check the routine length
+the card ends up brushing against.
+
 `helpers/oralb-integration.mjs` stands in for Home Assistant: it decodes raw
 advertisements the way the `oralb_ble` parser does and publishes the entity
 states that follow from them. It carries two generations — 1.1.0 as shipped up

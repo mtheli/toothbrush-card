@@ -169,7 +169,7 @@ export function findDeviceEntities(hass, deviceId) {
         pressure_state: null, intensity: null,
         battery: null, status: null, base_entity: null,
         number_of_sectors: null, model_number: null,
-        routine_length: null, integration: null,
+        routine_length: null, routine_length_number: null, integration: null,
         brushhead_wear: null, brushhead_type: null,
         brushhead_sessions: null, activity: null,
         mode_select: null, esp_bridge_alive: null,
@@ -227,15 +227,18 @@ export function findDeviceEntities(hass, deviceId) {
                 // adjustable duration). Preferred over brushing_time.
                 entityKeys.routine_length = entityId;
                 entityKeys.routine_length_minutes = false;
-            } else if (match('number', 'brushing_duration', '_brushing_duration')
-                && entityKeys.routine_length === null) {
-                // Wave (V1) since 3.0.3: the duration is adjustable, but the
-                // read-back sensor above stays Wave-Pro-only — the number
-                // carries the setting, in minutes. Wave Pro keeps the sensor:
-                // that branch assigns unconditionally and so wins whichever
-                // entity the registry hands us first.
-                entityKeys.routine_length = entityId;
-                entityKeys.routine_length_minutes = true;
+            } else if (match('number', 'brushing_duration', '_brushing_duration_adjustment')) {
+                // The adjustable session length, in minutes. On the Wave (V1)
+                // this is the only source: 3.0.3 drops the Brushing Time sensor
+                // there, and the Brushing Duration sensor above is registered
+                // on every device but stays unavailable unless the handle
+                // reports the key (Wave Pro does, Wave does not). Kept beside
+                // the sensor instead of replacing it, so the mapping stays a
+                // pure registry lookup and the value side takes whichever of
+                // the two actually reads. Neither handle reports the duration
+                // back, so this reads "unknown" until it has been set once —
+                // then the default applies, as it did before.
+                entityKeys.routine_length_number = entityId;
             } else if (match('sensor', 'brushing_time', '_brushing_time')
                 && entityKeys.routine_length === null) {
                 // Session length in minutes; fixed-duration models report 0,
@@ -463,14 +466,14 @@ export class ToothbrushCard extends LitElement {
         const start = new Date(end.getTime() - windowHours * 3600000);
         let rows = [];
         let routineRows = [];
+        let routineNumberRows = [];
         try {
             const resp = await hass.callWS({
                 type: 'history/history_during_period',
                 start_time: start.toISOString(),
                 end_time: end.toISOString(),
-                entity_ids: entityIds.routine_length
-                    ? [entityIds.duration, entityIds.routine_length]
-                    : [entityIds.duration],
+                entity_ids: [entityIds.duration, entityIds.routine_length,
+                    entityIds.routine_length_number].filter(Boolean),
                 minimal_response: true,
                 no_attributes: true,
                 significant_changes_only: false,
@@ -478,6 +481,9 @@ export class ToothbrushCard extends LitElement {
             rows = resp?.[entityIds.duration] || [];
             routineRows = entityIds.routine_length
                 ? resp?.[entityIds.routine_length] || []
+                : [];
+            routineNumberRows = entityIds.routine_length_number
+                ? resp?.[entityIds.routine_length_number] || []
                 : [];
         } catch (e) {
             // recorder unavailable or entity excluded — keep today's behavior
@@ -494,9 +500,12 @@ export class ToothbrushCard extends LitElement {
         // the plain default applies — but not for a device that does report a
         // routine, since measuring an aborted long routine against the short
         // default would announce it as complete.
-        const target = this._routineAtFromHistory(routineRows, session.endedAt, entityIds)
+        const target = this._routineAtFromHistory(routineRows, session.endedAt,
+                entityIds.routine_length_minutes)
+            || this._routineAtFromHistory(routineNumberRows, session.endedAt, true)
             || routineTarget
-            || (entityIds.routine_length ? 0 : BRUSHING_DURATION);
+            || ((entityIds.routine_length || entityIds.routine_length_number)
+                ? 0 : BRUSHING_DURATION);
         if (!target) return;
         this._completed = true;
         this._completedIsFull = session.duration >= target * 0.9;
@@ -538,7 +547,7 @@ export class ToothbrushCard extends LitElement {
         return last;
     }
 
-    _routineAtFromHistory(rows, endedAt, entityIds) {
+    _routineAtFromHistory(rows, endedAt, minutes) {
         // The routine length in force when that session ended — rows are
         // chronological, so the last one at or before the peak wins. Same unit
         // handling as the live read. 0 means history could not say (entity not
@@ -552,7 +561,7 @@ export class ToothbrushCard extends LitElement {
             const v = parseFloat(row.s !== undefined ? row.s : row.state);
             // Skips unavailable/unknown, which is the whole point here.
             if (Number.isFinite(v) && v > 0) {
-                seconds = Math.round(v * (entityIds.routine_length_minutes ? 60 : 1));
+                seconds = Math.round(v * (minutes ? 60 : 1));
             }
         }
         return seconds;
@@ -899,10 +908,16 @@ export class ToothbrushCard extends LitElement {
         // Routine length: config override first, then the entity (some report
         // minutes, possibly fractional); devices without a sector entity fall
         // back to the 2-minute default so the time-based sector path can run.
-        const routineFromEntity = entityIds.routine_length
+        const routineFromSensor = entityIds.routine_length
             ? (parseFloat(hass.states[entityIds.routine_length]?.state) || 0)
                 * (entityIds.routine_length_minutes ? 60 : 1)
             : 0;
+        // A settable routine (Laifen number entity, minutes) stands in when no
+        // sensor reports one — on the Wave the sensor exists but never leaves
+        // "unavailable", so the number is all there is.
+        const routineFromEntity = routineFromSensor || (entityIds.routine_length_number
+            ? (parseFloat(hass.states[entityIds.routine_length_number]?.state) || 0) * 60
+            : 0);
         const routineLength = Number(config.routine_length)
             || Math.round(routineFromEntity)
             || (entityIds.sector ? 0 : BRUSHING_DURATION);
