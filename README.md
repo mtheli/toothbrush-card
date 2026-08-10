@@ -247,6 +247,7 @@ checks what it renders, so it runs after `npm run build`. It needs no
 dependencies beyond Node itself — see [`test/`](test/).
 
 Contributing a BLE capture for a protocol issue? See [`scripts/oralb/`](scripts/oralb/).
+Cutting a release? See [`docs/RELEASING.md`](docs/RELEASING.md).
 
 ## Disclaimer
 
