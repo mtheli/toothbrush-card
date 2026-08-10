@@ -1,9 +1,15 @@
-// Drives the built card with a captured advertisement stream.
+// Drives the card with a captured advertisement stream.
 //
-// The card is loaded from dist/ so the tests exercise the artifact users
-// actually install. package.json has no "type": "module", so the bundle is
-// handed to the loader as a data: URL rather than imported by path - it is
-// fully self-contained, so nothing needs to resolve relative to it.
+// Which card: `npm test` loads src/ directly, so the tests run without a build
+// and a failure points at a line in the source. `npm run test:dist` runs the
+// same suite against the built bundle instead, so the artifact users actually
+// install stays covered - that is what CI and a release check should use.
+//
+// src/ needs Parcel-isms resolved (bundle-text:, bare JSON, extensionless
+// imports); helpers/src-loader.mjs does that. The bundle needs none of it, but
+// package.json has no "type": "module", so it is handed to the loader as a
+// data: URL rather than imported by path - it is fully self-contained, so
+// nothing needs to resolve relative to it.
 
 import './dom-shim.mjs';
 import { readFile } from 'node:fs/promises';
@@ -11,19 +17,35 @@ import { fileURLToPath } from 'node:url';
 import { decodeFrame, SECTOR_OPTIONS } from './oralb-integration.mjs';
 
 const DIST = new URL('../../dist/toothbrush-card.js', import.meta.url);
+const SRC = new URL('../../src/index.js', import.meta.url);
 
 let cardClass = null;
 
-/** The <toothbrush-card> class from the built bundle. */
+/** The <toothbrush-card> class, from src/ or from the built bundle. */
 export async function loadCard() {
     if (cardClass) return cardClass;
-    let source;
-    try {
-        source = await readFile(DIST, 'utf8');
-    } catch {
-        throw new Error(`${fileURLToPath(DIST)} is missing - run "npm run build" first.`);
+    if (process.env.TOOTHBRUSH_CARD_TARGET === 'dist') {
+        let source;
+        try {
+            source = await readFile(DIST, 'utf8');
+        } catch {
+            throw new Error(`${fileURLToPath(DIST)} is missing - run "npm run build" first.`);
+        }
+        await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+    } else {
+        try {
+            await import(SRC.href);
+        } catch (err) {
+            if (err?.code === 'ERR_UNKNOWN_FILE_EXTENSION' || err?.code === 'ERR_MODULE_NOT_FOUND'
+                || err?.code === 'ERR_IMPORT_ATTRIBUTE_MISSING') {
+                throw new Error(
+                    'src/ could not be imported - run the tests via "npm test", which '
+                    + 'registers test/helpers/src-loader.mjs.',
+                    { cause: err });
+            }
+            throw err;
+        }
     }
-    await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
     cardClass = globalThis.customElements.get('toothbrush-card');
     return cardClass;
 }
