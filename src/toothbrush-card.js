@@ -26,9 +26,9 @@ const MIN_RECAP_SECONDS = 10;
 // matched by translation_key; xiaomi_ble names its entities library-side
 // (no translation_key), so its main entity is recognized by entity_id
 // suffix instead (entity_ids are language-independent). laifen_ble carries
-// both matchers: releases up to 3.0.2 have no translation_keys but always
-// create English entity_ids, later releases have translation_keys but may
-// localize entity_ids on non-English installs.
+// both matchers: releases up to 3.0.2 name entities via _attr_name and so
+// always create English entity_ids, 3.0.3+ moved to translation_keys and
+// ships de.json, so entity_ids are localized on non-English installs.
 export const SUPPORTED_INTEGRATIONS = {
     oralb: { translationKey: 'toothbrush_state' },
     // Oral-B Live (custom integration) mirrors the built-in oralb translation
@@ -227,6 +227,15 @@ export function findDeviceEntities(hass, deviceId) {
                 // adjustable duration). Preferred over brushing_time.
                 entityKeys.routine_length = entityId;
                 entityKeys.routine_length_minutes = false;
+            } else if (match('number', 'brushing_duration', '_brushing_duration')
+                && entityKeys.routine_length === null) {
+                // Wave (V1) since 3.0.3: the duration is adjustable, but the
+                // read-back sensor above stays Wave-Pro-only — the number
+                // carries the setting, in minutes. Wave Pro keeps the sensor:
+                // that branch assigns unconditionally and so wins whichever
+                // entity the registry hands us first.
+                entityKeys.routine_length = entityId;
+                entityKeys.routine_length_minutes = true;
             } else if (match('sensor', 'brushing_time', '_brushing_time')
                 && entityKeys.routine_length === null) {
                 // Session length in minutes; fixed-duration models report 0,
