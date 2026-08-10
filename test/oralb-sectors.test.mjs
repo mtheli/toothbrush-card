@@ -12,6 +12,7 @@ import { framesFromFixture, decodeFrame } from './helpers/oralb-integration.mjs'
 import { replay } from './helpers/replay.mjs';
 
 const FIXTURE = new URL('./fixtures/oralb-io10-issue3.json', import.meta.url);
+const ABORTED_FIXTURE = new URL('./fixtures/oralb-io6-aborted-summary.json', import.meta.url);
 
 // The fixture holds two sessions. The second is the complete two-minute run
 // through all six sectors, up to the idle advertisement that ends it; the
@@ -115,6 +116,50 @@ describe('card sector handling on Home Assistant 2026.8', () => {
 
         const unheld = await replay(afterCounterReset, { generation: '1.1.3', config: { hold_completed: false } });
         assert.equal(unheld.at(-1).card.sector, 'no_sector');
+    });
+});
+
+describe('a session aborted on the handle summary screen', () => {
+    // An iO Series 6 stopped after 51 seconds and left on its summary screen,
+    // captured for home-assistant/core#169661. The finish is derived from the
+    // brushing target, so a run this short must not read as a finished one.
+    let session;
+
+    before(() => { session = framesFromFixture(ABORTED_FIXTURE); });
+
+    test('the summary screen is a state of its own, and not brushing', () => {
+        const summary = session.map(f => decodeFrame(f.bytes, '1.1.3')).filter(d => d.state === 'post brushing statistics');
+
+        assert.ok(summary.length > 0);
+        for (const frame of summary) assert.equal(frame.sectorState, 'no_sector');
+
+        // Before 1.1.3 the same advertisement had no name for that state.
+        const before2026_8 = session.map(f => decodeFrame(f.bytes, '1.1.0'));
+        assert.ok(before2026_8.some(d => d.state === 'unknown state 10'));
+    });
+
+    test('is never presented as complete', async () => {
+        for (const config of [{}, { hold_completed: false }]) {
+            const rows = await replay(session, { generation: '1.1.3', config });
+
+            for (const row of rows) {
+                assert.notEqual(row.card.sector, 'success',
+                    `${row.ts}: a ${row.decoded.brushTime}s session was marked complete`);
+                assert.notEqual(row.card.done, row.card.zoneCount);
+            }
+        }
+    });
+
+    test('a power blip mid-session does not strand the highlight', async () => {
+        // The handle drops to "off" for one advertisement at 11s and resumes.
+        const rows = await replay(session, { generation: '1.1.3' });
+        const brushing = rows.filter(r => r.decoded.state === 'running');
+
+        assert.ok(brushing.some(r => r.decoded.brushTime > 40));
+        for (const row of brushing) {
+            const reported = Number(row.decoded.sectorState.replace('sector_', '')) - 1;
+            assert.equal(row.card.activeIndex, reported);
+        }
     });
 });
 

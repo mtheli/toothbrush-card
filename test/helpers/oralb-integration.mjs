@@ -15,6 +15,10 @@ const STATES = {
     113: 'final test', 114: 'pcb test', 115: 'sleeping', 116: 'transport',
 };
 
+// 1.1.3 named the state an iO shows while the summary screen is up; before
+// that it surfaced as "unknown state 10" (Bluetooth-Devices/oralb-ble#192).
+const STATES_1_1_3 = { ...STATES, 10: 'post brushing statistics' };
+
 // <= 1.1.0: a hand-built table collected from real brushes. Sectors 5 and 6
 // have no entry, and several bytes that mean "last sector" map to sector 4.
 const SECTOR_MAP_1_1_0 = {
@@ -56,7 +60,8 @@ export function framesFromFixture(url) {
 
 /** What the integration would publish for a single advertisement. */
 export function decodeFrame(bytes, generation) {
-    const state = STATES[bytes[3]] ?? `unknown state ${bytes[3]}`;
+    const states = generation === '1.1.3' ? STATES_1_1_3 : STATES;
+    const state = states[bytes[3]] ?? `unknown state ${bytes[3]}`;
     const brushTime = bytes[5] * 60 + bytes[6];
     const sectorByte = bytes[8];
     const noOfSectors = bytes.length >= 11 ? bytes[10] : null;

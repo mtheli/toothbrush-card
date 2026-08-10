@@ -23,11 +23,18 @@ has to work on both.
 
 ## Fixtures
 
-`fixtures/oralb-io10-issue3.json` is a real capture from an Oral-B iO Series 10,
-contributed by @smartmatic in [#3](https://github.com/mtheli/toothbrush-card/issues/3).
-It is the same data that backed the upstream fix
-[Bluetooth-Devices/oralb-ble#180](https://github.com/Bluetooth-Devices/oralb-ble/pull/180).
-Only the manufacturer data bytes are stored — no address, no device name.
+Both fixtures are real captures. Only the manufacturer data bytes are stored —
+no address, no device name.
+
+- `fixtures/oralb-io10-issue3.json` — an iO Series 10 running a complete
+  six-sector routine, contributed by @smartmatic in
+  [#3](https://github.com/mtheli/toothbrush-card/issues/3). The same data backed
+  the upstream fix
+  [Bluetooth-Devices/oralb-ble#180](https://github.com/Bluetooth-Devices/oralb-ble/pull/180).
+- `fixtures/oralb-io6-aborted-summary.json` — an iO Series 6 stopped after 51
+  seconds and left on its summary screen, contributed by @daronspence in
+  [home-assistant/core#169661](https://github.com/home-assistant/core/issues/169661).
+  It covers the states a finished session must *not* be inferred from.
 
 Adding a fixture: capture with [`scripts/oralb/adv_capture.py`](../scripts/oralb/),
 then keep the frames as hex manufacturer data with their timestamps. Collapsing
