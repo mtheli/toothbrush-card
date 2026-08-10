@@ -166,6 +166,13 @@ describe('sectors derived from time alone', () => {
 });
 
 describe('the head reading', () => {
+    // The direction is not a guess. The sensor comes from MiBeacon object
+    // 0x1013, "Remaining amount of consumables", whose payload is defined as
+    // "Remaining percentage, range 0~100". xiaomi_ble's parser passes the byte
+    // through under the name "Consumable (in percent)" without saying which
+    // way it runs, so the protocol definition is the source here - the card
+    // originally inverted it on an assumption that a user's screenshots never
+    // explicitly confirmed.
     test('is inverted, because Xiaomi reports what is left', async (t) => {
         t.mock.timers.enable({ apis: ['Date'], now: NOW });
         const { el, seen } = await xiaomiCard();

@@ -200,6 +200,13 @@ export function findDeviceEntities(hass, deviceId) {
             } else if (entity.entity_id.endsWith('_consumable')) {
                 // Xiaomi reports the percentage LEFT on the head; the card
                 // tracks wear, so the reading is inverted where it's used.
+                // The sensor comes from MiBeacon object 0x1013, defined as
+                // "Remaining amount of consumables" with a "Remaining
+                // percentage, range 0~100" — so it is what is left, not what
+                // has been used. xiaomi_ble's own parser only calls it
+                // "Consumable (in percent)" and leaves the direction open,
+                // which is why the definition is cited here rather than the
+                // integration.
                 entityKeys.brushhead_wear = entity.entity_id;
                 entityKeys.brushhead_remaining = true;
             }
