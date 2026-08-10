@@ -35,6 +35,17 @@ are imported from src/ and called directly. That import happens in both targets
 — index.js does not re-export them, so they cannot be reached through the
 bundle, and exercising the same code twice would prove nothing.
 
+`xiaomi-render.test.mjs` covers the branches that exist only for Xiaomi: a
+binary main entity reporting on/off, a session time synthesised from
+`last_changed` because the broadcast carries no timer, the head reading being
+inverted because the sensor reports what is left, and the substitute chip row
+for a device with neither contact feedback nor a mode. Its registry is built
+inline rather than in a helper — unlike laifen_ble and philips_sonicare_ble
+there is no decoding and no release history to encode, only four entities
+matched by suffix. There is no capture behind it: the card consumes plain
+entity states here and compensates for nothing at the advertisement level, so
+a raw capture would mostly restate what the registry already says.
+
 `entity-mapping.test.mjs` calls `findDeviceEntities` directly — it is pure, and
 it is the seam every integration passes through. The integration-shaped cases
 live in the helpers next to it; this file covers the mapping rules themselves,
