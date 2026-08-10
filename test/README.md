@@ -35,6 +35,14 @@ are imported from src/ and called directly. That import happens in both targets
 — index.js does not re-export them, so they cannot be reached through the
 bundle, and exercising the same code twice would prove nothing.
 
+`entity-mapping.test.mjs` calls `findDeviceEntities` directly — it is pure, and
+it is the seam every integration passes through. The integration-shaped cases
+live in the helpers next to it; this file covers the mapping rules themselves,
+particularly the order-dependent ones: the main state entity ending up in
+`base_entity` rather than `status`, the first-wins device_class fallbacks, and
+the `continue` that keeps the laifen branch exclusive. Removing that one line
+fails three tests, which is the point of having them.
+
 `history-recap.test.mjs` is the only file that switches the recorder rebuild
 on; everywhere else it is disabled so it cannot fire mid-test. It covers the
 history scan on its own (mountains, fumbles, two sessions without a wipe in
