@@ -632,24 +632,43 @@ export class ToothbrushCard extends LitElement {
         window.dispatchEvent(new CustomEvent('location-changed', { bubbles: true, composed: true }));
     }
 
+    _resetSectorCorrection() {
+        this._highestSector = -1;
+        this._lastRawIndex = -1;
+        this._correctedIndex = -1;
+    }
+
     /**
-     * Workaround for oralb_ble mapping bug: 6-sector brushes wrap back to
-     * sector 4 instead of reporting sectors 5/6. During active brushing
-     * sectors only move forward, so if we see a sector ≤ the highest
+     * True when the sector entity can express every sector the brush has.
+     *
+     * oralb_ble 1.1.1 (Home Assistant 2026.8) replaced the hand-built sector
+     * table with a decoder for sectors 5/6 and the entity now offers
+     * `sector_1`…`sector_7` as enum options. Older releases never listed
+     * anything above `sector_4`, so `sector_5` among the options is a reliable
+     * marker that the upstream fix is in place and `_correctSectorIndex` is no
+     * longer needed. Attributes are stripped while an entity is unavailable —
+     * the workaround then stays on, which is the pre-2026.8 behaviour.
+     */
+    _sectorEntityDecodesAllSectors(hass, sectorEntityId) {
+        if (!sectorEntityId) return false;
+        const options = hass.states[sectorEntityId]?.attributes?.options;
+        return Array.isArray(options) && options.includes('sector_5');
+    }
+
+    /**
+     * Workaround for the pre-2026.8 oralb_ble mapping bug: 6-sector brushes
+     * wrap back to sector 4 instead of reporting sectors 5/6. During active
+     * brushing sectors only move forward, so if we see a sector ≤ the highest
      * already seen, we advance to the next one instead.
      */
     _correctSectorIndex(rawIndex, active, maxIndex) {
         if (!this._wasActive && active) {
-            this._highestSector = -1;
-            this._lastRawIndex = -1;
-            this._correctedIndex = -1;
+            this._resetSectorCorrection();
         }
         this._wasActive = active;
 
         if (!active || rawIndex === -1) {
-            this._highestSector = -1;
-            this._lastRawIndex = -1;
-            this._correctedIndex = -1;
+            this._resetSectorCorrection();
             return rawIndex;
         }
 
@@ -1074,10 +1093,29 @@ export class ToothbrushCard extends LitElement {
             `;
         }
 
+        // Ab HA 2026.8 dekodiert oralb_ble die Sektoren 5/6 selbst — dann den
+        // Rohwert direkt übernehmen. Auf älteren Installationen bleibt der
+        // _correctSectorIndex-Workaround aktiv, weil die Integration dort
+        // Sektor 5/6 als 4 meldet. Bewusst nur für die eingebaute
+        // oralb-Integration: der Workaround war immer nur deren Bug-Kompensation.
+        const sectorsAreUpstreamDecoded = entityIds.integration === 'oralb'
+            && this._sectorEntityDecodesAllSectors(hass, entityIds.sector);
+
         // Sector: use real entity if available, otherwise compute from time
         let sector;
         if (entityIds.sector) {
             sector = hass.states[entityIds.sector]?.state || 'no_sector';
+            // Dieselbe oralb_ble-Version hat den Sektorwert `success` entfernt
+            // und setzt den Sektor zurück, sobald die Bürste steht — ein
+            // fertiges Programm meldet sich also nicht mehr über die Entity.
+            // Deshalb hier aus dem erreichten Ziel ableiten (gleiche
+            // 0.9-Toleranz wie der Completion-Latch), damit der Abschluss nicht
+            // an `hold_completed` hängt. Ältere Releases liefern `success`
+            // weiterhin direkt und laufen unverändert an dieser Stelle vorbei.
+            if (sectorsAreUpstreamDecoded && sector === 'no_sector' && !active
+                && duration >= (routineLength || BRUSHING_DURATION) * 0.9) {
+                sector = 'success';
+            }
         } else if (routineLength > 0 && active && duration > 0) {
             const sectorDuration = routineLength / numSectors;
             // +1 because _parseRawSectorIndex expects 1-based values (OralB convention)
@@ -1105,8 +1143,7 @@ export class ToothbrushCard extends LitElement {
         // Sonicare meldet anatomische Sektoren inklusive Revisits (White+,
         // Gum Health) — dort den _correctSectorIndex-Workaround umgehen und
         // Done-Zonen zeit-basiert markieren, damit Revisits die bereits
-        // abgeschlossenen Zonen nicht zurücksetzen. Oral-B braucht den
-        // Workaround weiterhin (Integration meldet Sektor 5/6 als 4).
+        // abgeschlossenen Zonen nicht zurücksetzen.
         const allowsRevisits = entityIds.integration === 'philips_sonicare_ble'
             && routineLength > 0;
         let correctedIndex;
@@ -1127,6 +1164,14 @@ export class ToothbrushCard extends LitElement {
             );
             const visitedSize = this._trackVisitedSector(rawSectorIndex, active);
             doneCount = Math.max(timeBasedDone, visitedSize);
+        } else if (sectorsAreUpstreamDecoded) {
+            correctedIndex = rawSectorIndex >= 0
+                ? Math.min(rawSectorIndex, sectorOrder.length - 1)
+                : -1;
+            // Latch zurücksetzen, damit ein Rückfall auf den Workaround
+            // (Entity kurzzeitig unavailable) sauber neu anläuft.
+            this._wasActive = false;
+            this._resetSectorCorrection();
         } else {
             correctedIndex = this._correctSectorIndex(rawSectorIndex, active, sectorOrder.length - 1);
         }
