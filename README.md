@@ -108,7 +108,7 @@ The card automatically detects the language configured in your Home Assistant in
 
 ### Blueprints
 
-[Toothbrushing Notification System (Morning/Evening)](https://community.home-assistant.io/t/adhd-friendly-toothbrushing-notification-system-morning-evening/1017326) — a blueprint by [@CoatsyJnr](https://github.com/CoatsyJnr) that reminds you to brush morning and evening, at deliberately unpredictable times so the reminder does not fade into background noise. It triggers on the same live brushing state this card visualizes, so the two go well together: the blueprint reminds, the card shows what is going on.
+[Toothbrushing Notification System (Morning/Evening)](https://community.home-assistant.io/t/adhd-friendly-toothbrushing-notification-system-morning-evening/1017326) — a blueprint by [@CoatsyJnr](https://github.com/CoatsyJnr) that reminds you to brush morning and evening, at deliberately unpredictable times so the reminder does not fade into background noise. It triggers on the same live brushing state this card visualizes, so the two go well together: the blueprint reminds, the card shows what is going on. On the Sonicare side, point it at the **Brushing** binary sensor — the other sensors its description suggests never fire, see [CoatsyJnr/home-assistant-blueprints#1](https://github.com/CoatsyJnr/home-assistant-blueprints/issues/1).
 
 ## Installation
 
