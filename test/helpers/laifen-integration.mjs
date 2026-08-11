@@ -67,6 +67,9 @@ function entityId(entity, language) {
 export function laifenHass({
     release = '3.0.3', model = 'wave', language = 'en',
     status = 'Idle', timer = 0, routineMinutes = 3,
+    // The handle's own 30-second pacer. Off by default, because that is how a
+    // handle ships; switched on it changes how many zones the card walks.
+    pacer = false,
 } = {}) {
     const pro = model === 'wave-pro';
     const entities = {};
@@ -101,6 +104,7 @@ export function laifenHass({
     set('select', 'mode', 'Mode 1');
     set('sensor', 'battery_level', '80');
     set('binary_sensor', 'connection', 'on');
+    set('switch', 'reminder_30s', pacer ? 'on' : 'off');
     if (pro) set('binary_sensor', 'over_pressure_active', 'off');
     // The Brushing Time sensor read a constant 0 on the V1 and is gone from
     // 3.0.3 on; the Wave Pro never reported the key either.

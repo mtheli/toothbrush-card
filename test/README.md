@@ -74,6 +74,21 @@ stubbed. Note that the fixture there carries a sector entity on purpose:
 without one the card synthesises a two-minute routine from time, and the
 "no target, no recap" guard could never trigger.
 
+`session-latch.test.mjs` is a characterisation of the completed-session latch,
+written to protect a refactor rather than to describe a requirement. The latch
+is the most intricate thing in the card and lives in nine mutable fields that
+`render()` updates as a side effect; it is also integration-agnostic, because
+`active` and `duration` are already normalised by the time it runs. The
+per-integration files reach it incidentally through whatever fixture they
+drive — this one drives it deliberately, as a sequence of samples, and records
+what falls out. Where today's behaviour looks questionable it is written down
+as-is and said so, so that pulling the state machine out of `render()` cannot
+change it unnoticed.
+
+It also holds the one Laifen behaviour that had no coverage: with the handle's
+own 30-second pacer switched on, a three-minute routine becomes six zones
+instead of four, so card and handle change zone together.
+
 `recap-hold.test.mjs` covers how long a finished session stays on screen.
 Those windows are hours long, so the clock is faked with the test runner's own
 `t.mock.timers` instead of waited out: the card reads `Date.now()` from the
