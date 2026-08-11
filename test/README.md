@@ -100,6 +100,18 @@ blocked-site-data case a browser in private mode produces.
 Note that running a session lifts a dismissal on purpose, so tests about the
 stored marker configure a card without brushing through it first.
 
+`session-state.test.mjs` tests the latch as what it now is — a function in
+`src/session-state.js`, taking the previous state and the current reading and
+returning the next one. No card, no clock: `now` is an argument, which was half
+the reason for pulling it out. It covers the two flags the function hands back
+(`sessionStarted`, `loadHistoryRecap`) and the branch that derives a recap from
+a frozen reading, both of which were awkward to stage through a rendering card.
+
+`session-latch.test.mjs` stays alongside it and keeps driving the same logic
+through a whole card. That is deliberate: it is what proves the card still
+wires the function up correctly, and it was written before the extraction
+precisely so the extraction could not change anything unnoticed.
+
 `session-latch.test.mjs` is a characterisation of the completed-session latch,
 written to protect a refactor rather than to describe a requirement. The latch
 is the most intricate thing in the card and lives in nine mutable fields that

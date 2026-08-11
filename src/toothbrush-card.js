@@ -3,6 +3,8 @@ import { classMap } from 'lit-html/directives/class-map.js';
 import { ToothSVG } from './toothbrush-svg.js';
 import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
+import { nextSessionState, initialSessionState,
+         BRUSHING_DURATION, MIN_RECAP_SECONDS } from './session-state.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
 export const CARD_VERSION = "0.28.0";
@@ -12,10 +14,9 @@ export const CARD_VERSION = "0.28.0";
 // editor footer so it is obvious whether a new bundle actually loaded.
 export { BUILD_DATE } from './build-info.js';
 
-const BRUSHING_DURATION = 120; // 2 minutes target
-// Runs shorter than this are button fumbles, not brushing attempts — they
-// neither become a recap nor replace one.
-const MIN_RECAP_SECONDS = 10;
+// BRUSHING_DURATION and MIN_RECAP_SECONDS live with the latch that defines
+// them; the renderer needs both for the fallbacks it applies when a device
+// reports no routine of its own.
 
 // Integration domain -> matcher for the main state entity the card binds to.
 // A device is supported iff it carries that entity — exactly the condition
@@ -388,17 +389,44 @@ export class ToothbrushCard extends LitElement {
         this._lastRawIndex = -1;
         this._correctedIndex = -1;
         this._wasActive = false;
-        // Completion latch (issue #4): persist the finished-session view.
-        this._peakDuration = 0;
-        this._completed = false;
-        this._completedDuration = 0;
-        this._wasActiveSession = false;
-        this._sessionRoutineLength = 0;
-        this._completedAt = 0;
-        this._holdDismissed = false;
         this._historyRecapState = null;
-        this._stashedRecap = null;
-        this._completedIsFull = false;
+        // Completion latch (issue #4): persist the finished-session view. The
+        // rules live in session-state.js; the card only holds the values.
+        this._applySessionState(initialSessionState());
+    }
+
+    /** The latch state, gathered from the fields the card renders from. */
+    _sessionState() {
+        return {
+            peakDuration: this._peakDuration,
+            completed: this._completed,
+            completedDuration: this._completedDuration,
+            completedAt: this._completedAt,
+            completedIsFull: this._completedIsFull,
+            wasActiveSession: this._wasActiveSession,
+            sessionRoutineLength: this._sessionRoutineLength,
+            holdDismissed: this._holdDismissed,
+            stashedRecap: this._stashedRecap,
+        };
+    }
+
+    /**
+     * Write a latch state back onto those fields.
+     *
+     * They stay individual properties rather than one object because the
+     * template and the dismiss handling read them by name, and because lit
+     * change detection is per property.
+     */
+    _applySessionState(state) {
+        this._peakDuration = state.peakDuration;
+        this._completed = state.completed;
+        this._completedDuration = state.completedDuration;
+        this._completedAt = state.completedAt;
+        this._completedIsFull = state.completedIsFull;
+        this._wasActiveSession = state.wasActiveSession;
+        this._sessionRoutineLength = state.sessionRoutineLength;
+        this._holdDismissed = state.holdDismissed;
+        this._stashedRecap = state.stashedRecap;
     }
 
     // --- Dismiss persistence (issue #4/#5/#11) ---
@@ -600,16 +628,11 @@ export class ToothbrushCard extends LitElement {
             // held recap from device A never renders for device B; then adopt
             // device B's own persisted hold, if any.
             this._entityIds = null;
-            this._peakDuration = 0;
-            this._wasActiveSession = false;
-            this._sessionRoutineLength = 0;
-            this._holdDismissed = this._loadDismissed(config.device_id);
-            this._completed = false;
-            this._completedDuration = 0;
-            this._completedAt = 0;
             this._historyRecapState = null;
-            this._stashedRecap = null;
-            this._completedIsFull = false;
+            this._applySessionState({
+                ...initialSessionState(),
+                holdDismissed: this._loadDismissed(config.device_id),
+            });
         }
         if (this._hass && !this._entityIds) {
             this._entityIds = this._findAndMapEntitiesInConfig(this._hass, config.device_id);
@@ -964,92 +987,30 @@ export class ToothbrushCard extends LitElement {
         // The 0.9 tolerance covers Sonicare powering off a beat before the
         // last duration sample lands exactly on the routine length.
         const holdCompleted = config.hold_completed !== false;
-        if (active) {
-            if (!this._wasActiveSession) {
-                // New session started — stash the held recap: a real session
-                // replaces it, a seconds-long button fumble restores it.
-                this._stashedRecap = this._completed
-                    ? {
-                        duration: this._completedDuration,
-                        at: this._completedAt,
-                        full: this._completedIsFull,
-                    }
-                    : null;
-                this._peakDuration = 0;
-                this._completed = false;
-                this._completedAt = 0;
-                this._holdDismissed = false;
-                this._visitedSectors = null;
-                this._sessionRoutineLength = 0;
-                this._clearDismissed(config.device_id);
-            }
-            this._peakDuration = Math.max(this._peakDuration, duration);
-            if (routineLength > 0) {
-                // Snapshot the routine governing THIS session; at the end the
-                // routine_length sensor may already read unavailable (0).
-                this._sessionRoutineLength = routineLength;
-            }
-        } else if (this._wasActiveSession) {
-            // Session just ended — latch it: full and aborted sessions both
-            // get a recap (differently worded); a button fumble shorter than
-            // MIN_RECAP_SECONDS brings the stashed recap back instead.
-            const endTarget = (this._sessionRoutineLength || BRUSHING_DURATION) * 0.9;
-            if (holdCompleted && this._peakDuration >= MIN_RECAP_SECONDS) {
-                this._completed = true;
-                this._completedIsFull = this._peakDuration >= endTarget;
-                this._completedDuration = this._peakDuration;
-                this._completedAt = Date.now();
-            } else if (holdCompleted && this._stashedRecap) {
-                this._completed = true;
-                this._completedIsFull = this._stashedRecap.full;
-                this._completedDuration = this._stashedRecap.duration;
-                this._completedAt = this._stashedRecap.at;
-            } else {
-                this._completed = false;
-                this._completedIsFull = false;
-                this._completedDuration = 0;
-                this._completedAt = 0;
-            }
-            this._peakDuration = 0;
-            this._stashedRecap = null;
-        } else if (holdCompleted && !this._holdDismissed
-                && (!entityIds.routine_length || routineLength > 0)
-                && duration >= MIN_RECAP_SECONDS) {
-            // Issue #5: also derive the recap from the current state alone —
-            // the frozen post-session values describe the last session even
-            // if the card never observed the transition (dashboard closed
-            // while brushing, or reloaded afterwards). Whether it counts as
-            // completed is gated below; skipped while an existing
-            // routine_length sensor is unreadable, so an aborted long routine
-            // can't slip past the shorter default target.
-            // Issue #11: a reading that differs from the adopted duration is
-            // a newer session (or a late tail sample of it — brush_time still
-            // ticks up for a few seconds after the end), so adopt its
-            // timestamp and value, downwards too.
-            if (!this._completed || duration !== this._completedDuration) {
-                this._completedAt = Date.parse(
-                    hass.states[entityIds.duration]?.last_changed
-                ) || Date.now();
-                this._completedDuration = duration;
-            }
-            this._completed = true;
-            this._completedIsFull =
-                duration >= (routineLength || BRUSHING_DURATION) * 0.9;
-        } else if (holdCompleted && !this._holdDismissed && !this._completed
-                && config.history_recap !== false
-                && entityIds.duration) {
-            // Issue #11: Oral-B wipes the reported session values ~seconds
-            // after powering off (and an aborted run can leave a frozen
-            // below-target value), so the current state often proves
-            // nothing. Rebuild the last completed session from recorder
-            // history (once per device per page load).
-            // Issue #18: deliberately no routine_length gate — the query
-            // resolves the target from history and declines the recap itself
-            // if neither source can name one, so an integration whose sensors
-            // go unavailable on disconnect still gets its session back.
+        const latch = nextSessionState(this._sessionState(), {
+            active,
+            duration,
+            routineLength,
+            now: Date.now(),
+            holdCompleted,
+            hasRoutineEntity: !!entityIds.routine_length,
+            hasDurationEntity: !!entityIds.duration,
+            historyRecapEnabled: config.history_recap !== false,
+            durationLastChanged: entityIds.duration
+                ? hass.states[entityIds.duration]?.last_changed
+                : null,
+        });
+        this._applySessionState(latch.state);
+        if (latch.sessionStarted) {
+            // Both belong to the card rather than to the latch: the visited
+            // sectors are the other state machine's, and forgetting a
+            // dismissal touches localStorage.
+            this._visitedSectors = null;
+            this._clearDismissed(config.device_id);
+        }
+        if (latch.loadHistoryRecap) {
             this._maybeLoadRecapFromHistory(hass, config, entityIds, routineLength);
         }
-        this._wasActiveSession = active;
         // hold_duration in hours; absent = 0.5 h default, explicit 0 = until
         // the next session. After expiry the recap is merely hidden — a later
         // setting change can re-show it.
