@@ -33,8 +33,40 @@ const BRUSHING_STATES = {
     0: 'off', 1: 'on', 2: 'pause', 3: 'session_complete', 4: 'session_aborted',
 };
 
-const BRUSHING_MODES = ['clean', 'white_plus', 'gum_health', 'deep_clean_plus',
-    'tongue_care', 'sensitive'];
+// Two different mode numberings, and mixing them up is the whole reason
+// const.py spells the difference out. HX9996 and HX999X report the *selected*
+// mode as a mode-id byte in AVAILABLE_ROUTINE_IDS (0x4022); every other handle
+// reports a sequential index into its own ordered mode list in BRUSHING_MODE
+// (0x4080). The tables differ - 3 and 4 are swapped between them - so the same
+// byte means different things depending on which characteristic it came from.
+const ROUTINE_ID_MODES = ['clean', 'white_plus', 'gum_health', 'tongue_care',
+    'deep_clean_plus', 'sensitive'];
+
+const SEQUENTIAL_MODES_DEFAULT = ['clean', 'white_plus', 'gum_health',
+    'deep_clean_plus', 'tongue_care', 'sensitive'];
+
+// Model families whose list omits entries, so the sequential index shifts.
+const SEQUENTIAL_MODES_BY_MODEL = {
+    HX960X: ['clean', 'gum_health', 'deep_clean_plus'],
+    HX9120: ['clean', 'white_plus', 'deep_clean_plus'],
+    HX961X: ['clean', 'white_plus', 'deep_clean_plus'],
+    HX991X: ['clean', 'white_plus', 'gum_health', 'deep_clean_plus'],
+};
+
+/** True for the handles that carry the mode in AVAILABLE_ROUTINE_IDS. */
+function usesRoutineIdMode(model) {
+    const upper = (model || '').toUpperCase();
+    return upper.startsWith('HX9996') || upper.startsWith('HX999');
+}
+
+function sequentialMode(model, value) {
+    const upper = (model || '').toUpperCase();
+    let table = SEQUENTIAL_MODES_DEFAULT;
+    for (const [prefix, modes] of Object.entries(SEQUENTIAL_MODES_BY_MODEL)) {
+        if (upper.startsWith(prefix)) { table = modes; break; }
+    }
+    return value >= 0 && value < table.length ? table[value] : null;
+}
 
 const INTENSITIES = ['low', 'medium', 'high'];
 
@@ -116,16 +148,24 @@ export function stateAt(session, t) {
         if (event.t > t) break;
         raw[event.char] = event.hex;
     }
+    const model = session.meta?.model || '';
     const handleStateValue = raw.handle_state !== undefined ? uint8(raw.handle_state) : null;
     const brushingStateValue = raw.brushing_state !== undefined ? uint8(raw.brushing_state) : null;
+    // Which characteristic the mode comes from is a property of the model, not
+    // of the recording: on a Prestige, 0x4080 carries something else and would
+    // report "clean" for every routine.
+    const mode = usesRoutineIdMode(model)
+        ? (raw.available_routine_ids !== undefined
+            ? ROUTINE_ID_MODES[uint8(raw.available_routine_ids)] ?? null : null)
+        : (raw.brushing_mode !== undefined
+            ? sequentialMode(model, uint8(raw.brushing_mode)) : null);
     return {
         handle_state: handleStateValue !== null ? HANDLE_STATES[handleStateValue] : null,
         handle_state_value: handleStateValue,
         brushing_state: brushingStateValue !== null ? BRUSHING_STATES[brushingStateValue] : null,
         brushing_time: raw.brushing_time !== undefined ? uint16(raw.brushing_time) : null,
         routine_length: raw.routine_length !== undefined ? uint16(raw.routine_length) : null,
-        brushing_mode: raw.brushing_mode !== undefined
-            ? BRUSHING_MODES[uint8(raw.brushing_mode)] ?? null : null,
+        brushing_mode: mode,
         intensity: raw.intensity !== undefined
             ? INTENSITIES[uint8(raw.intensity)] ?? null : null,
     };

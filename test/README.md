@@ -118,10 +118,12 @@ no address, no device name.
   itself off. That is the case the completion latch exists for, and until this
   recording it was only described in a comment.
 
-  Two known gaps, both properties of this take rather than of the card. It
-  starts 28 s into the session, so the first zone is missing; and it is a Clean
-  routine, so the White+ / Gum Health revisit path is exercised only through
-  `currentSector`, not through a real session.
+  Two known gaps, both properties of this take. It starts 28 s into the
+  session, so the first zone is missing, and it carries no mode at all: it
+  predates the recorder reading 0x4022, which on a Prestige is the only
+  characteristic holding the selected routine. An unknown mode falls back to an
+  even spread over six sectors, which is the same walk Clean makes, so the
+  sector derivation is unaffected.
 
 - `fixtures/sonicare-hx6340-kids-complete.jsonl` — a Sonicare for Kids
   (firmware 4.2.2) running a full routine, recorded from before the handle was
@@ -134,8 +136,19 @@ no address, no device name.
 
   It does not close the revisit gap, and cannot: `current_sector` skips the
   mode table entirely for HX63xx, so a Kids handle spreads any mode evenly and
-  never revisits. That still needs a White+ or Gum Health session on a premium
-  handle.
+  never revisits.
+
+- `fixtures/sonicare-hx999x-whiteplus-complete.jsonl` — the same Prestige on
+  White+, recorded from before switch-on and with the mode captured. This is
+  the one the Sonicare branch in the card exists for: a 160 s routine over an
+  eight-step visit sequence, so the handle walks all six sectors and then
+  returns to two of them. The card has to keep the finished zones marked done
+  across that backwards jump, and this fixture is what proves it does.
+
+  It also carries the pressure stream (`--pressure`), about 1600 SensorData
+  frames. Nothing reads them yet — the card takes pressure as an entity state,
+  not as raw telemetry — but they cost nothing to keep and a future pressure
+  test would need exactly this.
 
 Adding a fixture: capture with [`scripts/oralb/adv_capture.py`](../scripts/oralb/),
 then keep the frames as hex manufacturer data with their timestamps. Collapsing

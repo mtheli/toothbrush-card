@@ -5,12 +5,13 @@
 // advertisement streams - a Sonicare handle is connection-oriented, so a
 // recording is what its GATT characteristics reported over time.
 //
-// HX999X Prestige, full two-minute Clean routine. The end is what matters and
-// it is why the card has a completion latch at all: the handle reports
+// HX999X Prestige, full two-minute routine. The end is what matters and it is
+// why the card has a completion latch at all: the handle reports
 // `session_complete` for a single sample, wipes its brushing timer to 0 in the
 // same instant, and then switches itself off. Anything derived from the
 // post-session state alone therefore sees nothing - only the observed
-// active -> inactive transition carries the finished session over.
+// active -> inactive transition carries the finished session over. The mode is
+// not in this one; it was taken before the recorder read 0x4022.
 //
 // HX6340 Kids, also a full routine, and different in three ways that matter:
 // it is the only line divided into four sectors rather than six, the
@@ -18,6 +19,13 @@
 // to work from handle_state alone, and the recording was started before the
 // handle was switched on, so it carries the beginning of a session that the
 // Prestige capture is missing.
+//
+// HX999X Prestige again, this time on White+ and with the mode recorded. This
+// is the one that matters most: a 160 s routine spread over an eight-step
+// visit sequence, so the handle walks all six sectors and then returns to two
+// of them. That backwards jump is the only reason the card carries a
+// Sonicare-specific branch, and until this recording it was only ever checked
+// against the derivation rather than against a real session.
 
 import test, { describe } from 'node:test';
 import assert from 'node:assert/strict';
@@ -31,15 +39,39 @@ const SESSION = loadSession(
     new URL('./fixtures/sonicare-hx999x-clean-complete.jsonl', import.meta.url));
 const KIDS = loadSession(
     new URL('./fixtures/sonicare-hx6340-kids-complete.jsonl', import.meta.url));
+const WHITE = loadSession(
+    new URL('./fixtures/sonicare-hx999x-whiteplus-complete.jsonl', import.meta.url));
 
 describe('the recorded HX999X session', () => {
-    test('is a complete two-minute Clean routine', () => {
+    test('is a complete two-minute routine, of an unrecorded mode', () => {
         assert.equal(SESSION.meta.model, 'HX999X');
         const start = stateAt(SESSION, 2);
         assert.equal(start.routine_length, 120);
-        assert.equal(start.brushing_mode, 'clean');
         assert.equal(start.handle_state, 'run');
         assert.equal(start.brushing_state, 'on');
+
+        // The mode is genuinely absent. This capture predates the recorder
+        // reading 0x4022, and on a Prestige that is the only characteristic
+        // carrying the selected routine - 0x4080 reads 0 here, which the
+        // sequential table would misreport as "clean". It was described as a
+        // Clean session and the 120 s routine fits one, but the recording
+        // cannot prove it, so nothing here claims otherwise.
+        assert.equal(start.brushing_mode, null);
+        assert.ok(!SESSION.events.some(e => e.char === 'available_routine_ids'));
+    });
+
+    test('still derives sectors correctly without a known mode', () => {
+        // An unknown mode falls back to spreading the routine evenly over the
+        // model's sectors, which for six zones is the same walk Clean makes -
+        // so the missing mode costs this fixture nothing.
+        const seen = [];
+        // From 2 s, once every baseline read has landed.
+        for (let t = 2; t < 92; t += 1) {
+            const s = sectorState(stateAt(SESSION, t), 'HX999X');
+            if (seen.at(-1) !== s) seen.push(s);
+        }
+        assert.deepEqual(seen, ['sector_2', 'sector_3', 'sector_4', 'sector_5', 'sector_6'],
+            'starting at sector 2 because the capture joins 28 s in');
     });
 
     test('ends by reporting completion and wiping the timer at once', () => {
@@ -214,5 +246,85 @@ describe('the card replaying the Kids session', () => {
         assert.equal(el._completed, true);
         assert.equal(el._completedIsFull, true);
         assert.equal(el._sessionRoutineLength, 120);
+    });
+});
+
+describe('the recorded HX999X White+ session', () => {
+    test('reports its mode through the routine-id characteristic', () => {
+        // 0x4080 reads 0 here, which the sequential table would call "clean".
+        // On a Prestige the selected mode is the mode-id byte in 0x4022, and
+        // reading the wrong one makes every routine look like Clean.
+        assert.equal(WHITE.meta.model, 'HX999X');
+        const raw = WHITE.events.find(e => e.char === 'available_routine_ids');
+        assert.equal(raw.hex, '01');
+        assert.equal(stateAt(WHITE, 10).brushing_mode, 'white_plus');
+    });
+
+    test('runs a longer routine than Clean does', () => {
+        assert.equal(stateAt(WHITE, 10).routine_length, 160,
+            'White+ is 160 s, against the 120 s of the Clean capture');
+    });
+
+    test('visits the front-teeth sectors a second time', () => {
+        const seen = [];
+        for (let t = 6; t < 165; t += 1) {
+            const s = sectorState(stateAt(WHITE, t), 'HX999X');
+            if (seen.at(-1) !== s) seen.push(s);
+        }
+        assert.deepEqual(seen, [
+            'sector_1', 'sector_2', 'sector_3', 'sector_4', 'sector_5',
+            'sector_6', 'sector_2', 'sector_5',
+        ], 'the derived sequence, now confirmed against a real session');
+    });
+});
+
+describe('the card replaying the White+ session', () => {
+    test('keeps completed zones done when the sector jumps back', async () => {
+        // The Sonicare-only branch in the card exists for exactly this: the
+        // raw sector falls from 6 back to 2, and a plain index-based progress
+        // marking would drop four finished zones on the floor.
+        const Card = await loadCard();
+        const { rows } = await replaySession(Card, WHITE);
+
+        const active = rows.filter(r => r.card && r.card.activeIndex >= 0);
+        const revisit = active.findIndex((r, i) =>
+            i > 0 && r.card.activeIndex < active[i - 1].card.activeIndex);
+        assert.ok(revisit > 0, 'the recording contains a backwards jump');
+
+        const before = active[revisit - 1].card;
+        const after = active[revisit].card;
+        assert.ok(before.activeIndex > after.activeIndex,
+            `expected a jump back, got ${before.activeIndex} -> ${after.activeIndex}`);
+        assert.ok(after.done >= before.done,
+            `done zones fell from ${before.done} to ${after.done} across the revisit`);
+    });
+
+    test('never loses a done zone at any point of the session', async () => {
+        const Card = await loadCard();
+        const { rows } = await replaySession(Card, WHITE);
+        let peak = 0;
+        let last = null;
+        for (const row of rows) {
+            if (!row.card || row.card.sector === 'success') continue;
+            assert.ok(row.card.done >= peak,
+                `done went backwards at t=${row.t}: ${peak} -> ${row.card.done}`);
+            peak = Math.max(peak, row.card.done);
+            last = row.card;
+        }
+        // Five, not six: the zone currently under the brush is marked
+        // `brushing` rather than `done`, so a full set only appears once the
+        // session is over and the sector reads `success`. What matters here is
+        // that by the end every zone is accounted for as one or the other.
+        assert.equal(peak, 5);
+        assert.equal(last.done + last.brushing, 6,
+            'every zone is either finished or being brushed');
+    });
+
+    test('latches the finished session against the 160 s routine', async () => {
+        const Card = await loadCard();
+        const { el } = await replaySession(Card, WHITE);
+        assert.equal(el._sessionRoutineLength, 160);
+        assert.equal(el._completed, true);
+        assert.equal(el._completedIsFull, true);
     });
 });
