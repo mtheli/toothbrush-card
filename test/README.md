@@ -74,6 +74,17 @@ stubbed. Note that the fixture there carries a sector entity on purpose:
 without one the card synthesises a two-minute routine from time, and the
 "no target, no recap" guard could never trigger.
 
+`recap-dismiss.test.mjs` covers the × on the completion badge and the marker it
+leaves behind, so reopening a dashboard does not rebuild the session the user
+just waved away. This could not have been tested before: the shim carried no
+`localStorage`, so every call threw and was swallowed by the card's own
+try/catch — the path looked fine and was never entered. The shim now provides
+an in-memory one, plus `resetStorage()` and `breakStorage()`, the latter for the
+blocked-site-data case a browser in private mode produces.
+
+Note that running a session lifts a dismissal on purpose, so tests about the
+stored marker configure a card without brushing through it first.
+
 `session-latch.test.mjs` is a characterisation of the completed-session latch,
 written to protect a refactor rather than to describe a requirement. The latch
 is the most intricate thing in the card and lives in nine mutable fields that

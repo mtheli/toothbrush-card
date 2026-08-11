@@ -27,6 +27,35 @@ globalThis.customElements = {
     get(name) { return this.__registry[name]; },
 };
 
+// The card remembers a dismissed recap per device here. Without it every
+// read throws and is swallowed by the card's own try/catch, so the dismiss
+// path would look like it works while never being entered at all.
+const store = new Map();
+const workingStorage = () => ({
+    getItem: (key) => (store.has(key) ? store.get(key) : null),
+    setItem: (key, value) => { store.set(key, String(value)); },
+    removeItem: (key) => { store.delete(key); },
+    clear: () => { store.clear(); },
+});
+globalThis.localStorage = workingStorage();
+
+/** Empty the stored state, and undo breakStorage(), between tests. */
+export function resetStorage() {
+    store.clear();
+    globalThis.localStorage = workingStorage();
+}
+
+/**
+ * Make every storage call throw, the way a browser does when the user has
+ * blocked site data. The card is expected to carry on regardless.
+ */
+export function breakStorage() {
+    const boom = () => { throw new Error('storage is not available'); };
+    globalThis.localStorage = {
+        getItem: boom, setItem: boom, removeItem: boom, clear: boom,
+    };
+}
+
 class Document {}
 Document.prototype.adoptedStyleSheets = [];
 globalThis.Document = Document;
