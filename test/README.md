@@ -123,6 +123,20 @@ no address, no device name.
   routine, so the White+ / Gum Health revisit path is exercised only through
   `currentSector`, not through a real session.
 
+- `fixtures/sonicare-hx6340-kids-complete.jsonl` — a Sonicare for Kids
+  (firmware 4.2.2) running a full routine, recorded from before the handle was
+  switched on. It closes the first of those gaps and adds three things the
+  Prestige cannot show: four sectors instead of six, no `brushing_state` sensor
+  at all — the integration does not create one for a Kids handle, so the card
+  works from `handle_state` alone — and a session start, where the handle
+  reports `run` a moment before it resets its timer, so the previous session's
+  120 s is briefly still on the clock.
+
+  It does not close the revisit gap, and cannot: `current_sector` skips the
+  mode table entirely for HX63xx, so a Kids handle spreads any mode evenly and
+  never revisits. That still needs a White+ or Gum Health session on a premium
+  handle.
+
 Adding a fixture: capture with [`scripts/oralb/adv_capture.py`](../scripts/oralb/),
 then keep the frames as hex manufacturer data with their timestamps. Collapsing
 consecutive identical advertisements is fine; the brushing time has to keep
