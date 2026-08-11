@@ -993,12 +993,163 @@ function $b973a26f761c9c78$export$912b1850c5c72a40(prev, { active: active, durat
 }
 
 
+// Which zone the card highlights, and which ones it shows as done.
+//
+// The second state machine that used to live inside render(). Three different
+// devices want three different answers here, and the branch that runs decides
+// what the four remembered values are even for:
+//
+//   * A handle whose integration decodes every sector itself. The reported
+//     value is taken as-is and nothing has to be remembered.
+//   * A handle that revisits sectors on purpose - Sonicare's White+ and Gum
+//     Health walk the six zones and then return to two of them. The zone is
+//     taken as-is here too, but a zone already finished has to stay finished
+//     when the reading jumps backwards.
+//   * Everything else, where the pre-2026.8 oralb_ble mapping had no entries
+//     for sectors 5 and 6 and wrapped back to 4 instead. While brushing a
+//     sector only moves forward, so a value that does not exceed the highest
+//     one seen is read as the next one.
+//
+// Which of the three applies is passed in as two flags rather than decided
+// here: this module knows nothing about integrations, only about behaviour.
+/** The state a card starts with. */ function $19924b6af6e06bb0$export$e4cc5c0ab851a015() {
+    return {
+        highestSector: -1,
+        lastRawIndex: -1,
+        correctedIndex: -1,
+        wasActive: false,
+        visitedSectors: null
+    };
+}
+function $19924b6af6e06bb0$export$3f32d9c2202e56e3(state) {
+    return {
+        ...state,
+        highestSector: -1,
+        lastRawIndex: -1,
+        correctedIndex: -1
+    };
+}
+function $19924b6af6e06bb0$export$ed42d00b6a9a8b37(sector) {
+    const match = String(sector).match(/(\d+)/);
+    if (!match) return -1;
+    const index = parseInt(match[1]) - 1;
+    return index >= 0 ? index : -1;
+}
+function $19924b6af6e06bb0$export$2c0026facbbde936(options) {
+    return Array.isArray(options) && options.includes('sector_5');
+}
+function $19924b6af6e06bb0$export$9494d08c8f9e7fd0(prev, { rawIndex: rawIndex, active: active, maxIndex: maxIndex }) {
+    let state = prev;
+    // A session beginning starts from scratch rather than from the old peak.
+    if (!prev.wasActive && active) state = $19924b6af6e06bb0$export$3f32d9c2202e56e3(state);
+    state = {
+        ...state,
+        wasActive: active
+    };
+    if (!active || rawIndex === -1) return {
+        state: $19924b6af6e06bb0$export$3f32d9c2202e56e3(state),
+        index: rawIndex
+    };
+    // The same raw value again is the handle repeating itself, not progress -
+    // without this the card would walk through the zones on its own.
+    if (rawIndex === state.lastRawIndex) return {
+        state: state,
+        index: state.correctedIndex
+    };
+    state = {
+        ...state,
+        lastRawIndex: rawIndex
+    };
+    if (rawIndex > state.highestSector) state = {
+        ...state,
+        highestSector: rawIndex,
+        correctedIndex: rawIndex
+    };
+    else {
+        // The reading stalled or went backwards: that is the wrap, so move on.
+        const corrected = Math.min(state.highestSector + 1, maxIndex);
+        state = {
+            ...state,
+            highestSector: corrected,
+            correctedIndex: corrected
+        };
+    }
+    return {
+        state: state,
+        index: state.correctedIndex
+    };
+}
+function $19924b6af6e06bb0$export$d4ffc2e2aaef11ec(prev, { rawIndex: rawIndex, active: active }) {
+    if (!active) return {
+        state: {
+            ...prev,
+            visitedSectors: null
+        },
+        count: 0
+    };
+    const visited = new Set(prev.visitedSectors || []);
+    if (rawIndex >= 0) visited.add(rawIndex);
+    return {
+        state: {
+            ...prev,
+            visitedSectors: visited
+        },
+        count: visited.size
+    };
+}
+function $19924b6af6e06bb0$export$fbe194d49df99db9(prev, { sector: sector, active: active, zoneCount: zoneCount, duration: duration, routineLength: routineLength, allowsRevisits: allowsRevisits = false, sectorsAreUpstreamDecoded: sectorsAreUpstreamDecoded = false }) {
+    const maxIndex = zoneCount - 1;
+    const rawIndex = $19924b6af6e06bb0$export$ed42d00b6a9a8b37(sector);
+    if (sector === 'success') return {
+        state: prev,
+        index: -1,
+        doneCount: null
+    };
+    const clamped = rawIndex >= 0 ? Math.min(rawIndex, maxIndex) : -1;
+    if (allowsRevisits) {
+        // Time and observation combined, taking whichever is further along, so
+        // that a revisit cannot un-finish a zone: after the initial sweep the
+        // raw sector jumps back, but every zone has genuinely been brushed.
+        const timeBasedDone = Math.min(zoneCount, Math.floor(zoneCount * duration / routineLength));
+        const visited = $19924b6af6e06bb0$export$d4ffc2e2aaef11ec(prev, {
+            rawIndex: rawIndex,
+            active: active
+        });
+        return {
+            state: visited.state,
+            index: clamped,
+            doneCount: Math.max(timeBasedDone, visited.count)
+        };
+    }
+    if (sectorsAreUpstreamDecoded) // Clear the workaround's latch so that falling back to it - the entity
+    // going briefly unavailable - starts cleanly rather than mid-session.
+    return {
+        state: $19924b6af6e06bb0$export$3f32d9c2202e56e3({
+            ...prev,
+            wasActive: false
+        }),
+        index: clamped,
+        doneCount: null
+    };
+    const corrected = $19924b6af6e06bb0$export$9494d08c8f9e7fd0(prev, {
+        rawIndex: rawIndex,
+        active: active,
+        maxIndex: maxIndex
+    });
+    return {
+        state: corrected.state,
+        index: corrected.index,
+        doneCount: null
+    };
+}
+
+
 var $7bfe0f8b5ad5b7ee$exports = {};
 $7bfe0f8b5ad5b7ee$exports = "ha-card {\n  overflow: visible;\n  container-type: inline-size;\n}\n\n.device-not-found {\n  color: var(--secondary-text-color);\n  padding: 16px 18px;\n  font-size: 13px;\n}\n\n.card-header {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n  border-top-left-radius: var(--ha-card-border-radius, 12px);\n  border-top-right-radius: var(--ha-card-border-radius, 12px);\n  justify-content: space-between;\n  align-items: center;\n  padding: 16px 18px 12px;\n  display: flex;\n  position: relative;\n  overflow: hidden;\n}\n\n.card-header:before {\n  content: \"\";\n  background: var(--accent-color, transparent);\n  opacity: .12;\n  pointer-events: none;\n  transition: background .5s;\n  position: absolute;\n  inset: 0;\n}\n\n.header-accent {\n  background: var(--accent-color);\n  border-radius: 3px;\n  flex-shrink: 0;\n  width: 4px;\n  height: 28px;\n  transition: background .4s;\n}\n\n.header-title {\n  align-items: center;\n  gap: 8px;\n  display: flex;\n}\n\n.header-title h2 {\n  color: var(--primary-text-color);\n  letter-spacing: -.01em;\n  margin: 0;\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.header-sub {\n  color: var(--secondary-text-color);\n  font-size: 12px;\n  font-weight: 400;\n}\n\n.header-icons {\n  align-items: center;\n  gap: 10px;\n  display: flex;\n}\n\n.header-icons svg:not(.conn-icon) {\n  width: 16px;\n  height: 16px;\n}\n\n.conn-icon {\n  width: 18px;\n  height: 18px;\n  color: var(--primary-color, #3b82f6);\n  fill: currentColor;\n  cursor: pointer;\n  opacity: 1;\n  transition: color .4s, opacity .4s;\n}\n\n.conn-icon.active {\n  color: #0082fc;\n}\n\n.conn-icon.disconnected {\n  color: var(--disabled-text-color, #9ca3af);\n  opacity: .3;\n}\n\n.more-info-btn {\n  cursor: pointer;\n  opacity: .5;\n  transition: opacity .2s;\n  color: var(--secondary-text-color) !important;\n}\n\n.more-info-btn:hover {\n  opacity: 1;\n}\n\n.init-wrap {\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  padding: 24px 0 32px;\n  display: flex;\n  overflow: hidden;\n}\n\n.init-rings {\n  flex-shrink: 0;\n  justify-content: center;\n  align-items: center;\n  width: 180px;\n  height: 180px;\n  display: flex;\n  position: relative;\n}\n\n.init-ring {\n  border: 2px solid var(--primary-color, #3b82f6);\n  opacity: 0;\n  border-radius: 50%;\n  animation: 3s ease-out infinite initPulse;\n  position: absolute;\n}\n\n.init-ring-1 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 0s;\n}\n\n.init-ring-2 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 1s;\n}\n\n.init-ring-3 {\n  width: 70px;\n  height: 70px;\n  animation-delay: 2s;\n}\n\n@keyframes initPulse {\n  0% {\n    opacity: .6;\n    width: 70px;\n    height: 70px;\n  }\n\n  100% {\n    opacity: 0;\n    width: 190px;\n    height: 190px;\n  }\n}\n\n.init-bt {\n  z-index: 1;\n  width: 52px;\n  height: 52px;\n  animation: 2s ease-in-out infinite initBtPulse;\n  position: relative;\n}\n\n.init-bt svg {\n  width: 52px;\n  height: 52px;\n}\n\n@keyframes initBtPulse {\n  0%, 100% {\n    opacity: .5;\n    transform: scale(.95);\n  }\n\n  50% {\n    opacity: 1;\n    transform: scale(1.05);\n  }\n}\n\n.init-label {\n  color: var(--primary-color, #3b82f6);\n  margin-top: 6px;\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.chips-row {\n  gap: 8px;\n  padding: 12px 14px;\n  display: flex;\n}\n\n.chips-row > * {\n  flex: 1;\n  min-width: 0;\n}\n\n.chip {\n  background: var(--card-background-color, #f9fafb);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  cursor: pointer;\n  border-radius: 10px;\n  grid-template-rows: auto auto;\n  grid-template-columns: auto 1fr;\n  align-items: center;\n  gap: 1px 8px;\n  padding: 8px 10px;\n  display: grid;\n}\n\n.chip-icon {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.chip-icon ha-icon {\n  --mdc-icon-size: 24px;\n}\n\n.head-type-letter {\n  color: var(--primary-text-color);\n  font-weight: 800;\n  display: none;\n}\n\n.chip-icon .brushhead-svg {\n  width: 19px;\n  height: 24px;\n}\n\n.chip-icon.green {\n  color: #16a34a;\n}\n\n.chip-icon.blue {\n  color: #2563eb;\n}\n\n.chip-icon.amber {\n  color: #d97706;\n}\n\n.chip-icon.red {\n  color: #dc2626;\n}\n\n.chip-icon.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.chip-icon.int-low {\n  color: #0891b2;\n}\n\n.chip-icon.int-med {\n  color: #7c3aed;\n}\n\n.chip-icon.int-high {\n  color: #db2777;\n}\n\n.chip-icon.gold {\n  color: #c47f16;\n}\n\n.chip-label {\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .06em;\n  font-size: 9px;\n  font-weight: 600;\n}\n\n.chip-value {\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  font-size: 12px;\n  font-weight: 700;\n  line-height: 1;\n  overflow: hidden;\n}\n\n.chip-value.green {\n  color: #16a34a;\n}\n\n.chip-value.blue {\n  color: #2563eb;\n}\n\n.chip-value.amber {\n  color: #d97706;\n}\n\n.chip-value.red {\n  color: #dc2626;\n}\n\n.chip-value.int-low {\n  color: #0891b2;\n}\n\n.chip-value.int-med {\n  color: #7c3aed;\n}\n\n.chip-value.int-high {\n  color: #db2777;\n}\n\n.chip-value.gold {\n  color: #c47f16;\n}\n\n.chip-value.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.chip-value.prose {\n  text-transform: none;\n}\n\n.chip-value.wrap {\n  white-space: normal;\n  -webkit-line-clamp: 2;\n  line-clamp: 2;\n  -webkit-box-orient: vertical;\n  font-size: 11px;\n  line-height: 1.15;\n  display: -webkit-box;\n}\n\n.pressure-bars {\n  grid-row: 1 / 3;\n  justify-content: center;\n  align-items: flex-end;\n  gap: 2px;\n  display: flex;\n}\n\n.pb {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: 2px;\n  width: 4px;\n  transition: background .3s;\n}\n\n.pb:first-child {\n  height: 5px;\n}\n\n.pb:nth-child(2) {\n  height: 9px;\n}\n\n.pb:nth-child(3) {\n  height: 13px;\n}\n\n.pb:nth-child(4) {\n  height: 18px;\n}\n\n.p-low .pb:first-child {\n  background: #d97706;\n}\n\n.p-normal .pb:first-child, .p-normal .pb:nth-child(2) {\n  background: #16a34a;\n}\n\n.p-high .pb {\n  background: #dc2626;\n}\n\n.mode-chip-wrap {\n  position: relative;\n}\n\n.chip.selectable {\n  cursor: pointer;\n}\n\n.mode-caret {\n  opacity: .5;\n  font-size: 10px;\n}\n\n.chip-select-hint {\n  display: none;\n}\n\n.dropdown-backdrop {\n  z-index: 9;\n  position: fixed;\n  inset: 0;\n}\n\n.mode-dropdown {\n  z-index: 10;\n  background: var(--card-background-color, #fff);\n  border: 1px solid var(--divider-color, #e5e7eb);\n  border-radius: 12px;\n  min-width: 160px;\n  animation: .15s ease-out dropdown-in;\n  position: absolute;\n  top: calc(100% + 4px);\n  right: 0;\n  overflow: hidden;\n  box-shadow: 0 4px 16px #0000001f;\n}\n\n@keyframes dropdown-in {\n  from {\n    opacity: 0;\n    transform: translateY(-4px);\n  }\n\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n.mode-option {\n  cursor: pointer;\n  color: var(--primary-text-color);\n  align-items: center;\n  gap: 10px;\n  padding: 10px 14px;\n  font-size: 13px;\n  font-weight: 500;\n  transition: background .15s;\n  display: flex;\n}\n\n.mode-option:hover {\n  background: var(--secondary-background-color, #f3f4f6);\n}\n\n.mode-option.active {\n  color: #2563eb;\n  font-weight: 600;\n}\n\n.mode-option ha-icon {\n  --mdc-icon-size: 20px;\n  color: inherit;\n}\n\n.mode-option:not(:last-child) {\n  border-bottom: 1px solid var(--divider-color, #f3f4f6);\n}\n\n.visual-area {\n  flex-direction: column;\n  align-items: center;\n  padding: 4px 14px 10px;\n  display: flex;\n  position: relative;\n}\n\n.card-header + .visual-area, .visual-area:first-child {\n  padding-top: 16px;\n}\n\n.tooth-wrap {\n  width: calc(210px * var(--tb-scale, 1));\n  height: calc(210px * var(--tb-scale, 1));\n  justify-content: center;\n  align-items: center;\n  display: flex;\n  position: relative;\n}\n\n.tooth-svg {\n  width: 100%;\n  height: 100%;\n}\n\n.zone {\n  fill: var(--tb-tooth-color, var(--divider-color, #f3f4f6));\n  transition: fill .3s;\n}\n\n.brushing .zone {\n  fill: var(--tb-active-color, #93c5fd);\n  animation: .8s ease-in-out infinite alternate brush-zone;\n}\n\n@keyframes brush-zone {\n  from {\n    opacity: .6;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.done .zone {\n  fill: var(--tb-done-color, #bbf7d0) !important;\n}\n\n.center-info {\n  text-align: center;\n  pointer-events: none;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.session-label {\n  font-size: calc(9px * var(--tb-scale, 1));\n  color: var(--secondary-text-color);\n  text-transform: uppercase;\n  letter-spacing: .1em;\n  margin-bottom: 2px;\n  font-weight: 600;\n  display: block;\n}\n\n.timer-display {\n  font-size: calc(30px * var(--tb-scale, 1));\n  color: var(--primary-text-color);\n  letter-spacing: -1px;\n  font-variant-numeric: tabular-nums;\n  font-weight: 400;\n  line-height: 1;\n  transition: color .4s;\n}\n\n.timer-display.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.center-info.standalone {\n  pointer-events: auto;\n  cursor: pointer;\n  padding: 10px 0 4px;\n  position: static;\n  transform: none;\n}\n\n.center-info.standalone .timer-display {\n  font-size: calc(52px * var(--tb-scale, 1));\n  letter-spacing: -2px;\n}\n\n.status-row {\n  grid-template-columns: calc(66px * var(--tb-scale, 1)) 1fr calc(66px * var(--tb-scale, 1));\n  align-items: center;\n  width: calc(100% + 8px);\n  margin: 2px -4px 10px;\n  display: grid;\n}\n\n.status-row .card-corner {\n  position: static;\n}\n\n.status-text-wrap {\n  text-align: center;\n  cursor: pointer;\n}\n\n.status-main {\n  font-size: calc(14px * var(--tb-scale, 1));\n  color: var(--primary-text-color);\n  text-transform: capitalize;\n  font-weight: 600;\n  transition: color .4s;\n}\n\n.status-main.active {\n  color: var(--primary-color, #2563eb);\n}\n\n.status-sub {\n  font-size: calc(11px * var(--tb-scale, 1));\n  color: var(--secondary-text-color);\n  text-transform: capitalize;\n  margin-top: 1px;\n}\n\n.progress-wrap {\n  opacity: 0;\n  width: 100%;\n  height: 0;\n  padding: 0 14px;\n  transition: opacity .4s, height .4s;\n  overflow: hidden;\n}\n\n.progress-wrap.visible {\n  opacity: 1;\n  height: auto;\n  padding: 0 14px 10px;\n}\n\n.progress-track {\n  height: calc(var(--tb-bar-height, 4px) * var(--tb-scale, 1));\n  gap: 3px;\n  display: flex;\n}\n\n.progress-wrap.bar-bold {\n  --tb-bar-height: 8px;\n}\n\n.progress-wrap.bar-xl {\n  --tb-bar-height: 12px;\n}\n\n.progress-seg {\n  background: var(--divider-color, #e5e7eb);\n  border-radius: calc(var(--tb-bar-height, 4px) * var(--tb-scale, 1) / 2);\n  flex: 1;\n  overflow: hidden;\n}\n\n.progress-fill {\n  border-radius: calc(var(--tb-bar-height, 4px) * var(--tb-scale, 1) / 2);\n  height: 100%;\n  transition: width .5s;\n}\n\n.progress-labels {\n  font-size: calc(10px * var(--tb-scale, 1));\n  color: var(--secondary-text-color);\n  justify-content: space-between;\n  margin-top: 4px;\n  display: flex;\n}\n\n.progress-labels span:first-child {\n  text-transform: capitalize;\n}\n\n.done-badge {\n  background: var(--card-background-color, #f0fdf4);\n  text-align: center;\n  border-top: 1px solid #bbf7d0;\n  padding: 10px 14px;\n  display: none;\n  position: relative;\n}\n\n.done-dismiss {\n  cursor: pointer;\n  color: var(--secondary-text-color, #888);\n  background: none;\n  border: none;\n  padding: 2px 4px;\n  font-size: 16px;\n  line-height: 1;\n  position: absolute;\n  top: 6px;\n  right: 10px;\n}\n\n.done-dismiss:hover {\n  color: var(--primary-text-color, #333);\n}\n\n.done-badge.show {\n  animation: .4s cubic-bezier(.34, 1.56, .64, 1) pop-in;\n  display: block;\n}\n\n@keyframes pop-in {\n  from {\n    opacity: 0;\n    transform: scaleY(.7);\n  }\n\n  to {\n    opacity: 1;\n    transform: scaleY(1);\n  }\n}\n\n.done-badge p {\n  color: #15803d;\n  margin: 0;\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.done-badge span {\n  color: #16a34a;\n  font-size: 11px;\n}\n\n.done-age {\n  color: var(--secondary-text-color, #888);\n  font-size: 11px;\n  font-weight: 400;\n}\n\n.done-badge.aborted {\n  border-top-color: #fde68a;\n}\n\n.done-badge.aborted p {\n  color: #b45309;\n}\n\n.done-badge.aborted span {\n  color: #d97706;\n}\n\n.card-corner {\n  width: calc(66px * var(--tb-scale, 1));\n  cursor: pointer;\n  opacity: .85;\n  z-index: 1;\n  flex-direction: column;\n  align-items: center;\n  gap: 1px;\n  transition: opacity .2s;\n  display: flex;\n  position: absolute;\n}\n\n.card-corner:hover {\n  opacity: 1;\n}\n\n.card-corner.tl {\n  top: 6px;\n  left: 10px;\n}\n\n.card-corner.tr {\n  top: 6px;\n  right: 10px;\n}\n\n.corner-ico {\n  --mdc-icon-size: calc(22px * var(--tb-scale, 1));\n  width: calc(22px * var(--tb-scale, 1));\n  height: calc(22px * var(--tb-scale, 1));\n}\n\n.corner-lbl {\n  font-size: calc(8px * var(--tb-scale, 1));\n  letter-spacing: .06em;\n  text-transform: uppercase;\n  color: var(--secondary-text-color);\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  max-width: 100%;\n  font-weight: 700;\n  overflow: hidden;\n}\n\n.corner-val {\n  font-size: calc(11px * var(--tb-scale, 1));\n  font-variant-numeric: tabular-nums;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  max-width: 100%;\n  font-weight: 800;\n  overflow: hidden;\n}\n\n.corner-val.wrap {\n  white-space: normal;\n  font-size: calc(10px * var(--tb-scale, 1));\n  text-align: center;\n  -webkit-line-clamp: 2;\n  line-clamp: 2;\n  -webkit-box-orient: vertical;\n  line-height: 1.15;\n  display: -webkit-box;\n}\n\n.corner-ico.green, .corner-val.green {\n  color: #16a34a;\n}\n\n.corner-ico.blue, .corner-val.blue {\n  color: #2563eb;\n}\n\n.corner-ico.amber, .corner-val.amber {\n  color: #d97706;\n}\n\n.corner-ico.red, .corner-val.red {\n  color: #dc2626;\n}\n\n.corner-ico.muted, .corner-val.muted {\n  color: var(--disabled-text-color, #9ca3af);\n}\n\n.corner-ico.int-low, .corner-val.int-low {\n  color: #0891b2;\n}\n\n.corner-ico.int-med, .corner-val.int-med {\n  color: #7c3aed;\n}\n\n.corner-ico.int-high, .corner-val.int-high {\n  color: #db2777;\n}\n\n.corner-ico.gold, .corner-val.gold {\n  color: #c47f16;\n}\n\n.brushhead-svg {\n  width: calc(17px * var(--tb-scale, 1));\n  height: calc(22px * var(--tb-scale, 1));\n}\n\n.brushhead-pct {\n  color: var(--secondary-text-color);\n  font-size: 9px;\n  font-weight: 600;\n}\n\n@container (width <= 350px) {\n  .chip {\n    grid-template-columns: 1fr;\n    justify-items: center;\n    row-gap: 0;\n    padding: 8px 4px;\n    position: relative;\n  }\n\n  .chip-icon, .pressure-bars {\n    grid-row: auto;\n  }\n\n  .chip-label, .chip-value {\n    display: none;\n  }\n\n  .chip-icon.has-letter {\n    position: relative;\n  }\n\n  .chip-icon.has-letter .head-type-letter {\n    font-size: 10px;\n    line-height: 1;\n    display: block;\n    position: absolute;\n    bottom: -1px;\n    right: -4px;\n  }\n\n  .chip-select-hint {\n    --mdc-icon-size: 12px;\n    color: #2563eb;\n    opacity: .6;\n    display: block;\n    position: absolute;\n    bottom: 2px;\n    right: 2px;\n  }\n\n  .tooth-wrap {\n    width: calc(180px * var(--tb-scale, 1));\n    height: calc(180px * var(--tb-scale, 1));\n  }\n\n  .timer-display {\n    font-size: calc(26px * var(--tb-scale, 1));\n  }\n\n  .card-corner {\n    width: calc(54px * var(--tb-scale, 1));\n  }\n\n  .card-corner.tl {\n    left: 2px;\n  }\n\n  .card-corner.tr {\n    right: 2px;\n  }\n\n  .status-row {\n    grid-template-columns: calc(54px * var(--tb-scale, 1)) 1fr calc(54px * var(--tb-scale, 1));\n    width: calc(100% + 24px);\n    margin-left: -12px;\n    margin-right: -12px;\n  }\n}\n";
 
 
 // AUTO-GENERATED by scripts/gen_build_info.mjs at build time. Do not edit or commit.
-const $de15c9db4b7b9358$export$17b81730949de002 = "2026-08-11T19:26Z";
+const $de15c9db4b7b9358$export$17b81730949de002 = "2026-08-11T19:43Z";
 
 
 const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.28.0";
@@ -1354,10 +1505,7 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
     }
     constructor(){
         super();
-        this._highestSector = -1;
-        this._lastRawIndex = -1;
-        this._correctedIndex = -1;
-        this._wasActive = false;
+        this._applySectorState((0, $19924b6af6e06bb0$export$e4cc5c0ab851a015)());
         this._historyRecapState = null;
         // Completion latch (issue #4): persist the finished-session view. The
         // rules live in session-state.js; the card only holds the values.
@@ -1612,68 +1760,52 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
             composed: true
         }));
     }
+    // --- Sector resolution ---
+    // The rules live in sector-state.js. These stay as methods because the
+    // template and the tests reach for them by name, and because the state is
+    // still held as individual properties.
+    _sectorState() {
+        return {
+            highestSector: this._highestSector,
+            lastRawIndex: this._lastRawIndex,
+            correctedIndex: this._correctedIndex,
+            wasActive: this._wasActive,
+            visitedSectors: this._visitedSectors
+        };
+    }
+    _applySectorState(state) {
+        this._highestSector = state.highestSector;
+        this._lastRawIndex = state.lastRawIndex;
+        this._correctedIndex = state.correctedIndex;
+        this._wasActive = state.wasActive;
+        this._visitedSectors = state.visitedSectors;
+    }
     _resetSectorCorrection() {
-        this._highestSector = -1;
-        this._lastRawIndex = -1;
-        this._correctedIndex = -1;
+        this._applySectorState((0, $19924b6af6e06bb0$export$3f32d9c2202e56e3)(this._sectorState()));
     }
-    /**
-     * True when the sector entity can express every sector the brush has.
-     *
-     * oralb_ble 1.1.1 (Home Assistant 2026.8) replaced the hand-built sector
-     * table with a decoder for sectors 5/6 and the entity now offers
-     * `sector_1`…`sector_7` as enum options. Older releases never listed
-     * anything above `sector_4`, so `sector_5` among the options is a reliable
-     * marker that the upstream fix is in place and `_correctSectorIndex` is no
-     * longer needed. Attributes are stripped while an entity is unavailable —
-     * the workaround then stays on, which is the pre-2026.8 behaviour.
-     */ _sectorEntityDecodesAllSectors(hass, sectorEntityId) {
+    /** Looks the enum options up; deciding what they mean is sector-state's. */ _sectorEntityDecodesAllSectors(hass, sectorEntityId) {
         if (!sectorEntityId) return false;
-        const options = hass.states[sectorEntityId]?.attributes?.options;
-        return Array.isArray(options) && options.includes('sector_5');
+        return (0, $19924b6af6e06bb0$export$2c0026facbbde936)(hass.states[sectorEntityId]?.attributes?.options);
     }
-    /**
-     * Workaround for the pre-2026.8 oralb_ble mapping bug: 6-sector brushes
-     * wrap back to sector 4 instead of reporting sectors 5/6. During active
-     * brushing sectors only move forward, so if we see a sector ≤ the highest
-     * already seen, we advance to the next one instead.
-     */ _correctSectorIndex(rawIndex, active, maxIndex) {
-        if (!this._wasActive && active) this._resetSectorCorrection();
-        this._wasActive = active;
-        if (!active || rawIndex === -1) {
-            this._resetSectorCorrection();
-            return rawIndex;
-        }
-        // Same raw value as last render — return cached result
-        if (rawIndex === this._lastRawIndex) return this._correctedIndex;
-        this._lastRawIndex = rawIndex;
-        if (rawIndex > this._highestSector) {
-            this._highestSector = rawIndex;
-            this._correctedIndex = rawIndex;
-        } else {
-            // Sector went backwards or repeated — advance
-            const corrected = Math.min(this._highestSector + 1, maxIndex);
-            this._highestSector = corrected;
-            this._correctedIndex = corrected;
-        }
-        return this._correctedIndex;
+    _correctSectorIndex(rawIndex, active, maxIndex) {
+        const result = (0, $19924b6af6e06bb0$export$9494d08c8f9e7fd0)(this._sectorState(), {
+            rawIndex: rawIndex,
+            active: active,
+            maxIndex: maxIndex
+        });
+        this._applySectorState(result.state);
+        return result.index;
     }
     _trackVisitedSector(rawIndex, active) {
-        if (!active) {
-            this._visitedSectors = null;
-            return 0;
-        }
-        if (!this._visitedSectors) this._visitedSectors = new Set();
-        if (rawIndex >= 0) this._visitedSectors.add(rawIndex);
-        return this._visitedSectors.size;
+        const result = (0, $19924b6af6e06bb0$export$d4ffc2e2aaef11ec)(this._sectorState(), {
+            rawIndex: rawIndex,
+            active: active
+        });
+        this._applySectorState(result.state);
+        return result.count;
     }
     _parseRawSectorIndex(sector) {
-        const match = String(sector).match(/(\d+)/);
-        if (match) {
-            const idx = parseInt(match[1]) - 1;
-            return idx >= 0 ? idx : -1;
-        }
-        return -1;
+        return (0, $19924b6af6e06bb0$export$ed42d00b6a9a8b37)(sector);
     }
     _getSectorData(sector, activeIndex, sectorOrder, doneCount = null) {
         const sectorClassMaps = {};
@@ -1948,31 +2080,23 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         // Computed values
         const defaultOrder = numSectors === 6 ? $930552a63f9e9686$export$d18f9bb4634fc18d : $930552a63f9e9686$export$5055f2a665f9cd1e;
         const sectorOrder = config.sector_order?.length === numSectors ? config.sector_order : defaultOrder;
-        const rawSectorIndex = this._parseRawSectorIndex(sector);
-        // Sonicare meldet anatomische Sektoren inklusive Revisits (White+,
-        // Gum Health) — dort den _correctSectorIndex-Workaround umgehen und
-        // Done-Zonen zeit-basiert markieren, damit Revisits die bereits
-        // abgeschlossenen Zonen nicht zurücksetzen.
+        // Sonicare reports anatomical sectors including revisits (White+,
+        // Gum Health), so a zone already finished must stay finished when the
+        // reading jumps back. Passed to the resolver as behaviour rather than
+        // as an integration name.
         const allowsRevisits = entityIds.integration === 'philips_sonicare_ble' && routineLength > 0;
-        let correctedIndex;
-        let doneCount = null;
-        if (sector === 'success') correctedIndex = -1;
-        else if (allowsRevisits) {
-            correctedIndex = rawSectorIndex >= 0 ? Math.min(rawSectorIndex, sectorOrder.length - 1) : -1;
-            // doneCount kombiniert Zeit-Fortschritt und tatsächlich beobachtete
-            // Sektoren. Wir nutzen das Maximum, damit nach einem Revisit (White+:
-            // nach 120s alle Zonen einmal durch) die bereits besuchten Zonen
-            // "done" bleiben, auch wenn der Raw-Sektor wieder zurückspringt.
-            const timeBasedDone = Math.min(sectorOrder.length, Math.floor(sectorOrder.length * duration / routineLength));
-            const visitedSize = this._trackVisitedSector(rawSectorIndex, active);
-            doneCount = Math.max(timeBasedDone, visitedSize);
-        } else if (sectorsAreUpstreamDecoded) {
-            correctedIndex = rawSectorIndex >= 0 ? Math.min(rawSectorIndex, sectorOrder.length - 1) : -1;
-            // Latch zurücksetzen, damit ein Rückfall auf den Workaround
-            // (Entity kurzzeitig unavailable) sauber neu anläuft.
-            this._wasActive = false;
-            this._resetSectorCorrection();
-        } else correctedIndex = this._correctSectorIndex(rawSectorIndex, active, sectorOrder.length - 1);
+        const resolved = (0, $19924b6af6e06bb0$export$fbe194d49df99db9)(this._sectorState(), {
+            sector: sector,
+            active: active,
+            zoneCount: sectorOrder.length,
+            duration: duration,
+            routineLength: routineLength,
+            allowsRevisits: allowsRevisits,
+            sectorsAreUpstreamDecoded: sectorsAreUpstreamDecoded
+        });
+        this._applySectorState(resolved.state);
+        const correctedIndex = resolved.index;
+        const doneCount = resolved.doneCount;
         const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder, doneCount);
         const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
         const isSuccess = sector === 'success';

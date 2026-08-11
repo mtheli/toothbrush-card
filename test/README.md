@@ -74,11 +74,21 @@ stubbed. Note that the fixture there carries a sector entity on purpose:
 without one the card synthesises a two-minute routine from time, and the
 "no target, no recap" guard could never trigger.
 
-`sector-correction.test.mjs` characterises the other state machine in
-`render()` — `_highestSector`, `_lastRawIndex`, `_correctedIndex` and
-`_wasActive`, plus the visited-sector set — which the Oral-B replays had only
-ever reached indirectly. Its subtleties are the ones worth knowing before
-touching it: the result is cached against the last raw value, so an identical
+`sector-state.test.mjs` tests sector resolution as the function it now is, in
+`src/sector-state.js`: the three-way choice between an integration that decodes
+everything itself, a handle that revisits sectors on purpose, and everything
+else where the pre-2026.8 wrap has to be compensated. Which of the three
+applies arrives as two flags, so the module knows nothing about integrations —
+only about behaviour. The done-count arithmetic behind a revisit is the part
+that was previously reachable only by replaying a whole Sonicare session.
+
+`sector-correction.test.mjs` reaches the same logic through the card's own
+methods, which are now thin delegates over that module. It was written before
+the extraction, and passing unchanged afterwards is what says the wiring
+survived. It pins the four values the machine remembers — `_highestSector`,
+`_lastRawIndex`, `_correctedIndex` and `_wasActive`, plus the visited-sector
+set — which the Oral-B replays had only ever reached indirectly. Its
+subtleties are the ones worth knowing before touching it: the result is cached against the last raw value, so an identical
 advertisement does not advance a zone while the same value after a different
 one does; an inactive handle gets the raw index back rather than -1; and the
 correction is clamped to the last zone.

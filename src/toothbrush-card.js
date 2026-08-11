@@ -5,6 +5,8 @@ import { MODE_ICONS, CONN_ICONS } from './icons.js';
 import { t } from './translations.js';
 import { nextSessionState, initialSessionState,
          BRUSHING_DURATION, MIN_RECAP_SECONDS } from './session-state.js';
+import { resolveSector, initialSectorState, resetCorrection, correctSectorIndex,
+         trackVisitedSector, parseRawSectorIndex, decodesAllSectors } from './sector-state.js';
 import styles from 'bundle-text:./toothbrush-card.css';
 
 export const CARD_VERSION = "0.28.0";
@@ -385,10 +387,7 @@ export class ToothbrushCard extends LitElement {
 
     constructor() {
         super();
-        this._highestSector = -1;
-        this._lastRawIndex = -1;
-        this._correctedIndex = -1;
-        this._wasActive = false;
+        this._applySectorState(initialSectorState());
         this._historyRecapState = null;
         // Completion latch (issue #4): persist the finished-session view. The
         // rules live in session-state.js; the card only holds the values.
@@ -680,83 +679,53 @@ export class ToothbrushCard extends LitElement {
         window.dispatchEvent(new CustomEvent('location-changed', { bubbles: true, composed: true }));
     }
 
-    _resetSectorCorrection() {
-        this._highestSector = -1;
-        this._lastRawIndex = -1;
-        this._correctedIndex = -1;
+    // --- Sector resolution ---
+    // The rules live in sector-state.js. These stay as methods because the
+    // template and the tests reach for them by name, and because the state is
+    // still held as individual properties.
+
+    _sectorState() {
+        return {
+            highestSector: this._highestSector,
+            lastRawIndex: this._lastRawIndex,
+            correctedIndex: this._correctedIndex,
+            wasActive: this._wasActive,
+            visitedSectors: this._visitedSectors,
+        };
     }
 
-    /**
-     * True when the sector entity can express every sector the brush has.
-     *
-     * oralb_ble 1.1.1 (Home Assistant 2026.8) replaced the hand-built sector
-     * table with a decoder for sectors 5/6 and the entity now offers
-     * `sector_1`…`sector_7` as enum options. Older releases never listed
-     * anything above `sector_4`, so `sector_5` among the options is a reliable
-     * marker that the upstream fix is in place and `_correctSectorIndex` is no
-     * longer needed. Attributes are stripped while an entity is unavailable —
-     * the workaround then stays on, which is the pre-2026.8 behaviour.
-     */
+    _applySectorState(state) {
+        this._highestSector = state.highestSector;
+        this._lastRawIndex = state.lastRawIndex;
+        this._correctedIndex = state.correctedIndex;
+        this._wasActive = state.wasActive;
+        this._visitedSectors = state.visitedSectors;
+    }
+
+    _resetSectorCorrection() {
+        this._applySectorState(resetCorrection(this._sectorState()));
+    }
+
+    /** Looks the enum options up; deciding what they mean is sector-state's. */
     _sectorEntityDecodesAllSectors(hass, sectorEntityId) {
         if (!sectorEntityId) return false;
-        const options = hass.states[sectorEntityId]?.attributes?.options;
-        return Array.isArray(options) && options.includes('sector_5');
+        return decodesAllSectors(hass.states[sectorEntityId]?.attributes?.options);
     }
 
-    /**
-     * Workaround for the pre-2026.8 oralb_ble mapping bug: 6-sector brushes
-     * wrap back to sector 4 instead of reporting sectors 5/6. During active
-     * brushing sectors only move forward, so if we see a sector ≤ the highest
-     * already seen, we advance to the next one instead.
-     */
     _correctSectorIndex(rawIndex, active, maxIndex) {
-        if (!this._wasActive && active) {
-            this._resetSectorCorrection();
-        }
-        this._wasActive = active;
-
-        if (!active || rawIndex === -1) {
-            this._resetSectorCorrection();
-            return rawIndex;
-        }
-
-        // Same raw value as last render — return cached result
-        if (rawIndex === this._lastRawIndex) {
-            return this._correctedIndex;
-        }
-
-        this._lastRawIndex = rawIndex;
-
-        if (rawIndex > this._highestSector) {
-            this._highestSector = rawIndex;
-            this._correctedIndex = rawIndex;
-        } else {
-            // Sector went backwards or repeated — advance
-            const corrected = Math.min(this._highestSector + 1, maxIndex);
-            this._highestSector = corrected;
-            this._correctedIndex = corrected;
-        }
-
-        return this._correctedIndex;
+        const result = correctSectorIndex(this._sectorState(), { rawIndex, active, maxIndex });
+        this._applySectorState(result.state);
+        return result.index;
     }
 
     _trackVisitedSector(rawIndex, active) {
-        if (!active) {
-            this._visitedSectors = null;
-            return 0;
-        }
-        if (!this._visitedSectors) this._visitedSectors = new Set();
-        if (rawIndex >= 0) this._visitedSectors.add(rawIndex);
-        return this._visitedSectors.size;
+        const result = trackVisitedSector(this._sectorState(), { rawIndex, active });
+        this._applySectorState(result.state);
+        return result.count;
     }
 
     _parseRawSectorIndex(sector) {
-        const match = String(sector).match(/(\d+)/);
-        if (match) {
-            const idx = parseInt(match[1]) - 1;
-            return idx >= 0 ? idx : -1;
-        }
-        return -1;
+        return parseRawSectorIndex(sector);
     }
 
     _getSectorData(sector, activeIndex, sectorOrder, doneCount = null) {
@@ -1131,42 +1100,24 @@ export class ToothbrushCard extends LitElement {
         const sectorOrder = config.sector_order?.length === numSectors
             ? config.sector_order
             : defaultOrder;
-        const rawSectorIndex = this._parseRawSectorIndex(sector);
-        // Sonicare meldet anatomische Sektoren inklusive Revisits (White+,
-        // Gum Health) — dort den _correctSectorIndex-Workaround umgehen und
-        // Done-Zonen zeit-basiert markieren, damit Revisits die bereits
-        // abgeschlossenen Zonen nicht zurücksetzen.
+        // Sonicare reports anatomical sectors including revisits (White+,
+        // Gum Health), so a zone already finished must stay finished when the
+        // reading jumps back. Passed to the resolver as behaviour rather than
+        // as an integration name.
         const allowsRevisits = entityIds.integration === 'philips_sonicare_ble'
             && routineLength > 0;
-        let correctedIndex;
-        let doneCount = null;
-        if (sector === 'success') {
-            correctedIndex = -1;
-        } else if (allowsRevisits) {
-            correctedIndex = rawSectorIndex >= 0
-                ? Math.min(rawSectorIndex, sectorOrder.length - 1)
-                : -1;
-            // doneCount kombiniert Zeit-Fortschritt und tatsächlich beobachtete
-            // Sektoren. Wir nutzen das Maximum, damit nach einem Revisit (White+:
-            // nach 120s alle Zonen einmal durch) die bereits besuchten Zonen
-            // "done" bleiben, auch wenn der Raw-Sektor wieder zurückspringt.
-            const timeBasedDone = Math.min(
-                sectorOrder.length,
-                Math.floor(sectorOrder.length * duration / routineLength)
-            );
-            const visitedSize = this._trackVisitedSector(rawSectorIndex, active);
-            doneCount = Math.max(timeBasedDone, visitedSize);
-        } else if (sectorsAreUpstreamDecoded) {
-            correctedIndex = rawSectorIndex >= 0
-                ? Math.min(rawSectorIndex, sectorOrder.length - 1)
-                : -1;
-            // Latch zurücksetzen, damit ein Rückfall auf den Workaround
-            // (Entity kurzzeitig unavailable) sauber neu anläuft.
-            this._wasActive = false;
-            this._resetSectorCorrection();
-        } else {
-            correctedIndex = this._correctSectorIndex(rawSectorIndex, active, sectorOrder.length - 1);
-        }
+        const resolved = resolveSector(this._sectorState(), {
+            sector,
+            active,
+            zoneCount: sectorOrder.length,
+            duration,
+            routineLength,
+            allowsRevisits,
+            sectorsAreUpstreamDecoded,
+        });
+        this._applySectorState(resolved.state);
+        const correctedIndex = resolved.index;
+        const doneCount = resolved.doneCount;
         const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder, doneCount);
         const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
         const isSuccess = sector === 'success';
