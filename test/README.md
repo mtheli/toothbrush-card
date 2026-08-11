@@ -35,6 +35,18 @@ are imported from src/ and called directly. That import happens in both targets
 — index.js does not re-export them, so they cannot be reached through the
 bundle, and exercising the same code twice would prove nothing.
 
+`editor.test.mjs` never renders the editor. Every control ends in a handler
+that builds a new config and dispatches `config-changed`, so the handlers are
+called directly and the emitted config is what gets asserted — the same object
+Home Assistant would store. The rule running through all of it is that a
+default writes *no key*: leaving a setting alone must not litter the YAML, and
+switching back to the default has to remove the key again rather than pin it.
+
+`confirm` is deliberately missing from the DOM shim rather than stubbed to
+true. The reset-everything handler is gated on it, and a test that forgot to
+say so should not have its confirmation waved through — the two tests that need
+it answer it explicitly and remove it again.
+
 `xiaomi-render.test.mjs` covers the branches that exist only for Xiaomi: a
 binary main entity reporting on/off, a session time synthesised from
 `last_changed` because the broadcast carries no timer, the head reading being

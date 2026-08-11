@@ -5,7 +5,22 @@
 // the handful of globals lit touches while loading.
 
 globalThis.window = globalThis;
-globalThis.HTMLElement = class { attachShadow() { return {}; } };
+
+// The editor reports every change by dispatching a `config-changed` event, so
+// unlike the card it needs these two. dispatchEvent does nothing by default -
+// a test that cares replaces it to capture what was emitted.
+globalThis.CustomEvent = class CustomEvent {
+    constructor(type, init = {}) {
+        this.type = type;
+        this.detail = init.detail;
+        this.bubbles = !!init.bubbles;
+        this.composed = !!init.composed;
+    }
+};
+globalThis.HTMLElement = class {
+    attachShadow() { return {}; }
+    dispatchEvent() { return true; }
+};
 globalThis.customElements = {
     __registry: {},
     define(name, cls) { this.__registry[name] = cls; },

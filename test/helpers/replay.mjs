@@ -50,6 +50,18 @@ export async function loadCard() {
     return cardClass;
 }
 
+/**
+ * The <toothbrush-card-editor> class, from the same target as the card.
+ *
+ * Loading either one registers both, so this rides on loadCard() rather than
+ * repeating the target handling. Unlike the exported pure functions the editor
+ * class is reachable through the bundle, so its tests run against both.
+ */
+export async function loadEditor() {
+    await loadCard();
+    return globalThis.customElements.get('toothbrush-card-editor');
+}
+
 const DEVICE = { id: 'dev1', name: 'IO Series 10', manufacturer: 'Oral-B', config_entries: ['ce1'] };
 
 // The entity set the Home Assistant Oral-B integration creates for a brush.
