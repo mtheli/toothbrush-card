@@ -116,19 +116,38 @@ describe('contact feedback', () => {
         assert.equal(ids.pressure_state, 'sensor.s_pressure_state');
     });
 
-    test('pressure and pressure_alert share one slot, and the last one wins', () => {
-        // Recorded as it behaves. Both branches assign unconditionally, so on
-        // a handle publishing both the outcome depends on registry iteration
-        // order. Harmless today because such a handle also publishes
-        // pressure_state, which takes precedence when the value is read - but
-        // it is the kind of thing that stops being harmless quietly.
-        const base = [
+    test('pressure_alert is not mapped, whichever order it arrives in', () => {
+        // Not an oversight, and not to be "fixed" back. It used to be written
+        // into the same slot as the raw grams sensor, both unconditionally, so
+        // which one won came down to registry iteration order - and the grams
+        // value would have put a number in a chip that shows a word.
+        //
+        // It could never be reached either way: philips_sonicare_ble gates the
+        // alert and pressure_state on the same IMU service, so a handle with
+        // the one always has the other, and pressure_state wins where the value
+        // is read. Dropping it removes the ordering question rather than
+        // answering it.
+        const entities = [
             ['binary_sensor.s_alert', { platform: 'philips_sonicare_ble', translation_key: 'pressure_alert' }],
             ['sensor.s_pressure', { platform: 'philips_sonicare_ble', translation_key: 'pressure' }],
         ];
-        assert.equal(findDeviceEntities(hassWith(base), 'dev1').pressure, 'sensor.s_pressure');
-        assert.equal(findDeviceEntities(hassWith([...base].reverse()), 'dev1').pressure,
-            'binary_sensor.s_alert');
+        for (const order of [entities, [...entities].reverse()]) {
+            const ids = findDeviceEntities(hassWith(order), 'dev1');
+            assert.equal(ids.pressure, 'sensor.s_pressure', 'always the grams sensor');
+        }
+    });
+
+    test('the reading a real Sonicare ends up showing is the categorical one', () => {
+        // All three exist together on a handle with the IMU service; only
+        // pressure_state reaches the chip.
+        const ids = findDeviceEntities(hassWith([
+            ['sensor.s_pressure', { platform: 'philips_sonicare_ble', translation_key: 'pressure' }],
+            ['binary_sensor.s_alert', { platform: 'philips_sonicare_ble', translation_key: 'pressure_alert' }],
+            ['sensor.s_pressure_state', { platform: 'philips_sonicare_ble', translation_key: 'pressure_state' }],
+        ]), 'dev1');
+        assert.equal(ids.pressure_state, 'sensor.s_pressure_state');
+        assert.equal(ids.pressure_state || ids.pressure, 'sensor.s_pressure_state',
+            'the precedence the renderer applies');
     });
 
     test('intensity has its own slot', () => {

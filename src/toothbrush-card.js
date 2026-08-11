@@ -291,13 +291,20 @@ export function findDeviceEntities(hass, deviceId) {
             entityKeys.status = entity.entity_id;
         } else if (entity.translation_key === 'brushing_mode') {
             entityKeys.mode = entity.entity_id;
-        } else if (entity.translation_key === 'pressure_alert') {
-            entityKeys.pressure = entity.entity_id;
         } else if (entity.translation_key === 'pressure_state') {
             // Categorical pressure state (ok / optimal / too_high). Kept
             // separate so it can take precedence over the raw grams
             // 'pressure' sensor and the 'intensity' fallback regardless of
             // entity iteration order.
+            //
+            // The `pressure_alert` binary sensor beside it is deliberately not
+            // mapped: philips_sonicare_ble gates both on the same IMU service,
+            // so it never exists without this one, and this one always wins
+            // where the value is read. It was mapped when the card first
+            // learned Sonicare — one day after the integration gained
+            // pressure_state — and only ever competed with the raw grams
+            // sensor for the same slot, which is a number in a chip that shows
+            // a word.
             entityKeys.pressure_state = entity.entity_id;
         } else if (entity.translation_key === 'intensity') {
             entityKeys.intensity = entity.entity_id;
