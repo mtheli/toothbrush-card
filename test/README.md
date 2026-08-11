@@ -74,6 +74,21 @@ stubbed. Note that the fixture there carries a sector entity on purpose:
 without one the card synthesises a two-minute routine from time, and the
 "no target, no recap" guard could never trigger.
 
+`sector-correction.test.mjs` characterises the other state machine in
+`render()` — `_highestSector`, `_lastRawIndex`, `_correctedIndex` and
+`_wasActive`, plus the visited-sector set — which the Oral-B replays had only
+ever reached indirectly. Its subtleties are the ones worth knowing before
+touching it: the result is cached against the last raw value, so an identical
+advertisement does not advance a zone while the same value after a different
+one does; an inactive handle gets the raw index back rather than -1; and the
+correction is clamped to the last zone.
+
+One of its tests is set up by hand rather than driven through a sequence, and
+says so: no path render() produces today reaches the reset on the rising edge,
+because everything that clears `_wasActive` resets the learned values too. It
+is still part of the machine's contract, and removing the guard passes every
+other test in the file.
+
 `recap-dismiss.test.mjs` covers the × on the completion badge and the marker it
 leaves behind, so reopening a dashboard does not rebuild the session the user
 just waved away. This could not have been tested before: the shim carried no
