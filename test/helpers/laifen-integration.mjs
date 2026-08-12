@@ -42,6 +42,10 @@ const ENTITIES = [
     { domain: 'sensor', key: 'brushing_duration', en: 'brushing_duration', de: 'putzdauer' },
     { domain: 'number', key: 'brushing_duration', en: 'brushing_duration_adjustment', de: 'putzdauer_einstellen' },
     { domain: 'number', key: 'vibration_strength', en: 'vibration_strength', de: 'vibrationsstarke' },
+    // The strength the handle is running at, as a level: 1-10 in the ordinary
+    // modes, 11-20 in the high-frequency one. Read-only, beside the number
+    // above which is the control for setting it.
+    { domain: 'sensor', key: 'active_strength', en: 'strength', de: 'starke' },
     { domain: 'select', key: 'mode', en: 'mode', de: 'modus' },
     { domain: 'switch', key: 'power', en: 'power', de: 'ein_aus' },
     { domain: 'switch', key: 'reminder_30s', en: '30s_reminder', de: '30_sekunden_erinnerung' },
@@ -66,7 +70,7 @@ function entityId(entity, language) {
  */
 export function laifenHass({
     release = '3.0.3', model = 'wave', language = 'en',
-    status = 'Idle', timer = 0, routineMinutes = 3,
+    status = 'Idle', timer = 0, routineMinutes = 3, strength = null,
     // The handle's own 30-second pacer. Off by default, because that is how a
     // handle ships; switched on it changes how many zones the card walks.
     pacer = false,
@@ -105,6 +109,7 @@ export function laifenHass({
     set('sensor', 'battery_level', '80');
     set('binary_sensor', 'connection', 'on');
     set('switch', 'reminder_30s', pacer ? 'on' : 'off');
+    if (strength !== null) set('sensor', 'active_strength', String(strength));
     if (pro) set('binary_sensor', 'over_pressure_active', 'off');
     // The Brushing Time sensor read a constant 0 on the V1 and is gone from
     // 3.0.3 on; the Wave Pro never reported the key either.

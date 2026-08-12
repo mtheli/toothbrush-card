@@ -130,3 +130,67 @@ describe('the routine length from recorder history', () => {
         assert.equal(el._routineAtFromHistory(rows, 500 * 1000, true), 0);
     });
 });
+
+describe('the strength reading', () => {
+    test('is mapped as the intensity chip', async () => {
+        const ids = await mapping({ strength: 7 });
+        assert.match(ids.intensity, /_strength$/,
+            'from the read-only sensor, not the number that sets it');
+    });
+
+    test('is not confused with the number entity beside it', async () => {
+        // "Vibration Strength" also ends in _strength; only the sensor counts.
+        const ids = await mapping({ strength: 7 });
+        assert.ok(ids.intensity.startsWith('sensor.'),
+            `expected a sensor, got ${ids.intensity}`);
+    });
+
+    test('is mapped even where the handle never reports one', async () => {
+        // laifen_ble registers every sensor on every device and gates them
+        // through `available`, the same way it does with Brushing Duration.
+        // So the entity is always there and the mapping always finds it - what
+        // differs is whether it ever carries a value.
+        const ids = await mapping({});
+        assert.match(ids.intensity, /_strength$/);
+    });
+});
+
+describe('grading a numeric strength for the chip', () => {
+    /** The level the card reduces a reading to, for icon and colour. */
+    async function level(value) {
+        const Card = await loadCard();
+        return new Card()._intensityLevel(value);
+    }
+
+    test('spans the ordinary 1-10 scale', async () => {
+        assert.equal(await level(1), 'low');
+        assert.equal(await level(3), 'low');
+        assert.equal(await level(5), 'medium');
+        assert.equal(await level(8), 'high');
+        assert.equal(await level(10), 'high');
+    });
+
+    test('and the high-frequency 11-20 one, without being told which', async () => {
+        // The value says which scale it is on, so mode 4 never has to be read.
+        assert.equal(await level(11), 'low');
+        assert.equal(await level(15), 'medium');
+        assert.equal(await level(20), 'high');
+    });
+
+    test('11 is the bottom of its scale, not the top of the other', async () => {
+        assert.notEqual(await level(11), 'high',
+            'grading 11 against 1-10 would read as maximum strength');
+    });
+
+    test('named levels are passed through untouched', async () => {
+        for (const named of ['low', 'medium', 'high', 'HIGH']) {
+            assert.equal(await level(named), named.toLowerCase());
+        }
+    });
+
+    test('anything unreadable stays neutral rather than guessing', async () => {
+        for (const value of ['unavailable', 'unknown', '', 'N/A', 0, -1]) {
+            assert.equal(await level(value), null, String(value));
+        }
+    });
+});

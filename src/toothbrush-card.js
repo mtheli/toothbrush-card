@@ -259,6 +259,16 @@ export function findDeviceEntities(hass, deviceId) {
                 entityKeys.mode_select = entityId;
             } else if (match('sensor', 'mode', '_mode')) {
                 entityKeys.mode = entityId;
+            } else if (match('sensor', 'active_strength', '_strength')) {
+                // The vibration strength the handle is currently running at.
+                // A level, not a category: 1-10 in the ordinary modes and
+                // 11-20 in the high-frequency one, so the value says which
+                // scale it is on without the mode having to be read.
+                //
+                // The read-only sensor rather than the `vibration_strength`
+                // number beside it: the chip reports what the handle is doing,
+                // and the number is the control for changing it.
+                entityKeys.intensity = entityId;
             } else if (match('binary_sensor', 'over_pressure_active', '_pressing_too_hard')) {
                 entityKeys.pressure = entityId;
             } else if (match('binary_sensor', 'connection', '_connection')) {
@@ -796,21 +806,42 @@ export class ToothbrushCard extends LitElement {
         return '';
     }
 
+    /**
+     * Reduce an intensity reading to low / medium / high for icon and colour.
+     *
+     * Named levels pass through. A numeric one is graded within the scale it
+     * sits on: Laifen reports 1-10 in the ordinary modes and 11-20 in the
+     * high-frequency one, so the value itself says which applies and the mode
+     * never has to be read. Returns null for anything unreadable, which the
+     * callers render as neutral rather than guessing.
+     */
+    _intensityLevel(intensity) {
+        const v = String(intensity).toLowerCase();
+        if (v === 'low' || v === 'medium' || v === 'high') return v;
+        const n = Number(v);
+        if (!Number.isFinite(n) || n <= 0) return null;
+        const highFrequency = n > 10;
+        const min = highFrequency ? 11 : 1;
+        const max = highFrequency ? 20 : 10;
+        const position = (n - min) / (max - min);
+        return position >= 0.67 ? 'high' : position >= 0.34 ? 'medium' : 'low';
+    }
+
     _getIntensityIcon(intensity) {
         // Graded speedometer, matching the integration's intensity control.
-        const v = String(intensity).toLowerCase();
-        if (v === 'high') return 'mdi:speedometer';
-        if (v === 'low') return 'mdi:speedometer-slow';
+        const level = this._intensityLevel(intensity);
+        if (level === 'high') return 'mdi:speedometer';
+        if (level === 'low') return 'mdi:speedometer-slow';
         return 'mdi:speedometer-medium';
     }
 
     _getIntensityColor(intensity) {
         // Own, non-alarming level scale — intensity is a chosen setting, so a
         // high level must never read as a warning (unlike pressure's red).
-        const v = String(intensity).toLowerCase();
-        if (v === 'high') return 'int-high';
-        if (v === 'medium') return 'int-med';
-        if (v === 'low') return 'int-low';
+        const level = this._intensityLevel(intensity);
+        if (level === 'high') return 'int-high';
+        if (level === 'medium') return 'int-med';
+        if (level === 'low') return 'int-low';
         return 'muted';
     }
 
