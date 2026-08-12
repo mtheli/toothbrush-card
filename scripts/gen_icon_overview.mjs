@@ -3,7 +3,7 @@
 //
 // The state conditions, icon names and palette below mirror the logic in
 // src/toothbrush-card.js (_getBatteryIcon, _getBatteryChipColor,
-// _getPressureClass, _getIntensityIcon, MODE_ICONS, score tiers, headSvg)
+// _getPressureClass, _intensityFraction, MODE_ICONS, score tiers, headSvg)
 // and must be kept in sync when that logic changes.
 //
 // Usage:  node scripts/gen_icon_overview.mjs
@@ -16,8 +16,7 @@ import {
     mdiBatteryUnknown, mdiBatteryAlertVariantOutline,
     mdiBattery10, mdiBattery20, mdiBattery30, mdiBattery40, mdiBattery50,
     mdiBattery60, mdiBattery70, mdiBattery80, mdiBattery90, mdiBattery,
-    mdiBatteryCharging, mdiGauge, mdiSpeedometerSlow, mdiSpeedometerMedium,
-    mdiSpeedometer, mdiStarOutline, mdiStarHalfFull, mdiStar, mdiRepeatOnce,
+    mdiBatteryCharging, mdiGauge, mdiStarOutline, mdiStarHalfFull, mdiStar, mdiRepeatOnce,
     mdiWater, mdiToothOutline, mdiShapeCirclePlus, mdiSpa, mdiPower,
     mdiFeather, mdiCogOutline, mdiAutoFix, mdiGateAnd, mdiCarTurbocharger, mdiShimmer,
     mdiToothbrushElectric, mdiEmoticonTongueOutline, mdiBrushVariant,
@@ -29,7 +28,7 @@ const version = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'))
 const generated = new Date().toISOString().slice(0, 10);
 const iconsJs = readFileSync(join(repoRoot, 'src/icons.js'), 'utf8');
 const conn = {};
-for (const key of ['bluetooth', 'lan_connect', 'lan_disconnect']) {
+for (const key of ['bluetooth', 'lan_connect', 'lan_disconnect', 'charger']) {
     conn[key] = iconsJs.match(new RegExp(`${key}: '([^']+)'`))[1];
 }
 
@@ -83,9 +82,9 @@ const intensityDial = (fraction, color, size = 28) => {
     const x = (12 + 5.2 * Math.cos(radians)).toFixed(2);
     const y = (13 - 5.2 * Math.sin(radians)).toFixed(2);
     return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">
-        <path d="${ARC}" fill="none" stroke="#e5e7eb" stroke-width="2.4" stroke-linecap="round" pathLength="100"/>
-        <path d="${ARC}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round"
-              opacity="0.3" pathLength="100" stroke-dasharray="${Math.round(fraction * 100)} 100"/>
+        <path d="${ARC}" fill="none" stroke="#e5e7eb" stroke-width="2.8" stroke-linecap="round" pathLength="100"/>
+        <path d="${ARC}" fill="none" stroke="${color}" stroke-width="2.8" stroke-linecap="round"
+              opacity="0.55" pathLength="100" stroke-dasharray="${Math.round(fraction * 100)} 100"/>
         <line x1="12" y1="13" x2="${x}" y2="${y}" stroke="${color}" stroke-width="1.8" stroke-linecap="round"/>
         <circle cx="12" cy="13" r="1.5" fill="${color}"/>
     </svg>`;
@@ -124,6 +123,11 @@ const batLevels = [
     [mdiBattery, '91–100 %', 'battery', C.green, '#16a34a'],
     [mdiBatteryCharging, 'charging (any level)', 'battery-charging', C.green, 'colour follows level'],
 ];
+sections.push(section('Charger — header (oralb_live)', 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Active tone while the data actually arrives through it (data_source = charger_bridge); otherwise the ordinary primary colour — an idle station is the normal state between sessions, not a fault.', [
+    cell(svg(conn.charger, C.btActive), 'data via charger', 'card-own SVG (CONN_ICONS.charger)', '#0082fc'),
+    cell(svg(conn.charger, C.primary), 'charger paired, idle', 'card-own SVG (CONN_ICONS.charger)', 'var(--primary-color, #3b82f6)'),
+]));
+
 sections.push(section('Battery — chip + corner', 'Icon step: ceil(level/10)·10 (_getBatteryIcon) · colour: ≤15 red, ≤30 amber, otherwise green (_getBatteryChipColor).', batLevels.map(([p, s, n, c, hx]) => cell(svg(p, c), s, `mdi:${n}`, hx))));
 
 sections.push(section('Pressure — chip (bars) + corner (gauge)', 'In the chip the bars replace the icon; the corner marker uses mdi:gauge in the same colour.', [
@@ -142,10 +146,10 @@ sections.push(section('Intensity — chip', 'A drawn dial rather than an icon: a
     cell(intensityDial(1, C.intHigh), 'strength 10 of 10', 'drawn arc + needle', '#db2777'),
 ]));
 
-sections.push(section('Intensity — corner marker', 'Corners keep the MDI speedometer: a single small glyph with the value beside it, where a dial would be decoration rather than information.', [
-    cell(svg(mdiSpeedometerSlow, C.intLow), 'low', 'mdi:speedometer-slow', '#0891b2'),
-    cell(svg(mdiSpeedometerMedium, C.intMed), 'medium (default)', 'mdi:speedometer-medium', '#7c3aed'),
-    cell(svg(mdiSpeedometer, C.intHigh), 'high', 'mdi:speedometer', '#db2777'),
+sections.push(section('Intensity — corner marker', 'The same dial, drawn at marker size, so chip and corner report the reading the same way.', [
+    cell(intensityDial(0.08, C.intLow, 22), 'strength 1 of 10', 'drawn arc + needle', '#0891b2'),
+    cell(intensityDial(0.5, C.intMed, 22), 'strength 5 of 10', 'drawn arc + needle', '#7c3aed'),
+    cell(intensityDial(1, C.intHigh, 22), 'strength 10 of 10', 'drawn arc + needle', '#db2777'),
 ]));
 
 const modes = [

@@ -869,12 +869,24 @@ export class ToothbrushCard extends LitElement {
         };
     }
 
-    _getIntensityIcon(intensity) {
-        // Graded speedometer, matching the integration's intensity control.
-        const level = this._intensityLevel(intensity);
-        if (level === 'high') return 'mdi:speedometer';
-        if (level === 'low') return 'mdi:speedometer-slow';
-        return 'mdi:speedometer-medium';
+    /**
+     * The gauge itself, shared by the chip and the corner marker.
+     *
+     * Carries no colour of its own: the caller's wrapper sets it, and every
+     * stroke picks it up through currentColor.
+     */
+    _intensityDial(intensity) {
+        const fraction = this._intensityFraction(intensity);
+        const needle = this._intensityNeedle(fraction, 5.2);
+        return html`
+            <svg class="intensity-dial" viewBox="0 0 24 24">
+                <path class="id-track" d="${INTENSITY_ARC}" pathLength="100"/>
+                <path class="id-arc" d="${INTENSITY_ARC}" pathLength="100"
+                      stroke-dasharray="${Math.round(fraction * 100)} 100"/>
+                <line class="id-needle" x1="12" y1="13"
+                      x2="${needle.x.toFixed(2)}" y2="${needle.y.toFixed(2)}"/>
+                <circle class="id-hub" cx="12" cy="13" r="1.5"/>
+            </svg>`;
     }
 
     _getIntensityColor(intensity) {
@@ -1206,10 +1218,7 @@ export class ToothbrushCard extends LitElement {
         const batteryIconName = batteryUnavailable ? 'mdi:battery-unknown' : this._getBatteryIcon(batteryLevel, batteryIsCharging);
         const pressureColor = this._getPressureColor(pressure);
         const pressureClass = this._getPressureClass(pressure);
-        const intensityIcon = this._getIntensityIcon(intensity);
         const intensityColor = this._getIntensityColor(intensity);
-        const intensityFraction = this._intensityFraction(intensity);
-        const intensityNeedle = this._intensityNeedle(intensityFraction, 5.2);
         const modeUnavailable = mode === 'unavailable' || mode === 'unknown' || mode === 'N/A';
         const modeIcon = modeUnavailable ? 'mdi:brush-variant' : this._getModeIcon(mode);
         const modeLabel = modeUnavailable ? '–' : this._getModeLabel(mode);
@@ -1347,16 +1356,7 @@ export class ToothbrushCard extends LitElement {
                 case 'intensity':
                     if (!intensityEntity) return '';
                     return html`<div class="chip" @click="${() => this._showMoreInfo(intensityEntity)}">
-                        <div class="chip-icon ${intensityColor}">
-                            <svg class="intensity-dial" viewBox="0 0 24 24">
-                                <path class="id-track" d="${INTENSITY_ARC}" pathLength="100"/>
-                                <path class="id-arc" d="${INTENSITY_ARC}" pathLength="100"
-                                      stroke-dasharray="${Math.round(intensityFraction * 100)} 100"/>
-                                <line class="id-needle" x1="12" y1="13"
-                                      x2="${intensityNeedle.x.toFixed(2)}" y2="${intensityNeedle.y.toFixed(2)}"/>
-                                <circle class="id-hub" cx="12" cy="13" r="1.5"/>
-                            </svg>
-                        </div>
+                        <div class="chip-icon ${intensityColor}">${this._intensityDial(intensity)}</div>
                         <span class="chip-label">${t(hass, 'chip_intensity')}</span>
                         <div class="chip-value ${intensityColor}">${displayIntensity}</div>
                     </div>`;
@@ -1431,6 +1431,14 @@ export class ToothbrushCard extends LitElement {
                     <span class="corner-lbl">${label}</span>
                     <span class="corner-val ${colorClass}">${value}</span>
                 </div>`;
+            // Same marker, but for the readings the card draws itself rather
+            // than picking from MDI.
+            const glyphMarker = (entityId, glyph, colorClass, label, value) => html`
+                <div class="card-corner ${cls}" @click="${() => this._showMoreInfo(entityId)}">
+                    <span class="corner-ico ${colorClass}">${glyph}</span>
+                    <span class="corner-lbl">${label}</span>
+                    <span class="corner-val ${colorClass}">${value}</span>
+                </div>`;
             switch (prop) {
                 case 'battery':
                     if (!entityIds.battery) return '';
@@ -1440,7 +1448,8 @@ export class ToothbrushCard extends LitElement {
                     return marker(pressureEntity, 'mdi:gauge', pressureColor, t(hass, 'chip_pressure'), displayPressure);
                 case 'intensity':
                     if (!intensityEntity) return '';
-                    return marker(intensityEntity, intensityIcon, intensityColor, t(hass, 'chip_intensity'), displayIntensity);
+                    return glyphMarker(intensityEntity, this._intensityDial(intensity),
+                        intensityColor, t(hass, 'chip_intensity'), displayIntensity);
                 case 'mode':
                     if (!entityIds.mode && !entityIds.mode_select) return '';
                     return marker(entityIds.mode_select || entityIds.mode, modeIcon, modeUnavailable ? 'muted' : 'blue', t(hass, 'chip_mode'), modeLabel);

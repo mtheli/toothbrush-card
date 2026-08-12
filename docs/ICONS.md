@@ -12,10 +12,15 @@ Two readings are drawn rather than picked from MDI, because no icon set has
 the resolution they need. Pressure is a four-bar staircase. Intensity is a
 dial: a Laifen handle reports a level of 1–10, and 11–20 in the high-frequency
 mode, where three speedometer variants could express almost none of it. The
-needle carries the value and the arc behind it is held back to 30 %, so the
-two read as instrument and reading rather than as one thick stroke. Corner
-markers keep the MDI speedometer — a single small glyph with the value beside
-it, where a dial would be decoration rather than information.
+needle carries the value; the ring behind it is the scale, held back enough
+that the needle reads first but not so far that it disappears. Chip and corner
+marker show the same dial, so the reading looks the same wherever it is
+placed — only pressure still differs between the two, with bars in the chip
+and `mdi:gauge` in the corner.
+
+Also worth knowing: the screenshot has to be tall enough for the whole page.
+The window height in the command below grows with the reference; if the last
+section is clipped, that is the number to raise.
 
 All icons stay readable in the compact icon-only layout (card width ≤ 350 px,
 where chip labels and values are hidden): the icon shape and colour alone
@@ -33,7 +38,7 @@ The overview is generated from `@mdi/js` and the card's own SVG paths:
 ```sh
 node scripts/gen_icon_overview.mjs
 chromium --headless --screenshot=docs/icon-overview.png \
-  --window-size=1120,2560 --hide-scrollbars docs/icon-overview.html
+  --window-size=1120,2900 --hide-scrollbars docs/icon-overview.html
 ```
 
 The state conditions and palette in the script mirror the card logic in
