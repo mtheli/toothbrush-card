@@ -25,6 +25,7 @@
   "aborted_title": "Ščetkanje predčasno prekinjeno",
   "aborted_quadrants": "{x} od {y} kvadrantov končanih",
   "aborted_sextants": "{x} od {y} sekstantov končanih",
+  "smiley_unknown_hint": "Neznan obraz na zaslonu — prosimo, sporočite v issue #20",
 
   "pressure_low": "Nizek",
   "pressure_normal": "Normalen",

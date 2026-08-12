@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeCSS } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ToothSVG } from './toothbrush-svg.js';
-import { MODE_ICONS, CONN_ICONS } from './icons.js';
+import { MODE_ICONS, CONN_ICONS, smileyTier } from './icons.js';
 import { t } from './translations.js';
 import { nextSessionState, initialSessionState,
          BRUSHING_DURATION, MIN_RECAP_SECONDS } from './session-state.js';
@@ -182,7 +182,8 @@ export function findDeviceEntities(hass, deviceId) {
         brushhead_wear: null, brushhead_type: null,
         brushhead_sessions: null, activity: null,
         mode_select: null, esp_bridge_alive: null,
-        ble_connected: null, score: null, pacer_30s: null
+        ble_connected: null, score: null, pacer_30s: null,
+        smiley: null
     };
 
     const allEntities = hass.entities;
@@ -300,6 +301,11 @@ export function findDeviceEntities(hass, deviceId) {
             entityKeys.pressure = entity.entity_id;
         } else if (entity.translation_key === 'toothbrush_state') {
             entityKeys.status = entity.entity_id;
+        } else if (entity.translation_key === 'smiley') {
+            // oralb_live only: the handle's own display face, shown in the
+            // done badge rather than as a chip — it is a session result, and
+            // between sessions the sensor reads `off`.
+            entityKeys.smiley = entity.entity_id;
         }
 
         // Sonicare translation_keys
@@ -429,6 +435,8 @@ export class ToothbrushCard extends LitElement {
             sessionRoutineLength: this._sessionRoutineLength,
             holdDismissed: this._holdDismissed,
             stashedRecap: this._stashedRecap,
+            face: this._face,
+            completedFace: this._completedFace,
         };
     }
 
@@ -449,6 +457,8 @@ export class ToothbrushCard extends LitElement {
         this._sessionRoutineLength = state.sessionRoutineLength;
         this._holdDismissed = state.holdDismissed;
         this._stashedRecap = state.stashedRecap;
+        this._face = state.face;
+        this._completedFace = state.completedFace;
     }
 
     // --- Dismiss persistence (issue #4/#5/#11) ---
@@ -1073,6 +1083,14 @@ export class ToothbrushCard extends LitElement {
             durationLastChanged: entityIds.duration
                 ? hass.states[entityIds.duration]?.last_changed
                 : null,
+            // The handle shows its verdict in a summary state, which is not
+            // `active` — so the window stays open past the end of the session.
+            displayFace: entityIds.smiley
+                ? hass.states[entityIds.smiley]?.state
+                : null,
+            faceWindow: active || status === 'session_summary'
+                || status === 'post_brushing_summary'
+                || status === 'post_brushing_statistics',
         });
         this._applySessionState(latch.state);
         if (latch.sessionStarted) {
@@ -1296,6 +1314,12 @@ export class ToothbrushCard extends LitElement {
             : scoreNum >= 60 ? 1 : 0;
         const scoreIcon = ['mdi:star-outline', 'mdi:star-half-full', 'mdi:star'][scoreTier];
         const scoreColor = ['red', 'amber', 'gold'][scoreTier];
+
+        // The handle's own display face, latched at the end of the session and
+        // shown in the done badge. Undecoded values carry `code` and render a
+        // question mark with the raw value, so users can report what their
+        // handle actually showed (issue #20).
+        const recapFace = showRecap ? smileyTier(this._completedFace) : null;
 
         // Brush head type (issue #13): the type sensor carries the short
         // family name and the family letter (the A in "A3") as attributes —
@@ -1596,16 +1620,31 @@ export class ToothbrushCard extends LitElement {
                     ${showRecap ? html`
                     <button class="done-dismiss"
                             @click=${() => this._dismissHold()}>&times;</button>` : ''}
-                    ${showAborted ? html`
-                    <p>${t(hass, 'aborted_title')}${completedAgo
-                        ? html` <span class="done-age">(${completedAgo})</span>` : ''}</p>
-                    <span>${t(hass, numSectors === 6 ? 'aborted_sextants' : 'aborted_quadrants')
-                        .replace('{x}', Math.min(numSectors || 4, Math.floor(
-                            displayDuration / (targetDuration / (numSectors || 4)))))
-                        .replace('{y}', numSectors || 4)}</span>` : html`
-                    <p>&#10003; ${t(hass, 'done_title')}${completedAgo
-                        ? html` <span class="done-age">(${completedAgo})</span>` : ''}</p>
-                    <span>${t(hass, numSectors === 6 ? 'done_sextants' : 'done_quadrants')}</span>`}
+                    <div class="done-body">
+                        ${recapFace ? html`
+                        <div class="done-face">
+                            <svg class="done-smiley ${recapFace.color}" viewBox="0 0 24 24"
+                                 fill="currentColor">
+                                ${recapFace.code
+                                    ? html`<title>${t(hass, 'smiley_unknown_hint')}</title>` : ''}
+                                <path d="${recapFace.path}"/>
+                            </svg>
+                            ${recapFace.code
+                                ? html`<span class="done-face-code">${recapFace.code}</span>` : ''}
+                        </div>` : ''}
+                        <div class="done-text">
+                            ${showAborted ? html`
+                            <p>${t(hass, 'aborted_title')}${completedAgo
+                                ? html` <span class="done-age">(${completedAgo})</span>` : ''}</p>
+                            <span>${t(hass, numSectors === 6 ? 'aborted_sextants' : 'aborted_quadrants')
+                                .replace('{x}', Math.min(numSectors || 4, Math.floor(
+                                    displayDuration / (targetDuration / (numSectors || 4)))))
+                                .replace('{y}', numSectors || 4)}</span>` : html`
+                            <p>&#10003; ${t(hass, 'done_title')}${completedAgo
+                                ? html` <span class="done-age">(${completedAgo})</span>` : ''}</p>
+                            <span>${t(hass, numSectors === 6 ? 'done_sextants' : 'done_quadrants')}</span>`}
+                        </div>
+                    </div>
                 </div>
             </ha-card>
         `;

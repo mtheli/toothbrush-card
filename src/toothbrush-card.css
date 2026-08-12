@@ -598,6 +598,41 @@ ha-card {
 .done-badge.aborted p { color: #b45309; }
 .done-badge.aborted span { color: #d97706; }
 
+/* Oral-B display face (issue #20): the handle's own verdict, beside the text
+   rather than as a chip — it is a session result, and between sessions the
+   sensor reads `off`. 34px, well above the 24px chip size: the star-eyes face
+   collapses to dots below that. padding-right reserves room for the
+   absolutely positioned dismiss button, which the longest aborted_title (ru)
+   would otherwise run under. */
+.done-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    padding-right: 16px;
+}
+.done-face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    flex: 0 0 auto;
+}
+.done-smiley { width: 34px; height: 34px; }
+.done-text { text-align: left; }
+/* Raw sensor value under an undecoded face, so it can be reported. */
+.done-face-code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 8.5px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--disabled-text-color, #9ca3af);
+}
+.done-smiley.green { color: #16a34a; }
+.done-smiley.amber { color: #d97706; }
+.done-smiley.red   { color: #dc2626; }
+.done-smiley.muted { color: var(--disabled-text-color, #9ca3af); }
+
 /* ── BRUSH HEAD INDICATOR ── */
 /* Configurable corner markers (inline icon + value in any of 4 corners) */
 .card-corner {

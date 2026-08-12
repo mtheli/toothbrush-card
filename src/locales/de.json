@@ -25,6 +25,7 @@
   "aborted_title": "Putzen vorzeitig abgebrochen",
   "aborted_quadrants": "{x} von {y} Quadranten fertig",
   "aborted_sextants": "{x} von {y} Sextanten fertig",
+  "smiley_unknown_hint": "Unbekanntes Display-Gesicht — bitte in Issue #20 melden",
 
   "pressure_low": "Niedrig",
   "pressure_normal": "Normal",

@@ -37,6 +37,8 @@ export function initialSessionState() {
         sessionRoutineLength: 0,
         holdDismissed: false,
         stashedRecap: null,
+        face: null,
+        completedFace: null,
     };
 }
 
@@ -55,6 +57,8 @@ export function initialSessionState() {
  *   hasDurationEntity - likewise for elapsed time
  *   historyRecapEnabled - `history_recap` is not false
  *   durationLastChanged - when the duration entity last changed, as reported
+ *   displayFace       - the face the handle's display shows now, or null
+ *   faceWindow        - is the handle in a state that shows a session face
  *
  * Returns the new state plus two flags: `sessionStarted` for the caller to
  * forget a stored dismissal and drop the visited sectors, and
@@ -70,6 +74,8 @@ export function nextSessionState(prev, {
     hasDurationEntity = false,
     historyRecapEnabled = true,
     durationLastChanged = null,
+    displayFace = null,
+    faceWindow = false,
 }) {
     const state = { ...prev };
     let sessionStarted = false;
@@ -85,6 +91,7 @@ export function nextSessionState(prev, {
                     duration: prev.completedDuration,
                     at: prev.completedAt,
                     full: prev.completedIsFull,
+                    face: prev.completedFace,
                 }
                 : null;
             state.peakDuration = 0;
@@ -92,6 +99,7 @@ export function nextSessionState(prev, {
             state.completedAt = 0;
             state.holdDismissed = false;
             state.sessionRoutineLength = 0;
+            state.face = null;
         }
         state.peakDuration = Math.max(state.peakDuration, duration);
         if (routineLength > 0) {
@@ -113,11 +121,13 @@ export function nextSessionState(prev, {
             state.completedIsFull = state.stashedRecap.full;
             state.completedDuration = state.stashedRecap.duration;
             state.completedAt = state.stashedRecap.at;
+            state.face = state.stashedRecap.face;
         } else {
             state.completed = false;
             state.completedIsFull = false;
             state.completedDuration = 0;
             state.completedAt = 0;
+            state.face = null;
         }
         state.peakDuration = 0;
         state.stashedRecap = null;
@@ -155,6 +165,16 @@ export function nextSessionState(prev, {
         // on disconnect still gets its session back.
         loadHistoryRecap = true;
     }
+
+    // The result face is not shown while the motor runs: the brush switches to
+    // a summary state first, and that state is not `active`. So the latch keeps
+    // adopting a face for as long as the caller holds the window open, and
+    // completedFace fills in a beat after the recap appears rather than at the
+    // transition. `off` is the display asleep, never a verdict.
+    if (faceWindow && displayFace && displayFace !== 'off') {
+        state.face = displayFace;
+    }
+    state.completedFace = state.completed ? state.face : null;
 
     state.wasActiveSession = active;
     return { state, sessionStarted, loadHistoryRecap };

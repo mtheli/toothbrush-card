@@ -31,6 +31,13 @@ const conn = {};
 for (const key of ['bluetooth', 'lan_connect', 'lan_disconnect', 'charger']) {
     conn[key] = iconsJs.match(new RegExp(`${key}: '([^']+)'`))[1];
 }
+// Smiley paths are card-own constants (raw paths, not mdi: names) — read them
+// from the source so this stays one definition, like CONN_ICONS above.
+const smiley = {};
+for (const key of ['SMILEY_STAR_EYES', 'SMILEY_MEDAL', 'SMILEY_HAPPY',
+                   'SMILEY_NEUTRAL', 'SMILEY_SAD', 'SMILEY_UNKNOWN']) {
+    smiley[key] = iconsJs.match(new RegExp(`const ${key} = '([^']+)'`))[1];
+}
 
 // Card palette (chip colour classes)
 const C = {
@@ -192,6 +199,33 @@ sections.push(section('Head type — chip + corner', 'Neutral, no state colours:
     cell(letterGlyph('S'), 'Sensitive (compact)', 'family_letter attr', '#212121 (theme text)'),
     cell(letterGlyph('N'), 'Non-RFID (compact)', 'family_letter attr', '#212121 (theme text)'),
     cell(svg(mdiToothbrush, '#212121'), 'no attributes (compact)', 'mdi:toothbrush', '#212121 (theme text)'),
+]));
+
+// Done badge — the smiley is not a chip: it is a session result, latched at the
+// end of the run, and between sessions the sensor reads `off`. Drawn here at
+// 34px, the size it actually gets in the badge.
+const faceCell = (path, color, hexLabel, state, name, code) => `
+    <div class="cell">
+      <div class="ic" style="height:44px">
+        <span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px">
+          ${svg(path, color, 1, 34)}
+          ${code ? `<span style="font-family:monospace;font-size:8.5px;line-height:1;color:#9ca3af">${code}</span>` : ''}
+        </span>
+      </div>
+      <div class="st">${state}</div>
+      <div class="nm">${name}</div>
+      <div class="hx"><span class="sw" style="background:${color}"></span>${hexLabel}</div>
+    </div>`;
+
+sections.push(section('Oral-B display face — done badge (oralb_live)',
+    'The handle\'s own verdict (FF0A), latched at the end of a session and shown beside the badge text — never as a chip, because the sensor reads "off" between sessions and changes with pressure while brushing. 34px, well above the 24px chip size: the star-eyes face collapses to dots below that. Gold is deliberately absent — it belongs to the score chip, and a third accent clashes with a badge that is already green or amber; "perfect" and "excellent" share green and are told apart by shape. Only three values are decoded (issue #20); every other value shows a question mark plus its raw name so users can report what their handle displayed.', [
+    faceCell(smiley.SMILEY_MEDAL, C.green, '#16a34a', 'special_11 — perfect', 'mdi:medal — time AND pressure fulfilled'),
+    faceCell(smiley.SMILEY_STAR_EYES, C.green, '#16a34a', 'special_10 — excellent', 'card-own SVG — star eyes, full smile'),
+    faceCell(smiley.SMILEY_HAPPY, C.green, '#16a34a', 'standard — good', 'mdi:emoticon-happy-outline'),
+    faceCell(smiley.SMILEY_NEUTRAL, C.amber, '#d97706', 'reserved — fair', 'mdi:emoticon-neutral-outline (no value yet)'),
+    faceCell(smiley.SMILEY_SAD, C.red, '#dc2626', 'reserved — poor', 'mdi:emoticon-sad-outline (no value yet)'),
+    faceCell(smiley.SMILEY_UNKNOWN, C.muted, '#9ca3af (muted)', 'special_2 … special_9', 'mdi:help-circle-outline + raw value', 'special_7'),
+    faceCell(smiley.SMILEY_UNKNOWN, C.muted, '#9ca3af (muted)', 'any future value', 'mdi:help-circle-outline + raw value', 'special_12'),
 ]));
 
 const swatch = (hex, role, where) => `

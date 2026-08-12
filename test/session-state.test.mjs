@@ -196,3 +196,71 @@ describe('the routine a session is measured against', () => {
         assert.equal(state.completedIsFull, true);
     });
 });
+
+// The Oral-B display face (issue #20). The awkward part is that the handle
+// shows its verdict in a summary state, which is NOT active - so the value
+// arrives after the transition the recap is latched on, and the window has to
+// stay open past it.
+describe('the display face', () => {
+    test('a handle that reports none leaves the badge alone', () => {
+        const { state } = run([
+            { active: true, duration: 130 },
+            { active: false, duration: 130 },
+        ]);
+        assert.equal(state.completedFace, null);
+    });
+
+    test('`off` is the display asleep, not a verdict', () => {
+        const { state } = run([
+            { active: true, duration: 130, displayFace: 'off', faceWindow: true },
+            { active: false, duration: 130, displayFace: 'off', faceWindow: true },
+        ]);
+        assert.equal(state.completedFace, null);
+    });
+
+    test('a face arriving only after the session ended still lands', () => {
+        // The motor stops, the recap latches, and the summary state follows a
+        // reading later carrying the actual result.
+        const { state } = run([
+            { active: true, duration: 130, faceWindow: true },
+            { active: false, duration: 130, faceWindow: true },
+            { active: false, duration: 130, displayFace: 'special_11', faceWindow: true },
+        ]);
+        assert.equal(state.completed, true);
+        assert.equal(state.completedFace, 'special_11');
+    });
+
+    test('the window closes: a face outside it is ignored', () => {
+        // Whatever the display shows hours later, sitting in the charger, must
+        // not overwrite the face the finished session earned.
+        const { state } = run([
+            { active: true, duration: 130, faceWindow: true },
+            { active: false, duration: 130, displayFace: 'special_10', faceWindow: true },
+            { active: false, duration: 130, displayFace: 'special_3', faceWindow: false },
+        ]);
+        assert.equal(state.completedFace, 'special_10');
+    });
+
+    test('a new session drops the old face before earning its own', () => {
+        const { state } = run([
+            { active: true, duration: 130, faceWindow: true },
+            { active: false, duration: 130, displayFace: 'special_11', faceWindow: true },
+            { active: true, duration: 5, faceWindow: true },
+        ]);
+        assert.equal(state.completedFace, null,
+            'the previous face must not hang over a session in progress');
+    });
+
+    test('a fumble restores the stashed face along with the recap', () => {
+        // Below MIN_RECAP_SECONDS the run is a button press, not a session, so
+        // the previous recap comes back - face included.
+        const { state } = run([
+            { active: true, duration: 130, faceWindow: true },
+            { active: false, duration: 130, displayFace: 'special_11', faceWindow: true },
+            { active: true, duration: MIN_RECAP_SECONDS - 5, faceWindow: true },
+            { active: false, duration: 0, faceWindow: false },
+        ]);
+        assert.equal(state.completed, true);
+        assert.equal(state.completedFace, 'special_11');
+    });
+});

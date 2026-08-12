@@ -25,6 +25,7 @@
   "aborted_title": "Poetsen voortijdig gestopt",
   "aborted_quadrants": "{x} van {y} sectoren afgerond",
   "aborted_sextants": "{x} van {y} sectoren afgerond",
+  "smiley_unknown_hint": "Onbekend displaygezicht — meld het in issue #20",
 
   "pressure_low": "Laag",
   "pressure_normal": "Normaal",

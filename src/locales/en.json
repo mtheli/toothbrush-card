@@ -25,6 +25,7 @@
   "aborted_title": "Brushing stopped early",
   "aborted_quadrants": "{x} of {y} quadrants finished",
   "aborted_sextants": "{x} of {y} sextants finished",
+  "smiley_unknown_hint": "Unknown display face — please report it in issue #20",
 
   "pressure_low": "Low",
   "pressure_normal": "Normal",

@@ -25,6 +25,7 @@
   "aborted_title": "Чистка прервана раньше времени",
   "aborted_quadrants": "{x} из {y} квадрантов готово",
   "aborted_sextants": "{x} из {y} секстантов готово",
+  "smiley_unknown_hint": "Неизвестное выражение на дисплее — сообщите в issue #20",
 
   "pressure_low": "Слабый",
   "pressure_normal": "Нормальный",

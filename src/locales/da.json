@@ -23,6 +23,7 @@
   "aborted_title": "Børstning stoppet for tidligt",
   "aborted_quadrants": "{x} af {y} sektorer færdige",
   "aborted_sextants": "{x} af {y} sektorer færdige",
+  "smiley_unknown_hint": "Ukendt displayansigt — rapportér det venligst i issue #20",
   "pressure_low": "Lavt",
   "pressure_normal": "Normalt",
   "pressure_medium": "Middel",
