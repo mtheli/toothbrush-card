@@ -827,6 +827,29 @@ export class ToothbrushCard extends LitElement {
         return position >= 0.67 ? 'high' : position >= 0.34 ? 'medium' : 'low';
     }
 
+    /**
+     * How many of the five gauge bars to fill, or 0 when nothing is readable.
+     *
+     * Five rather than the three the speedometer icon could express: a Laifen
+     * handle reports a level of 1-10, and three steps throw most of that away.
+     * A running handle always fills at least one bar, so strength 1 still reads
+     * as "on" rather than as "no reading".
+     */
+    _intensityStep(intensity) {
+        const level = this._intensityLevel(intensity);
+        if (!level) return 0;
+        const n = Number(String(intensity).toLowerCase());
+        if (!Number.isFinite(n)) {
+            // A named level sits at the bottom, middle or top of the scale.
+            return { low: 1, medium: 3, high: 5 }[level];
+        }
+        const highFrequency = n > 10;
+        const min = highFrequency ? 11 : 1;
+        const max = highFrequency ? 20 : 10;
+        const position = (n - min) / (max - min);
+        return Math.min(5, Math.max(1, Math.ceil(position * 5)));
+    }
+
     _getIntensityIcon(intensity) {
         // Graded speedometer, matching the integration's intensity control.
         const level = this._intensityLevel(intensity);
@@ -1166,6 +1189,7 @@ export class ToothbrushCard extends LitElement {
         const pressureClass = this._getPressureClass(pressure);
         const intensityIcon = this._getIntensityIcon(intensity);
         const intensityColor = this._getIntensityColor(intensity);
+        const intensityStep = this._intensityStep(intensity);
         const modeUnavailable = mode === 'unavailable' || mode === 'unknown' || mode === 'N/A';
         const modeIcon = modeUnavailable ? 'mdi:brush-variant' : this._getModeIcon(mode);
         const modeLabel = modeUnavailable ? '–' : this._getModeLabel(mode);
@@ -1303,7 +1327,9 @@ export class ToothbrushCard extends LitElement {
                 case 'intensity':
                     if (!intensityEntity) return '';
                     return html`<div class="chip" @click="${() => this._showMoreInfo(intensityEntity)}">
-                        <div class="chip-icon ${intensityColor}"><ha-icon icon="${intensityIcon}"></ha-icon></div>
+                        <div class="intensity-bars ${intensityColor} i-${intensityStep}">
+                            <div class="ib"></div><div class="ib"></div><div class="ib"></div><div class="ib"></div><div class="ib"></div>
+                        </div>
                         <span class="chip-label">${t(hass, 'chip_intensity')}</span>
                         <div class="chip-value ${intensityColor}">${displayIntensity}</div>
                     </div>`;

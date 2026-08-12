@@ -194,3 +194,54 @@ describe('grading a numeric strength for the chip', () => {
         }
     });
 });
+
+describe('the five-step intensity gauge', () => {
+    /** How many of the five bars the card fills for a reading. */
+    async function step(value) {
+        const Card = await loadCard();
+        return new Card()._intensityStep(value);
+    }
+
+    test('spreads the ordinary scale across all five bars', async () => {
+        assert.deepEqual(
+            await Promise.all([1, 2, 4, 6, 8, 10].map(step)),
+            [1, 1, 2, 3, 4, 5]);
+    });
+
+    test('does the same within the high-frequency scale', async () => {
+        assert.deepEqual(
+            await Promise.all([11, 14, 17, 20].map(step)),
+            [1, 2, 4, 5]);
+    });
+
+    test('a running handle always fills at least one bar', async () => {
+        // Strength 1 is the bottom of the scale, not the absence of a reading.
+        assert.equal(await step(1), 1);
+        assert.equal(await step(11), 1);
+    });
+
+    test('named levels sit at the bottom, middle and top', async () => {
+        assert.equal(await step('low'), 1);
+        assert.equal(await step('medium'), 3);
+        assert.equal(await step('high'), 5);
+    });
+
+    test('nothing readable fills nothing', async () => {
+        for (const value of ['unavailable', 'unknown', '–', 0]) {
+            assert.equal(await step(value), 0, String(value));
+        }
+    });
+
+    test('the bar count and the colour never disagree', async () => {
+        // Both are driven off the same grading, so a full gauge can never be
+        // painted in the low colour.
+        const Card = await loadCard();
+        const el = new Card();
+        for (let n = 1; n <= 20; n += 1) {
+            const step = el._intensityStep(n);
+            const colour = el._getIntensityColor(n);
+            if (step === 5) assert.equal(colour, 'int-high', `at ${n}`);
+            if (step === 1) assert.notEqual(colour, 'int-high', `at ${n}`);
+        }
+    });
+});
