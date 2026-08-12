@@ -64,6 +64,12 @@ function progressColorAt(fraction) {
     return `rgb(${c[0]},${c[1]},${c[2]})`;
 }
 
+// The intensity gauge sweeps 240° of a circle of radius 8.5 around (12, 13):
+// from the lower left, clockwise over the top, to the lower right. Declared
+// once because the track and the filled arc trace the same line, and
+// `pathLength="100"` lets the fill be set as a percentage.
+const INTENSITY_ARC = 'M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25';
+
 export const QUADRANT_ZONES = ['lower_left', 'lower_right', 'upper_left', 'upper_right'];
 export const SEXTANT_ZONES = ['lower_left', 'lower_front', 'lower_right', 'upper_right', 'upper_front', 'upper_left'];
 
@@ -828,26 +834,39 @@ export class ToothbrushCard extends LitElement {
     }
 
     /**
-     * How many of the five gauge bars to fill, or 0 when nothing is readable.
+     * Where a reading sits on its scale, 0…1, for the gauge arc and needle.
      *
-     * Five rather than the three the speedometer icon could express: a Laifen
-     * handle reports a level of 1-10, and three steps throw most of that away.
-     * A running handle always fills at least one bar, so strength 1 still reads
-     * as "on" rather than as "no reading".
+     * Continuous rather than stepped: a Laifen handle reports 1-10, and the
+     * three speedometer icons MDI offers could express almost none of that.
+     * The scale is chosen by the value itself - 1-10 in the ordinary modes,
+     * 11-20 in the high-frequency one - so the mode never has to be read, and
+     * 11 sits at the bottom of its own scale rather than at the top of the
+     * other. Returns 0 for anything unreadable.
+     *
+     * The floor of 0.08 keeps the weakest setting visible: a running handle at
+     * strength 1 should read as "on and low", not as "no reading".
      */
-    _intensityStep(intensity) {
+    _intensityFraction(intensity) {
         const level = this._intensityLevel(intensity);
         if (!level) return 0;
         const n = Number(String(intensity).toLowerCase());
-        if (!Number.isFinite(n)) {
-            // A named level sits at the bottom, middle or top of the scale.
-            return { low: 1, medium: 3, high: 5 }[level];
-        }
+        if (!Number.isFinite(n)) return { low: 0.12, medium: 0.5, high: 1 }[level];
         const highFrequency = n > 10;
         const min = highFrequency ? 11 : 1;
         const max = highFrequency ? 20 : 10;
-        const position = (n - min) / (max - min);
-        return Math.min(5, Math.max(1, Math.ceil(position * 5)));
+        return 0.08 + 0.92 * ((n - min) / (max - min));
+    }
+
+    /**
+     * The needle tip for a fraction, on a 240° arc of radius `radius`
+     * around (12, 13) — from 210° at the lower left, clockwise to -30°.
+     */
+    _intensityNeedle(fraction, radius) {
+        const radians = (210 - 240 * fraction) * Math.PI / 180;
+        return {
+            x: 12 + radius * Math.cos(radians),
+            y: 13 - radius * Math.sin(radians),
+        };
     }
 
     _getIntensityIcon(intensity) {
@@ -1189,7 +1208,8 @@ export class ToothbrushCard extends LitElement {
         const pressureClass = this._getPressureClass(pressure);
         const intensityIcon = this._getIntensityIcon(intensity);
         const intensityColor = this._getIntensityColor(intensity);
-        const intensityStep = this._intensityStep(intensity);
+        const intensityFraction = this._intensityFraction(intensity);
+        const intensityNeedle = this._intensityNeedle(intensityFraction, 5.2);
         const modeUnavailable = mode === 'unavailable' || mode === 'unknown' || mode === 'N/A';
         const modeIcon = modeUnavailable ? 'mdi:brush-variant' : this._getModeIcon(mode);
         const modeLabel = modeUnavailable ? '–' : this._getModeLabel(mode);
@@ -1327,8 +1347,15 @@ export class ToothbrushCard extends LitElement {
                 case 'intensity':
                     if (!intensityEntity) return '';
                     return html`<div class="chip" @click="${() => this._showMoreInfo(intensityEntity)}">
-                        <div class="intensity-bars ${intensityColor} i-${intensityStep}">
-                            <div class="ib"></div><div class="ib"></div><div class="ib"></div><div class="ib"></div><div class="ib"></div>
+                        <div class="chip-icon ${intensityColor}">
+                            <svg class="intensity-dial" viewBox="0 0 24 24">
+                                <path class="id-track" d="${INTENSITY_ARC}" pathLength="100"/>
+                                <path class="id-arc" d="${INTENSITY_ARC}" pathLength="100"
+                                      stroke-dasharray="${Math.round(intensityFraction * 100)} 100"/>
+                                <line class="id-needle" x1="12" y1="13"
+                                      x2="${intensityNeedle.x.toFixed(2)}" y2="${intensityNeedle.y.toFixed(2)}"/>
+                                <circle class="id-hub" cx="12" cy="13" r="1.5"/>
+                            </svg>
                         </div>
                         <span class="chip-label">${t(hass, 'chip_intensity')}</span>
                         <div class="chip-value ${intensityColor}">${displayIntensity}</div>

@@ -263,37 +263,37 @@ ha-card {
 .p-normal .pb:nth-child(2) { background: #16a34a; }
 .p-high .pb { background: #dc2626; }
 
-/* Intensity gauge: same visual language as the pressure bars, but five steps
-   rather than three states. Laifen reports a level of 1-10 (11-20 in the
-   high-frequency mode), and a speedometer icon has only three variants to
-   spend on it. The bars also survive the icon-only layout, where the label
-   and the value are hidden and the graphic is all that is left. */
-.intensity-bars {
-    grid-row: 1 / 3;
-    display: flex;
-    gap: 2px;
-    align-items: flex-end;
-    justify-content: center;
+/* Intensity gauge: a drawn dial rather than an icon. MDI offers three
+   speedometer variants, and a Laifen handle reports a level of 1-10 (11-20 in
+   the high-frequency mode) - three steps would throw nearly all of it away.
+   The needle carries the value, the arc behind it is held back so the two read
+   as instrument and reading rather than as one thick stroke. Both survive the
+   icon-only layout, where the label and value are hidden. */
+.intensity-dial {
+    width: 24px;
+    height: 24px;
+    display: block;
 }
-.ib {
-    width: 3px;
-    border-radius: 2px;
-    background: var(--divider-color, #e5e7eb);
-    transition: background 0.3s;
+.id-track {
+    fill: none;
+    stroke: var(--divider-color, #e5e7eb);
+    stroke-width: 2.4;
+    stroke-linecap: round;
 }
-.ib:nth-child(1) { height: 4px; }
-.ib:nth-child(2) { height: 7px; }
-.ib:nth-child(3) { height: 11px; }
-.ib:nth-child(4) { height: 14px; }
-.ib:nth-child(5) { height: 18px; }
-.intensity-bars.int-low  { color: #0891b2; }
-.intensity-bars.int-med  { color: #7c3aed; }
-.intensity-bars.int-high { color: #db2777; }
-.i-1 .ib:nth-child(-n+1),
-.i-2 .ib:nth-child(-n+2),
-.i-3 .ib:nth-child(-n+3),
-.i-4 .ib:nth-child(-n+4),
-.i-5 .ib:nth-child(-n+5) { background: currentColor; }
+.id-arc {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    opacity: 0.3;
+    transition: stroke-dasharray 0.3s;
+}
+.id-needle {
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+.id-hub { fill: currentColor; }
 
 /* ── MODE SELECTOR ── */
 .mode-chip-wrap {
@@ -650,7 +650,7 @@ ha-card {
         row-gap: 0;
         position: relative;
     }
-    .chip-icon, .pressure-bars, .intensity-bars {
+    .chip-icon, .pressure-bars {
         grid-row: auto;
     }
     .chip-label, .chip-value {

@@ -8,6 +8,15 @@ own non-alarming scale — a high intensity is a chosen setting, not a warning.
 The head type stays neutral (theme text colour) for the same reason: it is
 information, not a state.
 
+Two readings are drawn rather than picked from MDI, because no icon set has
+the resolution they need. Pressure is a four-bar staircase. Intensity is a
+dial: a Laifen handle reports a level of 1–10, and 11–20 in the high-frequency
+mode, where three speedometer variants could express almost none of it. The
+needle carries the value and the arc behind it is held back to 30 %, so the
+two read as instrument and reading rather than as one thick stroke. Corner
+markers keep the MDI speedometer — a single small glyph with the value beside
+it, where a dial would be decoration rather than information.
+
 All icons stay readable in the compact icon-only layout (card width ≤ 350 px,
 where chip labels and values are hidden): the icon shape and colour alone
 carry the state.

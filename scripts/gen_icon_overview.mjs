@@ -73,6 +73,24 @@ const headSvg = (steps, color, size = 28) => {
 };
 
 // Pressure bars as drawn in the chip (4 bars, heights 5/9/13/18)
+// The intensity dial, mirroring .intensity-dial in the card's stylesheet: a
+// 240° arc of radius 8.5 around (12, 13), the needle carrying the value and
+// the arc behind it held back to 30 % so the two read as instrument and
+// reading rather than as one stroke.
+const ARC = 'M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25';
+const intensityDial = (fraction, color, size = 28) => {
+    const radians = (210 - 240 * fraction) * Math.PI / 180;
+    const x = (12 + 5.2 * Math.cos(radians)).toFixed(2);
+    const y = (13 - 5.2 * Math.sin(radians)).toFixed(2);
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">
+        <path d="${ARC}" fill="none" stroke="#e5e7eb" stroke-width="2.4" stroke-linecap="round" pathLength="100"/>
+        <path d="${ARC}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round"
+              opacity="0.3" pathLength="100" stroke-dasharray="${Math.round(fraction * 100)} 100"/>
+        <line x1="12" y1="13" x2="${x}" y2="${y}" stroke="${color}" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="12" cy="13" r="1.5" fill="${color}"/>
+    </svg>`;
+};
+
 const pressureBars = (active, color) => {
     const h = [5, 9, 13, 18];
     return `<svg width="30" height="22" viewBox="0 0 30 22">${h.map((hh, i) =>
@@ -117,7 +135,14 @@ sections.push(section('Pressure — chip (bars) + corner (gauge)', 'In the chip 
     cell(svg(mdiGauge, C.red), 'high (corner)', 'mdi:gauge', '#dc2626'),
 ]));
 
-sections.push(section('Intensity — chip + corner', 'Deliberately NOT the traffic-light palette: intensity is a chosen setting, a high level must never read as a warning.', [
+sections.push(section('Intensity — chip', 'A drawn dial rather than an icon: a Laifen handle reports a level of 1-10 (11-20 in the high-frequency mode), and three speedometer variants could express almost none of it. Deliberately NOT the traffic-light palette — intensity is a chosen setting, a high level must never read as a warning.', [
+    cell(intensityDial(0.08, C.intLow), 'strength 1 of 10', 'drawn arc + needle', '#0891b2'),
+    cell(intensityDial(0.45, C.intMed), 'strength 5 of 10', 'drawn arc + needle', '#7c3aed'),
+    cell(intensityDial(0.72, C.intMed), 'strength 8 of 10', 'drawn arc + needle', '#7c3aed'),
+    cell(intensityDial(1, C.intHigh), 'strength 10 of 10', 'drawn arc + needle', '#db2777'),
+]));
+
+sections.push(section('Intensity — corner marker', 'Corners keep the MDI speedometer: a single small glyph with the value beside it, where a dial would be decoration rather than information.', [
     cell(svg(mdiSpeedometerSlow, C.intLow), 'low', 'mdi:speedometer-slow', '#0891b2'),
     cell(svg(mdiSpeedometerMedium, C.intMed), 'medium (default)', 'mdi:speedometer-medium', '#7c3aed'),
     cell(svg(mdiSpeedometer, C.intHigh), 'high', 'mdi:speedometer', '#db2777'),

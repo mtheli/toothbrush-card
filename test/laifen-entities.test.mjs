@@ -195,53 +195,66 @@ describe('grading a numeric strength for the chip', () => {
     });
 });
 
-describe('the five-step intensity gauge', () => {
-    /** How many of the five bars the card fills for a reading. */
-    async function step(value) {
+describe('the intensity gauge', () => {
+    /** Where a reading sits on its scale, as the arc and needle use it. */
+    async function fraction(value) {
         const Card = await loadCard();
-        return new Card()._intensityStep(value);
+        return Number(new Card()._intensityFraction(value).toFixed(3));
     }
 
-    test('spreads the ordinary scale across all five bars', async () => {
-        assert.deepEqual(
-            await Promise.all([1, 2, 4, 6, 8, 10].map(step)),
-            [1, 1, 2, 3, 4, 5]);
+    test('runs from just above nothing to full across the ordinary scale', async () => {
+        assert.equal(await fraction(1), 0.08, 'the weakest setting still shows');
+        assert.equal(await fraction(10), 1);
+        assert.ok(await fraction(5) > 0.4 && await fraction(5) < 0.6, 'the middle sits in the middle');
     });
 
-    test('does the same within the high-frequency scale', async () => {
-        assert.deepEqual(
-            await Promise.all([11, 14, 17, 20].map(step)),
-            [1, 2, 4, 5]);
+    test('is continuous, not stepped', async () => {
+        // The point of the dial over the old three-way icon: every reading
+        // gets its own position.
+        const seen = new Set();
+        for (let n = 1; n <= 10; n += 1) seen.add(await fraction(n));
+        assert.equal(seen.size, 10, 'ten readings, ten distinct positions');
     });
 
-    test('a running handle always fills at least one bar', async () => {
-        // Strength 1 is the bottom of the scale, not the absence of a reading.
-        assert.equal(await step(1), 1);
-        assert.equal(await step(11), 1);
+    test('grades the high-frequency scale within itself', async () => {
+        assert.equal(await fraction(11), 0.08, 'the bottom of its own scale');
+        assert.equal(await fraction(20), 1);
+        assert.equal(await fraction(11), await fraction(1),
+            'the two scales map onto the same dial');
     });
 
-    test('named levels sit at the bottom, middle and top', async () => {
-        assert.equal(await step('low'), 1);
-        assert.equal(await step('medium'), 3);
-        assert.equal(await step('high'), 5);
+    test('named levels sit low, middle and full', async () => {
+        assert.equal(await fraction('low'), 0.12);
+        assert.equal(await fraction('medium'), 0.5);
+        assert.equal(await fraction('high'), 1);
     });
 
-    test('nothing readable fills nothing', async () => {
+    test('nothing readable leaves the dial empty', async () => {
         for (const value of ['unavailable', 'unknown', '–', 0]) {
-            assert.equal(await step(value), 0, String(value));
+            assert.equal(await fraction(value), 0, String(value));
         }
     });
 
-    test('the bar count and the colour never disagree', async () => {
-        // Both are driven off the same grading, so a full gauge can never be
-        // painted in the low colour.
+    test('the needle follows the arc from lower left to lower right', async () => {
+        const Card = await loadCard();
+        const el = new Card();
+        const at = (f) => el._intensityNeedle(f, 5.2);
+
+        const empty = at(0), half = at(0.5), full = at(1);
+        assert.ok(empty.x < 12 && empty.y > 13, 'starts at the lower left');
+        assert.ok(Math.abs(half.x - 12) < 0.01 && half.y < 13, 'points straight up at half');
+        assert.ok(full.x > 12 && full.y > 13, 'ends at the lower right');
+        assert.ok(Math.abs(empty.y - full.y) < 0.01, 'and both ends sit at the same height');
+    });
+
+    test('the needle and the colour never disagree', async () => {
         const Card = await loadCard();
         const el = new Card();
         for (let n = 1; n <= 20; n += 1) {
-            const step = el._intensityStep(n);
+            const f = el._intensityFraction(n);
             const colour = el._getIntensityColor(n);
-            if (step === 5) assert.equal(colour, 'int-high', `at ${n}`);
-            if (step === 1) assert.notEqual(colour, 'int-high', `at ${n}`);
+            if (f === 1) assert.equal(colour, 'int-high', `at ${n}`);
+            if (f <= 0.1) assert.equal(colour, 'int-low', `at ${n}`);
         }
     });
 });
