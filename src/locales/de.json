@@ -1,6 +1,12 @@
 {
   "conn_via_charger": "Live-Daten über die Ladestation",
   "conn_charger_paired": "Ladestation gekoppelt",
+  "conn_bt_active": "Live-Daten über Bluetooth",
+  "conn_bt_connected": "Bluetooth verbunden",
+  "conn_bt_disconnected": "Keine Bluetooth-Verbindung",
+  "conn_bridge_online": "ESP-Bridge online",
+  "conn_bridge_offline": "ESP-Bridge offline",
+  "conn_device_info": "Geräteinformationen",
 
   "chip_battery": "Akku",
   "chip_pressure": "Druck",

@@ -1,6 +1,12 @@
 {
   "conn_via_charger": "Данные в реальном времени через зарядную станцию",
   "conn_charger_paired": "Зарядная станция сопряжена",
+  "conn_bt_active": "Данные в реальном времени по Bluetooth",
+  "conn_bt_connected": "Bluetooth подключён",
+  "conn_bt_disconnected": "Нет подключения по Bluetooth",
+  "conn_bridge_online": "ESP-мост в сети",
+  "conn_bridge_offline": "ESP-мост не в сети",
+  "conn_device_info": "Информация об устройстве",
 
   "chip_battery": "Батарея",
   "chip_pressure": "Нажим",

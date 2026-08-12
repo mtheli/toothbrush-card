@@ -1,6 +1,12 @@
 {
   "conn_via_charger": "Livedata via ladestationen",
   "conn_charger_paired": "Ladestation parret",
+  "conn_bt_active": "Livedata via Bluetooth",
+  "conn_bt_connected": "Bluetooth forbundet",
+  "conn_bt_disconnected": "Ingen Bluetooth-forbindelse",
+  "conn_bridge_online": "ESP-bro online",
+  "conn_bridge_offline": "ESP-bro offline",
+  "conn_device_info": "Enhedsoplysninger",
 
   "chip_battery": "Batteri",
   "chip_pressure": "Tryk",

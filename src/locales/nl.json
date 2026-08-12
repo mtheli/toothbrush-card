@@ -1,6 +1,12 @@
 {
   "conn_via_charger": "Live-gegevens via het oplaadstation",
   "conn_charger_paired": "Oplaadstation gekoppeld",
+  "conn_bt_active": "Live-gegevens via Bluetooth",
+  "conn_bt_connected": "Bluetooth verbonden",
+  "conn_bt_disconnected": "Geen Bluetooth-verbinding",
+  "conn_bridge_online": "ESP-bridge online",
+  "conn_bridge_offline": "ESP-bridge offline",
+  "conn_device_info": "Apparaatinformatie",
 
   "chip_battery": "Batterij",
   "chip_pressure": "Druk",

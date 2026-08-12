@@ -1,6 +1,12 @@
 {
   "conn_via_charger": "Live data via the charging station",
   "conn_charger_paired": "Charging station paired",
+  "conn_bt_active": "Live data over Bluetooth",
+  "conn_bt_connected": "Bluetooth connected",
+  "conn_bt_disconnected": "No Bluetooth connection",
+  "conn_bridge_online": "ESP bridge online",
+  "conn_bridge_offline": "ESP bridge offline",
+  "conn_device_info": "Device information",
 
   "chip_battery": "Battery",
   "chip_pressure": "Pressure",

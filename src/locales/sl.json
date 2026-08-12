@@ -1,6 +1,12 @@
 {
   "conn_via_charger": "Podatki v živo prek polnilne postaje",
   "conn_charger_paired": "Polnilna postaja povezana",
+  "conn_bt_active": "Podatki v živo prek Bluetootha",
+  "conn_bt_connected": "Bluetooth povezan",
+  "conn_bt_disconnected": "Ni povezave Bluetooth",
+  "conn_bridge_online": "Most ESP povezan",
+  "conn_bridge_offline": "Most ESP ni povezan",
+  "conn_device_info": "Informacije o napravi",
 
   "chip_battery": "Baterija",
   "chip_pressure": "Pritisk",
