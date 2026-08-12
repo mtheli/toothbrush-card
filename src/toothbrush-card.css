@@ -609,7 +609,17 @@ ha-card {
 .card-corner.tl { top: 6px; left: 10px; }
 .card-corner.tr { top: 6px; right: 10px; }
 /* bl/br carry no offsets: bottom markers render inside .status-row. */
+/* The two drawn readings sit in the marker's icon box like any glyph. The
+   dial is an SVG and simply fills it. The staircase is built from fixed pixel
+   heights, which would not follow `scale:` on their own, so it is scaled
+   bodily instead of stretched. */
 .corner-ico .intensity-dial { width: 100%; height: 100%; }
+.corner-ico .pressure-bars {
+    width: 100%;
+    height: 100%;
+    transform: scale(var(--tb-scale, 1));
+    transform-origin: center;
+}
 .corner-ico { --mdc-icon-size: calc(22px * var(--tb-scale, 1)); width: calc(22px * var(--tb-scale, 1)); height: calc(22px * var(--tb-scale, 1)); }
 .corner-lbl {
     font-size: calc(8px * var(--tb-scale, 1)); letter-spacing: 0.06em; text-transform: uppercase;

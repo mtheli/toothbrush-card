@@ -870,6 +870,19 @@ export class ToothbrushCard extends LitElement {
     }
 
     /**
+     * The pressure staircase, shared by the chip and the corner marker.
+     *
+     * How many bars light up comes from the class, not from here, so the
+     * markup is the same wherever it is placed.
+     */
+    _pressureBars(pressureClass) {
+        return html`
+            <div class="pressure-bars ${pressureClass}">
+                <div class="pb"></div><div class="pb"></div><div class="pb"></div><div class="pb"></div>
+            </div>`;
+    }
+
+    /**
      * The gauge itself, shared by the chip and the corner marker.
      *
      * Carries no colour of its own: the caller's wrapper sets it, and every
@@ -1347,9 +1360,7 @@ export class ToothbrushCard extends LitElement {
                 case 'pressure':
                     if (!pressureEntity) return '';
                     return html`<div class="chip" @click="${() => this._showMoreInfo(pressureEntity)}">
-                        <div class="pressure-bars ${pressureClass}">
-                            <div class="pb"></div><div class="pb"></div><div class="pb"></div><div class="pb"></div>
-                        </div>
+                        ${this._pressureBars(pressureClass)}
                         <span class="chip-label">${t(hass, 'chip_pressure')}</span>
                         <div class="chip-value ${pressureColor}">${displayPressure}</div>
                     </div>`;
@@ -1445,7 +1456,8 @@ export class ToothbrushCard extends LitElement {
                     return marker(entityIds.battery, batteryIconName, batteryColor, t(hass, 'chip_battery'), batteryUnavailable ? '–' : html`${batteryLevel}%`);
                 case 'pressure':
                     if (!pressureEntity) return '';
-                    return marker(pressureEntity, 'mdi:gauge', pressureColor, t(hass, 'chip_pressure'), displayPressure);
+                    return glyphMarker(pressureEntity, this._pressureBars(pressureClass),
+                        pressureColor, t(hass, 'chip_pressure'), displayPressure);
                 case 'intensity':
                     if (!intensityEntity) return '';
                     return glyphMarker(intensityEntity, this._intensityDial(intensity),

@@ -172,8 +172,8 @@
   </div>
 
   <div class="section">
-    <h2>Pressure — chip (bars) + corner (gauge)</h2>
-    <p class="note">In the chip the bars replace the icon; the corner marker uses mdi:gauge in the same colour.</p>
+    <h2>Pressure — chip + corner</h2>
+    <p class="note">A drawn staircase rather than an icon, so the level is visible without reading the value. Chip and corner show the same bars. Traffic-light palette: pressing too hard is a warning, unlike intensity.</p>
     <div class="grid">
     <div class="cell">
       <div class="ic"><svg width="30" height="22" viewBox="0 0 30 22"><rect x="0" y="15" width="5" height="5" rx="1.5" fill="#d97706"/><rect x="7.5" y="11" width="5" height="9" rx="1.5" fill="#e5e7eb"/><rect x="15" y="7" width="5" height="13" rx="1.5" fill="#e5e7eb"/><rect x="22.5" y="2" width="5" height="18" rx="1.5" fill="#e5e7eb"/></svg></div>
@@ -192,30 +192,12 @@
       <div class="st">high</div>
       <div class="nm">bars 4/4</div>
       <div class="hx"><span class="sw" style="background:#dc2626"></span>#dc2626</div>
-    </div>
-    <div class="cell">
-      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#d97706" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12C20,14.4 19,16.5 17.3,18C15.9,16.7 14,16 12,16C10,16 8.2,16.7 6.7,18C5,16.5 4,14.4 4,12A8,8 0 0,1 12,4M14,5.89C13.62,5.9 13.26,6.15 13.1,6.54L11.81,9.77L11.71,10C11,10.13 10.41,10.6 10.14,11.26C9.73,12.29 10.23,13.45 11.26,13.86C12.29,14.27 13.45,13.77 13.86,12.74C14.12,12.08 14,11.32 13.57,10.76L13.67,10.5L14.96,7.29L14.97,7.26C15.17,6.75 14.92,6.17 14.41,5.96C14.28,5.91 14.15,5.89 14,5.89M10,6A1,1 0 0,0 9,7A1,1 0 0,0 10,8A1,1 0 0,0 11,7A1,1 0 0,0 10,6M7,9A1,1 0 0,0 6,10A1,1 0 0,0 7,11A1,1 0 0,0 8,10A1,1 0 0,0 7,9M17,9A1,1 0 0,0 16,10A1,1 0 0,0 17,11A1,1 0 0,0 18,10A1,1 0 0,0 17,9Z"/></svg></div>
-      <div class="st">low (corner)</div>
-      <div class="nm">mdi:gauge</div>
-      <div class="hx"><span class="sw" style="background:#d97706"></span>#d97706</div>
-    </div>
-    <div class="cell">
-      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#16a34a" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12C20,14.4 19,16.5 17.3,18C15.9,16.7 14,16 12,16C10,16 8.2,16.7 6.7,18C5,16.5 4,14.4 4,12A8,8 0 0,1 12,4M14,5.89C13.62,5.9 13.26,6.15 13.1,6.54L11.81,9.77L11.71,10C11,10.13 10.41,10.6 10.14,11.26C9.73,12.29 10.23,13.45 11.26,13.86C12.29,14.27 13.45,13.77 13.86,12.74C14.12,12.08 14,11.32 13.57,10.76L13.67,10.5L14.96,7.29L14.97,7.26C15.17,6.75 14.92,6.17 14.41,5.96C14.28,5.91 14.15,5.89 14,5.89M10,6A1,1 0 0,0 9,7A1,1 0 0,0 10,8A1,1 0 0,0 11,7A1,1 0 0,0 10,6M7,9A1,1 0 0,0 6,10A1,1 0 0,0 7,11A1,1 0 0,0 8,10A1,1 0 0,0 7,9M17,9A1,1 0 0,0 16,10A1,1 0 0,0 17,11A1,1 0 0,0 18,10A1,1 0 0,0 17,9Z"/></svg></div>
-      <div class="st">normal (corner)</div>
-      <div class="nm">mdi:gauge</div>
-      <div class="hx"><span class="sw" style="background:#16a34a"></span>#16a34a</div>
-    </div>
-    <div class="cell">
-      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#dc2626" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12C20,14.4 19,16.5 17.3,18C15.9,16.7 14,16 12,16C10,16 8.2,16.7 6.7,18C5,16.5 4,14.4 4,12A8,8 0 0,1 12,4M14,5.89C13.62,5.9 13.26,6.15 13.1,6.54L11.81,9.77L11.71,10C11,10.13 10.41,10.6 10.14,11.26C9.73,12.29 10.23,13.45 11.26,13.86C12.29,14.27 13.45,13.77 13.86,12.74C14.12,12.08 14,11.32 13.57,10.76L13.67,10.5L14.96,7.29L14.97,7.26C15.17,6.75 14.92,6.17 14.41,5.96C14.28,5.91 14.15,5.89 14,5.89M10,6A1,1 0 0,0 9,7A1,1 0 0,0 10,8A1,1 0 0,0 11,7A1,1 0 0,0 10,6M7,9A1,1 0 0,0 6,10A1,1 0 0,0 7,11A1,1 0 0,0 8,10A1,1 0 0,0 7,9M17,9A1,1 0 0,0 16,10A1,1 0 0,0 17,11A1,1 0 0,0 18,10A1,1 0 0,0 17,9Z"/></svg></div>
-      <div class="st">high (corner)</div>
-      <div class="nm">mdi:gauge</div>
-      <div class="hx"><span class="sw" style="background:#dc2626"></span>#dc2626</div>
     </div></div>
   </div>
 
   <div class="section">
-    <h2>Intensity — chip</h2>
-    <p class="note">A drawn dial rather than an icon: a Laifen handle reports a level of 1-10 (11-20 in the high-frequency mode), and three speedometer variants could express almost none of it. Deliberately NOT the traffic-light palette — intensity is a chosen setting, a high level must never read as a warning.</p>
+    <h2>Intensity — chip + corner</h2>
+    <p class="note">A drawn dial rather than an icon: a Laifen handle reports a level of 1-10 (11-20 in the high-frequency mode), and three speedometer variants could express almost none of it. Chip and corner show the same dial, only at different sizes. Deliberately NOT the traffic-light palette — intensity is a chosen setting, a high level must never read as a warning.</p>
     <div class="grid">
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24">
@@ -255,48 +237,6 @@
     </div>
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24">
-        <path d="M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25" fill="none" stroke="#e5e7eb" stroke-width="2.8" stroke-linecap="round" pathLength="100"/>
-        <path d="M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25" fill="none" stroke="#db2777" stroke-width="2.8" stroke-linecap="round"
-              opacity="0.55" pathLength="100" stroke-dasharray="100 100"/>
-        <line x1="12" y1="13" x2="16.50" y2="15.60" stroke="#db2777" stroke-width="1.8" stroke-linecap="round"/>
-        <circle cx="12" cy="13" r="1.5" fill="#db2777"/>
-    </svg></div>
-      <div class="st">strength 10 of 10</div>
-      <div class="nm">drawn arc + needle</div>
-      <div class="hx"><span class="sw" style="background:#db2777"></span>#db2777</div>
-    </div></div>
-  </div>
-
-  <div class="section">
-    <h2>Intensity — corner marker</h2>
-    <p class="note">The same dial, drawn at marker size, so chip and corner report the reading the same way.</p>
-    <div class="grid">
-    <div class="cell">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24">
-        <path d="M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25" fill="none" stroke="#e5e7eb" stroke-width="2.8" stroke-linecap="round" pathLength="100"/>
-        <path d="M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25" fill="none" stroke="#0891b2" stroke-width="2.8" stroke-linecap="round"
-              opacity="0.55" pathLength="100" stroke-dasharray="8 100"/>
-        <line x1="12" y1="13" x2="6.89" y2="13.97" stroke="#0891b2" stroke-width="1.8" stroke-linecap="round"/>
-        <circle cx="12" cy="13" r="1.5" fill="#0891b2"/>
-    </svg></div>
-      <div class="st">strength 1 of 10</div>
-      <div class="nm">drawn arc + needle</div>
-      <div class="hx"><span class="sw" style="background:#0891b2"></span>#0891b2</div>
-    </div>
-    <div class="cell">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24">
-        <path d="M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25" fill="none" stroke="#e5e7eb" stroke-width="2.8" stroke-linecap="round" pathLength="100"/>
-        <path d="M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25" fill="none" stroke="#7c3aed" stroke-width="2.8" stroke-linecap="round"
-              opacity="0.55" pathLength="100" stroke-dasharray="50 100"/>
-        <line x1="12" y1="13" x2="12.00" y2="7.80" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round"/>
-        <circle cx="12" cy="13" r="1.5" fill="#7c3aed"/>
-    </svg></div>
-      <div class="st">strength 5 of 10</div>
-      <div class="nm">drawn arc + needle</div>
-      <div class="hx"><span class="sw" style="background:#7c3aed"></span>#7c3aed</div>
-    </div>
-    <div class="cell">
-      <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24">
         <path d="M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25" fill="none" stroke="#e5e7eb" stroke-width="2.8" stroke-linecap="round" pathLength="100"/>
         <path d="M4.64 17.25 A8.5 8.5 0 1 1 19.36 17.25" fill="none" stroke="#db2777" stroke-width="2.8" stroke-linecap="round"
               opacity="0.55" pathLength="100" stroke-dasharray="100 100"/>

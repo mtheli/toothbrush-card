@@ -13,10 +13,9 @@ the resolution they need. Pressure is a four-bar staircase. Intensity is a
 dial: a Laifen handle reports a level of 1–10, and 11–20 in the high-frequency
 mode, where three speedometer variants could express almost none of it. The
 needle carries the value; the ring behind it is the scale, held back enough
-that the needle reads first but not so far that it disappears. Chip and corner
-marker show the same dial, so the reading looks the same wherever it is
-placed — only pressure still differs between the two, with bars in the chip
-and `mdi:gauge` in the corner.
+that the needle reads first but not so far that it disappears. Both drawn
+readings look the same in the chip and in a corner marker, only at different
+sizes, so where a reading is placed never changes what it looks like.
 
 Also worth knowing: the screenshot has to be tall enough for the whole page.
 The window height in the command below grows with the reference; if the last

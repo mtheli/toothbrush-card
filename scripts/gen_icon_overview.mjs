@@ -16,7 +16,7 @@ import {
     mdiBatteryUnknown, mdiBatteryAlertVariantOutline,
     mdiBattery10, mdiBattery20, mdiBattery30, mdiBattery40, mdiBattery50,
     mdiBattery60, mdiBattery70, mdiBattery80, mdiBattery90, mdiBattery,
-    mdiBatteryCharging, mdiGauge, mdiStarOutline, mdiStarHalfFull, mdiStar, mdiRepeatOnce,
+    mdiBatteryCharging, mdiStarOutline, mdiStarHalfFull, mdiStar, mdiRepeatOnce,
     mdiWater, mdiToothOutline, mdiShapeCirclePlus, mdiSpa, mdiPower,
     mdiFeather, mdiCogOutline, mdiAutoFix, mdiGateAnd, mdiCarTurbocharger, mdiShimmer,
     mdiToothbrushElectric, mdiEmoticonTongueOutline, mdiBrushVariant,
@@ -130,26 +130,17 @@ sections.push(section('Charger — header (oralb_live)', 'Shown only when the ha
 
 sections.push(section('Battery — chip + corner', 'Icon step: ceil(level/10)·10 (_getBatteryIcon) · colour: ≤15 red, ≤30 amber, otherwise green (_getBatteryChipColor).', batLevels.map(([p, s, n, c, hx]) => cell(svg(p, c), s, `mdi:${n}`, hx))));
 
-sections.push(section('Pressure — chip (bars) + corner (gauge)', 'In the chip the bars replace the icon; the corner marker uses mdi:gauge in the same colour.', [
+sections.push(section('Pressure — chip + corner', 'A drawn staircase rather than an icon, so the level is visible without reading the value. Chip and corner show the same bars. Traffic-light palette: pressing too hard is a warning, unlike intensity.', [
     cell(pressureBars(1, C.amber), 'low', 'bars 1/4', '#d97706'),
     cell(pressureBars(2, C.green), 'normal / medium', 'bars 2/4', '#16a34a'),
     cell(pressureBars('all', C.red), 'high', 'bars 4/4', '#dc2626'),
-    cell(svg(mdiGauge, C.amber), 'low (corner)', 'mdi:gauge', '#d97706'),
-    cell(svg(mdiGauge, C.green), 'normal (corner)', 'mdi:gauge', '#16a34a'),
-    cell(svg(mdiGauge, C.red), 'high (corner)', 'mdi:gauge', '#dc2626'),
 ]));
 
-sections.push(section('Intensity — chip', 'A drawn dial rather than an icon: a Laifen handle reports a level of 1-10 (11-20 in the high-frequency mode), and three speedometer variants could express almost none of it. Deliberately NOT the traffic-light palette — intensity is a chosen setting, a high level must never read as a warning.', [
+sections.push(section('Intensity — chip + corner', 'A drawn dial rather than an icon: a Laifen handle reports a level of 1-10 (11-20 in the high-frequency mode), and three speedometer variants could express almost none of it. Chip and corner show the same dial, only at different sizes. Deliberately NOT the traffic-light palette — intensity is a chosen setting, a high level must never read as a warning.', [
     cell(intensityDial(0.08, C.intLow), 'strength 1 of 10', 'drawn arc + needle', '#0891b2'),
     cell(intensityDial(0.45, C.intMed), 'strength 5 of 10', 'drawn arc + needle', '#7c3aed'),
     cell(intensityDial(0.72, C.intMed), 'strength 8 of 10', 'drawn arc + needle', '#7c3aed'),
     cell(intensityDial(1, C.intHigh), 'strength 10 of 10', 'drawn arc + needle', '#db2777'),
-]));
-
-sections.push(section('Intensity — corner marker', 'The same dial, drawn at marker size, so chip and corner report the reading the same way.', [
-    cell(intensityDial(0.08, C.intLow, 22), 'strength 1 of 10', 'drawn arc + needle', '#0891b2'),
-    cell(intensityDial(0.5, C.intMed, 22), 'strength 5 of 10', 'drawn arc + needle', '#7c3aed'),
-    cell(intensityDial(1, C.intHigh, 22), 'strength 10 of 10', 'drawn arc + needle', '#db2777'),
 ]));
 
 const modes = [
