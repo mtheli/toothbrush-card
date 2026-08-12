@@ -99,11 +99,11 @@ const pressureBars = (active, color) => {
 
 const sections = [];
 
-sections.push(section('Header — connection icons', 'Card-own SVG paths (CONN_ICONS in icons.js), 18px.', [
-    cell(svg(conn.bluetooth, C.primary), 'BT connected', 'bluetooth', 'var(--primary-color, #3b82f6)'),
-    cell(svg(conn.bluetooth, C.btActive), 'BT active (session)', 'bluetooth', '#0082fc'),
+sections.push(section('Header — connection icons', 'Card-own SVG paths (CONN_ICONS in icons.js), 18px. Told apart by presence, not by hue: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.', [
+    cell(svg(conn.bluetooth, C.primary, 0.55), 'BT connected, idle', 'bluetooth', 'var(--primary-color) op.0.55'),
+    cell(svg(conn.bluetooth, C.btActive), 'BT active (session)', 'bluetooth', '#0082fc op.1'),
     cell(svg(conn.bluetooth, C.muted, 0.3), 'BT disconnected', 'bluetooth', '#9ca3af op.0.3'),
-    cell(svg(conn.lan_connect, C.primary), 'ESP bridge online', 'lan_connect', 'var(--primary-color, #3b82f6)'),
+    cell(svg(conn.lan_connect, C.primary, 0.55), 'ESP bridge online', 'lan_connect', 'var(--primary-color) op.0.55'),
     cell(svg(conn.lan_disconnect, C.muted, 0.3), 'ESP bridge offline', 'lan_disconnect', '#9ca3af op.0.3'),
     cell(`<svg width="28" height="28" viewBox="0 0 24 24" style="opacity:.5"><g fill="#6b7280"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></g></svg>`, 'more info (⋮)', 'card-own dots', 'var(--secondary-text-color) op.0.5'),
 ]));
@@ -123,9 +123,9 @@ const batLevels = [
     [mdiBattery, '91–100 %', 'battery', C.green, '#16a34a'],
     [mdiBatteryCharging, 'charging (any level)', 'battery-charging', C.green, 'colour follows level'],
 ];
-sections.push(section('Charger — header (oralb_live)', 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Active tone while the data actually arrives through it (data_source = charger_bridge); otherwise the ordinary primary colour — an idle station is the normal state between sessions, not a fault.', [
-    cell(svg(conn.charger, C.btActive), 'data via charger', 'card-own SVG (CONN_ICONS.charger)', '#0082fc'),
-    cell(svg(conn.charger, C.primary), 'charger paired, idle', 'card-own SVG (CONN_ICONS.charger)', 'var(--primary-color, #3b82f6)'),
+sections.push(section('Charger — header (oralb_live)', 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Full strength while the data actually arrives through it (data_source = charger_bridge), quieter otherwise — an idle station is the normal state between sessions, not a fault.', [
+    cell(svg(conn.charger, C.btActive), 'data via charger', 'card-own SVG (CONN_ICONS.charger)', '#0082fc op.1'),
+    cell(svg(conn.charger, C.primary, 0.55), 'charger paired, idle', 'card-own SVG (CONN_ICONS.charger)', 'var(--primary-color) op.0.55'),
 ]));
 
 sections.push(section('Battery — chip + corner', 'Icon step: ceil(level/10)·10 (_getBatteryIcon) · colour: ≤15 red, ≤30 amber, otherwise green (_getBatteryChipColor).', batLevels.map(([p, s, n, c, hx]) => cell(svg(p, c), s, `mdi:${n}`, hx))));

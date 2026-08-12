@@ -29,19 +29,19 @@
 
   <div class="section">
     <h2>Header — connection icons</h2>
-    <p class="note">Card-own SVG paths (CONN_ICONS in icons.js), 18px.</p>
+    <p class="note">Card-own SVG paths (CONN_ICONS in icons.js), 18px. Told apart by presence, not by hue: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.</p>
     <div class="grid">
     <div class="cell">
-      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#3b82f6" d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/></svg></div>
-      <div class="st">BT connected</div>
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.55"><path fill="#3b82f6" d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/></svg></div>
+      <div class="st">BT connected, idle</div>
       <div class="nm">bluetooth</div>
-      <div class="hx"><span class="sw" style="background:var(--primary-color,"></span>var(--primary-color, #3b82f6)</div>
+      <div class="hx"><span class="sw" style="background:var(--primary-color)"></span>var(--primary-color) op.0.55</div>
     </div>
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#0082fc" d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/></svg></div>
       <div class="st">BT active (session)</div>
       <div class="nm">bluetooth</div>
-      <div class="hx"><span class="sw" style="background:#0082fc"></span>#0082fc</div>
+      <div class="hx"><span class="sw" style="background:#0082fc"></span>#0082fc op.1</div>
     </div>
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.3"><path fill="#9ca3af" d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/></svg></div>
@@ -50,10 +50,10 @@
       <div class="hx"><span class="sw" style="background:#9ca3af"></span>#9ca3af op.0.3</div>
     </div>
     <div class="cell">
-      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#3b82f6" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></div>
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.55"><path fill="#3b82f6" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></div>
       <div class="st">ESP bridge online</div>
       <div class="nm">lan_connect</div>
-      <div class="hx"><span class="sw" style="background:var(--primary-color,"></span>var(--primary-color, #3b82f6)</div>
+      <div class="hx"><span class="sw" style="background:var(--primary-color)"></span>var(--primary-color) op.0.55</div>
     </div>
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.3"><path fill="#9ca3af" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM17 7h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></div>
@@ -71,19 +71,19 @@
 
   <div class="section">
     <h2>Charger — header (oralb_live)</h2>
-    <p class="note">Shown only when the handle is paired with a charging station (charger_address on the main entity). Active tone while the data actually arrives through it (data_source = charger_bridge); otherwise the ordinary primary colour — an idle station is the normal state between sessions, not a fault.</p>
+    <p class="note">Shown only when the handle is paired with a charging station (charger_address on the main entity). Full strength while the data actually arrives through it (data_source = charger_bridge), quieter otherwise — an idle station is the normal state between sessions, not a fault.</p>
     <div class="grid">
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#0082fc" d="M16,7V3H14V7H10V3H8V7H8C7,7 6,8 6,9V14.5L9.5,18V21H14.5V18L18,14.5V9C18,8 17,7 16,7Z"/></svg></div>
       <div class="st">data via charger</div>
       <div class="nm">card-own SVG (CONN_ICONS.charger)</div>
-      <div class="hx"><span class="sw" style="background:#0082fc"></span>#0082fc</div>
+      <div class="hx"><span class="sw" style="background:#0082fc"></span>#0082fc op.1</div>
     </div>
     <div class="cell">
-      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#3b82f6" d="M16,7V3H14V7H10V3H8V7H8C7,7 6,8 6,9V14.5L9.5,18V21H14.5V18L18,14.5V9C18,8 17,7 16,7Z"/></svg></div>
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.55"><path fill="#3b82f6" d="M16,7V3H14V7H10V3H8V7H8C7,7 6,8 6,9V14.5L9.5,18V21H14.5V18L18,14.5V9C18,8 17,7 16,7Z"/></svg></div>
       <div class="st">charger paired, idle</div>
       <div class="nm">card-own SVG (CONN_ICONS.charger)</div>
-      <div class="hx"><span class="sw" style="background:var(--primary-color,"></span>var(--primary-color, #3b82f6)</div>
+      <div class="hx"><span class="sw" style="background:var(--primary-color)"></span>var(--primary-color) op.0.55</div>
     </div></div>
   </div>
 

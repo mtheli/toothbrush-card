@@ -65,17 +65,26 @@ ha-card {
     width: 16px;
     height: 16px;
 }
+/* Three states, told apart by presence rather than by hue.
+   Colour alone could not do it: "active" used to be #0082fc against
+   --primary-color, and the two are a 1.02:1 contrast when the theme leaves
+   primary at its default blue - indistinguishable. Worse, --primary-color is
+   the user's, so how different the two looked depended on their theme.
+   Now the connection that is carrying something reads at full strength, one
+   that is merely established is quieter, and a broken one fades out. */
 .conn-icon {
     width: 18px;
     height: 18px;
     color: var(--primary-color, #3b82f6);
     fill: currentColor;
     cursor: pointer;
-    opacity: 1;
+    /* Established, but nothing flowing through it right now. */
+    opacity: 0.55;
     transition: color 0.4s, opacity 0.4s;
 }
 .conn-icon.active {
     color: #0082fc;
+    opacity: 1;
 }
 .conn-icon.disconnected {
     color: var(--disabled-text-color, #9ca3af);
