@@ -98,6 +98,7 @@
   "config_subtitle": "Prikaži ime naprave kot podnaslov",
   "hold_off": "Izklopljeno",
   "config_hold_duration": "Prikaži končano sejo za",
+  "config_show_verdict": "Prikaži oceno seje",
   "hold_until_next_session": "Do naslednje seje",
   "completed_just_now": "pravkar",
   "completed_ago_minutes": "pred {n} min",

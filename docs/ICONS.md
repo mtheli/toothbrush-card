@@ -122,6 +122,11 @@ describes the session that just ended — which is what the badge is for.
 Both are drawn at 34 px rather than the chips' 24 px — the star-eyes face
 collapses into plain dots below that.
 
+`show_verdict: false` empties the slot and keeps the banner. It is a plain
+on/off rather than a choice between the two, because on any given device there
+is only ever one candidate: "show the face instead of the score" would be a
+setting with nothing to switch.
+
 The face's values:
 
 | Value | Meaning | Icon | Colour |

@@ -1385,11 +1385,15 @@ export class ToothbrushCard extends LitElement {
         // shown in the done badge. Undecoded values carry `code` and render a
         // question mark with the raw value, so users can report what their
         // handle actually showed (issue #20).
-        const recapFace = showRecap ? smileyTier(this._completedFace) : null;
         // The badge's glyph slot holds whichever verdict the handle gave. The
         // two can never collide - the face is oralb_live, the score is Xiaomi -
-        // so they share the place rather than competing for it.
-        const recapScoreNum = showRecap && !recapFace ? parseFloat(this._completedScore) : NaN;
+        // so they share the place rather than competing for it. That is also
+        // why show_verdict is a plain on/off and not a choice between the two:
+        // on any given device there is only ever one candidate, so "show the
+        // face instead of the score" would be a setting with nothing to switch.
+        const showVerdict = showRecap && config.show_verdict !== false;
+        const recapFace = showVerdict ? smileyTier(this._completedFace) : null;
+        const recapScoreNum = showVerdict && !recapFace ? parseFloat(this._completedScore) : NaN;
         const recapScore = Number.isFinite(recapScoreNum) ? {
             value: this._completedScore,
             icon: ['mdi:star-outline', 'mdi:star-half-full', 'mdi:star'][

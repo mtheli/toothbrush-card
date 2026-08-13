@@ -98,6 +98,7 @@
   "config_subtitle": "Показывать имя устройства как подзаголовок",
   "hold_off": "Выкл.",
   "config_hold_duration": "Показывать завершённый сеанс",
+  "config_show_verdict": "Показывать оценку сеанса",
   "hold_until_next_session": "До следующего сеанса",
   "completed_just_now": "только что",
   "completed_ago_minutes": "{n} мин назад",

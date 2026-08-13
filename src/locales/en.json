@@ -98,6 +98,7 @@
   "config_subtitle": "Show device name as subtitle",
   "hold_off": "Off",
   "config_hold_duration": "Keep finished session for",
+  "config_show_verdict": "Show session verdict",
   "hold_until_next_session": "Until the next session",
   "completed_just_now": "just now",
   "completed_ago_minutes": "{n} min ago",

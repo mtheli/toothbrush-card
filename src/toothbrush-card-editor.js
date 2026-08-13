@@ -624,6 +624,14 @@ export class ToothbrushCardEditor extends LitElement {
                 ${this._config.device_id ? this._renderValueDisplaySection() : ''}
 
                 <div class="group-label">${t(this.hass, 'group_recap')}</div>
+                <div class="field row">
+                    <ha-switch
+                        .checked=${this._config.show_verdict !== false}
+                        @change=${(ev) => this._valueChanged('show_verdict', ev.target.checked ? '' : false)}
+                    ></ha-switch>
+                    <span>${t(this.hass, 'config_show_verdict')}</span>
+                </div>
+
                 <div class="field">
                     <ha-selector
                         .hass=${this.hass}

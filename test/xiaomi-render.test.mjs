@@ -19,6 +19,7 @@
 import test, { describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCard } from './helpers/replay.mjs';
+import { markup } from './helpers/markup.mjs';
 import {
     findDeviceEntities, normalizeLayout, resolveLayoutForDevice,
 } from '../src/toothbrush-card.js';
@@ -237,5 +238,29 @@ describe('the score on the finished-session badge', () => {
         el.render();
         assert.equal(el._completedScore, null,
             'the badge cannot describe a session that has not finished');
+    });
+
+    test('show_verdict: false leaves the star out', async (t) => {
+        // The same option that hides the Oral-B face. It is one switch rather
+        // than a choice between the two, because a device only ever offers one
+        // of them - see the note at showVerdict in render().
+        t.mock.timers.enable({ apis: ['Date'], now: NOW });
+        const { el } = await xiaomiCard({ show_verdict: false });
+        el.hass = xiaomiHass({ on: true, activeSince: 125, score: '61' });
+        el.render();
+        el.hass = xiaomiHass({ on: false, score: '88' });
+
+        const out = markup(el.render());
+        assert.doesNotMatch(out, /done-score/);
+        assert.equal(el._completed, true, 'the finished session is still announced');
+    });
+
+    test('and shows it by default', async (t) => {
+        t.mock.timers.enable({ apis: ['Date'], now: NOW });
+        const { el } = await xiaomiCard();
+        el.hass = xiaomiHass({ on: true, activeSince: 125, score: '61' });
+        el.render();
+        el.hass = xiaomiHass({ on: false, score: '88' });
+        assert.match(markup(el.render()), /done-score/);
     });
 });

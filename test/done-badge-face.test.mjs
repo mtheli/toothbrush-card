@@ -12,6 +12,7 @@
 import test, { describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCard } from './helpers/replay.mjs';
+import { markup } from './helpers/markup.mjs';
 import { smileyTier, SMILEY_TIERS } from '../src/icons.js';
 
 /**
@@ -46,19 +47,19 @@ function oralbHass({ status = 'idle', duration = '0', smiley = 'off' } = {}) {
     };
 }
 
-async function oralbCard() {
+async function oralbCard(config = {}) {
     const Card = await loadCard();
     const el = new Card();
     el.requestUpdate = () => {};
     el.setConfig({
-        type: 'custom:toothbrush-card', device_id: 'dev1', history_recap: false,
+        type: 'custom:toothbrush-card', device_id: 'dev1', history_recap: false, ...config,
     });
     return el;
 }
 
 /** Feed a sequence of readings through the card and return it. */
-async function replay(readings) {
-    const el = await oralbCard();
+async function replay(readings, config = {}) {
+    const el = await oralbCard(config);
     for (const reading of readings) {
         el.hass = oralbHass(reading);
         el.render();
@@ -113,6 +114,35 @@ describe('the face reaching the badge', () => {
         ]);
         assert.doesNotThrow(() => el.render());
         assert.equal(el._completedFace, 'special_7');
+    });
+});
+
+describe('switching the verdict off (show_verdict)', () => {
+    const finished = [
+        { status: 'running', duration: '130', smiley: 'standard' },
+        { status: 'post_brushing_summary', duration: '130', smiley: 'special_11' },
+    ];
+
+    test('the face is drawn by default', async () => {
+        const el = await replay(finished);
+        assert.match(markup(el.render()), /done-smiley/,
+            'the badge carries the verdict unless asked not to');
+    });
+
+    test('show_verdict: false leaves it out', async () => {
+        const el = await replay(finished, { show_verdict: false });
+        assert.doesNotMatch(markup(el.render()), /done-smiley/);
+    });
+
+    test('the recap itself stays', async () => {
+        // Only the verdict glyph is configurable. Switching it off must not
+        // take the finished session with it - the badge still says a session
+        // ended, which is the part that is not a matter of taste.
+        const el = await replay(finished, { show_verdict: false });
+        assert.equal(el._completed, true);
+        assert.equal(el._completedFace, 'special_11',
+            'the latch keeps working, so switching the option back on needs no new session');
+        assert.match(markup(el.render()), /done-badge/);
     });
 });
 

@@ -187,6 +187,7 @@ After a session ends the card keeps showing it as a banner: green "Brushing comp
 | hold_duration | number   | 0.5     | How long to keep showing the recap banner, in hours: `0.25`–`24`, or `0` = until the next brushing session starts. |
 | hold_completed | boolean | true    | Legacy switch for the same feature: `false` disables the recap banner entirely (same as "Off" in the editor). |
 | history_recap | boolean | true    | Rebuild the recap from recorder history when the card loads with nothing else to show (fresh browser or other device, sensor values already cleared by the brush). Uses one history query for the duration sensor; `false` disables it. |
+| show_verdict  | boolean  | true    | Show the handle's verdict on the badge — the Oral-B display face (`oralb_live`) or the Xiaomi score, whichever the device reports. `false` keeps the banner and drops only that glyph. It is one switch rather than a choice between the two because no handle reports both. |
 
 ### Misc
 

@@ -98,6 +98,7 @@
   "config_subtitle": "Gerätename als Untertitel anzeigen",
   "hold_off": "Aus",
   "config_hold_duration": "Abgeschlossene Sitzung anzeigen für",
+  "config_show_verdict": "Sitzungsbewertung anzeigen",
   "hold_until_next_session": "Bis zur nächsten Sitzung",
   "completed_just_now": "gerade eben",
   "completed_ago_minutes": "vor {n} min",

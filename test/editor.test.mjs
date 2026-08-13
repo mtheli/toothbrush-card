@@ -242,6 +242,21 @@ describe('the completed-session hold', () => {
     });
 });
 
+describe('the badge verdict switch', () => {
+    test('switching it off writes the key', async () => {
+        const { el, last } = await editor();
+        el._valueChanged('show_verdict', false);
+        assert.equal(last().show_verdict, false);
+    });
+
+    test('switching it back on removes the key rather than writing the default', async () => {
+        const { el, last } = await editor({ show_verdict: false });
+        el._valueChanged('show_verdict', '');
+        assert.equal(last().show_verdict, undefined,
+            'a config that matches the default carries no key at all');
+    });
+});
+
 describe('the other defaults that write no key', () => {
     test('scale', async () => {
         const { el, last } = await editor({ scale: 1.4 });

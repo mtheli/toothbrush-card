@@ -98,6 +98,7 @@
   "config_subtitle": "Toon apparaatnaam als onderschrift",
   "hold_off": "Uit",
   "config_hold_duration": "Voltooide sessie tonen gedurende",
+  "config_show_verdict": "Sessiebeoordeling tonen",
   "hold_until_next_session": "Tot de volgende sessie",
   "completed_just_now": "zojuist",
   "completed_ago_minutes": "{n} min geleden",

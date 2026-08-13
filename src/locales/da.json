@@ -90,6 +90,7 @@
   "config_subtitle": "Vis enhedsnavn som undertitel",
   "hold_off": "Fra",
   "config_hold_duration": "Vis afsluttet session i",
+  "config_show_verdict": "Vis sessionsvurdering",
   "hold_until_next_session": "Indtil næste session",
   "completed_just_now": "lige nu",
   "completed_ago_minutes": "for {n} min. siden",
