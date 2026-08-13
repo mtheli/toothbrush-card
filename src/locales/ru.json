@@ -5,6 +5,7 @@
   "conn_bt_connected": "Bluetooth подключён",
   "conn_bt_disconnected": "Нет подключения по Bluetooth",
   "conn_bridge_online": "ESP-мост в сети",
+  "conn_bridge_active": "ESP-мост передаёт данные",
   "conn_bridge_offline": "ESP-мост не в сети",
   "conn_device_info": "Информация об устройстве",
 

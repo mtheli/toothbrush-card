@@ -1152,7 +1152,7 @@ export class ToothbrushCard extends LitElement {
                             <svg class="conn-icon ${espConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
                                  @click="${() => this._showMoreInfo(entityIds.esp_bridge_alive)}">
                                 <title>${espConnected ? t(hass, 'conn_bridge_online') : t(hass, 'conn_bridge_offline')}</title>
-                                <path d="${espConnected ? CONN_ICONS.lan_connect : CONN_ICONS.lan_disconnect}"/>
+                                <path d="${espConnected ? CONN_ICONS.network : CONN_ICONS.network_off}"/>
                             </svg>` : ''}
                             <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
                                  @click="${() => this._showDeviceInfo()}">
@@ -1547,10 +1547,15 @@ export class ToothbrushCard extends LitElement {
                             <path d="${CONN_ICONS.charger}"/>
                         </svg>` : ''}
                         ${entityIds.esp_bridge_alive ? html`
-                        <svg class="conn-icon ${espConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
+                        <svg class="conn-icon ${espConnected && btActive ? 'active' : ''} ${espConnected ? '' : 'disconnected'}"
+                             viewBox="0 0 24 24" fill="currentColor"
                              @click="${() => this._showMoreInfo(entityIds.esp_bridge_alive)}">
-                            <title>${espConnected ? t(hass, 'conn_bridge_online') : t(hass, 'conn_bridge_offline')}</title>
-                            <path d="${espConnected ? CONN_ICONS.lan_connect : CONN_ICONS.lan_disconnect}"/>
+                            <title>${!espConnected ? t(hass, 'conn_bridge_offline')
+                                : btActive ? t(hass, 'conn_bridge_active')
+                                : t(hass, 'conn_bridge_online')}</title>
+                            <path d="${!espConnected ? CONN_ICONS.network_off
+                                : btActive ? CONN_ICONS.network_active
+                                : CONN_ICONS.network}"/>
                         </svg>` : ''}
                         <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
                              @click="${() => this._showDeviceInfo()}">

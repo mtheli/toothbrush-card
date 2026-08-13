@@ -28,7 +28,7 @@ const version = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'))
 const generated = new Date().toISOString().slice(0, 10);
 const iconsJs = readFileSync(join(repoRoot, 'src/icons.js'), 'utf8');
 const conn = {};
-for (const key of ['bluetooth', 'bluetooth_transfer', 'bluetooth_off', 'lan_connect', 'lan_disconnect', 'charger']) {
+for (const key of ['bluetooth', 'bluetooth_transfer', 'bluetooth_off', 'network', 'network_active', 'network_off', 'charger']) {
     conn[key] = iconsJs.match(new RegExp(`${key}: '([^']+)'`))[1];
 }
 // Smiley paths are card-own constants (raw paths, not mdi: names) — read them
@@ -119,13 +119,25 @@ const pressureBars = (active, color) => {
 
 const sections = [];
 
-sections.push(section('Header — connection icons', ['all integrations · Bluetooth', 'philips_sonicare_ble · ESP bridge'], 'Card-own SVG paths (CONN_ICONS in icons.js), 18px. Told apart by weight, and for Bluetooth by shape as well: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.', [
-    cell(svg(conn.bluetooth, C.primary, 0.55), 'BT connected, idle', 'bluetooth', 'var(--primary-color) op.0.55'),
-    cell(svg(conn.bluetooth_transfer, C.btActive), 'BT active (session)', 'bluetooth_transfer', '#0082fc op.1'),
-    cell(svg(conn.bluetooth_off, C.muted, 0.3), 'BT disconnected', 'bluetooth_off', '#9ca3af op.0.3'),
-    cell(svg(conn.lan_connect, C.primary, 0.55), 'ESP bridge online', 'lan_connect', 'var(--primary-color) op.0.55'),
-    cell(svg(conn.lan_disconnect, C.muted, 0.3), 'ESP bridge offline', 'lan_disconnect', '#9ca3af op.0.3'),
+sections.push(section('Header — Bluetooth', ['all integrations'], 'Card-own SVG paths (CONN_ICONS in icons.js), 18px. Three states, told apart by weight and by shape: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.', [
+    cell(svg(conn.bluetooth, C.primary, 0.55), 'connected, idle', 'bluetooth', 'var(--primary-color) op.0.55'),
+    cell(svg(conn.bluetooth_transfer, C.btActive), 'session running', 'bluetooth_transfer', '#0082fc op.1'),
+    cell(svg(conn.bluetooth_off, C.muted, 0.3), 'no connection', 'bluetooth_off', '#9ca3af op.0.3'),
+]));
+
+sections.push(section('Header — ESP bridge', ['philips_sonicare_ble'], 'Shown only where the handle is reached through an ESP bridge - the integration creates the entity for no other transport, which is what makes the third state honest: if the bridge is there at all, a running session is data crossing it. Same weight and shape treatment as Bluetooth beside it.', [
+    cell(svg(conn.network, C.primary, 0.55), 'bridge online, idle', 'network', 'var(--primary-color) op.0.55'),
+    cell(svg(conn.network_active, C.btActive), 'carrying live data', 'network_active', '#0082fc op.1'),
+    cell(svg(conn.network_off, C.muted, 0.3), 'bridge offline', 'network_off', '#9ca3af op.0.3'),
+]));
+
+sections.push(section('Header — device menu', ['all integrations'], 'Opens the Home Assistant device page. Card-own dots rather than an MDI glyph, so it matches the other header icons in weight.', [
     cell(`<svg width="28" height="28" viewBox="0 0 24 24" style="opacity:.5"><g fill="#6b7280"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></g></svg>`, 'more info (⋮)', 'card-own dots', 'var(--secondary-text-color) op.0.5'),
+]));
+
+sections.push(section('Charger — header', ['oralb_live'], 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Full strength while the data actually arrives through it (data_source = charger_bridge), quieter otherwise — an idle station is the normal state between sessions, not a fault.', [
+    cell(svg(conn.charger, C.btActive), 'data via charger', 'card-own SVG (CONN_ICONS.charger)', '#0082fc op.1'),
+    cell(svg(conn.charger, C.primary, 0.55), 'charger paired, idle', 'card-own SVG (CONN_ICONS.charger)', 'var(--primary-color) op.0.55'),
 ]));
 
 const batLevels = [
@@ -143,10 +155,6 @@ const batLevels = [
     [mdiBattery, '91–100 %', 'battery', C.green, '#16a34a'],
     [mdiBatteryCharging, 'charging (any level)', 'battery-charging', C.green, 'colour follows level'],
 ];
-sections.push(section('Charger — header', ['oralb_live'], 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Full strength while the data actually arrives through it (data_source = charger_bridge), quieter otherwise — an idle station is the normal state between sessions, not a fault.', [
-    cell(svg(conn.charger, C.btActive), 'data via charger', 'card-own SVG (CONN_ICONS.charger)', '#0082fc op.1'),
-    cell(svg(conn.charger, C.primary, 0.55), 'charger paired, idle', 'card-own SVG (CONN_ICONS.charger)', 'var(--primary-color) op.0.55'),
-]));
 
 sections.push(section('Battery — chip + corner', ['all integrations'], 'Icon step: ceil(level/10)·10 (_getBatteryIcon) · colour: ≤15 red, ≤30 amber, otherwise green (_getBatteryChipColor).', batLevels.map(([p, s, n, c, hx]) => cell(svg(p, c), s, `mdi:${n}`, hx))));
 

@@ -5,6 +5,7 @@
   "conn_bt_connected": "Bluetooth verbunden",
   "conn_bt_disconnected": "Keine Bluetooth-Verbindung",
   "conn_bridge_online": "ESP-Bridge online",
+  "conn_bridge_active": "ESP-Bridge überträgt Daten",
   "conn_bridge_offline": "ESP-Bridge offline",
   "conn_device_info": "Geräteinformationen",
 

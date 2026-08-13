@@ -36,41 +36,65 @@
 
   <div class="section">
     <div class="head">
-      <h2>Header — connection icons</h2>
-      <div class="pills"><span class="pill">all integrations<i>Bluetooth</i></span><span class="pill">philips_sonicare_ble<i>ESP bridge</i></span></div>
+      <h2>Header — Bluetooth</h2>
+      <div class="pills"><span class="pill">all integrations</span></div>
     </div>
-    <p class="note">Card-own SVG paths (CONN_ICONS in icons.js), 18px. Told apart by weight, and for Bluetooth by shape as well: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.</p>
+    <p class="note">Card-own SVG paths (CONN_ICONS in icons.js), 18px. Three states, told apart by weight and by shape: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.</p>
     <div class="grid">
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.55"><path fill="#3b82f6" d="M17.71 7.71L12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71-4.3-4.29 4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z"/></svg></div>
-      <div class="st">BT connected, idle</div>
+      <div class="st">connected, idle</div>
       <div class="nm">bluetooth</div>
       <div class="hx"><span class="sw" style="background:var(--primary-color)"></span>var(--primary-color) op.0.55</div>
     </div>
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#0082fc" d="M14.71,7.71L10.41,12L14.71,16.29L9,22H8V14.41L3.41,19L2,17.59L7.59,12L2,6.41L3.41,5L8,9.59V2H9L14.71,7.71M10,5.83V9.59L11.88,7.71L10,5.83M11.88,16.29L10,14.41V18.17L11.88,16.29M22,8H20V11H18V8H16L19,4L22,8M22,16L19,20L16,16H18V13H20V16H22Z"/></svg></div>
-      <div class="st">BT active (session)</div>
+      <div class="st">session running</div>
       <div class="nm">bluetooth_transfer</div>
       <div class="hx"><span class="sw" style="background:#0082fc"></span>#0082fc op.1</div>
     </div>
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.3"><path fill="#9ca3af" d="M13,5.83L14.88,7.71L13.28,9.31L14.69,10.72L17.71,7.7L12,2H11V7.03L13,9.03M5.41,4L4,5.41L10.59,12L5,17.59L6.41,19L11,14.41V22H12L16.29,17.71L18.59,20L20,18.59M13,18.17V14.41L14.88,16.29"/></svg></div>
-      <div class="st">BT disconnected</div>
+      <div class="st">no connection</div>
       <div class="nm">bluetooth_off</div>
       <div class="hx"><span class="sw" style="background:#9ca3af"></span>#9ca3af op.0.3</div>
+    </div></div>
+  </div>
+
+  <div class="section">
+    <div class="head">
+      <h2>Header — ESP bridge</h2>
+      <div class="pills"><span class="pill">philips_sonicare_ble</span></div>
     </div>
+    <p class="note">Shown only where the handle is reached through an ESP bridge - the integration creates the entity for no other transport, which is what makes the third state honest: if the bridge is there at all, a running session is data crossing it. Same weight and shape treatment as Bluetooth beside it.</p>
+    <div class="grid">
     <div class="cell">
-      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.55"><path fill="#3b82f6" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></div>
-      <div class="st">ESP bridge online</div>
-      <div class="nm">lan_connect</div>
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.55"><path fill="#3b82f6" d="M15,20A1,1 0 0,0 14,19H13V17H17A2,2 0 0,0 19,15V5A2,2 0 0,0 17,3H7A2,2 0 0,0 5,5V15A2,2 0 0,0 7,17H11V19H10A1,1 0 0,0 9,20H2V22H9A1,1 0 0,0 10,23H14A1,1 0 0,0 15,22H22V20H15M7,15V5H17V15H7Z"/></svg></div>
+      <div class="st">bridge online, idle</div>
+      <div class="nm">network</div>
       <div class="hx"><span class="sw" style="background:var(--primary-color)"></span>var(--primary-color) op.0.55</div>
     </div>
     <div class="cell">
-      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.3"><path fill="#9ca3af" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM17 7h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></div>
-      <div class="st">ESP bridge offline</div>
-      <div class="nm">lan_disconnect</div>
-      <div class="hx"><span class="sw" style="background:#9ca3af"></span>#9ca3af op.0.3</div>
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#0082fc" d="M15,20A1,1 0 0,0 14,19H13V17H17A2,2 0 0,0 19,15V5A2,2 0 0,0 17,3H7A2,2 0 0,0 5,5V15A2,2 0 0,0 7,17H11V19H10A1,1 0 0,0 9,20H2V22H9A1,1 0 0,0 10,23H14A1,1 0 0,0 15,22H22V20H15M7,15V5H17V15H7M12,14L16,10H13V6H11V10H8L12,14Z"/></svg></div>
+      <div class="st">carrying live data</div>
+      <div class="nm">network_active</div>
+      <div class="hx"><span class="sw" style="background:#0082fc"></span>#0082fc op.1</div>
     </div>
+    <div class="cell">
+      <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:0.3"><path fill="#9ca3af" d="M1.04,5.27L5,9.23V15A2,2 0 0,0 7,17H11V19H10A1,1 0 0,0 9,20H2V22H9A1,1 0 0,0 10,23H14A1,1 0 0,0 15,22H17.77L19.77,24L21.04,22.72L2.32,4L1.04,5.27M7,11.23L10.77,15H7V11.23M15,20A1,1 0 0,0 14,19H13V17.23L15.77,20H15M22,20V21.14L20.86,20H22M7,6.14L5.14,4.28C5.43,3.53 6.16,3 7,3H17A2,2 0 0,1 19,5V15C19,15.85 18.47,16.57 17.72,16.86L15.86,15H17V5H7V6.14Z"/></svg></div>
+      <div class="st">bridge offline</div>
+      <div class="nm">network_off</div>
+      <div class="hx"><span class="sw" style="background:#9ca3af"></span>#9ca3af op.0.3</div>
+    </div></div>
+  </div>
+
+  <div class="section">
+    <div class="head">
+      <h2>Header — device menu</h2>
+      <div class="pills"><span class="pill">all integrations</span></div>
+    </div>
+    <p class="note">Opens the Home Assistant device page. Card-own dots rather than an MDI glyph, so it matches the other header icons in weight.</p>
+    <div class="grid">
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:.5"><g fill="#6b7280"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></g></svg></div>
       <div class="st">more info (⋮)</div>
