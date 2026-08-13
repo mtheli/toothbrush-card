@@ -1536,7 +1536,7 @@ export class ToothbrushCard extends LitElement {
                             <title>${!btConnected ? t(hass, 'conn_bt_disconnected')
                                 : btActive ? t(hass, 'conn_bt_active')
                                 : t(hass, 'conn_bt_connected')}</title>
-                            <path d="${CONN_ICONS.bluetooth}"/>
+                            <path d="${btActive ? CONN_ICONS.bluetooth_transfer : CONN_ICONS.bluetooth}"/>
                         </svg>
                         ${hasCharger ? html`
                         <svg class="conn-icon ${viaCharger ? 'active' : ''}" viewBox="0 0 24 24" fill="currentColor"
