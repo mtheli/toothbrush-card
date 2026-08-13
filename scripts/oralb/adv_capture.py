@@ -251,7 +251,8 @@ def parse_manufacturer(data: bytes) -> dict[str, int | bool | str | None]:
     return out
 
 
-HEARTBEAT_INTERVAL = 15  # seconds between "still listening" lines
+HEARTBEAT_INTERVAL = 15   # how often the "still listening" state is checked
+LIVENESS_INTERVAL = 600   # ... and how often a quiet *log* says so anyway
 
 
 class Capture:
@@ -459,10 +460,41 @@ class Capture:
             await asyncio.gather(heartbeat, return_exceptions=True)
             await scanner.stop()
 
+    def _liveness_line(self, now: float) -> tuple[str, str]:
+        """The current 'still listening' summary, and a signature of it.
+
+        The signature leaves the ages out, so a log can tell "nothing has
+        changed" from "something moved" - the ages always change, which is
+        exactly why they cannot be part of that comparison.
+        """
+        if not self.last_record_by_mac:
+            return "waiting for first advertisement ...", "waiting"
+        parts, signature = [], []
+        for mac, rec in self.last_record_by_mac.items():
+            age = now - rec.ts
+            sector_str = f"0x{rec.sector:02X}" if rec.sector is not None else "?"
+            silent = age > HEARTBEAT_INTERVAL
+            parts.append(
+                f"{mac} {age:.0f}s ago  state={rec.state_label}"
+                f"  time={rec.brush_time}s  sector={sector_str}"
+                + ("  <- advertising stopped?" if silent else "")
+            )
+            signature.append(f"{mac}|{rec.state_label}|{rec.brush_time}|{sector_str}|{silent}")
+        return "  ".join(parts), "  ".join(signature)
+
     async def _heartbeat(self) -> None:
-        """Periodic 'still listening' line so the quiet post-session phase
-        doesn't look like the script has hung, and so advertising silence
-        (brush gone offline) is visible live as a growing 'last advert' age."""
+        """Show that the script is alive without burying the log.
+
+        Two behaviours, chosen by where the output goes. On a terminal the
+        line is rewritten in place, so the age ticks up without scrolling
+        anything away. Redirected to a file - which is what watch mode is
+        for - carriage returns would be noise, so a line is only written when
+        something actually changed, plus one every LIVENESS_INTERVAL so a
+        quiet log still proves the process is running.
+        """
+        interactive = sys.stdout.isatty()
+        last_signature: str | None = None
+        last_written = 0.0
         while not self._stop.is_set():
             try:
                 await asyncio.wait_for(self._stop.wait(), timeout=HEARTBEAT_INTERVAL)
@@ -471,19 +503,20 @@ class Capture:
             if self._stop.is_set():
                 break
             now = time.time()
-            if not self.last_record_by_mac:
-                print(f"[{time.strftime('%H:%M:%S')}]  ♥ waiting for first advertisement …")
-                continue
             if self.watch_dir:
                 self._flush_silent_sessions(now)
-            for mac, rec in self.last_record_by_mac.items():
-                age = now - rec.ts
-                sector_str = f"0x{rec.sector:02X}" if rec.sector is not None else "?"
-                silence = "  <— advertising stopped?" if age > HEARTBEAT_INTERVAL else ""
-                print(
-                    f"[{time.strftime('%H:%M:%S')}]  ♥ {mac}  last advert {age:4.0f}s ago"
-                    f"  state={rec.state_label}  time={rec.brush_time}s  sector={sector_str}{silence}"
-                )
+            line, signature = self._liveness_line(now)
+
+            if interactive:
+                # Padded to overwrite whatever a previous, longer line left.
+                status = f"[{time.strftime('%H:%M:%S')}]  {line}".ljust(118)
+                print("\r" + status, end="", flush=True)
+                continue
+
+            if signature != last_signature or now - last_written >= LIVENESS_INTERVAL:
+                print(f"[{time.strftime('%H:%M:%S')}]  {line}")
+                last_signature = signature
+                last_written = now
 
     def stop(self) -> None:
         self._capture_end = time.time()
