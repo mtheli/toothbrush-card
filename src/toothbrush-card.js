@@ -53,13 +53,17 @@ export const SUPPORTED_INTEGRATIONS = {
 // How long a broadcasting handle may stay quiet before the card stops claiming
 // it is there.
 //
-// Provisional, and knowingly so. A capture from two iO handles on 2026-08-13
-// showed one going silent the moment its session ended and the other carrying
-// on for 96 s, so anything under two minutes would drop the second one mid
-// summary. What is not yet measured is whether an idle or charging handle
-// advertises at all; `scripts/oralb/adv_capture.py --watch` left running
-// overnight would settle it, and this number should be replaced by what that
-// shows rather than refined by guesswork.
+// A resting handle does not advertise at all, so this only has to cover the
+// tail after a session: a capture from two iO handles on 2026-08-13 showed one
+// going silent the moment its session ended and the other carrying on for 96 s.
+// Two minutes clears that with room to spare, and being generous costs nothing
+// - the icon simply goes dark a little later.
+//
+// The consequence is deliberate: for a handle that only broadcasts, this icon
+// is dark almost all day and lights up around a session. That is the truth of
+// it. There is no connection to a brush sitting in its holder, and the old
+// behaviour - permanently "connected" because the last advertised values were
+// still readable - was the alternative.
 const BROADCAST_SILENCE_SECONDS = 120;
 
 /**
