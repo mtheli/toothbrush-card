@@ -28,6 +28,34 @@ carry the state.
 The done badge is the one exception to the chip grid — see
 [Done badge](#done-badge) below.
 
+## Which integration provides what
+
+Not every reading exists on every handle, and the card hides a chip whose
+reading the device does not have rather than showing a placeholder. What is
+listed here is what `findDeviceEntities` actually resolves, not what an
+integration documents.
+
+| Reading | oralb | oralb_live | philips_sonicare_ble | xiaomi_ble | laifen_ble |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| Battery | ● | ● | ● | ● | ● |
+| Pressure | ● | ● | ● | — | Wave Pro |
+| Intensity | — | — | ● | — | ● |
+| Mode | ● | ● | ● settable | — | ● settable |
+| Score | — | — | — | ● | — |
+| Brush head | — | — | ● sub-device | ● % left | — |
+| Head type | — | — | ● sub-device | — | — |
+| Sector | reported | reported | derived | from time | from time |
+| ESP bridge icon | — | — | ● | — | — |
+| Charger icon | — | ● | — | — | — |
+| Display face | — | ● | — | — | — |
+
+Two entries are worth reading twice. Xiaomi reports the percentage **left** on
+the brush head where every other integration reports wear, so the card inverts
+it. And a sector is only *reported* by the Oral-B integrations — Sonicare
+derives it from elapsed time and the mode's visit sequence, while Xiaomi and
+Laifen have none at all and the card spreads the routine over four zones by
+time.
+
 ![Icon overview](icon-overview.png)
 
 An interactive version with copyable hex values is in
