@@ -1146,7 +1146,7 @@ export class ToothbrushCard extends LitElement {
                         <div class="header-icons">
                             <svg class="conn-icon disconnected" viewBox="0 0 24 24" fill="currentColor">
                                 <title>${t(hass, 'conn_bt_disconnected')}</title>
-                                <path d="${CONN_ICONS.bluetooth}"/>
+                                <path d="${CONN_ICONS.bluetooth_off}"/>
                             </svg>
                             ${entityIds.esp_bridge_alive ? html`
                             <svg class="conn-icon ${espConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
@@ -1536,7 +1536,9 @@ export class ToothbrushCard extends LitElement {
                             <title>${!btConnected ? t(hass, 'conn_bt_disconnected')
                                 : btActive ? t(hass, 'conn_bt_active')
                                 : t(hass, 'conn_bt_connected')}</title>
-                            <path d="${btActive ? CONN_ICONS.bluetooth_transfer : CONN_ICONS.bluetooth}"/>
+                            <path d="${!btConnected ? CONN_ICONS.bluetooth_off
+                                : btActive ? CONN_ICONS.bluetooth_transfer
+                                : CONN_ICONS.bluetooth}"/>
                         </svg>
                         ${hasCharger ? html`
                         <svg class="conn-icon ${viaCharger ? 'active' : ''}" viewBox="0 0 24 24" fill="currentColor"

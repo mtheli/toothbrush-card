@@ -28,7 +28,7 @@ const version = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'))
 const generated = new Date().toISOString().slice(0, 10);
 const iconsJs = readFileSync(join(repoRoot, 'src/icons.js'), 'utf8');
 const conn = {};
-for (const key of ['bluetooth', 'bluetooth_transfer', 'lan_connect', 'lan_disconnect', 'charger']) {
+for (const key of ['bluetooth', 'bluetooth_transfer', 'bluetooth_off', 'lan_connect', 'lan_disconnect', 'charger']) {
     conn[key] = iconsJs.match(new RegExp(`${key}: '([^']+)'`))[1];
 }
 // Smiley paths are card-own constants (raw paths, not mdi: names) — read them
@@ -109,7 +109,7 @@ const sections = [];
 sections.push(section('Header — connection icons', '<b>Integrations:</b> Bluetooth: every integration. ESP bridge: philips_sonicare_ble only. Card-own SVG paths (CONN_ICONS in icons.js), 18px. Told apart by weight, and for Bluetooth by shape as well: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.', [
     cell(svg(conn.bluetooth, C.primary, 0.55), 'BT connected, idle', 'bluetooth', 'var(--primary-color) op.0.55'),
     cell(svg(conn.bluetooth_transfer, C.btActive), 'BT active (session)', 'bluetooth_transfer', '#0082fc op.1'),
-    cell(svg(conn.bluetooth, C.muted, 0.3), 'BT disconnected', 'bluetooth', '#9ca3af op.0.3'),
+    cell(svg(conn.bluetooth_off, C.muted, 0.3), 'BT disconnected', 'bluetooth_off', '#9ca3af op.0.3'),
     cell(svg(conn.lan_connect, C.primary, 0.55), 'ESP bridge online', 'lan_connect', 'var(--primary-color) op.0.55'),
     cell(svg(conn.lan_disconnect, C.muted, 0.3), 'ESP bridge offline', 'lan_disconnect', '#9ca3af op.0.3'),
     cell(`<svg width="28" height="28" viewBox="0 0 24 24" style="opacity:.5"><g fill="#6b7280"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></g></svg>`, 'more info (⋮)', 'card-own dots', 'var(--secondary-text-color) op.0.5'),
