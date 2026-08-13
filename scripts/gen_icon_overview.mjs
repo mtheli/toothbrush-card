@@ -8,7 +8,9 @@
 //
 // Usage:  node scripts/gen_icon_overview.mjs
 // PNG:    chromium --headless --screenshot=docs/icon-overview.png \
-//           --window-size=1120,2560 --hide-scrollbars docs/icon-overview.html
+//           --window-size=1120,4400 --hide-scrollbars docs/icon-overview.html
+//         The height has to cover the whole page - Chrome captures exactly the
+//         window - so it grows with the reference. See docs/ICONS.md.
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -71,12 +73,30 @@ const pill = (label) => {
 const section = (title, who, note, cells) => `
   <div class="section">
     <div class="head">
-      <h2>${title}</h2>
+      <h3>${title}</h3>
       ${who ? `<div class="pills">${who.map(pill).join('')}</div>` : ''}
     </div>
     ${note ? `<p class="note">${note}</p>` : ''}
     <div class="grid">${cells.join('')}</div>
   </div>`;
+
+// Sections are grouped by *where on the card* the icon appears, because that is
+// the question someone arrives with: they have seen something on their card and
+// want to know what it means. Grouping by reading instead would scatter the
+// four header icons across the page and leave the badge looking like a chip.
+const group = (title, blurb, sections) => `
+  <section class="group">
+    <div class="ghead">
+      <h2>${title}</h2>
+      <p>${blurb}</p>
+    </div>
+    ${sections.join('\n')}
+  </section>`;
+
+const header = [];
+const chips = [];
+const badge = [];
+const other = [];
 
 // Brush-head glyph: capsule with quarter-step fill, as drawn by headSvg()
 const headSvg = (steps, color, size = 28) => {
@@ -117,27 +137,25 @@ const pressureBars = (active, color) => {
             (active === 'all' || i < active) ? color : '#e5e7eb'}"/>`).join('')}</svg>`;
 };
 
-const sections = [];
-
-sections.push(section('Header — Bluetooth', ['all integrations'], 'Card-own SVG paths (CONN_ICONS in icons.js), 18px. Three states, told apart by weight and by shape: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.', [
+header.push(section('Bluetooth', ['all integrations'], 'Card-own SVG paths (CONN_ICONS in icons.js), 18px. Three states, told apart by weight and by shape: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.', [
     cell(svg(conn.bluetooth, C.primary, 0.55), 'connected, idle', 'bluetooth', 'var(--primary-color) op.0.55'),
     cell(svg(conn.bluetooth_transfer, C.btActive), 'session running', 'bluetooth_transfer', '#0082fc op.1'),
     cell(svg(conn.bluetooth_off, C.muted, 0.3), 'no connection', 'bluetooth_off', '#9ca3af op.0.3'),
 ]));
 
-sections.push(section('Header — ESP bridge', ['philips_sonicare_ble'], 'Shown only where the handle is reached through an ESP bridge - the integration creates the entity for no other transport, which is what makes the third state honest: if the bridge is there at all, a running session is data crossing it. Same weight and shape treatment as Bluetooth beside it.', [
+header.push(section('ESP bridge', ['philips_sonicare_ble'], 'Shown only where the handle is reached through an ESP bridge - the integration creates the entity for no other transport, which is what makes the third state honest: if the bridge is there at all, a running session is data crossing it. Same weight and shape treatment as Bluetooth beside it.', [
     cell(svg(conn.network, C.primary, 0.55), 'bridge online, idle', 'network', 'var(--primary-color) op.0.55'),
     cell(svg(conn.network_active, C.btActive), 'carrying live data', 'network_active', '#0082fc op.1'),
     cell(svg(conn.network_off, C.muted, 0.3), 'bridge offline', 'network_off', '#9ca3af op.0.3'),
 ]));
 
-sections.push(section('Header — device menu', ['all integrations'], 'Opens the Home Assistant device page. Card-own dots rather than an MDI glyph, so it matches the other header icons in weight.', [
-    cell(`<svg width="28" height="28" viewBox="0 0 24 24" style="opacity:.5"><g fill="#6b7280"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></g></svg>`, 'more info (⋮)', 'card-own dots', 'var(--secondary-text-color) op.0.5'),
-]));
-
-sections.push(section('Charger — header', ['oralb_live'], 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Full strength while the data actually arrives through it (data_source = charger_bridge), quieter otherwise — an idle station is the normal state between sessions, not a fault.', [
+header.push(section('Charger', ['oralb_live'], 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Full strength while the data actually arrives through it (data_source = charger_bridge), quieter otherwise — an idle station is the normal state between sessions, not a fault.', [
     cell(svg(conn.charger, C.btActive), 'data via charger', 'card-own SVG (CONN_ICONS.charger)', '#0082fc op.1'),
     cell(svg(conn.charger, C.primary, 0.55), 'charger paired, idle', 'card-own SVG (CONN_ICONS.charger)', 'var(--primary-color) op.0.55'),
+]));
+
+header.push(section('Device menu', ['all integrations'], 'Opens the Home Assistant device page. Card-own dots rather than an MDI glyph, so it matches the other header icons in weight.', [
+    cell(`<svg width="28" height="28" viewBox="0 0 24 24" style="opacity:.5"><g fill="#6b7280"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></g></svg>`, 'more info (⋮)', 'card-own dots', 'var(--secondary-text-color) op.0.5'),
 ]));
 
 const batLevels = [
@@ -156,15 +174,15 @@ const batLevels = [
     [mdiBatteryCharging, 'charging (any level)', 'battery-charging', C.green, 'colour follows level'],
 ];
 
-sections.push(section('Battery — chip + corner', ['all integrations'], 'Icon step: ceil(level/10)·10 (_getBatteryIcon) · colour: ≤15 red, ≤30 amber, otherwise green (_getBatteryChipColor).', batLevels.map(([p, s, n, c, hx]) => cell(svg(p, c), s, `mdi:${n}`, hx))));
+chips.push(section('Battery', ['all integrations'], 'Icon step: ceil(level/10)·10 (_getBatteryIcon) · colour: ≤15 red, ≤30 amber, otherwise green (_getBatteryChipColor).', batLevels.map(([p, s, n, c, hx]) => cell(svg(p, c), s, `mdi:${n}`, hx))));
 
-sections.push(section('Pressure — chip + corner', ['oralb', 'oralb_live', 'philips_sonicare_ble', 'laifen_ble · Wave Pro'], 'A drawn staircase rather than an icon, so the level is visible without reading the value. Chip and corner show the same bars. Traffic-light palette: pressing too hard is a warning, unlike intensity.', [
+chips.push(section('Pressure', ['oralb', 'oralb_live', 'philips_sonicare_ble', 'laifen_ble · Wave Pro'], 'A drawn staircase rather than an icon, so the level is visible without reading the value. Chip and corner show the same bars. Traffic-light palette: pressing too hard is a warning, unlike intensity.', [
     cell(pressureBars(1, C.amber), 'low', 'bars 1/4', '#d97706'),
     cell(pressureBars(2, C.green), 'normal / medium', 'bars 2/4', '#16a34a'),
     cell(pressureBars('all', C.red), 'high', 'bars 4/4', '#dc2626'),
 ]));
 
-sections.push(section('Intensity — chip + corner', ['philips_sonicare_ble', 'laifen_ble'], 'A drawn dial rather than an icon: a Laifen handle reports a level of 1-10 (11-20 in the high-frequency mode), and three speedometer variants could express almost none of it. Chip and corner show the same dial, only at different sizes. Deliberately NOT the traffic-light palette — intensity is a chosen setting, a high level must never read as a warning.', [
+chips.push(section('Intensity', ['philips_sonicare_ble', 'laifen_ble'], 'A drawn dial rather than an icon: a Laifen handle reports a level of 1-10 (11-20 in the high-frequency mode), and three speedometer variants could express almost none of it. Chip and corner show the same dial, only at different sizes. Deliberately NOT the traffic-light palette — intensity is a chosen setting, a high level must never read as a warning.', [
     cell(intensityDial(0.08, C.intLow), 'strength 1 of 10', 'drawn arc + needle', '#0891b2'),
     cell(intensityDial(0.45, C.intMed), 'strength 5 of 10', 'drawn arc + needle', '#7c3aed'),
     cell(intensityDial(0.72, C.intMed), 'strength 8 of 10', 'drawn arc + needle', '#7c3aed'),
@@ -188,18 +206,18 @@ const modes = [
     ['tongue_care', mdiEmoticonTongueOutline, 'emoticon-tongue-outline'],
     ['unknown mode', mdiBrushVariant, 'brush-variant (default)'],
 ];
-sections.push(section('Mode — chip + corner', ['oralb', 'oralb_live', 'philips_sonicare_ble · settable', 'laifen_ble · settable'], 'Settable on the latter two. All modes share one blue; only "unavailable" is muted.',
+chips.push(section('Mode', ['oralb', 'oralb_live', 'philips_sonicare_ble · settable', 'laifen_ble · settable'], 'Settable on the latter two. All modes share one blue; only "unavailable" is muted.',
     modes.map(([s, p, n]) => cell(svg(p, C.blue), s, `mdi:${n}`, '#2563eb'))
         .concat([cell(svg(mdiBrushVariant, C.muted), 'unavailable', 'mdi:brush-variant', '#9ca3af (muted)')])));
 
-sections.push(section('Score — chip, corner + done badge', ['xiaomi_ble'], 'Star step + traffic-light colour; the value text takes the same colour. Non-numeric scores keep the full gold star. The same star also fills the verdict slot on the done badge - Xiaomi reports a score only when the handle switches off, so it describes the session that just ended. It shares that slot with the Oral-B display face, which the two can do because no handle reports both.', [
+chips.push(section('Score', ['xiaomi_ble'], 'Star step + traffic-light colour; the value text takes the same colour. Non-numeric scores keep the full gold star. The same star also fills the verdict slot on the done badge - Xiaomi reports a score only when the handle switches off, so it describes the session that just ended. It shares that slot with the Oral-B display face, which the two can do because no handle reports both.', [
     cell(svg(mdiStarOutline, C.red), '&lt; 60', 'mdi:star-outline', '#dc2626'),
     cell(svg(mdiStarHalfFull, C.amber), '60–84', 'mdi:star-half-full', '#d97706'),
     cell(svg(mdiStar, C.gold), '≥ 85', 'mdi:star', '#c47f16'),
     cell(svg(mdiStar, C.gold), 'non-numeric', 'mdi:star', '#c47f16'),
 ]));
 
-sections.push(section('Brush head — chip + corner', ['philips_sonicare_ble · sub-device', 'xiaomi_ble · % left'], 'Card-own glyph. Fill steps in quarters (by % remaining); colour follows wear (_getBrushheadColor): &gt;40 green, 21–40 amber, ≤20 red → 6 visible states. The value text takes the same colour (like battery).', [
+chips.push(section('Brush head', ['philips_sonicare_ble · sub-device', 'xiaomi_ble · % left'], 'Card-own glyph. Fill steps in quarters (by % remaining); colour follows wear (_getBrushheadColor): &gt;40 green, 21–40 amber, ≤20 red → 6 visible states. The value text takes the same colour (like battery).', [
     cell(headSvg(4, C.green), '100–76 %', '4/4 segments', '#16a34a'),
     cell(headSvg(3, C.green), '75–51 %', '3/4 segments', '#16a34a'),
     cell(headSvg(2, C.green), '50–41 %', '2/4 segments', '#16a34a'),
@@ -210,7 +228,7 @@ sections.push(section('Brush head — chip + corner', ['philips_sonicare_ble · 
 
 const letterGlyph = (letter) =>
     `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px">${svg(mdiToothbrush, '#212121', 1, 22)}<span style="font-size:9px;font-weight:800;line-height:1;color:#212121">${letter}</span></span>`;
-sections.push(section('Head type — chip + corner', ['philips_sonicare_ble'], 'Neutral, no state colours: the type is information, not a warning. Wide layout: mdi:toothbrush + short family name. Compact icon-only layout: the family letter (the A in "A3") is tucked under the icon. Name and letter come from the type sensor’s family_name/family_letter attributes (single source in the integration; C/W/G/A/S official, T/N stand-ins for TongueCare+ and non-RFID). Without the attributes the full state text is shown, wrapped/clamped to two lines, with a plain icon. Hidden while no head is attached.', [
+chips.push(section('Head type', ['philips_sonicare_ble'], 'Neutral, no state colours: the type is information, not a warning. Wide layout: mdi:toothbrush + short family name. Compact icon-only layout: the family letter (the A in "A3") is tucked under the icon. Name and letter come from the type sensor’s family_name/family_letter attributes (single source in the integration; C/W/G/A/S official, T/N stand-ins for TongueCare+ and non-RFID). Without the attributes the full state text is shown, wrapped/clamped to two lines, with a plain icon. Hidden while no head is attached.', [
     cell(svg(mdiToothbrush, '#212121'), 'any type (wide)', 'mdi:toothbrush', '#212121 (theme text)'),
     cell(letterGlyph('C'), 'Clean (compact)', 'family_letter attr', '#212121 (theme text)'),
     cell(letterGlyph('W'), 'White (compact)', 'family_letter attr', '#212121 (theme text)'),
@@ -238,7 +256,7 @@ const faceCell = (path, color, hexLabel, state, name, code) => `
       <div class="hx"><span class="sw" style="background:${color}"></span>${hexLabel}</div>
     </div>`;
 
-sections.push(section('Oral-B display face — done badge', ['oralb_live'],
+badge.push(section('Oral-B display face', ['oralb_live'],
     'Shares the verdict slot on the badge with the Xiaomi score - no handle reports both. The handle\'s own verdict (FF0A), latched at the end of a session and shown beside the badge text — never as a chip, because the sensor reads "off" between sessions and changes with pressure while brushing. 34px, well above the 24px chip size: the star-eyes face collapses to dots below that. Gold is deliberately absent — it belongs to the score chip, and a third accent clashes with a badge that is already green or amber; "perfect" and "excellent" share green and are told apart by shape. Only three values are decoded (issue #20); every other value shows a question mark plus its raw name so users can report what their handle displayed.', [
     faceCell(smiley.SMILEY_MEDAL, C.green, '#16a34a', 'special_11 — perfect', 'mdi:medal — time AND pressure fulfilled'),
     faceCell(smiley.SMILEY_STAR_EYES, C.green, '#16a34a', 'special_10 — excellent', 'card-own SVG — star eyes, full smile'),
@@ -249,6 +267,16 @@ sections.push(section('Oral-B display face — done badge', ['oralb_live'],
     faceCell(smiley.SMILEY_UNKNOWN, C.muted, '#9ca3af (muted)', 'any future value', 'mdi:help-circle-outline + raw value', 'special_12'),
 ]));
 
+// The other half of the same slot. Shown here as well as in the chip group,
+// because the question this group answers is "what can appear on my badge" -
+// and a reader who only saw the Oral-B face above would conclude, wrongly,
+// that a badge without one is broken.
+badge.push(section('Xiaomi score', ['xiaomi_ble'], 'Same star and same tiers as the score chip, drawn at badge size. Xiaomi reports a score only as the handle switches off, so it describes the session that just ended - which is what the badge is for. A handle reports either this or the Oral-B face, never both, so the slot never has to choose. Unlike the chip, only a numeric score reaches the badge: the chip can show a full gold star for a value it cannot rank, but a verdict slot showing the best possible star for an unranked value would be a claim, not a reading.', [
+    faceCell(mdiStarOutline, C.red, '#dc2626', '&lt; 60', 'mdi:star-outline'),
+    faceCell(mdiStarHalfFull, C.amber, '#d97706', '60–84', 'mdi:star-half-full'),
+    faceCell(mdiStar, C.gold, '#c47f16', '≥ 85', 'mdi:star'),
+]));
+
 const swatch = (hex, role, where) => `
     <div class="cell">
       <div class="ic"><span class="bigsw" style="background:${hex}"></span></div>
@@ -256,7 +284,7 @@ const swatch = (hex, role, where) => `
       <div class="nm">${where}</div>
       <div class="hx">${hex}</div>
     </div>`;
-sections.push(section('Other colour roles (not state icons)', null, 'Design tones — deliberately outside the traffic-light palette.', [
+other.push(section('Other colour roles (not state icons)', null, 'Design tones — deliberately outside the traffic-light palette.', [
     swatch('#2563eb', 'Chip blue', 'mode chip, selector, compact hint'),
     swatch('#3b82f6', 'Progress start', 'gradient start (blue)'),
     swatch('#16a34a', 'Progress end', 'gradient end (= traffic-light green)'),
@@ -276,10 +304,20 @@ const html = `<!doctype html>
   body { margin:0; padding:28px; background:#1c1c1e; font-family:Roboto,sans-serif; }
   h1 { text-align:center; color:#e5e7eb; font-size:18px; font-weight:600; margin:0 0 4px; }
   .sub { text-align:center; color:#9ca3af; font-size:12px; margin:0 0 24px; }
-  .section { background:#fff; border-radius:12px; padding:16px 18px; max-width:1060px;
-             margin:0 auto 20px; box-shadow:0 4px 16px rgba(0,0,0,.4); }
+  /* One panel per card area, so the white section cards read as members of a
+     group rather than as one long undifferentiated stack. */
+  .group { max-width:1100px; margin:0 auto 26px; padding:16px 16px 4px;
+           background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+           border-radius:18px; }
+  .ghead { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+           padding:0 4px 10px; margin:0 0 14px; border-bottom:1px solid rgba(255,255,255,.1); }
+  .ghead h2 { font-size:13px; font-weight:700; color:#e5e7eb; margin:0;
+              letter-spacing:.1em; text-transform:uppercase; white-space:nowrap; }
+  .ghead p { font-size:11px; color:#9ca3af; margin:0; flex:1; min-width:280px; }
+  .section { background:#fff; border-radius:12px; padding:16px 18px;
+             margin:0 0 14px; box-shadow:0 4px 16px rgba(0,0,0,.4); }
   .head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:0 0 4px; }
-  h2 { font-size:14px; color:#212121; margin:0; }
+  h3 { font-size:14px; color:#212121; margin:0; }
   .pills { display:flex; gap:4px; flex-wrap:wrap; }
   .pill { font-size:10px; font-weight:600; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
           padding:2px 8px; border-radius:999px; background:#eef1f5; color:#3f4756;
@@ -302,7 +340,18 @@ const html = `<!doctype html>
 <h1>Toothbrush Card — icon &amp; colour reference</h1>
 <p class="sub">Traffic-light palette: green #16a34a · amber #d97706 · red #dc2626 · gold #c47f16 — generated by scripts/gen_icon_overview.mjs</p>
 <p class="sub">Last generated: ${generated} · toothbrush-card v${version}</p>
-${sections.join('\n')}
+${group('Header',
+    'The strip along the top of the card: how the card is hearing from the handle, and the way into the device page. These are transport states, never brushing ones - which is why they are the only icons that stay put while a session runs. Card-own SVG at 18px throughout, and all of them separate their states by weight and shape rather than by colour alone.',
+    header)}
+${group('Chips &amp; corner markers',
+    'One reading each. In the wide layout they sit in the chip row as icon + label + value; in the compact layout (≤ 350px) the label and value go and the icon alone carries the state, either in the row or as a corner marker on the tooth diagram. Same icon in both places - only the size changes.',
+    chips)}
+${group('Done badge',
+    'Not a chip, and the one exception to the grid above: a single verdict on the session that just finished, latched at its end and cleared at the next start. There is one slot for it, and exactly one of the two below fills it - which of them depends on the handle, not on a setting.',
+    badge)}
+${group('Palette',
+    'Tones that carry no state of their own.',
+    other)}
 </body>
 </html>
 `;
