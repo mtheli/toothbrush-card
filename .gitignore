@@ -9,6 +9,12 @@ TODO.md
 !/package.json
 !/package-lock.json
 
+# Per-session captures from adv_capture.py --watch. Unanchored on purpose:
+# watch mode writes wherever it is pointed, and the rule above only covers the
+# repository root, so a capture next to the script would otherwise be staged
+# along with everything else.
+oralb_session_*.json
+
 # Generated at build time (build timestamp shown in editor)
 src/build-info.js
 

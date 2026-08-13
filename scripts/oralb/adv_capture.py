@@ -20,6 +20,32 @@ do not pause the brush between sectors, just move it:
     python3 scripts/oralb/adv_capture.py --json capture.json
     python3 scripts/oralb/adv_capture.py --mac XX:XX:XX:XX:XX:XX  # lock to one device
 
+    python3 scripts/oralb/adv_capture.py --watch captures/   # leave it running
+
+Watch mode
+----------
+``--watch DIR`` is for collecting rather than for one deliberate capture: it
+keeps listening and writes one file per session into DIR, so nobody has to
+remember to start a recording before brushing. Several brushes at once are
+already handled - a household with two of them produces two sets of files,
+told apart by the last four digits of the address.
+
+Nothing is connected to. An Oral-B broadcasts, so listening costs the brush
+nothing at all and the scanner can be left running for weeks. That is the
+whole difference to the Sonicare recorder next door, which has to hold the
+handle's single BLE slot and therefore fights with Home Assistant over it.
+
+A session is cut two ways, because brushes end them two ways. Normally the
+timer resets and that frame closes the session - it is kept, since it is the
+evidence that the counters were wiped. But a handle can also just stop
+advertising mid-summary and never come back, which is what ``--settle``
+covers: a session whose brush has been silent that long is written out as it
+stands. Without it, a session that ended in silence would sit in memory until
+the script was stopped, which for something meant to run for weeks means never.
+
+Runs shorter than ``--min-session`` are dropped. They are button fumbles, and
+a directory of two-second captures is worse than no directory.
+
 Display face / smiley (sector byte, bits 3-5)
 ---------------------------------------------
 The sector byte is not one number: its low three bits carry the quadrant, and
@@ -229,15 +255,82 @@ HEARTBEAT_INTERVAL = 15  # seconds between "still listening" lines
 
 
 class Capture:
-    def __init__(self, mac_filter: str | None, json_path: Path | None):
+    def __init__(self, mac_filter: str | None, json_path: Path | None,
+                 watch_dir: Path | None = None, settle: float = 60.0,
+                 min_session: float = 15.0):
         self.mac_filter = mac_filter.upper() if mac_filter else None
         self.json_path = json_path
+        self.watch_dir = watch_dir
+        self.settle = settle
+        self.min_session = min_session
         self.records: list[Advertisement] = []
         self.last_record_by_mac: dict[str, Advertisement] = {}
+        # Watch mode buffers the frames of the session in progress per brush,
+        # so two handles running at once do not land in the same file.
+        self.session_by_mac: dict[str, list[Advertisement]] = {}
+        self.written = 0
         self.unknown_seen: set[int] = set()
         self.unknown_smiley_seen: set[int] = set()
         self._stop = asyncio.Event()
         self._capture_end: float | None = None
+
+    # ── Watch mode ──────────────────────────────────────────────────────
+    # Nothing is connected to here: an Oral-B broadcasts, so listening costs
+    # the brush nothing and the scanner can be left running indefinitely.
+    # What watch mode adds is the cut: one file per session instead of one
+    # file per run of the script.
+
+    def _feed_session(self, record: Advertisement) -> None:
+        """Collect one advertisement into the session buffer for its brush."""
+        buffer = self.session_by_mac.setdefault(record.address, [])
+        if record.brush_time:
+            buffer.append(record)
+        elif buffer:
+            # The frame that shows the timer wiped belongs to the session it
+            # ends - it is the evidence that the brush cleared its counters.
+            buffer.append(record)
+            self._write_session(record.address, "timer cleared")
+
+    def _write_session(self, mac: str, reason: str) -> None:
+        records = self.session_by_mac.pop(mac, [])
+        if not records:
+            return
+        duration = max((r.brush_time or 0) for r in records)
+        stamp = time.strftime("%Y%m%d_%H%M%S")
+        if duration < self.min_session:
+            print(f"[{time.strftime('%H:%M:%S')}]  {mac}  discarded {duration}s "
+                  f"({reason}) - shorter than --min-session")
+            return
+        # The last four hex digits only: enough to tell two brushes apart in a
+        # directory listing, and the full address is in the file anyway.
+        short = mac.replace(":", "")[-4:].lower()
+        path = self.watch_dir / f"oralb_session_{short}_{stamp}.json"
+        path.write_text(json.dumps({
+            "generated_at": datetime.now(tz=timezone.utc).isoformat(),
+            "oralb_ble_version_reference": "1.1.1",
+            "known_sector_bytes": sorted(KNOWN_SECTOR_BYTES),
+            "known_smiley_values": sorted(KNOWN_SMILEY_VALUES),
+            "known_pressure_bytes": sorted(KNOWN_PRESSURE_BYTES),
+            "advertisements": [asdict(r) for r in records],
+        }, indent=2))
+        self.written += 1
+        faces = {r.smiley for r in records if r.smiley is not None}
+        print(f"[{time.strftime('%H:%M:%S')}]  {mac}  wrote {duration}s session "
+              f"({len(records)} adverts, faces {sorted(faces) or '-'}, {reason})"
+              f" -> {path.name}")
+
+    def _flush_silent_sessions(self, now: float) -> None:
+        """Close sessions whose brush simply stopped advertising.
+
+        The timer does not always reset: a handle can go silent mid-summary
+        and never come back, which in a one-shot run just ends with the
+        capture. Left unhandled here, that session would sit in the buffer
+        until the script is stopped - which for something meant to run for
+        weeks means it is never written at all.
+        """
+        for mac, buffer in list(self.session_by_mac.items()):
+            if buffer and now - buffer[-1].ts >= self.settle:
+                self._write_session(mac, f"silent for {self.settle:.0f}s")
 
     def _callback(self, device: BLEDevice, adv: AdvertisementData) -> None:
         mfr = adv.manufacturer_data.get(ORALB_MANUFACTURER_ID)
@@ -258,6 +351,8 @@ class Capture:
             **fields,
         )
         self.records.append(record)
+        if self.watch_dir:
+            self._feed_session(record)
 
         # Live output: only print on interesting events so the log isn't
         # flooded with duplicates. Issue #3 cares about sector changes; issue #4
@@ -333,12 +428,22 @@ class Capture:
             print(f"Filtering for MAC: {self.mac_filter}")
         else:
             print("Listening to ALL Oral-B devices in range.")
-        print("Start a brushing session and keep the motor running through")
-        print("every sector, spending ~5-10 seconds in each one. For the")
-        print("pressure/status bits: hold each button 1-2 s and push too hard")
-        print("once. For the display face, note what the handle actually shows")
-        print("at the end and let it keep advertising for a few seconds before")
-        print("you stop. Press Ctrl+C once the routine (and post-session) ends.")
+        if self.watch_dir:
+            # Different instructions on purpose: watch mode is meant to be
+            # started once and forgotten, so telling the operator to press
+            # Ctrl+C when the routine ends would be exactly wrong.
+            print(f"Watching. One file per session into {self.watch_dir}")
+            print(f"Sessions under {self.min_session:.0f}s are dropped; a session whose")
+            print(f"brush goes silent is closed after {self.settle:.0f}s.")
+            print("Nothing connects to the brush - leave this running as long")
+            print("as you like. Ctrl+C stops it.")
+        else:
+            print("Start a brushing session and keep the motor running through")
+            print("every sector, spending ~5-10 seconds in each one. For the")
+            print("pressure/status bits: hold each button 1-2 s and push too hard")
+            print("once. For the display face, note what the handle actually shows")
+            print("at the end and let it keep advertising for a few seconds before")
+            print("you stop. Press Ctrl+C once the routine (and post-session) ends.")
         if self.json_path:
             print(f"JSON output: {self.json_path}")
         print("=" * 78)
@@ -369,6 +474,8 @@ class Capture:
             if not self.last_record_by_mac:
                 print(f"[{time.strftime('%H:%M:%S')}]  ♥ waiting for first advertisement …")
                 continue
+            if self.watch_dir:
+                self._flush_silent_sessions(now)
             for mac, rec in self.last_record_by_mac.items():
                 age = now - rec.ts
                 sector_str = f"0x{rec.sector:02X}" if rec.sector is not None else "?"
@@ -579,9 +686,41 @@ def main() -> int:
         type=Path,
         help="Write full capture to this JSON file (recommended for bug reports)",
     )
+    parser.add_argument(
+        "--watch",
+        type=Path,
+        metavar="DIR",
+        help="Run indefinitely and write one file per session into DIR, "
+             "instead of one file for the whole run. Meant to be left running.",
+    )
+    parser.add_argument(
+        "--settle",
+        type=float,
+        default=60.0,
+        metavar="SECONDS",
+        help="In --watch: close a session this long after the brush goes "
+             "silent, for the handles that never reset their timer. "
+             "Default: 60",
+    )
+    parser.add_argument(
+        "--min-session",
+        type=float,
+        default=15.0,
+        metavar="SECONDS",
+        help="In --watch: sessions shorter than this are button fumbles and "
+             "are not written. Default: 15",
+    )
     args = parser.parse_args()
 
-    capture = Capture(mac_filter=args.mac, json_path=args.json)
+    if args.watch:
+        args.watch.mkdir(parents=True, exist_ok=True)
+        # Redirected output is block-buffered, which for something meant to run
+        # for weeks means the log stays empty until a buffer happens to fill.
+        sys.stdout.reconfigure(line_buffering=True)
+
+    capture = Capture(mac_filter=args.mac, json_path=args.json,
+                      watch_dir=args.watch, settle=args.settle,
+                      min_session=args.min_session)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
