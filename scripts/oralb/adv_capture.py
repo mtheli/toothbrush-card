@@ -8,7 +8,7 @@ Purpose
 Capture the raw manufacturer-data bytes that an Oral-B toothbrush broadcasts
 during a brushing session, to validate/extend the advertisement decoding in
 the `Bluetooth-Devices/oralb-ble` Python library (sector byte, pressure/status
-byte) and to diagnose post-session behaviour.
+byte), to decode the display face, and to diagnose post-session behaviour.
 
 Usage
 -----
@@ -19,6 +19,33 @@ do not pause the brush between sectors, just move it:
     python3 scripts/oralb/adv_capture.py
     python3 scripts/oralb/adv_capture.py --json capture.json
     python3 scripts/oralb/adv_capture.py --mac XX:XX:XX:XX:XX:XX  # lock to one device
+
+Display face / smiley (sector byte, bits 3-5)
+---------------------------------------------
+The sector byte is not one number: its low three bits carry the quadrant, and
+bits 3-5 carry the handle's display face. Upstream masks the upper bits off
+("The upper bits are a display flag and are masked off", oralb_ble/parser.py),
+so the face is thrown away before Home Assistant ever sees it — which is why
+this script decodes it itself.
+
+That split is documented for the older non-iO brushes in
+wise86-android/OralBlue_python (Protocol.md, "byte 15: bit 0,1,2: quadrant /
+bit 3,4,5: smiley") and it also holds on iO protocol 6 and 8, confirmed
+against two donated captures.
+
+Two of the values are known from a handle that was watched while it reported
+them (mtheli/toothbrush-card#20): 10 is the star-eyed face, 11 is the
+"fireworks" award for cleaning time AND pressure fulfilled. Note those two
+came from the GATT characteristic FF0A, which is a full byte, whereas this
+3-bit advertisement field can only carry 0-7 — do not assume the two scales
+are identical until a session is captured on both at once.
+
+What the captures show so far is that the face the handle settles on at the
+end tracks how long the session ran: 51 s -> 0, 74 s -> 3, 123 s (complete)
+-> 5. The end-of-run summary therefore prints one row per session with its
+duration next to the settled face, which is the measurement this script now
+exists to collect. Values 2, 4, 6 and 7 have never been observed; a session
+that produces one is worth reporting.
 
 Pressure/status byte
 --------------------
@@ -69,8 +96,11 @@ from bleak.backends.device import BLEDevice
 
 ORALB_MANUFACTURER_ID = 0x00DC
 
-# Current upstream mapping (oralb_ble 1.1.0). Anything not in here is
-# interesting and what we want to capture.
+# The literal SECTOR_MAP oralb_ble shipped up to 1.1.0, before it was replaced
+# by a decoder that masks the byte. Every one of these 18 values decomposes
+# cleanly into quadrant (low 3 bits) + display face (bits 3-5), which is what
+# confirmed the split: e.g. 27 = face 3/quadrant 3, and the five "success"
+# bytes are exactly face 5 (41, 42, 43, 47) and face 6 (55).
 KNOWN_SECTOR_BYTES = {
     1, 9,
     2, 10,
@@ -78,6 +108,10 @@ KNOWN_SECTOR_BYTES = {
     4, 7, 15, 31, 39,
     41, 42, 43, 47, 55,  # "success"
 }
+
+# Faces seen in an advertisement so far. Anything outside this set is new and
+# worth reporting; see the module docstring for where each one comes from.
+KNOWN_SMILEY_VALUES = {0, 1, 3, 5, 6}
 
 # Current upstream PRESSURE mapping (oralb_ble 1.1.1). Values outside this
 # set surface as "unknown pressure N" sensor states in Home Assistant.
@@ -144,9 +178,12 @@ class Advertisement:
     brush_time: int | None = None
     mode: int | None = None
     sector: int | None = None
+    quadrant: int | None = None
+    smiley: int | None = None
     sector_timer: int | None = None
     number_of_sectors: int | None = None
     unknown_sector: bool = False
+    unknown_smiley: bool = False
     unknown_pressure: bool = False
 
 
@@ -155,8 +192,10 @@ def parse_manufacturer(data: bytes) -> dict[str, int | bool | str | None]:
     out: dict[str, int | bool | str | None] = {
         "model_type": None, "state": None, "state_label": None,
         "pressure": None, "brush_time": None, "mode": None,
-        "sector": None, "sector_timer": None, "number_of_sectors": None,
-        "unknown_sector": False, "unknown_pressure": False,
+        "sector": None, "quadrant": None, "smiley": None,
+        "sector_timer": None, "number_of_sectors": None,
+        "unknown_sector": False, "unknown_smiley": False,
+        "unknown_pressure": False,
     }
     if len(data) > 1:
         out["model_type"] = data[1]
@@ -174,6 +213,11 @@ def parse_manufacturer(data: bytes) -> dict[str, int | bool | str | None]:
         s = data[8]
         out["sector"] = s
         out["unknown_sector"] = s not in KNOWN_SECTOR_BYTES
+        # Low three bits = quadrant (0 none, 7 = "last quadrant" sentinel),
+        # bits 3-5 = display face. See the module docstring.
+        out["quadrant"] = s & 0x07
+        out["smiley"] = (s >> 3) & 0x07
+        out["unknown_smiley"] = out["smiley"] not in KNOWN_SMILEY_VALUES
     if len(data) > 9:
         out["sector_timer"] = data[9]
     if len(data) > 10:
@@ -191,6 +235,7 @@ class Capture:
         self.records: list[Advertisement] = []
         self.last_record_by_mac: dict[str, Advertisement] = {}
         self.unknown_seen: set[int] = set()
+        self.unknown_smiley_seen: set[int] = set()
         self._stop = asyncio.Event()
         self._capture_end: float | None = None
 
@@ -217,12 +262,21 @@ class Capture:
         # Live output: only print on interesting events so the log isn't
         # flooded with duplicates. Issue #3 cares about sector changes; issue #4
         # cares about state transitions and the post-session brush_time reset;
-        # the pressure/status byte carries button presses and pressure events.
+        # the pressure/status byte carries button presses and pressure events;
+        # toothbrush-card#20 cares about the display face, whose changes are
+        # called out by name so they can be matched against the handle.
         s = record.sector
         p = record.pressure
         prev = self.last_record_by_mac.get(device.address)
         is_new_sector = s is not None and (prev is None or s != prev.sector)
         is_unknown = bool(record.unknown_sector) and s not in self.unknown_seen
+        face_changed = record.smiley is not None and (
+            prev is None or record.smiley != prev.smiley
+        )
+        new_face = (
+            bool(record.unknown_smiley)
+            and record.smiley not in self.unknown_smiley_seen
+        )
         state_changed = prev is not None and prev.state != record.state
         pressure_changed = p is not None and (prev is None or p != prev.pressure)
         time_reset = (
@@ -231,11 +285,20 @@ class Capture:
             and record.brush_time == 0
         )
 
-        if is_new_sector or is_unknown or state_changed or pressure_changed or time_reset:
+        if (
+            is_new_sector or is_unknown or face_changed
+            or state_changed or pressure_changed or time_reset
+        ):
             events: list[str] = []
             if is_unknown:
                 events.append("UNKNOWN — CAPTURE THIS!")
                 self.unknown_seen.add(s)  # type: ignore[arg-type]
+            if face_changed:
+                was = "?" if prev is None or prev.smiley is None else str(prev.smiley)
+                events.append(f"face {was}→{record.smiley}")
+            if new_face:
+                events.append(f"FACE {record.smiley} NEVER SEEN BEFORE — REPORT THIS!")
+                self.unknown_smiley_seen.add(record.smiley)  # type: ignore[arg-type]
             if state_changed:
                 events.append(f"state {prev.state_label}→{record.state_label}")
             if pressure_changed:
@@ -246,7 +309,11 @@ class Capture:
             marker = "???" if record.unknown_sector else "   "
             tag = ("  [" + "; ".join(events) + "]") if events else ""
             state_str = f"{record.state}/{record.state_label}" if record.state is not None else "?"
-            sector_str = f"0x{s:02X}({s})" if s is not None else "?"
+            sector_str = (
+                f"0x{s:02X}(q{record.quadrant}/face{record.smiley})"
+                if s is not None
+                else "?"
+            )
             print(
                 f"[{time.strftime('%H:%M:%S')}] {marker} {device.address}"
                 f"  state={state_str:<12} pressure={record.pressure}"
@@ -269,7 +336,9 @@ class Capture:
         print("Start a brushing session and keep the motor running through")
         print("every sector, spending ~5-10 seconds in each one. For the")
         print("pressure/status bits: hold each button 1-2 s and push too hard")
-        print("once. Press Ctrl+C once the routine (and post-session) ends.")
+        print("once. For the display face, note what the handle actually shows")
+        print("at the end and let it keep advertising for a few seconds before")
+        print("you stop. Press Ctrl+C once the routine (and post-session) ends.")
         if self.json_path:
             print(f"JSON output: {self.json_path}")
         print("=" * 78)
@@ -341,10 +410,15 @@ class Capture:
                 by_sector[r.sector] = by_sector.get(r.sector, 0) + 1
                 if r.unknown_sector:
                     unknown.add(r.sector)
-            print("  sector byte → count (hex, dec):")
+            print("  sector byte → count (quadrant = low 3 bits, face = bits 3-5):")
             for s in sorted(by_sector):
                 tag = "  <— UNKNOWN" if s in unknown else ""
-                print(f"    0x{s:02X} ({s:>3}): {by_sector[s]:>4}{tag}")
+                if (s >> 3) & 0x07 not in KNOWN_SMILEY_VALUES:
+                    tag += "  <— NEW FACE, REPORT THIS"
+                print(
+                    f"    0x{s:02X} ({s:>3}): {by_sector[s]:>4}"
+                    f"   quadrant={s & 0x07}  face={(s >> 3) & 0x07}{tag}"
+                )
 
             # Count each distinct pressure/status byte
             by_pressure: dict[int, int] = {}
@@ -363,6 +437,7 @@ class Capture:
                     f" {by_pressure[p]:>4}{tag}"
                 )
 
+            self._print_face_sessions(recs)
             self._print_post_session_timeline(recs)
 
         # Save JSON if requested
@@ -371,13 +446,73 @@ class Capture:
                 "generated_at": datetime.now(tz=timezone.utc).isoformat(),
                 "oralb_ble_version_reference": "1.1.1",
                 "known_sector_bytes": sorted(KNOWN_SECTOR_BYTES),
+                "known_smiley_values": sorted(KNOWN_SMILEY_VALUES),
                 "known_pressure_bytes": sorted(KNOWN_PRESSURE_BYTES),
                 "advertisements": [asdict(r) for r in self.records],
             }
             self.json_path.write_text(json.dumps(payload, indent=2))
             print(f"\nWrote {len(self.records)} records to {self.json_path}")
-            print("→ Attach this file to a GitHub issue at")
+            print("→ For sector/pressure decoding, attach this file at")
             print("  https://github.com/Bluetooth-Devices/oralb-ble/issues")
+            print("→ For display faces, attach it plus what the handle showed at")
+            print("  https://github.com/mtheli/toothbrush-card/issues/20")
+
+    @staticmethod
+    def _split_sessions(recs: list[Advertisement]) -> list[list[Advertisement]]:
+        """Group adverts into sessions by the brushing timer.
+
+        A session runs from the first frame with a non-zero timer to the last
+        one before it resets. The settled face matters more than the frames
+        during brushing, and it arrives *after* the motor stops but *before*
+        the timer clears — the handle keeps reporting the final duration while
+        it shows the summary — so the timer, not the state, delimits a session.
+        """
+        sessions: list[list[Advertisement]] = []
+        current: list[Advertisement] = []
+        for r in recs:
+            if r.brush_time:
+                current.append(r)
+            elif current:
+                sessions.append(current)
+                current = []
+        if current:
+            sessions.append(current)
+        return sessions
+
+    def _print_face_sessions(self, recs: list[Advertisement]) -> None:
+        """One row per session: how long it ran, next to the face the handle
+        settled on. Collecting these rows is the point of the face decoding —
+        the three donated captures so far read 51 s → 0, 74 s → 3 and
+        123 s → 5, and every further row either supports that or breaks it."""
+        sessions = self._split_sessions(recs)
+        print("\n  Display face per session:")
+        if not sessions:
+            print("    no session seen (the brushing timer never left 0)")
+            return
+
+        print("    #  started   duration  face(s) while running  settled face")
+        for i, session in enumerate(sessions, start=1):
+            duration = max((r.brush_time or 0) for r in session)
+            during = sorted(
+                {r.smiley for r in session
+                 if r.state_label == "running" and r.smiley is not None}
+            )
+            settled = next(
+                (r.smiley for r in reversed(session)
+                 if r.state_label != "running" and r.smiley is not None),
+                session[-1].smiley,
+            )
+            started = time.strftime("%H:%M:%S", time.localtime(session[0].ts))
+            during_str = ", ".join(str(f) for f in during) or "-"
+            tag = ""
+            if settled is not None and settled not in KNOWN_SMILEY_VALUES:
+                tag = "  <— NEW, REPORT THIS"
+            print(
+                f"    {i:>2}  {started}  {duration:>6}s  {during_str:>21}"
+                f"  {settled if settled is not None else '?':>12}{tag}"
+            )
+        print("    (a session with no post-brushing frames reports its last")
+        print("     running face instead — leave the brush advertising to avoid that)")
 
     def _print_post_session_timeline(self, recs: list[Advertisement]) -> None:
         """Issue #4: after the last 'running' advert, when does the brush clear

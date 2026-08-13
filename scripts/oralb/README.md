@@ -5,7 +5,26 @@ manufacturer-data bytes an Oral-B toothbrush broadcasts during a brushing
 session. It never connects or pairs with the brush — it only listens.
 Captures like these are used to validate and extend the advertisement
 decoding in the upstream [`oralb-ble`](https://github.com/Bluetooth-Devices/oralb-ble)
-library (sector byte, pressure/status byte, post-session behaviour).
+library (sector byte, pressure/status byte, post-session behaviour), and to
+decode the handle's display face.
+
+## The display face
+
+The sector byte is two fields: the low three bits are the quadrant, bits 3–5
+are the face shown on the handle. Upstream masks the upper bits off, so the
+face never reaches Home Assistant through the passive path — this script
+decodes it and prints one row per session pairing the session's duration with
+the face the handle settled on.
+
+That pairing is the open question. Across the captures collected so far a
+51-second session settled on face `0`, a 74-second one on `3` and a complete
+123-second one on `5`, which suggests the face grades the session — but faces
+`2`, `4`, `6` and `7` have never been seen, and a session that produces one is
+worth reporting to
+[toothbrush-card#20](https://github.com/mtheli/toothbrush-card/issues/20).
+
+Note what the handle actually displays at the end and include it in the
+report; the numbers alone cannot say which drawing they stand for.
 
 ## Requirements
 
@@ -28,8 +47,10 @@ brushes are in range.
    ~5–10 seconds per sector — move between sectors without pausing.
 3. After the session ends, leave the script running for another minute or
    two — the brush keeps advertising for a while and the post-session frames
-   are valuable.
-4. Stop with `Ctrl+C` and attach the JSON file to the relevant issue.
+   are valuable. The settled display face only arrives in those frames, so
+   stopping too early loses it.
+4. Note what the handle shows on its screen at the end.
+5. Stop with `Ctrl+C` and attach the JSON file to the relevant issue.
 
 **Privacy note:** the JSON file contains your brush's Bluetooth MAC address
 (needed to correlate frames). If you prefer not to share it, search & replace
