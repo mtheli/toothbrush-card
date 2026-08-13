@@ -633,6 +633,20 @@ ha-card {
 .done-smiley.red   { color: #dc2626; }
 .done-smiley.muted { color: var(--disabled-text-color, #9ca3af); }
 
+/* The score shares the badge's glyph slot with the face - the two can never
+   appear together, one being oralb_live and the other Xiaomi. Unlike the raw
+   code under an undecoded face this is a real reading, so it is set at the
+   size of a value rather than of a debug note. */
+.done-score { --mdc-icon-size: 30px; width: 30px; height: 30px; }
+.done-face-value {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+.done-score.red,   .done-face-value.red   { color: #dc2626; }
+.done-score.amber, .done-face-value.amber { color: #d97706; }
+.done-score.gold,  .done-face-value.gold  { color: #c47f16; }
+
 /* ── BRUSH HEAD INDICATOR ── */
 /* Configurable corner markers (inline icon + value in any of 4 corners) */
 .card-corner {

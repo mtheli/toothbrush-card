@@ -206,3 +206,36 @@ describe('the chip row', () => {
             'rather than the lone battery chip the classic default would give');
     });
 });
+
+describe('the score on the finished-session badge', () => {
+    test('is the one from the session that just ended', async (t) => {
+        // Xiaomi reports a score only when the handle switches off, so the
+        // number the sensor carries during a session belongs to the previous
+        // one. Latching it at the end is what makes the badge honest.
+        t.mock.timers.enable({ apis: ['Date'], now: NOW });
+        const { el } = await xiaomiCard();
+
+        el.hass = xiaomiHass({ on: true, activeSince: 125, score: '61' });
+        el.render();
+        el.hass = xiaomiHass({ on: false, score: '88' });
+        el.render();
+
+        assert.equal(el._completed, true);
+        assert.equal(el._completedScore, '88', 'the score of this session, not the one before');
+    });
+
+    test('goes away when the next session starts', async (t) => {
+        t.mock.timers.enable({ apis: ['Date'], now: NOW });
+        const { el } = await xiaomiCard();
+        el.hass = xiaomiHass({ on: true, activeSince: 125, score: '61' });
+        el.render();
+        el.hass = xiaomiHass({ on: false, score: '88' });
+        el.render();
+        assert.equal(el._completedScore, '88');
+
+        el.hass = xiaomiHass({ on: true, activeSince: 2, score: '88' });
+        el.render();
+        assert.equal(el._completedScore, null,
+            'the badge cannot describe a session that has not finished');
+    });
+});

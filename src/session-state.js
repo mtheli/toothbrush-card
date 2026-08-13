@@ -39,6 +39,7 @@ export function initialSessionState() {
         stashedRecap: null,
         face: null,
         completedFace: null,
+        completedScore: null,
     };
 }
 
@@ -58,6 +59,7 @@ export function initialSessionState() {
  *   historyRecapEnabled - `history_recap` is not false
  *   durationLastChanged - when the duration entity last changed, as reported
  *   displayFace       - the face the handle's display shows now, or null
+ *   displayScore      - the score the handle reports now, or null
  *   faceWindow        - is the handle in a state that shows a session face
  *
  * Returns the new state plus two flags: `sessionStarted` for the caller to
@@ -75,6 +77,7 @@ export function nextSessionState(prev, {
     historyRecapEnabled = true,
     durationLastChanged = null,
     displayFace = null,
+    displayScore = null,
     faceWindow = false,
 }) {
     const state = { ...prev };
@@ -92,6 +95,7 @@ export function nextSessionState(prev, {
                     at: prev.completedAt,
                     full: prev.completedIsFull,
                     face: prev.completedFace,
+                    score: prev.completedScore,
                 }
                 : null;
             state.peakDuration = 0;
@@ -175,6 +179,19 @@ export function nextSessionState(prev, {
         state.face = displayFace;
     }
     state.completedFace = state.completed ? state.face : null;
+
+    // The score arrives with the switch-off itself rather than after a summary
+    // state, so it needs no window of its own - but it can still land a render
+    // late. Adopting it for as long as the recap is held covers that, and
+    // cannot stray into the next session: starting one clears the recap first.
+    // Xiaomi is the only integration that reports one, and only at the end of
+    // a session; between sessions the sensor keeps the last value, which is
+    // exactly what makes it safe to read here.
+    if (state.completed && !active && displayScore !== null && displayScore !== '') {
+        state.completedScore = displayScore;
+    } else if (!state.completed) {
+        state.completedScore = null;
+    }
 
     state.wasActiveSession = active;
     return { state, sessionStarted, loadHistoryRecap };

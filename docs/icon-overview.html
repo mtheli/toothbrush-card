@@ -402,10 +402,10 @@
 
   <div class="section">
     <div class="head">
-      <h2>Score — chip + corner</h2>
+      <h2>Score — chip, corner + done badge</h2>
       <div class="pills"><span class="pill">xiaomi_ble</span></div>
     </div>
-    <p class="note">Star step + traffic-light colour; the value text takes the same colour. Non-numeric scores keep the full gold star.</p>
+    <p class="note">Star step + traffic-light colour; the value text takes the same colour. Non-numeric scores keep the full gold star. The same star also fills the verdict slot on the done badge - Xiaomi reports a score only when the handle switches off, so it describes the session that just ended. It shares that slot with the Oral-B display face, which the two can do because no handle reports both.</p>
     <div class="grid">
     <div class="cell">
       <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" style="opacity:1"><path fill="#dc2626" d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z"/></svg></div>
@@ -576,7 +576,7 @@
       <h2>Oral-B display face — done badge</h2>
       <div class="pills"><span class="pill">oralb_live</span></div>
     </div>
-    <p class="note">The handle's own verdict (FF0A), latched at the end of a session and shown beside the badge text — never as a chip, because the sensor reads "off" between sessions and changes with pressure while brushing. 34px, well above the 24px chip size: the star-eyes face collapses to dots below that. Gold is deliberately absent — it belongs to the score chip, and a third accent clashes with a badge that is already green or amber; "perfect" and "excellent" share green and are told apart by shape. Only three values are decoded (issue #20); every other value shows a question mark plus its raw name so users can report what their handle displayed.</p>
+    <p class="note">Shares the verdict slot on the badge with the Xiaomi score - no handle reports both. The handle's own verdict (FF0A), latched at the end of a session and shown beside the badge text — never as a chip, because the sensor reads "off" between sessions and changes with pressure while brushing. 34px, well above the 24px chip size: the star-eyes face collapses to dots below that. Gold is deliberately absent — it belongs to the score chip, and a third accent clashes with a badge that is already green or amber; "perfect" and "excellent" share green and are told apart by shape. Only three values are decoded (issue #20); every other value shows a question mark plus its raw name so users can report what their handle displayed.</p>
     <div class="grid">
     <div class="cell">
       <div class="ic" style="height:44px">

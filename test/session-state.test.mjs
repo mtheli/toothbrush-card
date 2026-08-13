@@ -264,3 +264,47 @@ describe('the display face', () => {
         assert.equal(state.completedFace, 'special_11');
     });
 });
+
+describe('the score a handle reports at the end', () => {
+    test('is kept for as long as the recap is held', () => {
+        const { state } = run([
+            { active: true, duration: 60 },
+            { active: false, duration: 0, displayScore: '92' },
+        ]);
+        assert.equal(state.completed, true);
+        assert.equal(state.completedScore, '92');
+    });
+
+    test('is adopted even when it lands a render late', () => {
+        // Xiaomi puts the score in the switch-off advertisement, so it arrives
+        // with the transition at best - and a beat after it at worst.
+        const first = run([
+            { active: true, duration: 60 },
+            { active: false, duration: 0 },
+        ]);
+        assert.equal(first.state.completedScore, null, 'nothing yet');
+        const later = nextSessionState(first.state,
+            reading({ active: false, duration: 0, displayScore: '78' }));
+        assert.equal(later.state.completedScore, '78');
+    });
+
+    test('is not carried into the next session', () => {
+        // Starting a session clears the recap, and the score goes with it -
+        // otherwise a handle that reports none would show the previous one.
+        const held = run([
+            { active: true, duration: 60 },
+            { active: false, duration: 0, displayScore: '92' },
+        ]);
+        const started = nextSessionState(held.state,
+            reading({ active: true, duration: 3, displayScore: '92' }));
+        assert.equal(started.state.completedScore, null);
+    });
+
+    test('is absent for a handle that reports none', () => {
+        const { state } = run([
+            { active: true, duration: 60 },
+            { active: false, duration: 0 },
+        ]);
+        assert.equal(state.completedScore, null);
+    });
+});

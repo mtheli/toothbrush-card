@@ -9,7 +9,7 @@
 import test, { describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-    normalizeLayout, resolveLayoutForDevice, isMainStateEntity,
+    normalizeLayout, resolveLayoutForDevice, isMainStateEntity, handleIsPresent,
     LAYOUT_PROPS, CORNER_SLOTS,
 } from '../src/toothbrush-card.js';
 
@@ -167,5 +167,55 @@ describe('resolveLayoutForDevice', () => {
     test('a mode reading is enough to keep the classic default', () => {
         const resolved = resolveLayoutForDevice(base(), { score: 'sensor.s', mode: 'sensor.m' });
         assert.deepEqual(resolved.chips, ['battery', 'pressure', 'mode']);
+    });
+});
+
+describe('deciding whether the handle is there', () => {
+    const NOW = Date.parse('2026-08-13T12:00:00Z');
+    const ago = (seconds) => new Date(NOW - seconds * 1000).toISOString();
+    const ask = (over) => handleIsPresent({
+        integration: 'oralb', connectionState: null, status: 'idle',
+        lastUpdated: ago(5), now: NOW, ...over,
+    });
+
+    test('an explicit connection sensor is the whole answer', () => {
+        // Sonicare and Laifen report the link themselves; nothing else is
+        // consulted, not even a state that looks alive.
+        assert.equal(ask({ connectionState: 'on', status: 'unavailable' }), true);
+        assert.equal(ask({ connectionState: 'off', status: 'running' }), false);
+    });
+
+    test('an integration that connects is judged by availability', () => {
+        // oralb_live holds the link and reports the handle unavailable when it
+        // drops, so a readable state is a live link.
+        assert.equal(ask({ integration: 'oralb_live', status: 'idle' }), true);
+        assert.equal(ask({ integration: 'oralb_live', status: 'unavailable' }), false);
+        assert.equal(ask({ integration: 'oralb_live', status: 'unknown' }), false);
+    });
+
+    test('a broadcasting handle is judged by when it was last heard', () => {
+        // The bug this replaced: oralb freezes its last values and stays
+        // available, so a brush switched off days ago read as connected.
+        assert.equal(ask({ lastUpdated: ago(5) }), true);
+        assert.equal(ask({ lastUpdated: ago(3600) }), false,
+            'an hour of silence is not a connection');
+    });
+
+    test('and a readable state does not rescue it', () => {
+        assert.equal(ask({ status: 'idle', lastUpdated: ago(86400) }), false,
+            'the frozen state says nothing about the brush still being there');
+    });
+
+    test('a handle that has never been heard from is not there', () => {
+        assert.equal(ask({ lastUpdated: null }), false);
+        assert.equal(ask({ lastUpdated: 'nonsense' }), false);
+    });
+
+    test('the two Oral-B integrations answer differently on the same input', () => {
+        // Same state, same silence - and the right answer differs, which is
+        // exactly why this hangs off the integration rather than the reading.
+        const silent = { status: 'idle', lastUpdated: ago(86400) };
+        assert.equal(ask({ ...silent, integration: 'oralb' }), false);
+        assert.equal(ask({ ...silent, integration: 'oralb_live' }), true);
     });
 });

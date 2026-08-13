@@ -32,16 +32,64 @@ export { BUILD_DATE } from './build-info.js';
 // both matchers: releases up to 3.0.2 name entities via _attr_name and so
 // always create English entity_ids, 3.0.3+ moved to translation_keys and
 // ships de.json, so entity_ids are localized on non-English installs.
+// `broadcast: true` marks an integration that only listens for advertisements
+// and never holds a connection. It matters for the Bluetooth icon: there is no
+// link to report the state of, and the entities keep their last values instead
+// of going unavailable, so "the state is readable" says nothing about whether
+// the brush is still there. Those handles are judged by when they were last
+// heard from instead — see BROADCAST_SILENCE_SECONDS.
 export const SUPPORTED_INTEGRATIONS = {
-    oralb: { translationKey: 'toothbrush_state' },
+    oralb: { translationKey: 'toothbrush_state', broadcast: true },
     // Oral-B Live (custom integration) mirrors the built-in oralb translation
     // keys on purpose, so every reading below maps through the shared branch
-    // in findDeviceEntities and no separate handling is needed.
+    // in findDeviceEntities and no separate handling is needed. It does hold a
+    // connection, though, and reports the handle as unavailable when it drops.
     oralb_live: { translationKey: 'toothbrush_state' },
     philips_sonicare_ble: { translationKey: 'handle_state' },
-    xiaomi_ble: { idSuffix: '_toothbrush' },
+    xiaomi_ble: { idSuffix: '_toothbrush', broadcast: true },
     laifen_ble: { translationKey: 'status', idSuffix: '_status' },
 };
+
+// How long a broadcasting handle may stay quiet before the card stops claiming
+// it is there.
+//
+// Provisional, and knowingly so. A capture from two iO handles on 2026-08-13
+// showed one going silent the moment its session ended and the other carrying
+// on for 96 s, so anything under two minutes would drop the second one mid
+// summary. What is not yet measured is whether an idle or charging handle
+// advertises at all; `scripts/oralb/adv_capture.py --watch` left running
+// overnight would settle it, and this number should be replaced by what that
+// shows rather than refined by guesswork.
+const BROADCAST_SILENCE_SECONDS = 120;
+
+/**
+ * Whether the handle can be said to be there, for the header's Bluetooth icon.
+ *
+ * Three ways of answering, in descending order of how much the integration
+ * actually knows:
+ *
+ *   - An explicit connection sensor is the whole answer where one exists
+ *     (philips_sonicare_ble, laifen_ble).
+ *   - An integration that holds a connection reports the handle unavailable
+ *     when it drops, so a readable state means a live link (oralb_live).
+ *   - A broadcasting one does neither. It freezes its last values and stays
+ *     available, which is why this used to claim a connection to a handle
+ *     switched off days ago. Only recency says anything there, and it has to
+ *     be `last_updated`: an idle handle repeats the same state, so
+ *     `last_changed` would go stale while the brush was still broadcasting.
+ */
+export function handleIsPresent({ integration, connectionState, status,
+                                  lastUpdated, now }) {
+    if (connectionState !== undefined && connectionState !== null) {
+        return connectionState === 'on';
+    }
+    if (SUPPORTED_INTEGRATIONS[integration]?.broadcast === true) {
+        const at = Date.parse(lastUpdated);
+        return Number.isFinite(at)
+            && (now - at) / 1000 < BROADCAST_SILENCE_SECONDS;
+    }
+    return status !== 'unavailable' && status !== 'unknown';
+}
 
 // True when this entity is the main state entity of a supported integration.
 export function isMainStateEntity(entity) {
@@ -437,6 +485,7 @@ export class ToothbrushCard extends LitElement {
             stashedRecap: this._stashedRecap,
             face: this._face,
             completedFace: this._completedFace,
+            completedScore: this._completedScore,
         };
     }
 
@@ -459,6 +508,7 @@ export class ToothbrushCard extends LitElement {
         this._stashedRecap = state.stashedRecap;
         this._face = state.face;
         this._completedFace = state.completedFace;
+        this._completedScore = state.completedScore;
     }
 
     // --- Dismiss persistence (issue #4/#5/#11) ---
@@ -1091,6 +1141,12 @@ export class ToothbrushCard extends LitElement {
             faceWindow: active || status === 'session_summary'
                 || status === 'post_brushing_summary'
                 || status === 'post_brushing_statistics',
+            // Xiaomi reports a score only when the handle switches off, so it
+            // describes the session that just ended rather than the one in
+            // progress - which is what makes it belong on the badge.
+            displayScore: entityIds.score
+                ? hass.states[entityIds.score]?.state ?? null
+                : null,
         });
         this._applySessionState(latch.state);
         if (latch.sessionStarted) {
@@ -1272,9 +1328,15 @@ export class ToothbrushCard extends LitElement {
         const displayIntensity = t(hass, intensityKey) !== intensityKey
             ? t(hass, intensityKey)
             : intensity.replace(/_/g, ' ');
-        const btConnected = entityIds.ble_connected
-            ? hass.states[entityIds.ble_connected]?.state === 'on'
-            : status !== 'unavailable' && status !== 'unknown';
+        const btConnected = handleIsPresent({
+            integration: entityIds.integration,
+            connectionState: entityIds.ble_connected
+                ? hass.states[entityIds.ble_connected]?.state ?? 'off' : null,
+            status,
+            lastUpdated: statusEntityId
+                ? hass.states[statusEntityId]?.last_updated : null,
+            now: Date.now(),
+        });
         const btActive = active || batteryIsCharging;
         // Charging station (oralb_live): the handle talks through an iO Sense
         // instead of holding its single BLE slot for us. Both facts sit on the
@@ -1320,6 +1382,17 @@ export class ToothbrushCard extends LitElement {
         // question mark with the raw value, so users can report what their
         // handle actually showed (issue #20).
         const recapFace = showRecap ? smileyTier(this._completedFace) : null;
+        // The badge's glyph slot holds whichever verdict the handle gave. The
+        // two can never collide - the face is oralb_live, the score is Xiaomi -
+        // so they share the place rather than competing for it.
+        const recapScoreNum = showRecap && !recapFace ? parseFloat(this._completedScore) : NaN;
+        const recapScore = Number.isFinite(recapScoreNum) ? {
+            value: this._completedScore,
+            icon: ['mdi:star-outline', 'mdi:star-half-full', 'mdi:star'][
+                recapScoreNum >= 85 ? 2 : recapScoreNum >= 60 ? 1 : 0],
+            color: ['red', 'amber', 'gold'][
+                recapScoreNum >= 85 ? 2 : recapScoreNum >= 60 ? 1 : 0],
+        } : null;
 
         // Brush head type (issue #13): the type sensor carries the short
         // family name and the family letter (the A in "A3") as attributes —
@@ -1638,6 +1711,11 @@ export class ToothbrushCard extends LitElement {
                             </svg>
                             ${recapFace.code
                                 ? html`<span class="done-face-code">${recapFace.code}</span>` : ''}
+                        </div>` : recapScore ? html`
+                        <div class="done-face">
+                            <ha-icon class="done-score ${recapScore.color}"
+                                     icon="${recapScore.icon}"></ha-icon>
+                            <span class="done-face-value ${recapScore.color}">${recapScore.value}</span>
                         </div>` : ''}
                         <div class="done-text">
                             ${showAborted ? html`
