@@ -58,9 +58,22 @@ const cell = (iconHtml, state, name, hex) => `
       <div class="hx"><span class="sw" style="background:${hex.split(' ')[0]}"></span>${hex}</div>
     </div>`;
 
-const section = (title, note, cells) => `
+// `who` is the list of integrations a section applies to, rendered as pills
+// beside the heading rather than buried in the note: which handles a reading
+// exists on is the first thing someone scanning this page wants to know.
+// A qualifier after " · " is set apart, so the pill itself stays the bare
+// integration name and the list still reads as a set.
+const pill = (label) => {
+    const [name, qualifier] = label.split(' · ');
+    return `<span class="pill">${name}${qualifier ? `<i>${qualifier}</i>` : ''}</span>`;
+};
+
+const section = (title, who, note, cells) => `
   <div class="section">
-    <h2>${title}</h2>
+    <div class="head">
+      <h2>${title}</h2>
+      ${who ? `<div class="pills">${who.map(pill).join('')}</div>` : ''}
+    </div>
     ${note ? `<p class="note">${note}</p>` : ''}
     <div class="grid">${cells.join('')}</div>
   </div>`;
@@ -106,7 +119,7 @@ const pressureBars = (active, color) => {
 
 const sections = [];
 
-sections.push(section('Header — connection icons', '<b>Integrations:</b> Bluetooth: every integration. ESP bridge: philips_sonicare_ble only. Card-own SVG paths (CONN_ICONS in icons.js), 18px. Told apart by weight, and for Bluetooth by shape as well: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.', [
+sections.push(section('Header — connection icons', ['all integrations · Bluetooth', 'philips_sonicare_ble · ESP bridge'], 'Card-own SVG paths (CONN_ICONS in icons.js), 18px. Told apart by weight, and for Bluetooth by shape as well: a connection carrying something reads at full strength, one that is merely established is quieter, a broken one fades out. Colour alone could not do it - the active tone and the theme primary can be the same blue.', [
     cell(svg(conn.bluetooth, C.primary, 0.55), 'BT connected, idle', 'bluetooth', 'var(--primary-color) op.0.55'),
     cell(svg(conn.bluetooth_transfer, C.btActive), 'BT active (session)', 'bluetooth_transfer', '#0082fc op.1'),
     cell(svg(conn.bluetooth_off, C.muted, 0.3), 'BT disconnected', 'bluetooth_off', '#9ca3af op.0.3'),
@@ -130,20 +143,20 @@ const batLevels = [
     [mdiBattery, '91–100 %', 'battery', C.green, '#16a34a'],
     [mdiBatteryCharging, 'charging (any level)', 'battery-charging', C.green, 'colour follows level'],
 ];
-sections.push(section('Charger — header (oralb_live)', 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Full strength while the data actually arrives through it (data_source = charger_bridge), quieter otherwise — an idle station is the normal state between sessions, not a fault.', [
+sections.push(section('Charger — header', ['oralb_live'], 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Full strength while the data actually arrives through it (data_source = charger_bridge), quieter otherwise — an idle station is the normal state between sessions, not a fault.', [
     cell(svg(conn.charger, C.btActive), 'data via charger', 'card-own SVG (CONN_ICONS.charger)', '#0082fc op.1'),
     cell(svg(conn.charger, C.primary, 0.55), 'charger paired, idle', 'card-own SVG (CONN_ICONS.charger)', 'var(--primary-color) op.0.55'),
 ]));
 
-sections.push(section('Battery — chip + corner', '<b>Integrations:</b> Every integration. Icon step: ceil(level/10)·10 (_getBatteryIcon) · colour: ≤15 red, ≤30 amber, otherwise green (_getBatteryChipColor).', batLevels.map(([p, s, n, c, hx]) => cell(svg(p, c), s, `mdi:${n}`, hx))));
+sections.push(section('Battery — chip + corner', ['all integrations'], 'Icon step: ceil(level/10)·10 (_getBatteryIcon) · colour: ≤15 red, ≤30 amber, otherwise green (_getBatteryChipColor).', batLevels.map(([p, s, n, c, hx]) => cell(svg(p, c), s, `mdi:${n}`, hx))));
 
-sections.push(section('Pressure — chip + corner', '<b>Integrations:</b> oralb · oralb_live · philips_sonicare_ble · laifen_ble (Wave Pro only). A drawn staircase rather than an icon, so the level is visible without reading the value. Chip and corner show the same bars. Traffic-light palette: pressing too hard is a warning, unlike intensity.', [
+sections.push(section('Pressure — chip + corner', ['oralb', 'oralb_live', 'philips_sonicare_ble', 'laifen_ble · Wave Pro'], 'A drawn staircase rather than an icon, so the level is visible without reading the value. Chip and corner show the same bars. Traffic-light palette: pressing too hard is a warning, unlike intensity.', [
     cell(pressureBars(1, C.amber), 'low', 'bars 1/4', '#d97706'),
     cell(pressureBars(2, C.green), 'normal / medium', 'bars 2/4', '#16a34a'),
     cell(pressureBars('all', C.red), 'high', 'bars 4/4', '#dc2626'),
 ]));
 
-sections.push(section('Intensity — chip + corner', '<b>Integrations:</b> philips_sonicare_ble · laifen_ble. A drawn dial rather than an icon: a Laifen handle reports a level of 1-10 (11-20 in the high-frequency mode), and three speedometer variants could express almost none of it. Chip and corner show the same dial, only at different sizes. Deliberately NOT the traffic-light palette — intensity is a chosen setting, a high level must never read as a warning.', [
+sections.push(section('Intensity — chip + corner', ['philips_sonicare_ble', 'laifen_ble'], 'A drawn dial rather than an icon: a Laifen handle reports a level of 1-10 (11-20 in the high-frequency mode), and three speedometer variants could express almost none of it. Chip and corner show the same dial, only at different sizes. Deliberately NOT the traffic-light palette — intensity is a chosen setting, a high level must never read as a warning.', [
     cell(intensityDial(0.08, C.intLow), 'strength 1 of 10', 'drawn arc + needle', '#0891b2'),
     cell(intensityDial(0.45, C.intMed), 'strength 5 of 10', 'drawn arc + needle', '#7c3aed'),
     cell(intensityDial(0.72, C.intMed), 'strength 8 of 10', 'drawn arc + needle', '#7c3aed'),
@@ -167,18 +180,18 @@ const modes = [
     ['tongue_care', mdiEmoticonTongueOutline, 'emoticon-tongue-outline'],
     ['unknown mode', mdiBrushVariant, 'brush-variant (default)'],
 ];
-sections.push(section('Mode — chip + corner', '<b>Integrations:</b> oralb · oralb_live · philips_sonicare_ble · laifen_ble. Settable on the latter two. All modes share one blue; only "unavailable" is muted.',
+sections.push(section('Mode — chip + corner', ['oralb', 'oralb_live', 'philips_sonicare_ble · settable', 'laifen_ble · settable'], 'Settable on the latter two. All modes share one blue; only "unavailable" is muted.',
     modes.map(([s, p, n]) => cell(svg(p, C.blue), s, `mdi:${n}`, '#2563eb'))
         .concat([cell(svg(mdiBrushVariant, C.muted), 'unavailable', 'mdi:brush-variant', '#9ca3af (muted)')])));
 
-sections.push(section('Score — chip + corner', '<b>Integrations:</b> xiaomi_ble only. Star step + traffic-light colour; the value text takes the same colour. Non-numeric scores keep the full gold star.', [
+sections.push(section('Score — chip + corner', ['xiaomi_ble'], 'Star step + traffic-light colour; the value text takes the same colour. Non-numeric scores keep the full gold star.', [
     cell(svg(mdiStarOutline, C.red), '&lt; 60', 'mdi:star-outline', '#dc2626'),
     cell(svg(mdiStarHalfFull, C.amber), '60–84', 'mdi:star-half-full', '#d97706'),
     cell(svg(mdiStar, C.gold), '≥ 85', 'mdi:star', '#c47f16'),
     cell(svg(mdiStar, C.gold), 'non-numeric', 'mdi:star', '#c47f16'),
 ]));
 
-sections.push(section('Brush head — chip + corner', '<b>Integrations:</b> philips_sonicare_ble (sub-device) · xiaomi_ble (reports % left, inverted here). Card-own glyph. Fill steps in quarters (by % remaining); colour follows wear (_getBrushheadColor): &gt;40 green, 21–40 amber, ≤20 red → 6 visible states. The value text takes the same colour (like battery).', [
+sections.push(section('Brush head — chip + corner', ['philips_sonicare_ble · sub-device', 'xiaomi_ble · % left'], 'Card-own glyph. Fill steps in quarters (by % remaining); colour follows wear (_getBrushheadColor): &gt;40 green, 21–40 amber, ≤20 red → 6 visible states. The value text takes the same colour (like battery).', [
     cell(headSvg(4, C.green), '100–76 %', '4/4 segments', '#16a34a'),
     cell(headSvg(3, C.green), '75–51 %', '3/4 segments', '#16a34a'),
     cell(headSvg(2, C.green), '50–41 %', '2/4 segments', '#16a34a'),
@@ -189,7 +202,7 @@ sections.push(section('Brush head — chip + corner', '<b>Integrations:</b> phil
 
 const letterGlyph = (letter) =>
     `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px">${svg(mdiToothbrush, '#212121', 1, 22)}<span style="font-size:9px;font-weight:800;line-height:1;color:#212121">${letter}</span></span>`;
-sections.push(section('Head type — chip + corner', '<b>Integrations:</b> philips_sonicare_ble only. Neutral, no state colours: the type is information, not a warning. Wide layout: mdi:toothbrush + short family name. Compact icon-only layout: the family letter (the A in "A3") is tucked under the icon. Name and letter come from the type sensor’s family_name/family_letter attributes (single source in the integration; C/W/G/A/S official, T/N stand-ins for TongueCare+ and non-RFID). Without the attributes the full state text is shown, wrapped/clamped to two lines, with a plain icon. Hidden while no head is attached.', [
+sections.push(section('Head type — chip + corner', ['philips_sonicare_ble'], 'Neutral, no state colours: the type is information, not a warning. Wide layout: mdi:toothbrush + short family name. Compact icon-only layout: the family letter (the A in "A3") is tucked under the icon. Name and letter come from the type sensor’s family_name/family_letter attributes (single source in the integration; C/W/G/A/S official, T/N stand-ins for TongueCare+ and non-RFID). Without the attributes the full state text is shown, wrapped/clamped to two lines, with a plain icon. Hidden while no head is attached.', [
     cell(svg(mdiToothbrush, '#212121'), 'any type (wide)', 'mdi:toothbrush', '#212121 (theme text)'),
     cell(letterGlyph('C'), 'Clean (compact)', 'family_letter attr', '#212121 (theme text)'),
     cell(letterGlyph('W'), 'White (compact)', 'family_letter attr', '#212121 (theme text)'),
@@ -217,7 +230,7 @@ const faceCell = (path, color, hexLabel, state, name, code) => `
       <div class="hx"><span class="sw" style="background:${color}"></span>${hexLabel}</div>
     </div>`;
 
-sections.push(section('Oral-B display face — done badge (oralb_live)',
+sections.push(section('Oral-B display face — done badge', ['oralb_live'],
     'The handle\'s own verdict (FF0A), latched at the end of a session and shown beside the badge text — never as a chip, because the sensor reads "off" between sessions and changes with pressure while brushing. 34px, well above the 24px chip size: the star-eyes face collapses to dots below that. Gold is deliberately absent — it belongs to the score chip, and a third accent clashes with a badge that is already green or amber; "perfect" and "excellent" share green and are told apart by shape. Only three values are decoded (issue #20); every other value shows a question mark plus its raw name so users can report what their handle displayed.', [
     faceCell(smiley.SMILEY_MEDAL, C.green, '#16a34a', 'special_11 — perfect', 'mdi:medal — time AND pressure fulfilled'),
     faceCell(smiley.SMILEY_STAR_EYES, C.green, '#16a34a', 'special_10 — excellent', 'card-own SVG — star eyes, full smile'),
@@ -235,7 +248,7 @@ const swatch = (hex, role, where) => `
       <div class="nm">${where}</div>
       <div class="hx">${hex}</div>
     </div>`;
-sections.push(section('Other colour roles (not state icons)', 'Design tones — deliberately outside the traffic-light palette.', [
+sections.push(section('Other colour roles (not state icons)', null, 'Design tones — deliberately outside the traffic-light palette.', [
     swatch('#2563eb', 'Chip blue', 'mode chip, selector, compact hint'),
     swatch('#3b82f6', 'Progress start', 'gradient start (blue)'),
     swatch('#16a34a', 'Progress end', 'gradient end (= traffic-light green)'),
@@ -257,7 +270,14 @@ const html = `<!doctype html>
   .sub { text-align:center; color:#9ca3af; font-size:12px; margin:0 0 24px; }
   .section { background:#fff; border-radius:12px; padding:16px 18px; max-width:1060px;
              margin:0 auto 20px; box-shadow:0 4px 16px rgba(0,0,0,.4); }
-  h2 { font-size:14px; color:#212121; margin:0 0 2px; }
+  .head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:0 0 4px; }
+  h2 { font-size:14px; color:#212121; margin:0; }
+  .pills { display:flex; gap:4px; flex-wrap:wrap; }
+  .pill { font-size:10px; font-weight:600; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+          padding:2px 8px; border-radius:999px; background:#eef1f5; color:#3f4756;
+          border:1px solid #dde3ea; white-space:nowrap; }
+  .pill i { font-style:normal; font-weight:500; color:#8b93a1; }
+  .pill i:before { content:" · "; }
   .note { font-size:11px; color:#6b7280; margin:0 0 12px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
   .cell { border:1px solid #e5e7eb; border-radius:10px; padding:10px 8px 8px;

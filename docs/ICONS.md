@@ -18,8 +18,9 @@ readings look the same in the chip and in a corner marker, only at different
 sizes, so where a reading is placed never changes what it looks like.
 
 Also worth knowing: the screenshot has to be tall enough for the whole page.
-The window height in the command below grows with the reference; if the last
-section is clipped, that is the number to raise.
+Chrome captures exactly the window, so the height below grows with the
+reference and a clipped last section means that number needs raising. The
+quick check is whether the bottom strip of the PNG is nothing but background.
 
 All icons stay readable in the compact icon-only layout (card width ≤ 350 px,
 where chip labels and values are hidden): the icon shape and colour alone
@@ -111,7 +112,7 @@ The overview is generated from `@mdi/js` and the card's own SVG paths:
 ```sh
 node scripts/gen_icon_overview.mjs
 chromium --headless --screenshot=docs/icon-overview.png \
-  --window-size=1120,2900 --hide-scrollbars docs/icon-overview.html
+  --window-size=1120,3300 --hide-scrollbars docs/icon-overview.html
 ```
 
 The state conditions and palette in the script mirror the card logic in
