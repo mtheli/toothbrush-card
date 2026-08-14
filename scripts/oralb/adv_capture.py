@@ -30,10 +30,35 @@ remember to start a recording before brushing. Several brushes at once are
 already handled - a household with two of them produces two sets of files,
 told apart by the last four digits of the address.
 
-Nothing is connected to. An Oral-B broadcasts, so listening costs the brush
-nothing at all and the scanner can be left running for weeks. That is the
-whole difference to the Sonicare recorder next door, which has to hold the
-handle's single BLE slot and therefore fights with Home Assistant over it.
+Nothing is connected to by default. An Oral-B broadcasts, so listening costs
+the brush nothing at all and the scanner can be left running for weeks. That
+is the whole difference to the Sonicare recorder next door, which has to hold
+the handle's single BLE slot and therefore fights with Home Assistant over it.
+
+``--connect`` gives that up on purpose (see below). It is the exception, not
+the mode to leave running.
+
+Connecting as well (``--connect``)
+----------------------------------
+With ``--connect`` every brush that turns up is also connected to, and every
+characteristic it will give up is read, subscribed to and recorded next to the
+advertisements in the same file. The GATT layout is deliberately not assumed:
+everything readable is read on a timer, everything notifiable is subscribed,
+and the decoding is left for afterwards. A capture is cheap; asking somebody to
+brush again is not.
+
+Why it is off by default: a connection takes the handle's BLE slot, so while
+this holds a brush, Home Assistant cannot - the same trade the Sonicare
+recorder makes permanently. Passive listening has neither cost nor side
+effect, so it stays the default.
+
+Why it is worth turning on: the display face in the advertisement is a 3-bit
+field and can only carry 0-7, while the face behind issue #20 comes from GATT
+characteristic FF0A and is a full byte. Whether the two scales are the same
+thing is still open, and the only way to settle it is one session captured on
+both at once. That is what this option is for. Encrypted characteristics need
+a bond first - pair the brush in the OS Bluetooth settings, or those reads are
+simply refused and the rest still lands.
 
 A session is cut two ways, because brushes end them two ways. Normally the
 timer resets and that frame closes the session - it is kept, since it is the
@@ -115,7 +140,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from bleak import BleakScanner
+from bleak import BleakClient, BleakScanner
 from bleak.backends.scanner import AdvertisementData
 from bleak.backends.device import BLEDevice
 
@@ -253,22 +278,34 @@ def parse_manufacturer(data: bytes) -> dict[str, int | bool | str | None]:
 
 HEARTBEAT_INTERVAL = 15   # how often the "still listening" state is checked
 LIVENESS_INTERVAL = 600   # ... and how often a quiet *log* says so anyway
+PROBE_COOLDOWN = 30      # --connect: wait this long before re-probing a handle
 
 
 class Capture:
     def __init__(self, mac_filter: str | None, json_path: Path | None,
                  watch_dir: Path | None = None, settle: float = 60.0,
-                 min_session: float = 15.0):
+                 min_session: float = 15.0, connect: bool = False,
+                 connect_poll: float = 2.0):
         self.mac_filter = mac_filter.upper() if mac_filter else None
         self.json_path = json_path
         self.watch_dir = watch_dir
         self.settle = settle
         self.min_session = min_session
+        self.connect = connect
+        self.connect_poll = connect_poll
         self.records: list[Advertisement] = []
         self.last_record_by_mac: dict[str, Advertisement] = {}
         # Watch mode buffers the frames of the session in progress per brush,
         # so two handles running at once do not land in the same file.
         self.session_by_mac: dict[str, list[Advertisement]] = {}
+        # --connect only: GATT values per brush, in the same buffer shape, so a
+        # session file carries what was read alongside what was broadcast.
+        self.gatt_by_mac: dict[str, list[dict]] = {}
+        self.probing: set[str] = set()
+        # When a handle may be probed again. A brush advertises several times a
+        # second, so without this a refused connection would be retried at that
+        # rate for as long as the brush is in range.
+        self.probe_again_at: dict[str, float] = {}
         self.written = 0
         self.unknown_seen: set[int] = set()
         self.unknown_smiley_seen: set[int] = set()
@@ -306,6 +343,7 @@ class Capture:
         # directory listing, and the full address is in the file anyway.
         short = mac.replace(":", "")[-4:].lower()
         path = self.watch_dir / f"oralb_session_{short}_{stamp}.json"
+        gatt = self.gatt_by_mac.pop(mac, [])
         path.write_text(json.dumps({
             "generated_at": datetime.now(tz=timezone.utc).isoformat(),
             "oralb_ble_version_reference": "1.1.1",
@@ -313,12 +351,105 @@ class Capture:
             "known_smiley_values": sorted(KNOWN_SMILEY_VALUES),
             "known_pressure_bytes": sorted(KNOWN_PRESSURE_BYTES),
             "advertisements": [asdict(r) for r in records],
+            # Present only with --connect, and empty otherwise, so a file says
+            # by its shape whether anything was read as well as heard.
+            "gatt": gatt,
         }, indent=2))
         self.written += 1
         faces = {r.smiley for r in records if r.smiley is not None}
         print(f"[{time.strftime('%H:%M:%S')}]  {mac}  wrote {duration}s session "
               f"({len(records)} adverts, faces {sorted(faces) or '-'}, {reason})"
               f" -> {path.name}")
+
+    # ── Optional GATT probe (--connect) ─────────────────────────────────
+    # Off by default, and that default is the point: an Oral-B broadcasts
+    # everything the decoder needs, so listening costs the brush nothing and
+    # never competes with anything. Connecting does both - it takes a slot the
+    # Home Assistant integration may want, and it wakes the radio.
+    #
+    # What it buys is the one thing the broadcast cannot give. The display face
+    # in the advertisement is a 3-bit field (0-7); the face that issue #20 is
+    # about comes from GATT characteristic FF0A and is a full byte. Whether the
+    # two scales agree is still open, and only a session captured on both at
+    # once can close it - which is exactly what this does.
+
+    def _record_gatt(self, mac: str, uuid: str, data: bytes, kind: str) -> None:
+        """Append a GATT value, skipping repeats of the value already held."""
+        buffer = self.gatt_by_mac.setdefault(mac, [])
+        hex_str = bytes(data).hex()
+        for previous in reversed(buffer):
+            if previous["uuid"] == uuid:
+                if previous["hex"] == hex_str:
+                    return
+                break
+        buffer.append({
+            "ts": time.time(),
+            "iso": datetime.now(tz=timezone.utc).isoformat(),
+            "kind": kind,
+            "uuid": uuid,
+            "hex": hex_str,
+        })
+        short = uuid[4:8].upper()
+        print(f"[{time.strftime('%H:%M:%S')}]  {mac}  GATT {short} {kind:<6} {hex_str}")
+
+    async def _probe_handle(self, mac: str) -> None:
+        """Hold one handle and record every characteristic it will give up.
+
+        Deliberately indiscriminate: unlike the Sonicare, whose characteristics
+        this project has a table for, the Oral-B GATT layout is not mapped
+        here. So everything readable is read and everything notifiable is
+        subscribed, and the decoding is left for later - a capture is cheap,
+        a second brushing session is not.
+        """
+        try:
+            async with BleakClient(mac) as client:
+                print(f"[{time.strftime('%H:%M:%S')}]  {mac}  connected"
+                      f" - reading characteristics")
+                readable, notifying = [], 0
+                for service in client.services:
+                    for char in service.characteristics:
+                        if "notify" in char.properties or "indicate" in char.properties:
+                            try:
+                                await client.start_notify(
+                                    char.uuid,
+                                    lambda _c, data, u=char.uuid:
+                                        self._record_gatt(mac, u, data, "notify"))
+                                notifying += 1
+                            except Exception:  # noqa: BLE001 - optional extra
+                                pass
+                        if "read" in char.properties:
+                            readable.append(char.uuid)
+                print(f"[{time.strftime('%H:%M:%S')}]  {mac}  "
+                      f"{len(readable)} readable, {notifying} notifying")
+
+                # Polled as well as subscribed: a characteristic that never
+                # notifies - FF0A may well be one - would otherwise only ever
+                # show its value at connect time, which is before the session.
+                while client.is_connected and not self._stop.is_set():
+                    for uuid in readable:
+                        try:
+                            self._record_gatt(
+                                mac, uuid, await client.read_gatt_char(uuid), "read")
+                        except Exception:  # noqa: BLE001 - one refused read is fine
+                            pass
+                    last = self.last_record_by_mac.get(mac)
+                    if last and time.time() - last.ts >= self.settle:
+                        print(f"[{time.strftime('%H:%M:%S')}]  {mac}  "
+                              f"quiet for {self.settle:.0f}s - disconnecting")
+                        return
+                    await asyncio.sleep(self.connect_poll)
+        except Exception as err:  # noqa: BLE001 - a probe must not stop the scan
+            low = str(err).lower()
+            if any(hint in low for hint in
+                   ("insufficient", "authentication", "encryption", "not paired")):
+                print(f"[{time.strftime('%H:%M:%S')}]  {mac}  refused without a "
+                      f"bond - pair the brush in the OS settings first")
+            else:
+                print(f"[{time.strftime('%H:%M:%S')}]  {mac}  "
+                      f"probe failed: {type(err).__name__}: {err}")
+        finally:
+            self.probing.discard(mac)
+            self.probe_again_at[mac] = time.time() + PROBE_COOLDOWN
 
     def _flush_silent_sessions(self, now: float) -> None:
         """Close sessions whose brush simply stopped advertising.
@@ -354,6 +485,12 @@ class Capture:
         self.records.append(record)
         if self.watch_dir:
             self._feed_session(record)
+        # A sighting is the moment to connect: the brush is awake, so somebody
+        # has just picked it up. One probe per handle at a time.
+        if (self.connect and device.address not in self.probing
+                and now >= self.probe_again_at.get(device.address, 0.0)):
+            self.probing.add(device.address)
+            asyncio.get_running_loop().create_task(self._probe_handle(device.address))
 
         # Live output: only print on interesting events so the log isn't
         # flooded with duplicates. Issue #3 cares about sector changes; issue #4
@@ -436,8 +573,9 @@ class Capture:
             print(f"Watching. One file per session into {self.watch_dir}")
             print(f"Sessions under {self.min_session:.0f}s are dropped; a session whose")
             print(f"brush goes silent is closed after {self.settle:.0f}s.")
-            print("Nothing connects to the brush - leave this running as long")
-            print("as you like. Ctrl+C stops it.")
+            if not self.connect:
+                print("Nothing connects to the brush - leave this running as long")
+                print("as you like. Ctrl+C stops it.")
         else:
             print("Start a brushing session and keep the motor running through")
             print("every sector, spending ~5-10 seconds in each one. For the")
@@ -445,6 +583,14 @@ class Capture:
             print("once. For the display face, note what the handle actually shows")
             print("at the end and let it keep advertising for a few seconds before")
             print("you stop. Press Ctrl+C once the routine (and post-session) ends.")
+        if self.connect:
+            # Said plainly and every run, because it is the one thing about
+            # this script that can take something away from somebody else.
+            print()
+            print("--connect: each brush is also CONNECTED to and read every "
+                  f"{self.connect_poll:.0f}s.")
+            print("While this holds a handle, Home Assistant cannot have it.")
+            print("Encrypted characteristics need the brush paired in the OS first.")
         if self.json_path:
             print(f"JSON output: {self.json_path}")
         print("=" * 78)
@@ -610,6 +756,7 @@ class Capture:
                 "known_smiley_values": sorted(KNOWN_SMILEY_VALUES),
                 "known_pressure_bytes": sorted(KNOWN_PRESSURE_BYTES),
                 "advertisements": [asdict(r) for r in self.records],
+                "gatt": [row for rows in self.gatt_by_mac.values() for row in rows],
             }
             self.json_path.write_text(json.dumps(payload, indent=2))
             print(f"\nWrote {len(self.records)} records to {self.json_path}")
@@ -757,6 +904,26 @@ def main() -> int:
              "Default: 60",
     )
     parser.add_argument(
+        "--connect",
+        action="store_true",
+        help="Also connect to each brush that turns up and record every "
+             "characteristic it will give up, alongside the advertisements. "
+             "Off by default: listening is free and invisible, connecting "
+             "takes the handle's BLE slot away from Home Assistant. Worth it "
+             "to capture the GATT display face (FF0A) and the advertisement "
+             "face in the same session - see the module docstring.",
+    )
+    parser.add_argument(
+        "--connect-poll",
+        type=float,
+        default=2.0,
+        metavar="SECONDS",
+        help="With --connect: how often to re-read the readable "
+             "characteristics. Notifications are subscribed to as well, but a "
+             "characteristic that never notifies is only ever seen by polling. "
+             "Default: 2",
+    )
+    parser.add_argument(
         "--min-session",
         type=float,
         default=15.0,
@@ -774,7 +941,8 @@ def main() -> int:
 
     capture = Capture(mac_filter=args.mac, json_path=args.json,
                       watch_dir=args.watch, settle=args.settle,
-                      min_session=args.min_session)
+                      min_session=args.min_session, connect=args.connect,
+                      connect_poll=args.connect_poll)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
