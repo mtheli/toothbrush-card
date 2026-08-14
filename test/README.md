@@ -232,6 +232,14 @@ no address, no device name.
   mode table entirely for HX63xx, so a Kids handle spreads any mode evenly and
   never revisits.
 
+- `fixtures/sonicare-hx999x-whiteplus-then-aborted.jsonl` — two sessions in one
+  recording: a complete White+ routine (160 s) and, one second later, a second
+  run stopped after 22 s. The only capture that reaches `brushing_state` 2
+  (pause) and 4 (session_aborted); the other three only ever report 0, 1 and 3,
+  so a stopped session had no real data behind it. It also carries the heaviest
+  pressure stream in the project — 697 of 1839 samples flagged `too_high`,
+  against 43 of 1605 in the White+ recording — and an intensity that changes
+  twice mid-session. See `sonicare-aborted.test.mjs`.
 - `fixtures/sonicare-hx999x-whiteplus-complete.jsonl` — the same Prestige on
   White+, recorded from before switch-on and with the mode captured. This is
   the one the Sonicare branch in the card exists for: a 160 s routine over an
