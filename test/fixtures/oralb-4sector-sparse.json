@@ -1,0 +1,33 @@
+{
+  "source": "scripts/oralb/adv_capture.py --watch",
+  "contributor": "mtheli",
+  "device": "Oral-B (4 sectors; the advertisement carries no model)",
+  "captured": "2026-08-14",
+  "note": "A second four-sector Oral-B, brushed at the same time as the other one, received badly: 10 advertisements for a 168 s session, gaps up to 51 s. Kept because it confirms the 1, 2, 3, 7 sequence on a different physical handle, and because a stream this sparse is itself a case worth having - a brush two rooms away looks like this. Too thin to replay a routine from; the zone changes are inferred from the timer, not observed. Captured from a handle that is no longer reachable, so this recording cannot be repeated.",
+  "frames": [
+    {
+      "ts": "2026-08-14 06:48:46.266963",
+      "hex": "0836520332001400010404"
+    },
+    {
+      "ts": "2026-08-14 06:49:14.053219",
+      "hex": "0836520332003000020404"
+    },
+    {
+      "ts": "2026-08-14 06:49:39.342260",
+      "hex": "0836520332010d00030404"
+    },
+    {
+      "ts": "2026-08-14 06:49:46.299586",
+      "hex": "0836520332011400030404"
+    },
+    {
+      "ts": "2026-08-14 06:50:34.028122",
+      "hex": "08365203f2020800070404"
+    },
+    {
+      "ts": "2026-08-14 06:51:24.915467",
+      "hex": "0836520a32023003070404"
+    }
+  ]
+}

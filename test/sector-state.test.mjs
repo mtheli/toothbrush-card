@@ -78,6 +78,18 @@ describe('an integration that decodes every sector', () => {
         assert.equal(resolve({ sector: 'sector_7', sectorsAreUpstreamDecoded: true }).index, 5);
     });
 
+    test('the same holds for a four-zone layout', () => {
+        // Purely defensive, and worth saying so: a handle does report its last
+        // zone as sector byte quadrant 7 (see oralb-4sector.test.mjs), but
+        // oralb_ble resolves that against the sector count before the card
+        // ever sees it - sector_4 here, sector_6 on a six-sector handle. So
+        // this covers an entity that reports past the layout, not the normal
+        // path. Both fixtures decode to sector_4, never sector_7.
+        assert.equal(
+            resolve({ sector: 'sector_7', zoneCount: 4, sectorsAreUpstreamDecoded: true }).index,
+            3);
+    });
+
     test('clears the workaround latch, so a fallback starts clean', () => {
         // The entity going briefly unavailable drops the card back onto the
         // workaround; it must not resume mid-session from a stale peak.

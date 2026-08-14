@@ -466,21 +466,42 @@ class Capture:
         The signature leaves the ages out, so a log can tell "nothing has
         changed" from "something moved" - the ages always change, which is
         exactly why they cannot be part of that comparison.
+
+        Only brushes still worth watching are listed. A handle that has been
+        silent past the settle window has nothing left in the buffer, and a
+        resting brush does not advertise at all - so keeping it on the line
+        reports the normal state as an anomaly, and the line would only ever
+        grow, since every brush the scanner has ever seen would stay on it
+        forever with a climbing age and a permanent "advertising stopped?".
+        They are counted instead, which still shows the scanner knows them.
         """
         if not self.last_record_by_mac:
             return "waiting for first advertisement ...", "waiting"
         parts, signature = [], []
+        idle = 0
         for mac, rec in self.last_record_by_mac.items():
             age = now - rec.ts
+            buffered = self.session_by_mac.get(mac)
+            if age > self.settle and not buffered:
+                idle += 1
+                continue
             sector_str = f"0x{rec.sector:02X}" if rec.sector is not None else "?"
             silent = age > HEARTBEAT_INTERVAL
+            # What is still unwritten, so a wait can be told from a stall.
+            held = max((r.brush_time or 0) for r in buffered) if buffered else None
             parts.append(
                 f"{mac} {age:.0f}s ago  state={rec.state_label}"
                 f"  time={rec.brush_time}s  sector={sector_str}"
+                + (f"  holding {held}s unwritten" if held is not None else "")
                 + ("  <- advertising stopped?" if silent else "")
             )
-            signature.append(f"{mac}|{rec.state_label}|{rec.brush_time}|{sector_str}|{silent}")
-        return "  ".join(parts), "  ".join(signature)
+            signature.append(
+                f"{mac}|{rec.state_label}|{rec.brush_time}|{sector_str}|{silent}|{held}")
+        seen = f"{idle} brush(es) seen earlier, quiet now" if idle else ""
+        if not parts:
+            return f"listening - {seen}", f"idle={idle}"
+        return ("  ".join(parts) + (f"  ({seen})" if seen else ""),
+                "  ".join(signature) + f"|idle={idle}")
 
     async def _heartbeat(self) -> None:
         """Show that the script is alive without burying the log.

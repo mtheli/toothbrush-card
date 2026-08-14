@@ -183,6 +183,25 @@ no address, no device name.
   [home-assistant/core#169661](https://github.com/home-assistant/core/issues/169661).
   It covers the states a finished session must *not* be inferred from.
 
+- `fixtures/oralb-4sector-offline-ending.json` — a four-sector Oral-B running a
+  complete routine and then going offline while still on its summary screen,
+  without ever resetting its brushing time. Captured with
+  `scripts/oralb/adv_capture.py --watch`. It is the only evidence in the
+  project for the *fourth* zone of a four-sector handle, which the brush
+  broadcasts as sector byte quadrant 7 rather than 4 — the six-sector capture
+  does the same one zone later (1, 2, 3, 4, 5, 7), so quadrant 7 means "the
+  last zone, whichever that is" and oralb_ble resolves it against the sector
+  count. See `oralb-4sector.test.mjs`.
+- `fixtures/oralb-4sector-sparse.json` — a second four-sector handle, brushed
+  at the same time as the one above and received badly: 10 advertisements for a
+  168-second session, gaps up to 51 s. Kept because it confirms the same
+  sequence on different hardware, and because a stream this sparse is a case
+  worth having. Too thin to replay a routine from — its zone changes are
+  visible only as jumps in the timer.
+
+  Neither of the two can be recorded again; the handles are no longer
+  reachable. They are the reason to keep a capture even when it is thin.
+
 - `fixtures/sonicare-hx999x-clean-complete.jsonl` — an HX999X Prestige
   (firmware 1.15.4) running a full two-minute Clean routine. Recorded with
   `scripts/sonicare_session_record.py` from the philips_sonicare_ble repo,
