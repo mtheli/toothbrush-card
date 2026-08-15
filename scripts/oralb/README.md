@@ -16,12 +16,12 @@ face never reaches Home Assistant through the passive path — this script
 decodes it and prints one row per session pairing the session's duration with
 the face the handle settled on.
 
-That pairing is the open question. Across the captures collected so far a
-51-second session settled on face `0`, a 74-second one on `3` and a complete
-123-second one on `5`, which suggests the face grades the session — but faces
-`2`, `4` and `7` have never been seen in a capture (`6` is known only as the
-byte-55 literal in the old upstream table, never observed live), and a
-session that produces one is worth reporting to
+That pairing is the open question. The face grades the session, but the scale
+differs per model: a four-sector iO graded 25 s and 60 s as face `1` (sad),
+81 s as face `2` (neutral) and 128 s as face `5` (smile), while a six-sector
+iO graded 74 s as face `3`. Faces `4` and `7` have never been seen in a
+capture (`6` is known only as the byte-55 literal in the old upstream table,
+never observed live), and a session that produces one is worth reporting to
 [toothbrush-card#20](https://github.com/mtheli/toothbrush-card/issues/20).
 
 Note what the handle actually displays at the end and include it in the

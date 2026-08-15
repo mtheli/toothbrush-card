@@ -91,11 +91,12 @@ came from the GATT characteristic FF0A, which is a full byte, whereas this
 3-bit advertisement field can only carry 0-7 — do not assume the two scales
 are identical until a session is captured on both at once.
 
-What the captures show so far is that the face the handle settles on at the
-end tracks how long the session ran: 51 s -> 0, 74 s -> 3, 123 s (complete)
--> 5. The end-of-run summary therefore prints one row per session with its
+What the captures show so far: the settled face tracks how long the session
+ran, but the scale differs per model - a four-sector iO graded 25 s and 60 s
+as face 1 (sad), 81 s as face 2 (neutral) and 128 s as face 5 (smile), while
+a six-sector iO graded 74 s as face 3. The end-of-run summary therefore prints one row per session with its
 duration next to the settled face, which is the measurement this script now
-exists to collect. Values 2, 4 and 7 have never been observed in a capture
+exists to collect. Values 4 and 7 have never been observed in a capture
 (6 is known only as the byte-55 literal in the old upstream table); a session
 that produces one is worth reporting.
 
@@ -163,7 +164,7 @@ KNOWN_SECTOR_BYTES = {
 
 # Faces seen in an advertisement so far. Anything outside this set is new and
 # worth reporting; see the module docstring for where each one comes from.
-KNOWN_SMILEY_VALUES = {0, 1, 3, 5, 6}
+KNOWN_SMILEY_VALUES = {0, 1, 2, 3, 5, 6}
 
 # Current upstream PRESSURE mapping (oralb_ble 1.1.1). Values outside this
 # set surface as "unknown pressure N" sensor states in Home Assistant.
