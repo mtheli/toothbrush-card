@@ -66,6 +66,16 @@ export const SUPPORTED_INTEGRATIONS = {
 // still readable - was the alternative.
 const BROADCAST_SILENCE_SECONDS = 120;
 
+// The states in which a handle presents a finished session — its display face
+// arrives in them (oralb_live), and they are the only states in which a
+// finished routine may be derived from the frozen timer: a mid-session pause
+// reads `idle` and must not flash a completed view.
+export const SUMMARY_STATUSES = new Set([
+    'session_summary',
+    'post_brushing_summary',
+    'post_brushing_statistics',
+]);
+
 /**
  * Whether the handle can be said to be there, for the header's Bluetooth icon.
  *
@@ -470,6 +480,7 @@ export class ToothbrushCard extends LitElement {
         super();
         this._applySectorState(initialSectorState());
         this._historyRecapState = null;
+        this._historyRecapRetryAt = 0;
         // Completion latch (issue #4): persist the finished-session view. The
         // rules live in session-state.js; the card only holds the values.
         this._applySessionState(initialSessionState());
@@ -572,9 +583,14 @@ export class ToothbrushCard extends LitElement {
     // actively (oralb_live) reports it as unavailable once the brush is back on
     // the charger — precisely when this rebuild has to run.
 
-    async _maybeLoadRecapFromHistory(hass, config, entityIds, routineTarget) {
+    async _maybeLoadRecapFromHistory(hass, config, entityIds, routineFromEntity) {
         if (this._historyRecapState) return;
+        if (Date.now() < this._historyRecapRetryAt) return;
         this._historyRecapState = 'pending';
+        // The query may outlive this configuration: captured so a device
+        // switch in the editor neither blocks the new device's own query nor
+        // shows it this device's session.
+        const forDevice = config.device_id;
         const holdHours = config.hold_duration !== undefined
             ? Number(config.hold_duration) || 0
             : 0.5;
@@ -607,24 +623,35 @@ export class ToothbrushCard extends LitElement {
                 ? resp?.[entityIds.routine_length_number] || []
                 : [];
         } catch (e) {
-            // recorder unavailable or entity excluded — keep today's behavior
+            // Recorder still starting, or a transient socket error — retry on
+            // a later render instead of giving up for the page's lifetime:
+            // for oralb_live this query is the only way back to a recap. The
+            // cooldown keeps a recorder that is down from being hammered.
             console.warn('toothbrush-card: history recap query failed', e);
+            if (this.config?.device_id === forDevice) {
+                this._historyRecapState = null;
+                this._historyRecapRetryAt = Date.now() + 30000;
+            }
             return;
-        } finally {
-            this._historyRecapState = 'done';
         }
-        // The world may have moved on while the query ran.
+        // The world may have moved on while the query ran — including to
+        // another device, whose state this stale result must not touch.
+        if (this.config?.device_id !== forDevice) return;
+        this._historyRecapState = 'done';
         if (this._completed || this._wasActiveSession || this._holdDismissed) return;
         const session = this._lastSessionFromHistory(rows, MIN_RECAP_SECONDS);
         if (!session) return;
-        // History first, the current state only as a fallback; without either,
-        // the plain default applies — but not for a device that does report a
-        // routine, since measuring an aborted long routine against the short
-        // default would announce it as complete.
-        const target = this._routineAtFromHistory(routineRows, session.endedAt,
+        // An explicit config value wins outright — it exists because the
+        // entity's reading is not to be trusted. Then history, then the
+        // current entity reading; without any of them the plain default
+        // applies — but not for a device that does report a routine, since
+        // measuring an aborted long routine against the short default would
+        // announce it as complete.
+        const target = Number(config.routine_length)
+            || this._routineAtFromHistory(routineRows, session.endedAt,
                 entityIds.routine_length_minutes)
             || this._routineAtFromHistory(routineNumberRows, session.endedAt, true)
-            || routineTarget
+            || routineFromEntity
             || ((entityIds.routine_length || entityIds.routine_length_number)
                 ? 0 : BRUSHING_DURATION);
         if (!target) return;
@@ -715,6 +742,7 @@ export class ToothbrushCard extends LitElement {
             // device B's own persisted hold, if any.
             this._entityIds = null;
             this._historyRecapState = null;
+            this._historyRecapRetryAt = 0;
             this._applySessionState({
                 ...initialSessionState(),
                 holdDismissed: this._loadDismissed(config.device_id),
@@ -1041,6 +1069,10 @@ export class ToothbrushCard extends LitElement {
             .toLowerCase();
         // Binary main state entities (xiaomi_ble) report plain on/off.
         const status = rawStatus === 'on' ? 'running' : rawStatus === 'off' ? 'idle' : rawStatus;
+        // The built-in oralb integration reports its states with spaces
+        // ("post brushing statistics"), oralb_live underscored — the slug is
+        // the one spelling locale keys and status sets are written in.
+        const statusSlug = status.replace(/ /g, '_');
         const active = this._isActive(status);
         // Without a duration entity (Xiaomi broadcasts no live timer) the
         // session time is how long the state entity has been on — the card's
@@ -1142,9 +1174,7 @@ export class ToothbrushCard extends LitElement {
             displayFace: entityIds.smiley
                 ? hass.states[entityIds.smiley]?.state
                 : null,
-            faceWindow: active || status === 'session_summary'
-                || status === 'post_brushing_summary'
-                || status === 'post_brushing_statistics',
+            faceWindow: active || SUMMARY_STATUSES.has(statusSlug),
             // Xiaomi reports a score only when the handle switches off, so it
             // describes the session that just ended rather than the one in
             // progress - which is what makes it belong on the badge.
@@ -1161,7 +1191,13 @@ export class ToothbrushCard extends LitElement {
             this._clearDismissed(config.device_id);
         }
         if (latch.loadHistoryRecap) {
-            this._maybeLoadRecapFromHistory(hass, config, entityIds, routineLength);
+            // Deliberately the raw entity reading, not `routineLength`: its
+            // defaults must not paper over a routine sensor that is currently
+            // unreadable — the rebuild declines in that case (a Sonicare's
+            // aborted 3-minute routine measured against the 2-minute default
+            // would read as complete).
+            this._maybeLoadRecapFromHistory(hass, config, entityIds,
+                Math.round(routineFromEntity));
         }
         // hold_duration in hours; absent = 0.5 h default, explicit 0 = until
         // the next session. After expiry the recap is merely hidden — a later
@@ -1240,26 +1276,46 @@ export class ToothbrushCard extends LitElement {
             `;
         }
 
-        // Ab HA 2026.8 dekodiert oralb_ble die Sektoren 5/6 selbst — dann den
-        // Rohwert direkt übernehmen. Auf älteren Installationen bleibt der
-        // _correctSectorIndex-Workaround aktiv, weil die Integration dort
-        // Sektor 5/6 als 4 meldet. Bewusst nur für die eingebaute
-        // oralb-Integration: der Workaround war immer nur deren Bug-Kompensation.
-        const sectorsAreUpstreamDecoded = entityIds.integration === 'oralb'
-            && this._sectorEntityDecodesAllSectors(hass, entityIds.sector);
+        // From HA 2026.8 on, oralb_ble decodes sectors 5/6 itself — take the
+        // raw value as-is. Older installations keep the _correctSectorIndex
+        // workaround, which only ever compensated the built-in integration's
+        // bug of reporting sector 5/6 as 4. oralb_live decodes correctly on
+        // every release, so it must never run through the workaround: a
+        // legitimately repeated or lower sector after a reconnect would be
+        // misread as a wrap and advanced past the real zone.
+        const sectorsAreUpstreamDecoded = entityIds.integration === 'oralb_live'
+            || (entityIds.integration === 'oralb'
+                && this._sectorEntityDecodesAllSectors(hass, entityIds.sector));
 
         // Sector: use real entity if available, otherwise compute from time
         let sector;
         if (entityIds.sector) {
             sector = hass.states[entityIds.sector]?.state || 'no_sector';
-            // Dieselbe oralb_ble-Version hat den Sektorwert `success` entfernt
-            // und setzt den Sektor zurück, sobald die Bürste steht — ein
-            // fertiges Programm meldet sich also nicht mehr über die Entity.
-            // Deshalb hier aus dem erreichten Ziel ableiten (gleiche
-            // 0.9-Toleranz wie der Completion-Latch), damit der Abschluss nicht
-            // an `hold_completed` hängt. Ältere Releases liefern `success`
-            // weiterhin direkt und laufen unverändert an dieser Stelle vorbei.
+            // The same oralb_ble release removed the `success` sector value
+            // and resets the sector as soon as the motor stops — a finished
+            // routine no longer announces itself through the entity, so it is
+            // derived here from the reached target (same 0.9 tolerance as the
+            // completion latch), keeping the completed view independent of
+            // `hold_completed`. Two guards keep the derivation honest: only
+            // while the frames are fresh — a broadcast handle that goes
+            // offline on its summary screen freezes these values forever, and
+            // without the guard the card showed a permanent finished view
+            // that neither dismissal nor the hold window could clear — and
+            // never against a dismissed recap. Known residue: a mid-session
+            // pause within the 0.9 tolerance flashes the finished view until
+            // brushing resumes; pause and finish both read idle/no_sector
+            // here, the distinguishing bits are masked off upstream. A
+            // routine the entity does not report can only come from
+            // `routine_length` in the config — without it, a longer routine
+            // is measured against the 2-minute default. Older releases
+            // deliver `success` directly and pass through unchanged.
+            const summaryFresh =
+                !SUPPORTED_INTEGRATIONS[entityIds.integration]?.broadcast
+                || (Date.now() - Date.parse(
+                    hass.states[statusEntityId]?.last_updated ?? '')) / 1000
+                    < BROADCAST_SILENCE_SECONDS;
             if (sectorsAreUpstreamDecoded && sector === 'no_sector' && !active
+                && summaryFresh && !this._holdDismissed
                 && duration >= (routineLength || BRUSHING_DURATION) * 0.9) {
                 sector = 'success';
             }
@@ -1320,7 +1376,7 @@ export class ToothbrushCard extends LitElement {
         const progressPct = showCompleted
             ? 100
             : Math.min(100, Math.round(displayDuration / targetDuration * 100));
-        const statusKey = 'status_' + status;
+        const statusKey = 'status_' + statusSlug;
         const displayStatus = t(hass, statusKey) !== statusKey
             ? t(hass, statusKey)
             : status.replace(/_/g, ' ');

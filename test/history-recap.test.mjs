@@ -24,7 +24,8 @@ const rest = (state, epochSeconds) => ({
 });
 
 /** A card bound to an Oral-B-shaped device that is idle with wiped counters. */
-async function idleCard(config = {}, { duration = '0', routineLength = null } = {}) {
+async function idleCard(config = {},
+    { duration = '0', routineLength = null, withSector = true } = {}) {
     const Card = await loadCard();
     const el = new Card();
     el.requestUpdate = () => {};
@@ -47,6 +48,10 @@ async function idleCard(config = {}, { duration = '0', routineLength = null } = 
             translation_key: 'sector',
         },
     };
+    // Sonicare-shaped when false: a routine entity but no sector entity, so
+    // the live routineLength falls back to the 2-minute default — which the
+    // history rebuild must not adopt as a measuring stick.
+    if (!withSector) delete entities['sensor.io_sector'];
     const states = {
         'sensor.io_state': { state: 'idle', attributes: {}, last_changed: START.toISOString() },
         'sensor.io_time': {
@@ -221,6 +226,98 @@ describe('rebuilding the recap', () => {
         assert.doesNotThrow(() => el.render());
         await new Promise(resolve => setImmediate(resolve));
         assert.equal(el._completed, false);
+    });
+
+    test('a failing recorder is asked again after a cooldown', async (t) => {
+        // A recorder that is merely still starting up must not cost the recap
+        // for the page's lifetime — for oralb_live the query is the only way
+        // back to one.
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, hass, calls } = await idleCard();
+        const endedAt = START.getTime() / 1000 - 300;
+        let failing = true;
+        hass.callWS = async (msg) => {
+            calls.push(msg);
+            if (failing) throw new Error('recorder starting');
+            return { 'sensor.io_time':
+                [ws(0, endedAt - 130), ws(120, endedAt), ws(0, endedAt + 10)] };
+        };
+
+        el.hass = hass;
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+        assert.equal(calls.length, 1, 'within the cooldown nothing is retried');
+
+        failing = false;
+        t.mock.timers.tick(31_000);
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+        assert.equal(calls.length, 2, 'past the cooldown the query is retried');
+        assert.equal(el._completed, true, 'and the recap is rebuilt');
+    });
+
+    test('an explicit routine_length in the config beats the recorded one', async (t) => {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        // The option exists because the sensor's reading is not to be
+        // trusted — so it must also decide the rebuilt session's target.
+        const { el, hass } = await idleCard({ routine_length: 120 },
+            { routineLength: '180' });
+        const endedAt = START.getTime() / 1000 - 300;
+        hass.__response = {
+            'sensor.io_time': [ws(0, endedAt - 130), ws(120, endedAt), ws(0, endedAt + 10)],
+            'sensor.io_routine': [ws(180, endedAt - 600)],
+        };
+
+        el.hass = hass;
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+
+        assert.equal(el._completedIsFull, true,
+            'measured against the configured 120 s, not the recorded 180 s');
+    });
+
+    test('a sector-less device with an unreadable routine gets no recap either', async (t) => {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        // Sonicare-shaped: routine entity, no sector entity. Its unreadable
+        // routine must not fall back to the 2-minute default, which would
+        // call an aborted 150 s Gum Health run complete.
+        const { el, hass } = await idleCard({},
+            { routineLength: 'unavailable', withSector: false });
+        const endedAt = START.getTime() / 1000 - 300;
+        hass.__response = {
+            'sensor.io_time': [ws(0, endedAt - 160), ws(150, endedAt), ws(0, endedAt + 10)],
+            'sensor.io_routine': [],
+        };
+
+        el.hass = hass;
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+
+        assert.equal(el._completed, false, 'no target, no recap');
+    });
+
+    test('a query that outlives a device switch changes nothing', async (t) => {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, hass } = await idleCard();
+        const endedAt = START.getTime() / 1000 - 300;
+        let release;
+        hass.callWS = () => new Promise((resolve) => {
+            release = () => resolve({ 'sensor.io_time':
+                [ws(0, endedAt - 130), ws(120, endedAt), ws(0, endedAt + 10)] });
+        });
+
+        el.hass = hass;
+        el.render();
+        el.setConfig({ type: 'custom:toothbrush-card', device_id: 'dev2' });
+        release();
+        await new Promise(resolve => setImmediate(resolve));
+
+        assert.equal(el._completed, false,
+            "device A's stale result must not appear as device B's session");
+        assert.equal(el._historyRecapState, null,
+            "nor may its 'done' block device B's own query");
     });
 
     test('the query runs once, not on every render', async (t) => {

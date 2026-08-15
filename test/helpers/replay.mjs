@@ -78,15 +78,18 @@ function makeHass(decoded, generation, iso) {
         locale: { language: 'en' },
         devices: { dev1: DEVICE },
         entities: ENTITIES,
+        // Real Home Assistant states always carry last_updated alongside
+        // last_changed; the card's freshness guards read the former.
         states: {
-            'sensor.io_state': { state: decoded.state, attributes: {}, last_changed: iso },
+            'sensor.io_state': { state: decoded.state, attributes: {}, last_changed: iso, last_updated: iso },
             'sensor.io_sector': {
                 state: decoded.sectorState,
                 attributes: { device_class: 'enum', options: SECTOR_OPTIONS[generation] },
                 last_changed: iso,
+                last_updated: iso,
             },
-            'sensor.io_number_of_sectors': { state: String(decoded.noOfSectors ?? ''), attributes: {}, last_changed: iso },
-            'sensor.io_time': { state: String(decoded.brushTime), attributes: { device_class: 'duration' }, last_changed: iso },
+            'sensor.io_number_of_sectors': { state: String(decoded.noOfSectors ?? ''), attributes: {}, last_changed: iso, last_updated: iso },
+            'sensor.io_time': { state: String(decoded.brushTime), attributes: { device_class: 'duration' }, last_changed: iso, last_updated: iso },
         },
         // The tests disable the history recap, so this is never reached.
         callWS: async () => ({}),
@@ -101,7 +104,7 @@ function makeHass(decoded, generation, iso) {
  * it - captured by wrapping the two methods that receive them, so nothing has
  * to be read back out of the lit template.
  */
-export async function replay(frames, { generation, config = {} } = {}) {
+export async function replay(frames, { generation, config = {}, andThen } = {}) {
     const Card = await loadCard();
     const el = new Card();
     el.requestUpdate = () => {};        // there is no update cycle without a DOM
@@ -139,6 +142,19 @@ export async function replay(frames, { generation, config = {} } = {}) {
         el.hass = makeHass(decoded, generation, new Date(toMs(frame) + offset).toISOString());
         el.render();
         rows.push({ ts: frame.ts, decoded, card: current });
+    }
+    // Lets a test look past the capture: re-render a frame as if its state
+    // were `agedSeconds` old now — a handle frozen on its summary screen —
+    // optionally after poking the element (a dismissal, a config change).
+    if (andThen) {
+        await andThen(el, (frame, agedSeconds = 0) => {
+            const decoded = decodeFrame(frame.bytes, generation);
+            current = null;
+            el.hass = makeHass(decoded, generation,
+                new Date(Date.now() - agedSeconds * 1000 - 1000).toISOString());
+            el.render();
+            rows.push({ ts: frame.ts, decoded, card: current });
+        });
     }
     return rows;
 }

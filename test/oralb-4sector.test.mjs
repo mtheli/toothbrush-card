@@ -18,6 +18,7 @@ import test, { describe, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { framesFromFixture, decodeFrame } from './helpers/oralb-integration.mjs';
 import { replay } from './helpers/replay.mjs';
+import { markup } from './helpers/markup.mjs';
 
 const DENSE = new URL('./fixtures/oralb-4sector-offline-ending.json', import.meta.url);
 const SPARSE = new URL('./fixtures/oralb-4sector-sparse.json', import.meta.url);
@@ -95,5 +96,51 @@ describe('a handle that goes offline instead of resetting its timer', () => {
 
         assert.ok(lastTime > 0, 'the timer really is never reset in this capture');
         assert.equal(rows.at(-1).decoded.state, 'post brushing statistics');
+    });
+
+    test('the derived finish fades once the frozen summary goes stale', async () => {
+        // The frozen frame keeps its values forever; deriving `success` from
+        // them without a freshness bound showed a permanent finished view
+        // that neither dismissal nor the hold window could clear.
+        const rows = await replay(dense, {
+            generation: '1.1.3',
+            config: { hold_completed: false },
+            andThen: (el, renderAgain) => renderAgain(dense.at(-1), 2 * 60 * 60),
+        });
+
+        assert.equal(rows.at(-2).card.sector, 'success',
+            'a fresh summary still reads as finished');
+        assert.equal(rows.at(-1).card.sector, 'no_sector',
+            'a summary frozen for two hours no longer does');
+    });
+
+    test('dismissing the recap dismisses the derived finish with it', async () => {
+        const rows = await replay(dense, {
+            generation: '1.1.3',
+            andThen: (el, renderAgain) => {
+                el._dismissHold();
+                renderAgain(dense.at(-1), 5);
+            },
+        });
+
+        assert.equal(rows.at(-2).card.sector, 'success');
+        assert.equal(rows.at(-1).card.sector, 'no_sector',
+            'the × left the derived finished view standing');
+    });
+});
+
+describe('the summary state on the card', () => {
+    test('is shown localized, not as the raw state string', async () => {
+        // The built-in integration reports its states with spaces ("post
+        // brushing statistics"); the locale keys are underscored. The slug
+        // bridges the two — without it the raw string leaked onto the card.
+        let el;
+        await replay(dense, {
+            generation: '1.1.3',
+            andThen: (e, renderAgain) => { el = e; renderAgain(dense.at(-1), 0); },
+        });
+        const text = markup(el.render());
+        assert.match(text, /Summary/);
+        assert.doesNotMatch(text, /post brushing statistics/);
     });
 });

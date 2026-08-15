@@ -21,7 +21,7 @@ import { smileyTier, SMILEY_TIERS } from '../src/icons.js';
  * `smiley` of null omits the sensor entirely - the handles that predate it,
  * and every other integration.
  */
-function oralbHass({ status = 'idle', duration = '0', smiley = 'off' } = {}) {
+function oralbHass({ status = 'idle', duration = '0', smiley = 'off', sector } = {}) {
     const entity = (id, translation_key) => ({
         entity_id: id, device_id: 'dev1', platform: 'oralb_live', translation_key,
     });
@@ -36,6 +36,18 @@ function oralbHass({ status = 'idle', duration = '0', smiley = 'off' } = {}) {
     if (smiley !== null) {
         entities['sensor.io_smiley'] = entity('sensor.io_smiley', 'smiley');
         states['sensor.io_smiley'] = { state: smiley, attributes: {}, last_changed: null };
+    }
+    if (sector !== undefined) {
+        entities['sensor.io_sector'] = entity('sensor.io_sector', 'sector');
+        states['sensor.io_sector'] = {
+            state: sector,
+            attributes: {
+                device_class: 'enum',
+                options: ['no_sector', 'sector_1', 'sector_2', 'sector_3',
+                    'sector_4', 'sector_5', 'sector_6'],
+            },
+            last_changed: null,
+        };
     }
     return {
         language: 'en',
@@ -177,5 +189,25 @@ describe('what a face value maps to', () => {
         for (const [name, tier] of Object.entries(SMILEY_TIERS)) {
             assert.notEqual(tier.color, 'gold', `${name} must not use gold`);
         }
+    });
+});
+
+describe('oralb_live sectors', () => {
+    test('a repeated or lower reading is taken at face value, not advanced', async () => {
+        // oralb_live decodes correctly on every release, so the pre-2026.8
+        // workaround must never touch it: it would read a repeated or lower
+        // sector after a reconnect as a wrap and advance past the real zone.
+        const el = await oralbCard();
+        const seen = [];
+        const base = Object.getPrototypeOf(el)._getSectorData;
+        el._getSectorData = function (sector, activeIndex, order, doneCount) {
+            seen.push(activeIndex);
+            return base.call(this, sector, activeIndex, order, doneCount);
+        };
+        for (const s of ['sector_2', 'sector_2', 'sector_1']) {
+            el.hass = oralbHass({ status: 'running', duration: '45', sector: s });
+            el.render();
+        }
+        assert.deepEqual(seen, [1, 1, 0], 'raw sectors rendered as-is');
     });
 });
