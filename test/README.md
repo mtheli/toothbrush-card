@@ -202,6 +202,20 @@ no address, no device name.
   Neither of the two can be recorded again; the handles are no longer
   reachable. They are the reason to keep a capture even when it is thin.
 
+- `fixtures/oralb-pause-carry.json` — a four-sector iO brushed for 136 s with
+  short pauses (the session that decoded the display faces for issue #20).
+  Each pause makes the handle settle on its current verdict face, and the
+  frames after a pause carry that face while running — so this capture has
+  faces 3, 4 and 6 inside running frames, including byte 0x31, which the
+  pre-1.1.1 table could not name. See `oralb-august-captures.test.mjs`.
+
+- `fixtures/oralb-n0-overtime.json` — a pause-free 140 s run on a handle that
+  advertises `number_of_sectors` = 0. Exercises the four-zone fallback, the
+  quadrant-7 sentinel in overtime, and closes on byte 0x37 — face 6 plus the
+  sentinel, the exact byte the old table listed as `success`. Also the
+  control run proving the verdict face never changes mid-run without a
+  pause. See `oralb-august-captures.test.mjs`.
+
 - `fixtures/sonicare-hx999x-clean-complete.jsonl` — an HX999X Prestige
   (firmware 1.15.4) running a full two-minute Clean routine. Recorded with
   `scripts/sonicare_session_record.py` from the philips_sonicare_ble repo,

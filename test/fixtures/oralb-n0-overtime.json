@@ -1,0 +1,65 @@
+{
+  "source": "scripts/oralb/adv_capture.py --watch",
+  "contributor": "mtheli",
+  "device": "Oral-B iO (advertises number_of_sectors = 0)",
+  "captured": "2026-08-16",
+  "note": "A pause-free 140 s control run. The handle reports no sector count (byte 10 is 0), walks quadrants 1-4 and switches to the quadrant-7 sentinel in overtime. Every running frame carries face 0 - the verdict never changes mid-run without a pause - and the single closing idle frame is byte 0x37 (55): face 6 with the quadrant-7 sentinel, the exact byte the pre-1.1.1 table listed as \"success\".",
+  "frames": [
+    {
+      "ts": "2026-08-16 00:29:17.231",
+      "hex": "0631320372000700010000"
+    },
+    {
+      "ts": "2026-08-16 00:29:27.994",
+      "hex": "0631320372001100010000"
+    },
+    {
+      "ts": "2026-08-16 00:29:38.741",
+      "hex": "0631320372001c00010000"
+    },
+    {
+      "ts": "2026-08-16 00:29:49.506",
+      "hex": "0631320372002700020000"
+    },
+    {
+      "ts": "2026-08-16 00:30:00.430",
+      "hex": "0631320372003200020000"
+    },
+    {
+      "ts": "2026-08-16 00:30:11.002",
+      "hex": "0631320372010000030000"
+    },
+    {
+      "ts": "2026-08-16 00:30:21.743",
+      "hex": "0631320372010b00030000"
+    },
+    {
+      "ts": "2026-08-16 00:30:32.505",
+      "hex": "0631320372011600030000"
+    },
+    {
+      "ts": "2026-08-16 00:30:43.326",
+      "hex": "0631320372012000040000"
+    },
+    {
+      "ts": "2026-08-16 00:30:54.087",
+      "hex": "0631320372012b00040000"
+    },
+    {
+      "ts": "2026-08-16 00:31:04.830",
+      "hex": "0631320372013600040000"
+    },
+    {
+      "ts": "2026-08-16 00:31:15.523",
+      "hex": "0631320372020400070000"
+    },
+    {
+      "ts": "2026-08-16 00:31:26.261",
+      "hex": "0631320372020f00070000"
+    },
+    {
+      "ts": "2026-08-16 00:31:37.019",
+      "hex": "0631320272021400370000"
+    }
+  ]
+}
