@@ -608,6 +608,12 @@ class Capture:
             heartbeat.cancel()
             await asyncio.gather(heartbeat, return_exceptions=True)
             await scanner.stop()
+            # Ctrl+C must not swallow a session the brush never closed - a
+            # handle that keeps its summary on screen has wiped nothing and
+            # been silent for less than the settle window, so its frames are
+            # still sitting in the buffer. Written as they stand.
+            for mac in list(self.session_by_mac):
+                self._write_session(mac, "capture stopped")
 
     def _liveness_line(self, now: float) -> tuple[str, str]:
         """The current 'still listening' summary, and a signature of it.
