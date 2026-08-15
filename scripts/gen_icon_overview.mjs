@@ -257,13 +257,16 @@ const faceCell = (path, color, hexLabel, state, name, code) => `
     </div>`;
 
 badge.push(section('Oral-B display face', ['oralb_live'],
-    'Shares the verdict slot on the badge with the Xiaomi score - no handle reports both. The handle\'s own verdict (FF0A), latched at the end of a session and shown beside the badge text — never as a chip, because the sensor reads "off" between sessions and changes with pressure while brushing. 34px, well above the 24px chip size: the star-eyes face collapses to dots below that. Gold is deliberately absent — it belongs to the score chip, and a third accent clashes with a badge that is already green or amber; "perfect" and "excellent" share green and are told apart by shape. Only three values are decoded (issue #20); every other value shows a question mark plus its raw name so users can report what their handle displayed.', [
+    'Shares the verdict slot on the badge with the Xiaomi score - no handle reports both. The handle\'s own verdict (FF0A), latched at the end of a session and shown beside the badge text — never as a chip, because the sensor reads "off" between sessions and changes with pressure while brushing. 34px, well above the 24px chip size: the star-eyes face collapses to dots below that. Gold is deliberately absent — it belongs to the score chip, and a third accent clashes with a badge that is already green or amber; "perfect" and "excellent" share green and are told apart by shape. Values 2–6 were decoded in August 2026 from advertisement captures photographed against the handle display (issue #20); special_7 to 9 still show a question mark plus their raw name so users can report what their handle displayed.', [
     faceCell(smiley.SMILEY_MEDAL, C.green, '#16a34a', 'special_11 — perfect', 'mdi:medal — time AND pressure fulfilled'),
     faceCell(smiley.SMILEY_STAR_EYES, C.green, '#16a34a', 'special_10 — excellent', 'card-own SVG — star eyes, full smile'),
+    faceCell(smiley.SMILEY_STAR_EYES, C.green, '#16a34a', 'special_6 — excellent', 'card-own SVG — star eyes on an overtime run'),
+    faceCell(smiley.SMILEY_HAPPY, C.green, '#16a34a', 'special_5 — good', 'mdi:emoticon-happy-outline — a completed run'),
+    faceCell(smiley.SMILEY_HAPPY, C.green, '#16a34a', 'special_4 — good', 'mdi:emoticon-happy-outline — half smile, ~100 s'),
     faceCell(smiley.SMILEY_HAPPY, C.green, '#16a34a', 'standard — good', 'mdi:emoticon-happy-outline'),
-    faceCell(smiley.SMILEY_NEUTRAL, C.amber, '#d97706', 'reserved — fair', 'mdi:emoticon-neutral-outline (no value yet)'),
+    faceCell(smiley.SMILEY_NEUTRAL, C.amber, '#d97706', 'special_2, special_3 — fair', 'mdi:emoticon-neutral-outline — the two neutral variants'),
     faceCell(smiley.SMILEY_SAD, C.red, '#dc2626', 'reserved — poor', 'mdi:emoticon-sad-outline (no value yet)'),
-    faceCell(smiley.SMILEY_UNKNOWN, C.muted, '#9ca3af (muted)', 'special_2 … special_9', 'mdi:help-circle-outline + raw value', 'special_7'),
+    faceCell(smiley.SMILEY_UNKNOWN, C.muted, '#9ca3af (muted)', 'special_7 … special_9', 'mdi:help-circle-outline + raw value', 'special_7'),
     faceCell(smiley.SMILEY_UNKNOWN, C.muted, '#9ca3af (muted)', 'any future value', 'mdi:help-circle-outline + raw value', 'special_12'),
 ]));
 
