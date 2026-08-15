@@ -133,10 +133,13 @@ The face's values:
 | --- | --- | --- | --- |
 | `special_11` | time **and** pressure fulfilled | `mdi:medal` | green `#16a34a` |
 | `special_10` | star eyes, full smile | card-own SVG | green `#16a34a` |
+| `special_6` | star eyes on an overtime run | card-own SVG | green `#16a34a` |
+| `special_5` | full smile, a completed run | `mdi:emoticon-happy-outline` | green `#16a34a` |
+| `special_4` | half smile, ~100 s | `mdi:emoticon-happy-outline` | green `#16a34a` |
 | `standard` | the everyday face | `mdi:emoticon-happy-outline` | green `#16a34a` |
-| — | *reserved* | `mdi:emoticon-neutral-outline` | amber `#d97706` |
+| `special_2`, `special_3` | the two neutral variants | `mdi:emoticon-neutral-outline` | amber `#d97706` |
 | — | *reserved* | `mdi:emoticon-sad-outline` | red `#dc2626` |
-| `special_2` … `special_9` | undecoded | `mdi:help-circle-outline` + raw value | muted `#9ca3af` |
+| `special_7` … `special_9` | undecoded | `mdi:help-circle-outline` + raw value | muted `#9ca3af` |
 
 Four deliberate choices here:
 
@@ -164,7 +167,9 @@ placeholder like `special_N`, and reporting the most common value would bury
 the rare ones.
 
 `special_10` and `special_11` were identified by @hipp0o in that issue.
-`special_2` … `special_9` are still open.
+`special_2` … `special_6` were decoded in August 2026 from advertisement
+captures photographed against the handle display, on an iO6 and an iO8 alike.
+`special_7` … `special_9` are still open.
 
 ## Regenerating
 

@@ -172,7 +172,7 @@ describe('what a face value maps to', () => {
         const tier = smileyTier('special_7');
         assert.equal(tier.code, 'special_7');
         assert.equal(tier.color, 'muted');
-        assert.equal(tier.path, smileyTier('special_3').path,
+        assert.equal(tier.path, smileyTier('special_8').path,
             'every undecoded value uses the same question mark');
     });
 
@@ -227,5 +227,23 @@ describe('the Bluetooth icon when the charger carries the data', () => {
         assert.match(text, /Live data via the charging station/);
         assert.doesNotMatch(text, /Live data over Bluetooth</,
             'the HA-facing wording must not appear on the charger path');
+    });
+});
+
+describe('the faces decoded from the August captures', () => {
+    test('carry their tiers', () => {
+        assert.equal(smileyTier('special_2'), SMILEY_TIERS.fair);
+        assert.equal(smileyTier('special_3'), SMILEY_TIERS.fair,
+            'the second neutral variant of the same tier');
+        assert.equal(smileyTier('special_4'), SMILEY_TIERS.good);
+        assert.equal(smileyTier('special_5'), SMILEY_TIERS.good);
+        assert.equal(smileyTier('special_6'), SMILEY_TIERS.excellent,
+            'the star-eyed face, same drawing the newest handles report as special_10');
+    });
+
+    test('special_7 to 9 still ask to be reported', () => {
+        for (const code of ['special_7', 'special_8', 'special_9']) {
+            assert.equal(smileyTier(code).code, code, `${code} must stay undecoded`);
+        }
     });
 });

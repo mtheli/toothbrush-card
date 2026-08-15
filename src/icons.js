@@ -97,10 +97,21 @@ export const SMILEY_TIERS = {
 // channel with the one value we care least about and bury the rare ones.
 export const SMILEY_SENTIMENT = {
     standard: 'good',
+    // 2–6 decoded 2026-08 from advertisement captures photographed against
+    // the handle display, on an iO6 and an iO8 alike (issue #20): short and
+    // paused runs settle on the two neutral variants, ~100 s on a half
+    // smile, a completed two-minute run on the full smile, and a run pushed
+    // past ~2:15 on the same star-eyed face the newest handles report as
+    // special_10.
+    special_2: 'fair',        // neutral face — an 81 s run
+    special_3: 'fair',        // the same tier's second neutral variant
+    special_4: 'good',        // half smile — 100–115 s
+    special_5: 'good',        // full smile — a completed run
+    special_6: 'excellent',   // star eyes — overtime runs, both generations
     special_10: 'excellent',  // star eyes, full smile — hipp0o, issue #20
     special_11: 'perfect',    // "everything regarding cleaning time and
                               //  pressure is fulfilled" — hipp0o, issue #20
-    // special_2 … special_9 undecoded; `fair` and `poor` wait for them.
+    // special_7, 8 and 9 undecoded — never observed on any handle so far.
 };
 
 /**
