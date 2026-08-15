@@ -95,7 +95,8 @@ What the captures show so far is that the face the handle settles on at the
 end tracks how long the session ran: 51 s -> 0, 74 s -> 3, 123 s (complete)
 -> 5. The end-of-run summary therefore prints one row per session with its
 duration next to the settled face, which is the measurement this script now
-exists to collect. Values 2, 4, 6 and 7 have never been observed; a session
+exists to collect. Values 2, 4 and 7 have never been observed in a capture
+(6 is known only as the byte-55 literal in the old upstream table); a session
 that produces one is worth reporting.
 
 Pressure/status byte
@@ -323,9 +324,11 @@ class Capture:
         buffer = self.session_by_mac.setdefault(record.address, [])
         if record.brush_time:
             buffer.append(record)
-        elif buffer:
+        elif buffer and record.brush_time == 0:
             # The frame that shows the timer wiped belongs to the session it
             # ends - it is the evidence that the brush cleared its counters.
+            # A truncated advertisement with no timer field at all proves
+            # nothing, so it neither joins nor closes a session.
             buffer.append(record)
             self._write_session(record.address, "timer cleared")
 
