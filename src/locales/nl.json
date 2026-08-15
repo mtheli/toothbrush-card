@@ -3,6 +3,8 @@
   "conn_charger_paired": "Oplaadstation gekoppeld",
   "conn_bt_active": "Live-gegevens via Bluetooth",
   "conn_bt_connected": "Bluetooth verbonden",
+  "conn_bt_charger_active": "Live data via Bluetooth naar het laadstation",
+  "conn_bt_charger_connected": "Via Bluetooth verbonden met het laadstation",
   "conn_bt_disconnected": "Geen Bluetooth-verbinding",
   "conn_bridge_online": "ESP-bridge online",
   "conn_bridge_active": "ESP-bridge draagt live gegevens over",

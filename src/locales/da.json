@@ -3,6 +3,8 @@
   "conn_charger_paired": "Ladestation parret",
   "conn_bt_active": "Livedata via Bluetooth",
   "conn_bt_connected": "Bluetooth forbundet",
+  "conn_bt_charger_active": "Live data via Bluetooth til ladestationen",
+  "conn_bt_charger_connected": "Bluetooth forbundet til ladestationen",
   "conn_bt_disconnected": "Ingen Bluetooth-forbindelse",
   "conn_bridge_online": "ESP-bro online",
   "conn_bridge_active": "ESP-bro overfører livedata",

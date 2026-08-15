@@ -501,6 +501,7 @@ export class ToothbrushCard extends LitElement {
             face: this._face,
             completedFace: this._completedFace,
             completedScore: this._completedScore,
+            completedFromStash: this._completedFromStash,
         };
     }
 
@@ -524,6 +525,7 @@ export class ToothbrushCard extends LitElement {
         this._face = state.face;
         this._completedFace = state.completedFace;
         this._completedScore = state.completedScore;
+        this._completedFromStash = state.completedFromStash;
     }
 
     // --- Dismiss persistence (issue #4/#5/#11) ---
@@ -1671,6 +1673,9 @@ export class ToothbrushCard extends LitElement {
                         <svg class="conn-icon ${btActive ? 'active' : ''} ${!btConnected ? 'disconnected' : ''}"
                              viewBox="0 0 24 24" fill="currentColor">
                             <title>${!btConnected ? t(hass, 'conn_bt_disconnected')
+                                : viaCharger
+                                    ? (btActive ? t(hass, 'conn_bt_charger_active')
+                                        : t(hass, 'conn_bt_charger_connected'))
                                 : btActive ? t(hass, 'conn_bt_active')
                                 : t(hass, 'conn_bt_connected')}</title>
                             <path d="${!btConnected ? CONN_ICONS.bluetooth_off

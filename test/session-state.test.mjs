@@ -218,6 +218,19 @@ describe('the display face', () => {
         assert.equal(state.completedFace, null);
     });
 
+    test('Home Assistant placeholders are plumbing, not faces', () => {
+        // A sensor that reads `unknown` or `unavailable` inside the window -
+        // a restart, a reconnect - must not put a "please report this face"
+        // badge on screen for what is no face at all.
+        for (const placeholder of ['unknown', 'unavailable']) {
+            const { state } = run([
+                { active: true, duration: 130, faceWindow: true },
+                { active: false, duration: 130, displayFace: placeholder, faceWindow: true },
+            ]);
+            assert.equal(state.completedFace, null, `latched '${placeholder}'`);
+        }
+    });
+
     test('a face arriving only after the session ended still lands', () => {
         // The motor stops, the recap latches, and the summary state follows a
         // reading later carrying the actual result.
@@ -306,5 +319,34 @@ describe('the score a handle reports at the end', () => {
             { active: false, duration: 0 },
         ]);
         assert.equal(state.completedScore, null);
+    });
+
+    test('a fumble restores the stashed score, not the fumble\'s own', () => {
+        // The discarded run has already written its score to the sensor by the
+        // time the stash comes back - the restored session must keep the score
+        // it earned, not adopt the fumble's.
+        const { state } = run([
+            { active: true, duration: 130 },
+            { active: false, duration: 0, displayScore: '95' },
+            { active: true, duration: MIN_RECAP_SECONDS - 5 },
+            { active: false, duration: 0, displayScore: '10' },
+            { active: false, duration: 0, displayScore: '10' },
+        ]);
+        assert.equal(state.completed, true, 'the stashed recap is back');
+        assert.equal(state.completedScore, '95');
+    });
+
+    test('the next real session adopts the sensor again', () => {
+        // The stash freeze must end with the restored recap: a full session
+        // after the fumble earns its own score the normal way.
+        const { state } = run([
+            { active: true, duration: 130 },
+            { active: false, duration: 0, displayScore: '95' },
+            { active: true, duration: MIN_RECAP_SECONDS - 5 },
+            { active: false, duration: 0, displayScore: '10' },
+            { active: true, duration: 130 },
+            { active: false, duration: 0, displayScore: '88' },
+        ]);
+        assert.equal(state.completedScore, '88');
     });
 });

@@ -3,6 +3,8 @@
   "conn_charger_paired": "Зарядная станция сопряжена",
   "conn_bt_active": "Данные в реальном времени по Bluetooth",
   "conn_bt_connected": "Bluetooth подключён",
+  "conn_bt_charger_active": "Данные передаются по Bluetooth на зарядную станцию",
+  "conn_bt_charger_connected": "Bluetooth подключён к зарядной станции",
   "conn_bt_disconnected": "Нет подключения по Bluetooth",
   "conn_bridge_online": "ESP-мост в сети",
   "conn_bridge_active": "ESP-мост передаёт данные",

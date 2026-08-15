@@ -21,7 +21,8 @@ import { smileyTier, SMILEY_TIERS } from '../src/icons.js';
  * `smiley` of null omits the sensor entirely - the handles that predate it,
  * and every other integration.
  */
-function oralbHass({ status = 'idle', duration = '0', smiley = 'off', sector } = {}) {
+function oralbHass({ status = 'idle', duration = '0', smiley = 'off', sector,
+    baseAttrs = {} } = {}) {
     const entity = (id, translation_key) => ({
         entity_id: id, device_id: 'dev1', platform: 'oralb_live', translation_key,
     });
@@ -30,7 +31,7 @@ function oralbHass({ status = 'idle', duration = '0', smiley = 'off', sector } =
         'sensor.io_brushing_time': entity('sensor.io_brushing_time', 'brushing_time'),
     };
     const states = {
-        'sensor.io_toothbrush_state': { state: status, attributes: {}, last_changed: null },
+        'sensor.io_toothbrush_state': { state: status, attributes: baseAttrs, last_changed: null },
         'sensor.io_brushing_time': { state: duration, attributes: {}, last_changed: null },
     };
     if (smiley !== null) {
@@ -209,5 +210,22 @@ describe('oralb_live sectors', () => {
             el.render();
         }
         assert.deepEqual(seen, [1, 1, 0], 'raw sectors rendered as-is');
+    });
+});
+
+describe('the Bluetooth icon when the charger carries the data', () => {
+    test('both icons tell the same story: brush -> charger -> home', async () => {
+        // The handle's Bluetooth goes to the iO Sense, not to Home Assistant -
+        // the same chain as brush -> ESP bridge, and the icons name it that
+        // way: the BT icon points at the station, the station icon at us.
+        const el = await replay([{
+            status: 'charging',
+            baseAttrs: { charger_address: 'AA:BB', data_source: 'charger_bridge' },
+        }]);
+        const text = markup(el.render());
+        assert.match(text, /Live data over Bluetooth to the charging station/);
+        assert.match(text, /Live data via the charging station/);
+        assert.doesNotMatch(text, /Live data over Bluetooth</,
+            'the HA-facing wording must not appear on the charger path');
     });
 });

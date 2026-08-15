@@ -40,6 +40,7 @@ export function initialSessionState() {
         face: null,
         completedFace: null,
         completedScore: null,
+        completedFromStash: false,
     };
 }
 
@@ -104,6 +105,7 @@ export function nextSessionState(prev, {
             state.holdDismissed = false;
             state.sessionRoutineLength = 0;
             state.face = null;
+            state.completedFromStash = false;
         }
         state.peakDuration = Math.max(state.peakDuration, duration);
         if (routineLength > 0) {
@@ -120,18 +122,24 @@ export function nextSessionState(prev, {
             state.completedIsFull = state.peakDuration >= endTarget;
             state.completedDuration = state.peakDuration;
             state.completedAt = now;
+            state.completedFromStash = false;
         } else if (holdCompleted && state.stashedRecap) {
             state.completed = true;
             state.completedIsFull = state.stashedRecap.full;
             state.completedDuration = state.stashedRecap.duration;
             state.completedAt = state.stashedRecap.at;
             state.face = state.stashedRecap.face;
+            // The restored session's own score, not the sensor's: the fumble
+            // that was just discarded has already overwritten the sensor.
+            state.completedScore = state.stashedRecap.score ?? null;
+            state.completedFromStash = true;
         } else {
             state.completed = false;
             state.completedIsFull = false;
             state.completedDuration = 0;
             state.completedAt = 0;
             state.face = null;
+            state.completedFromStash = false;
         }
         state.peakDuration = 0;
         state.stashedRecap = null;
@@ -154,6 +162,7 @@ export function nextSessionState(prev, {
             state.completedDuration = duration;
         }
         state.completed = true;
+        state.completedFromStash = false;
         state.completedIsFull =
             duration >= (routineLength || BRUSHING_DURATION) * COMPLETION_TOLERANCE;
     } else if (holdCompleted && !state.holdDismissed && !state.completed
@@ -174,8 +183,12 @@ export function nextSessionState(prev, {
     // a summary state first, and that state is not `active`. So the latch keeps
     // adopting a face for as long as the caller holds the window open, and
     // completedFace fills in a beat after the recap appears rather than at the
-    // transition. `off` is the display asleep, never a verdict.
-    if (faceWindow && displayFace && displayFace !== 'off') {
+    // transition. `off` is the display asleep, never a verdict — and `unknown`
+    // and `unavailable` are Home Assistant placeholders, not values the handle
+    // showed: latched, they would put a "please report this face" badge on
+    // screen for what is plumbing, not data.
+    if (faceWindow && displayFace && displayFace !== 'off'
+            && displayFace !== 'unknown' && displayFace !== 'unavailable') {
         state.face = displayFace;
     }
     state.completedFace = state.completed ? state.face : null;
@@ -186,8 +199,12 @@ export function nextSessionState(prev, {
     // cannot stray into the next session: starting one clears the recap first.
     // Xiaomi is the only integration that reports one, and only at the end of
     // a session; between sessions the sensor keeps the last value, which is
-    // exactly what makes it safe to read here.
-    if (state.completed && !active && displayScore !== null && displayScore !== '') {
+    // exactly what makes it safe to read here. Except for a recap restored
+    // from the stash: the discarded fumble has already written its own score
+    // to the sensor, so the restored session keeps the score it was stashed
+    // with instead.
+    if (state.completed && !active && !state.completedFromStash
+            && displayScore !== null && displayScore !== '') {
         state.completedScore = displayScore;
     } else if (!state.completed) {
         state.completedScore = null;

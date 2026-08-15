@@ -3,6 +3,8 @@
   "conn_charger_paired": "Polnilna postaja povezana",
   "conn_bt_active": "Podatki v živo prek Bluetootha",
   "conn_bt_connected": "Bluetooth povezan",
+  "conn_bt_charger_active": "Podatki v živo prek Bluetootha do polnilne postaje",
+  "conn_bt_charger_connected": "Bluetooth povezan s polnilno postajo",
   "conn_bt_disconnected": "Ni povezave Bluetooth",
   "conn_bridge_online": "Most ESP povezan",
   "conn_bridge_active": "Most ESP prenaša podatke v živo",
