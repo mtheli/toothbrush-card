@@ -23,6 +23,9 @@
   "complete": "Fertig",
 
   "done_title": "Putzen abgeschlossen!",
+  "recap_source_live": "Ende dieser Sitzung mitverfolgt",
+  "recap_source_history": "Aus dem Verlauf rekonstruiert",
+  "recap_source_device": "Aus dem Speicher der Bürste gelesen",
   "done_sextants": "Alle 6 Sextanten fertig",
   "done_quadrants": "Alle 4 Quadranten fertig",
   "aborted_title": "Putzen vorzeitig abgebrochen",

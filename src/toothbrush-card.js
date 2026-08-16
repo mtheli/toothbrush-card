@@ -245,7 +245,7 @@ export function findDeviceEntities(hass, deviceId) {
         brushhead_sessions: null, activity: null,
         mode_select: null, esp_bridge_alive: null,
         ble_connected: null, score: null, pacer_30s: null,
-        smiley: null
+        smiley: null, last_session: null, last_session_duration: null
     };
 
     const allEntities = hass.entities;
@@ -368,6 +368,14 @@ export function findDeviceEntities(hass, deviceId) {
             // done badge rather than as a chip — it is a session result, and
             // between sessions the sensor reads `off`.
             entityKeys.smiley = entity.entity_id;
+        } else if (entity.translation_key === 'last_session') {
+            // The handle's own record of the session it last finished, read
+            // back from the device rather than watched happening. It is the
+            // one source that still knows what a session was after the fact,
+            // which is exactly when a card that was closed needs to be told.
+            entityKeys.last_session = entity.entity_id;
+        } else if (entity.translation_key === 'last_session_duration') {
+            entityKeys.last_session_duration = entity.entity_id;
         }
 
         // Sonicare translation_keys
@@ -501,6 +509,7 @@ export class ToothbrushCard extends LitElement {
             face: this._face,
             completedFace: this._completedFace,
             completedScore: this._completedScore,
+            completedSource: this._completedSource,
             completedFromStash: this._completedFromStash,
         };
     }
@@ -525,6 +534,7 @@ export class ToothbrushCard extends LitElement {
         this._face = state.face;
         this._completedFace = state.completedFace;
         this._completedScore = state.completedScore;
+        this._completedSource = state.completedSource;
         this._completedFromStash = state.completedFromStash;
     }
 
@@ -584,6 +594,79 @@ export class ToothbrushCard extends LitElement {
     // the one that governed the past session, and an integration that connects
     // actively (oralb_live) reports it as unavailable once the brush is back on
     // the charger — precisely when this rebuild has to run.
+
+    // How far back an unbounded recap may reach. Mirrors the history
+    // rebuild's own lookback, so both sources age out together.
+    static MAX_RECAP_AGE_MS = 30 * 24 * 3600 * 1000;
+
+    _recapFromLastSession(hass, config, entityIds, routineFromEntity) {
+        // The handle's own record of its last session, if the integration
+        // offers one. Preferred over rebuilding the session from recorder
+        // history for three reasons: it is what the device concluded rather
+        // than what a series of readings implies, it needs no recorder and
+        // no round trip, and it is right even where history is blind — a
+        // session brushed while Home Assistant was down leaves no rows to
+        // reconstruct, but the handle still remembers it.
+        //
+        // Returns whether a recap was built, so the caller knows whether the
+        // history query is still needed.
+        const stateObj = entityIds.last_session
+            ? hass.states[entityIds.last_session] : null;
+        if (!stateObj || stateObj.state === 'unknown'
+            || stateObj.state === 'unavailable') return false;
+
+        const endedAt = Date.parse(stateObj.state);
+        if (!Number.isFinite(endedAt)) return false;
+        // With no hold window there is nothing to expire a recap, and a
+        // record outlives restarts - so an ancient one would sit there as
+        // the current session forever. The same bound the history rebuild
+        // uses for its lookback applies here.
+        const holdHours = config.hold_duration !== undefined
+            ? Number(config.hold_duration) || 0
+            : 0.5;
+        if (holdHours <= 0 && Date.now() - endedAt > this.constructor.MAX_RECAP_AGE_MS) return false;
+
+        const attrs = stateObj.attributes || {};
+        // The integration says so when the handle has finished a session it
+        // has not written down yet: some only file the record as they switch
+        // off, a minute or more after the motor stops. Until the newer one
+        // arrives, this record describes the session before the one somebody
+        // just brushed, and showing it as the recap would be worse than
+        // showing nothing - the reading is right, the claim is not.
+        if (attrs.superseded) return false;
+        // The integration says how it arrived at the time. "collection" means
+        // only that the session was already over when the record was read -
+        // it could be days old, and the badge would announce it as just now.
+        // A recap is a when as much as a what, so without a trustworthy when
+        // there is nothing honest to show.
+        if (attrs.time_source === 'collection') return false;
+        // The duration lives on the record, but the integrations that expose
+        // one also expose it as a reading of its own — either will do.
+        const duration = Number(
+            attrs.duration_seconds ?? (entityIds.last_session_duration
+                ? hass.states[entityIds.last_session_duration]?.state : NaN)
+        );
+        if (!Number.isFinite(duration) || duration < MIN_RECAP_SECONDS) return false;
+
+        // Same precedence as the history rebuild: an explicit setting wins,
+        // then what the record itself says it was aiming for, then the
+        // current reading. A device that reports a routine but cannot name
+        // one right now gets no recap rather than a wrong verdict.
+        const target = Number(config.routine_length)
+            || Number(attrs.routine_length_seconds)
+            || routineFromEntity
+            || ((entityIds.routine_length || entityIds.routine_length_number)
+                ? 0 : BRUSHING_DURATION);
+        if (!target) return false;
+
+        this._completed = true;
+        this._completedIsFull = duration >= target * 0.9;
+        this._completedDuration = duration;
+        this._completedAt = endedAt;
+        this._completedSource = 'device';
+        this.requestUpdate();
+        return true;
+    }
 
     async _maybeLoadRecapFromHistory(hass, config, entityIds, routineFromEntity) {
         if (this._historyRecapState) return;
@@ -661,6 +744,7 @@ export class ToothbrushCard extends LitElement {
         this._completedIsFull = session.duration >= target * 0.9;
         this._completedDuration = session.duration;
         this._completedAt = session.endedAt;
+        this._completedSource = 'history';
         this.requestUpdate();
     }
 
@@ -1198,8 +1282,12 @@ export class ToothbrushCard extends LitElement {
             // unreadable — the rebuild declines in that case (a Sonicare's
             // aborted 3-minute routine measured against the 2-minute default
             // would read as complete).
-            this._maybeLoadRecapFromHistory(hass, config, entityIds,
-                Math.round(routineFromEntity));
+            const target = Math.round(routineFromEntity);
+            // Ask the device before asking the recorder: the handle's own
+            // record is both more trustworthy and available immediately.
+            if (!this._recapFromLastSession(hass, config, entityIds, target)) {
+                this._maybeLoadRecapFromHistory(hass, config, entityIds, target);
+            }
         }
         // hold_duration in hours; absent = 0.5 h default, explicit 0 = until
         // the next session. After expiry the recap is merely hidden — a later
@@ -1423,6 +1511,26 @@ export class ToothbrushCard extends LitElement {
                 completedAgo = t(hass, 'completed_ago_hours').replace('{n}', Math.floor(mins / 60));
             }
         }
+
+        // The relative time answers "recently or not", which is what the
+        // badge is for. When that is not enough - was it this morning or
+        // last night - the exact time is one hover away rather than a
+        // second line nobody reads.
+        const completedAtLabel = showRecap && this._completedAt > 0
+            ? new Date(this._completedAt).toLocaleString(
+                hass.locale?.language || hass.language || undefined,
+                { dateStyle: 'medium', timeStyle: 'short' })
+            : '';
+        // Where the recap came from. The three sources differ in what they
+        // are worth - one was watched happening, one was worked out from
+        // recorded history, and one is the brush's own record - and that is
+        // worth being able to find out when a reading surprises somebody.
+        const completedSourceLabel = showRecap
+            ? t(hass, {
+                device: 'recap_source_device',
+                history: 'recap_source_history',
+            }[this._completedSource] || 'recap_source_live')
+            : '';
 
         // ---- Configurable property placement (chips + corners) ----
         const layout = resolveLayoutForDevice(this._normalizeLayout(config), entityIds);
@@ -1788,14 +1896,14 @@ export class ToothbrushCard extends LitElement {
                         </div>` : ''}
                         <div class="done-text">
                             ${showAborted ? html`
-                            <p>${t(hass, 'aborted_title')}${completedAgo
-                                ? html` <span class="done-age">(${completedAgo})</span>` : ''}</p>
+                            <p><span title="${completedSourceLabel}">${t(hass, 'aborted_title')}</span>${completedAgo
+                                ? html` <span class="done-age" title="${completedAtLabel}">(${completedAgo})</span>` : ''}</p>
                             <span>${t(hass, numSectors === 6 ? 'aborted_sextants' : 'aborted_quadrants')
                                 .replace('{x}', Math.min(numSectors || 4, Math.floor(
                                     displayDuration / (targetDuration / (numSectors || 4)))))
                                 .replace('{y}', numSectors || 4)}</span>` : html`
-                            <p>&#10003; ${t(hass, 'done_title')}${completedAgo
-                                ? html` <span class="done-age">(${completedAgo})</span>` : ''}</p>
+                            <p><span title="${completedSourceLabel}">&#10003; ${t(hass, 'done_title')}</span>${completedAgo
+                                ? html` <span class="done-age" title="${completedAtLabel}">(${completedAgo})</span>` : ''}</p>
                             <span>${t(hass, numSectors === 6 ? 'done_sextants' : 'done_quadrants')}</span>`}
                         </div>
                     </div>

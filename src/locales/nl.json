@@ -23,6 +23,9 @@
   "complete": "Afgerond",
 
   "done_title": "Klaar met poetsen!",
+  "recap_source_live": "Het einde van deze sessie is meegekeken",
+  "recap_source_history": "Gereconstrueerd uit de geschiedenis",
+  "recap_source_device": "Uit het geheugen van de borstel gelezen",
   "done_sextants": "Alle 6 sectoren afgerond",
   "done_quadrants": "Alle 4 sectoren afgerond",
   "aborted_title": "Poetsen voortijdig gestopt",

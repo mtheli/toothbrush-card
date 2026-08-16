@@ -41,6 +41,11 @@ export function initialSessionState() {
         completedFace: null,
         completedScore: null,
         completedFromStash: false,
+        // Which route established the recap on screen: the latch watching a
+        // session end (null), a rebuild from history, or the handle's own
+        // record. Part of the latch state rather than the card's own, so it
+        // is dropped and restored with the recap it describes.
+        completedSource: null,
     };
 }
 
@@ -163,6 +168,8 @@ export function nextSessionState(prev, {
         }
         state.completed = true;
         state.completedFromStash = false;
+        // Adopted from the live reading, whatever established it before.
+        state.completedSource = null;
         state.completedIsFull =
             duration >= (routineLength || BRUSHING_DURATION) * COMPLETION_TOLERANCE;
     } else if (holdCompleted && !state.holdDismissed && !state.completed

@@ -23,6 +23,9 @@
   "complete": "Končano",
 
   "done_title": "Ščetkanje končano!",
+  "recap_source_live": "Konec te seje je bil opazovan",
+  "recap_source_history": "Rekonstruirano iz zgodovine",
+  "recap_source_device": "Prebrano iz spomina ščetke",
   "done_sextants": "Vseh 6 sekstantov končanih",
   "done_quadrants": "Vsi 4 kvadranti končani",
   "aborted_title": "Ščetkanje predčasno prekinjeno",
