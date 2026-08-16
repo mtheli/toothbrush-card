@@ -255,6 +255,42 @@ describe('the badge verdict switch', () => {
         assert.equal(last().show_verdict, undefined,
             'a config that matches the default carries no key at all');
     });
+
+    test('hides for a device with nothing to switch', async () => {
+        const { el } = await editor();
+        assert.equal(el._hasVerdictSource(), false,
+            'a plain oralb device has neither a face nor a score to show');
+    });
+
+    test('shows for a device with a display face', async () => {
+        const hass = ORALB();
+        hass.entities['sensor.io_smiley'] = {
+            entity_id: 'sensor.io_smiley', device_id: 'dev1',
+            platform: 'oralb_live', translation_key: 'smiley',
+        };
+        const { el } = await editor({}, hass);
+        assert.equal(el._hasVerdictSource(), true);
+    });
+
+    test('shows for a device with a session score', async () => {
+        const hass = ORALB();
+        hass.entities['sensor.io_score'] = {
+            entity_id: 'sensor.io_score', device_id: 'dev1',
+            platform: 'xiaomi_miio',
+        };
+        const { el } = await editor({}, hass);
+        assert.equal(el._hasVerdictSource(), true);
+    });
+
+    test('ignores verdict sources on other devices', async () => {
+        const hass = ORALB();
+        hass.entities['sensor.other_smiley'] = {
+            entity_id: 'sensor.other_smiley', device_id: 'dev2',
+            platform: 'oralb_live', translation_key: 'smiley',
+        };
+        const { el } = await editor({}, hass);
+        assert.equal(el._hasVerdictSource(), false);
+    });
 });
 
 describe('the other defaults that write no key', () => {
