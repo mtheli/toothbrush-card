@@ -60,10 +60,11 @@ export class ToothbrushCardEditor extends LitElement {
 
     _hasVerdictSource() {
         if (!this.hass || !this._config?.device_id) return false;
-        return Object.values(this.hass.entities).some(
-            e => e.device_id === this._config.device_id
-                && (e.translation_key === 'smiley' || e.entity_id.endsWith('_score'))
-        );
+        // Resolved the same way the card resolves it, rather than by a rule
+        // of its own: a switch shown for a device whose verdict the card
+        // would never render is a control that does nothing.
+        const ids = this._deviceIds();
+        return !!(ids.smiley || ids.score);
     }
 
     _fireConfig(config) {

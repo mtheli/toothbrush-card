@@ -276,10 +276,21 @@ describe('the badge verdict switch', () => {
         const hass = ORALB();
         hass.entities['sensor.io_score'] = {
             entity_id: 'sensor.io_score', device_id: 'dev1',
-            platform: 'xiaomi_miio',
+            platform: 'xiaomi_ble',
         };
         const { el } = await editor({}, hass);
         assert.equal(el._hasVerdictSource(), true);
+    });
+
+    test('a score the card would never map does not count', async () => {
+        // The switch has to follow the card's own mapping: a device whose
+        // verdict could never render must not get a control for it.
+        const hass = ORALB();
+        hass.entities['sensor.io_score'] = {
+            entity_id: 'sensor.io_score', device_id: 'dev1', platform: 'oralb',
+        };
+        const { el } = await editor({}, hass);
+        assert.equal(el._hasVerdictSource(), false);
     });
 
     test('ignores verdict sources on other devices', async () => {
