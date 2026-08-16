@@ -30,6 +30,7 @@
   "aborted_quadrants": "{x} af {y} sektorer færdige",
   "aborted_sextants": "{x} af {y} sektorer færdige",
   "smiley_unknown_hint": "Ukendt displayansigt — rapportér det venligst i issue #20",
+  "verdict_computed": "Beregnet ud fra sessionen, ikke vist af børsten",
   "pressure_low": "Lavt",
   "pressure_normal": "Normalt",
   "pressure_medium": "Middel",

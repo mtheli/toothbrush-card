@@ -41,6 +41,15 @@ export function initialSessionState() {
         completedFace: null,
         completedScore: null,
         completedFromStash: false,
+        // Seconds of the recapped session brushed too hard, where the record
+        // says so. Only ever arrives with a recap rebuilt from such a record,
+        // so it is cleared wherever one is established by another route.
+        completedPressure: 0,
+        // The routine the recapped session was running, where the recap knows
+        // it. The live reading is no substitute: by the time a recap is on
+        // screen the handle may have been switched to another routine, or
+        // report none at all.
+        completedTarget: 0,
         // Which route established the recap on screen: the latch watching a
         // session end (null), a rebuild from history, or the handle's own
         // record. Part of the latch state rather than the card's own, so it
@@ -102,6 +111,9 @@ export function nextSessionState(prev, {
                     full: prev.completedIsFull,
                     face: prev.completedFace,
                     score: prev.completedScore,
+                    pressure: prev.completedPressure,
+                    target: prev.completedTarget,
+                    source: prev.completedSource,
                 }
                 : null;
             state.peakDuration = 0;
@@ -128,6 +140,11 @@ export function nextSessionState(prev, {
             state.completedDuration = state.peakDuration;
             state.completedAt = now;
             state.completedFromStash = false;
+            // This session was watched, not read: whatever the last recap
+            // knew about the routine and the pressure was the last one's.
+            state.completedSource = null;
+            state.completedPressure = 0;
+            state.completedTarget = state.sessionRoutineLength;
         } else if (holdCompleted && state.stashedRecap) {
             state.completed = true;
             state.completedIsFull = state.stashedRecap.full;
@@ -137,6 +154,9 @@ export function nextSessionState(prev, {
             // The restored session's own score, not the sensor's: the fumble
             // that was just discarded has already overwritten the sensor.
             state.completedScore = state.stashedRecap.score ?? null;
+            state.completedPressure = state.stashedRecap.pressure ?? 0;
+            state.completedTarget = state.stashedRecap.target ?? 0;
+            state.completedSource = state.stashedRecap.source ?? null;
             state.completedFromStash = true;
         } else {
             state.completed = false;
@@ -144,6 +164,9 @@ export function nextSessionState(prev, {
             state.completedDuration = 0;
             state.completedAt = 0;
             state.face = null;
+            state.completedPressure = 0;
+            state.completedTarget = 0;
+            state.completedSource = null;
             state.completedFromStash = false;
         }
         state.peakDuration = 0;
@@ -170,6 +193,8 @@ export function nextSessionState(prev, {
         state.completedFromStash = false;
         // Adopted from the live reading, whatever established it before.
         state.completedSource = null;
+        state.completedPressure = 0;
+        state.completedTarget = 0;
         state.completedIsFull =
             duration >= (routineLength || BRUSHING_DURATION) * COMPLETION_TOLERANCE;
     } else if (holdCompleted && !state.holdDismissed && !state.completed

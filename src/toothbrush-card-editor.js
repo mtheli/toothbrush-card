@@ -64,7 +64,10 @@ export class ToothbrushCardEditor extends LitElement {
         // of its own: a switch shown for a device whose verdict the card
         // would never render is a control that does nothing.
         const ids = this._deviceIds();
-        return !!(ids.smiley || ids.score);
+        // A handle that reports neither can still be given a verdict the card
+        // works out itself - but only from its own record of the session, so
+        // that entity is what makes the switch worth showing.
+        return !!(ids.smiley || ids.score || ids.last_session);
     }
 
     _fireConfig(config) {

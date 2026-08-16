@@ -32,6 +32,7 @@
   "aborted_quadrants": "{x} of {y} quadrants finished",
   "aborted_sextants": "{x} of {y} sextants finished",
   "smiley_unknown_hint": "Unknown display face — please report it in issue #20",
+  "verdict_computed": "Worked out from the session, not shown by the brush",
 
   "pressure_low": "Low",
   "pressure_normal": "Normal",

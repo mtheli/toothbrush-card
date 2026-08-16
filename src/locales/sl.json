@@ -32,6 +32,7 @@
   "aborted_quadrants": "{x} od {y} kvadrantov končanih",
   "aborted_sextants": "{x} od {y} sekstantov končanih",
   "smiley_unknown_hint": "Neznan obraz na zaslonu — prosimo, sporočite v issue #20",
+  "verdict_computed": "Izračunano iz seje, ščetka tega ne prikazuje",
 
   "pressure_low": "Nizek",
   "pressure_normal": "Normalen",

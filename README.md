@@ -180,14 +180,16 @@ The card is configured via the UI — just add it and select your toothbrush dev
 
 ### Session recap
 
-After a session ends the card keeps showing it as a banner: green "Brushing complete!" for a (nearly) full routine, amber "Brushing stopped early — x of y quadrants finished" for an aborted one. The recap is rebuilt from recorder history on load, so it works on any browser or device; the × on the banner dismisses it in the current browser until the next session.
+After a session ends the card keeps showing it as a banner: green "Brushing complete!" for a (nearly) full routine, amber "Brushing stopped early — x of y quadrants finished" for an aborted one. The × on the banner dismisses it in the current browser until the next session.
+
+Where the recap comes from, in that order: the handle's own record of its last session, if the integration exposes one (a Last Session sensor) — it is the device's own account, it survives a Home Assistant restart, and it covers a session brushed while Home Assistant was off; otherwise a rebuild from recorder history, which works on any browser or device; otherwise the session the card watched end. Hovering the banner title says which one it was.
 
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
 | hold_duration | number   | 0.5     | How long to keep showing the recap banner, in hours: `0.25`–`24`, or `0` = until the next brushing session starts. |
 | hold_completed | boolean | true    | Legacy switch for the same feature: `false` disables the recap banner entirely (same as "Off" in the editor). |
 | history_recap | boolean | true    | Rebuild the recap from recorder history when the card loads with nothing else to show (fresh browser or other device, sensor values already cleared by the brush). Uses one history query for the duration sensor; `false` disables it. |
-| show_verdict  | boolean  | true    | Show the handle's verdict on the badge — the Oral-B display face (`oralb_live`) or the Xiaomi score, whichever the device reports. `false` keeps the banner and drops only that glyph. It is one switch rather than a choice between the two because no handle reports both. |
+| show_verdict  | boolean  | true    | Show the verdict on the badge — the Oral-B display face (`oralb_live`) or the Xiaomi score, whichever the device reports. On a handle that reports neither but records its own sessions, the card works one out instead, from how much of its routine the session ran and how much of it was brushed too hard; hovering that face says so. `false` keeps the banner and drops only the glyph. It is one switch rather than a choice because no handle offers more than one of them. |
 
 ### Misc
 

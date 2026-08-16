@@ -32,6 +32,7 @@
   "aborted_quadrants": "{x} von {y} Quadranten fertig",
   "aborted_sextants": "{x} von {y} Sextanten fertig",
   "smiley_unknown_hint": "Unbekanntes Display-Gesicht — bitte in Issue #20 melden",
+  "verdict_computed": "Aus der Sitzung errechnet, nicht von der Bürste angezeigt",
 
   "pressure_low": "Niedrig",
   "pressure_normal": "Normal",

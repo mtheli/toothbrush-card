@@ -1,7 +1,7 @@
 import { LitElement, html, css, unsafeCSS } from 'lit';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { ToothSVG } from './toothbrush-svg.js';
-import { MODE_ICONS, CONN_ICONS, smileyTier } from './icons.js';
+import { MODE_ICONS, CONN_ICONS, smileyTier, SMILEY_TIERS } from './icons.js';
 import { t } from './translations.js';
 import { nextSessionState, initialSessionState,
          BRUSHING_DURATION, MIN_RECAP_SECONDS } from './session-state.js';
@@ -510,6 +510,8 @@ export class ToothbrushCard extends LitElement {
             completedFace: this._completedFace,
             completedScore: this._completedScore,
             completedSource: this._completedSource,
+            completedPressure: this._completedPressure,
+            completedTarget: this._completedTarget,
             completedFromStash: this._completedFromStash,
         };
     }
@@ -535,6 +537,8 @@ export class ToothbrushCard extends LitElement {
         this._completedFace = state.completedFace;
         this._completedScore = state.completedScore;
         this._completedSource = state.completedSource;
+        this._completedPressure = state.completedPressure;
+        this._completedTarget = state.completedTarget;
         this._completedFromStash = state.completedFromStash;
     }
 
@@ -599,7 +603,7 @@ export class ToothbrushCard extends LitElement {
     // rebuild's own lookback, so both sources age out together.
     static MAX_RECAP_AGE_MS = 30 * 24 * 3600 * 1000;
 
-    _recapFromLastSession(hass, config, entityIds, routineFromEntity) {
+    _recapFromLastSession(hass, config, entityIds, routineFromEntity, notBefore = 0) {
         // The handle's own record of its last session, if the integration
         // offers one. Preferred over rebuilding the session from recorder
         // history for three reasons: it is what the device concluded rather
@@ -617,6 +621,11 @@ export class ToothbrushCard extends LitElement {
 
         const endedAt = Date.parse(stateObj.state);
         if (!Number.isFinite(endedAt)) return false;
+        // Replacing a recap that is already on screen, rather than building
+        // the first one: only a record of that same session or a later one
+        // will do. A handle that files its record late still holds the
+        // previous session's until it does, and that one is not this one.
+        if (notBefore && endedAt < notBefore - 60_000) return false;
         // With no hold window there is nothing to expire a recap, and a
         // record outlives restarts - so an ancient one would sit there as
         // the current session forever. The same bound the history rebuild
@@ -664,6 +673,11 @@ export class ToothbrushCard extends LitElement {
         this._completedDuration = duration;
         this._completedAt = endedAt;
         this._completedSource = 'device';
+        this._completedTarget = target;
+        // Only some records carry it, and only for some handles: a kids brush
+        // has no pressure sensor at all. Absent reads as none rather than as
+        // unknown, which is what a handle that cannot measure it means.
+        this._completedPressure = Number(attrs.pressure_seconds) || 0;
         this.requestUpdate();
         return true;
     }
@@ -745,6 +759,10 @@ export class ToothbrushCard extends LitElement {
         this._completedDuration = session.duration;
         this._completedAt = session.endedAt;
         this._completedSource = 'history';
+        this._completedTarget = target;
+        // Recorder rows are durations only; a rebuilt session knows nothing
+        // about pressure and must not inherit the last one's.
+        this._completedPressure = 0;
         this.requestUpdate();
     }
 
@@ -1288,6 +1306,15 @@ export class ToothbrushCard extends LitElement {
             if (!this._recapFromLastSession(hass, config, entityIds, target)) {
                 this._maybeLoadRecapFromHistory(hass, config, entityIds, target);
             }
+        } else if (this._completed && this._completedSource !== 'device'
+                && entityIds.last_session) {
+            // A session the card watched end, on a handle that files a record
+            // of it a moment later. The record is the better account of the
+            // same session - it knows the routine that was running and how
+            // much of it was brushed too hard - so it takes over once it
+            // arrives.
+            this._recapFromLastSession(hass, config, entityIds,
+                Math.round(routineFromEntity), this._completedAt);
         }
         // hold_duration in hours; absent = 0.5 h default, explicit 0 = until
         // the next session. After expiry the recap is merely hidden — a later
@@ -1558,7 +1585,42 @@ export class ToothbrushCard extends LitElement {
         // on any given device there is only ever one candidate, so "show the
         // face instead of the score" would be a setting with nothing to switch.
         const showVerdict = showRecap && config.show_verdict !== false;
-        const recapFace = showVerdict ? smileyTier(this._completedFace) : null;
+        // A handle that shows no face of its own can still be given a verdict,
+        // but it has to be ours rather than the device's - computed from what
+        // the session was, and said to be ours on the badge.
+        //
+        // Measured against the routine rather than in absolute seconds: two
+        // minutes is a whole session on one handle and half of one on
+        // another. Pressure only ever lowers the verdict - brushing gently is
+        // not an achievement, brushing hard is a fault.
+        // Not where the device already gives a verdict of its own - a face
+        // from the handle or a score from the integration. They share this
+        // one slot on the badge, and a computed opinion must not push a
+        // reported fact out of it.
+        // Only for a recap read from the handle's own record. That is where
+        // the two things a verdict needs actually are - the routine this
+        // session ran and how much of it was brushed too hard - and a
+        // rebuild from recorder rows knows neither.
+        const ownVerdict = showVerdict && this._completedSource === 'device'
+                && !this._completedFace
+                && !Number.isFinite(parseFloat(this._completedScore))
+                && this._completedDuration > 0
+            ? (() => {
+                // The routine this session ran, where the recap carries it:
+                // measuring a three-minute session against whatever the
+                // handle is set to now would judge the wrong routine.
+                const ran = this._completedDuration / (this._completedTarget || targetDuration);
+                const pressed = this._completedPressure > 0
+                    ? this._completedPressure / this._completedDuration : 0;
+                if (ran < 0.5) return 'poor';
+                if (ran < 0.9) return 'fair';
+                return pressed > 0.1 ? 'fair' : pressed > 0.02 ? 'good' : 'excellent';
+            })()
+            : null;
+        const recapFace = showVerdict
+            ? (smileyTier(this._completedFace)
+                || (ownVerdict ? { ...SMILEY_TIERS[ownVerdict], computed: true } : null))
+            : null;
         const recapScoreNum = showVerdict && !recapFace ? parseFloat(this._completedScore) : NaN;
         const recapScore = Number.isFinite(recapScoreNum) ? {
             value: this._completedScore,
@@ -1883,7 +1945,9 @@ export class ToothbrushCard extends LitElement {
                             <svg class="done-smiley ${recapFace.color}" viewBox="0 0 24 24"
                                  fill="currentColor">
                                 ${recapFace.code
-                                    ? html`<title>${t(hass, 'smiley_unknown_hint')}</title>` : ''}
+                                    ? html`<title>${t(hass, 'smiley_unknown_hint')}</title>`
+                                    : recapFace.computed
+                                    ? html`<title>${t(hass, 'verdict_computed')}</title>` : ''}
                                 <path d="${recapFace.path}"/>
                             </svg>
                             ${recapFace.code

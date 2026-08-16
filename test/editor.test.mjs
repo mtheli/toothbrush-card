@@ -282,6 +282,18 @@ describe('the badge verdict switch', () => {
         assert.equal(el._hasVerdictSource(), true);
     });
 
+    test('shows for a device that records its own sessions', async () => {
+        // No face and no score, but the card computes a verdict from the
+        // stored record - so there is something to switch off.
+        const hass = ORALB();
+        hass.entities['sensor.io_last'] = {
+            entity_id: 'sensor.io_last', device_id: 'dev1',
+            platform: 'philips_sonicare_ble', translation_key: 'last_session',
+        };
+        const { el } = await editor({}, hass);
+        assert.equal(el._hasVerdictSource(), true);
+    });
+
     test('a score the card would never map does not count', async () => {
         // The switch has to follow the card's own mapping: a device whose
         // verdict could never render must not get a control for it.

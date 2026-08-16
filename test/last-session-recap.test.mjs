@@ -13,9 +13,11 @@
 //
 // So the record is asked first, and history stays the fallback.
 
-import test, { describe } from 'node:test';
+import test, { describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCard } from './helpers/replay.mjs';
+import { markup } from './helpers/markup.mjs';
+import { SMILEY_TIERS } from '../src/icons.js';
 
 const START = new Date('2026-08-16T07:00:00Z');
 const ENDED = new Date('2026-08-16T06:53:13Z');
@@ -358,5 +360,159 @@ describe('not claiming more than is known', () => {
         assert.equal(el._completedSource, 'device');
         el.setConfig({ type: 'custom:toothbrush-card', device_id: 'dev2' });
         assert.equal(el._completedSource, null);
+    });
+});
+
+describe('a record that arrives after the card watched the session', () => {
+    // The handle files its record a moment after the motor stops, so the
+    // card usually latches the session first and the record lands second.
+    // It describes the same session better than the latch does - it knows
+    // the routine that was running and how hard it was brushed - so it
+    // takes over.
+
+    /** A card that has just watched a session end, its record still empty. */
+    async function watched(t) {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, hass } = await idleCard({ record: { state: 'unknown' } });
+        hass.callWS = async () => ({});
+        el.hass = hass;
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+        hass.states['sensor.b_time'] = {
+            state: '160', attributes: { device_class: 'duration' },
+            last_changed: new Date(START.getTime() - 60_000).toISOString(),
+        };
+        el.hass = hass;
+        el.render();
+        assert.equal(el._completed, true, 'the latch has the session');
+        assert.ok(!el._completedSource, 'and nothing read it from anywhere');
+        return { el, hass };
+    }
+
+    /** Hand the card a filed record and let it render. */
+    function file(el, hass, { at, ...attributes }) {
+        hass.states['sensor.b_last'] = {
+            state: at.toISOString(),
+            attributes: { duration_seconds: 160, routine_length_seconds: 160, ...attributes },
+            last_changed: at.toISOString(),
+        };
+        el.hass = hass;
+        el.render();
+    }
+
+    test('the record of that session replaces what was latched', async (t) => {
+        const { el, hass } = await watched(t);
+        file(el, hass, {
+            at: new Date(START.getTime() - 30_000),
+            duration_seconds: 158, routine_length_seconds: 180, pressure_seconds: 12,
+        });
+        assert.equal(el._completedSource, 'device');
+        assert.equal(el._completedDuration, 158, "the handle's own count of it");
+        assert.equal(el._completedIsFull, false, 'measured against its 3-minute routine');
+        assert.equal(el._completedPressure, 12);
+    });
+
+    test('the record of an earlier session does not', async (t) => {
+        // A handle that files its record only when it powers off still holds
+        // yesterday's until it does. That one is not this session.
+        const { el, hass } = await watched(t);
+        file(el, hass, {
+            at: new Date(START.getTime() - 20 * 3600_000), duration_seconds: 90,
+        });
+        assert.ok(!el._completedSource);
+        assert.equal(el._completedDuration, 160, 'still the session just watched');
+    });
+});
+
+describe('a verdict the card works out itself', () => {
+    // A Sonicare shows no face and reports no score, so the badge's glyph
+    // slot stayed empty on every handle but an Oral-B. The stored record
+    // carries enough to judge the session by: how long it ran against the
+    // routine it was running, and how much of that was brushed too hard.
+
+    // Every case here reads a record dated shortly before START, so the clock
+    // is held there for the whole block - otherwise the recap ages past its
+    // hold window and the badge renders empty for reasons unrelated to the
+    // verdict.
+    beforeEach((t) => t.mock.timers.enable({ apis: ['Date'], now: START }));
+
+    /** The tier the badge draws for a stored session, found by its icon. */
+    async function verdict({ duration = 120, routine = 120, pressure, config = {} } = {}) {
+        const attributes = { duration_seconds: duration, routine_length_seconds: routine };
+        if (pressure !== undefined) attributes.pressure_seconds = pressure;
+        const { el, hass } = await idleCard({ record: { attributes }, config });
+        el.hass = hass;
+        const text = markup(el.render());
+        return {
+            tier: Object.keys(SMILEY_TIERS)
+                .find(name => text.includes(SMILEY_TIERS[name].path)) ?? null,
+            text,
+        };
+    }
+
+    test('a full session brushed gently reads best', async () => {
+        assert.equal((await verdict({ pressure: 0 })).tier, 'excellent');
+    });
+
+    test('pressure lowers it', async () => {
+        // The two ends are measured, not chosen: one two-minute session
+        // pressed hard through the opening segment reported 16.2 s, the same
+        // routine brushed deliberately lightly 1.5 s. They have to land on
+        // different faces, and the light one on the best.
+        assert.equal((await verdict({ pressure: 16.2 })).tier, 'fair');
+        assert.equal((await verdict({ pressure: 1.5 })).tier, 'excellent');
+        // Between them, where an ordinary session sits.
+        assert.equal((await verdict({ pressure: 6 })).tier, 'good');
+    });
+
+    test('a session cut short reads worse than a full one', async () => {
+        assert.equal((await verdict({ duration: 40 })).tier, 'poor');
+        assert.equal((await verdict({ duration: 90 })).tier, 'fair');
+    });
+
+    test('it is measured against the routine, not against two minutes', async () => {
+        // 60 seconds is a whole session on a handle set to a 60 s routine and
+        // a third of one on a three-minute routine.
+        assert.equal((await verdict({ duration: 60, routine: 60, pressure: 0 })).tier,
+            'excellent');
+        assert.equal((await verdict({ duration: 60, routine: 180 })).tier, 'poor');
+
+    });
+
+    test('the badge says the verdict is the card\'s own', async () => {
+        const { text } = await verdict({ pressure: 0 });
+        assert.match(text, /Worked out from the session/,
+            'a computed opinion must not read as something the handle reported');
+    });
+
+    test('a handle that cannot measure pressure still gets one', async () => {
+        // A kids brush has no pressure sensor; the session length alone is
+        // still worth a face.
+        assert.equal((await verdict({})).tier, 'excellent');
+    });
+
+    test('a session rebuilt from recorder rows gets none', async () => {
+        // History says how long the handle ran and nothing else. A face
+        // drawn from that alone would rate every session it reconstructs as
+        // flawless, pressure unseen.
+        const { el, hass } = await idleCard({ record: null });
+        hass.callWS = async () => ({
+            'sensor.b_time': [
+                { s: '0', lu: START.getTime() / 1000 - 400 },
+                { s: '160', lu: START.getTime() / 1000 - 240 },
+                { s: '0', lu: START.getTime() / 1000 - 230 },
+            ],
+        });
+        el.hass = hass;
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+        assert.equal(el._completedSource, 'history');
+        assert.ok(!Object.values(SMILEY_TIERS)
+            .some(tier => markup(el.render()).includes(tier.path)));
+    });
+
+    test('switching the verdict off leaves the badge blank', async () => {
+        assert.equal((await verdict({ pressure: 0, config: { show_verdict: false } })).tier,
+            null);
     });
 });
