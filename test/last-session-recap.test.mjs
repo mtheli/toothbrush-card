@@ -20,7 +20,12 @@ import { markup } from './helpers/markup.mjs';
 import { SMILEY_TIERS } from '../src/icons.js';
 
 const START = new Date('2026-08-16T07:00:00Z');
-const ENDED = new Date('2026-08-16T06:53:13Z');
+// What the entity reports is when the session BEGAN - that is the moment the
+// handle stamps on its record. The recap is about the ending, which is the
+// start plus the duration the record carries beside it.
+const STARTED = new Date('2026-08-16T06:53:13Z');
+const RECORD_DURATION = 160;
+const ENDED = new Date(STARTED.getTime() + RECORD_DURATION * 1000);
 
 /**
  * An idle brush whose integration exposes a stored last session.
@@ -61,9 +66,9 @@ async function idleCard({ record = {}, routineLength = null, config = {} } = {})
             translation_key: 'last_session',
         };
         states['sensor.b_last'] = {
-            state: record.state ?? ENDED.toISOString(),
+            state: record.state ?? STARTED.toISOString(),
             attributes: {
-                duration_seconds: 160,
+                duration_seconds: RECORD_DURATION,
                 routine_length_seconds: 160,
                 ...(record.attributes || {}),
             },
@@ -154,6 +159,25 @@ describe('the recap the handle remembers', () => {
             { last_session: 'sensor.b_last' }, 0);
         assert.equal(el._completedIsFull, false,
             '160 s against a 300 s target is not a complete routine');
+    });
+
+    test('the other word for the routine is understood too', async () => {
+        // A Sonicare record calls it the routine length, an Oral-B one the
+        // target duration. Same thing, and the card settled on the first
+        // only because that handle came first - so it reads both.
+        const { el, hass } = await idleCard({
+            record: {
+                attributes: {
+                    routine_length_seconds: undefined,
+                    target_duration_seconds: 300,
+                },
+            },
+        });
+        const ids = { last_session: 'sensor.b_last' };
+        assert.equal(el._recapFromLastSession(hass, {}, ids, 0), true);
+        assert.equal(el._completedIsFull, false,
+            '160 s against a 5-minute target is not a complete routine');
+        assert.equal(el._completedTarget, 300);
     });
 
     test('a device that reports a routine but cannot name one gets no recap', async () => {
@@ -412,6 +436,122 @@ describe('a record that arrives after the card watched the session', () => {
         assert.equal(el._completedPressure, 12);
     });
 
+    test('a two-minute session is not mistaken for the one before it', async (t) => {
+        // The record is stamped at the START of the session, so on a handle
+        // that numbers nothing - every integration but one - the only thing
+        // left to compare is time, and a long session's stamp sits a long
+        // way before the moment the card watched it end. Read as an ending
+        // it looks like the previous session and gets thrown away; the
+        // longer somebody brushes, the more certainly it happens.
+        const { el, hass } = await watched(t);
+        file(el, hass, {
+            at: new Date(START.getTime() - 160_000), duration_seconds: 160,
+        });
+        assert.equal(el._completedSource, 'device',
+            'the record describes the session that just ended, not an older one');
+        assert.equal(el._completedAt, START.getTime(),
+            'and it is dated to when that session finished');
+    });
+
+    /** A card that watched a whole session, from start to finish. */
+    async function watchedFromStart(t, { previousId = 341 } = {}) {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, hass } = await idleCard({
+            record: {
+                state: new Date(START.getTime() - 3600_000).toISOString(),
+                attributes: {
+                    duration_seconds: 150, routine_length_seconds: 160,
+                    session_id: previousId,
+                },
+            },
+        });
+        hass.callWS = async () => ({});
+        el.hass = hass;
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+        // Brushing: this is where the mark is taken.
+        hass.states['sensor.b_state'] = {
+            state: 'running', attributes: {}, last_changed: START.toISOString(),
+        };
+        hass.states['sensor.b_time'] = {
+            state: '30', attributes: { device_class: 'duration' },
+            last_changed: START.toISOString(),
+        };
+        el.hass = hass;
+        el.render();
+        // And done.
+        hass.states['sensor.b_state'] = {
+            state: 'idle', attributes: {}, last_changed: START.toISOString(),
+        };
+        hass.states['sensor.b_time'] = {
+            state: '160', attributes: { device_class: 'duration' },
+            last_changed: START.toISOString(),
+        };
+        el.hass = hass;
+        el.render();
+        assert.equal(el._completed, true, 'the latch has the session');
+        return { el, hass };
+    }
+
+    test('a session numbered later is this one, however the times read', async (t) => {
+        // The record's time is reconstructed from the handle's own counter
+        // and the latch's is taken whenever the card got round to rendering,
+        // so the two drift for reasons that say nothing about which session
+        // is which. Observed live: a perfectly good record dropped for being
+        // dated a minute earlier, and the verdict appearing only after a
+        // reload took the path without that comparison.
+        const { el, hass } = await watchedFromStart(t);
+        assert.equal(el._baselineSessionId, 341, 'the mark from the start');
+        file(el, hass, {
+            at: new Date(START.getTime() - 5 * 60_000),
+            duration_seconds: 158, routine_length_seconds: 160, session_id: 342,
+        });
+        assert.equal(el._completedSource, 'device');
+        assert.equal(el._completedDuration, 158);
+    });
+
+    test('the session already filed when this one started is not this one', async (t) => {
+        // Same number as the mark: the handle has not filed the new session
+        // yet, and this is the one it was holding all along - however
+        // recently its timestamp reads.
+        const { el, hass } = await watchedFromStart(t);
+        file(el, hass, {
+            at: new Date(START.getTime() - 1000),
+            duration_seconds: 150, routine_length_seconds: 160, session_id: 341,
+        });
+        assert.ok(!el._completedSource, 'not adopted');
+        assert.equal(el._completedDuration, 160, 'still the session just watched');
+    });
+
+    test('a record that numbers nothing is judged by the times', async (t) => {
+        // Not every integration numbers its sessions - Oral-B reports the
+        // field as null. Read as a number that would be 0, and two such
+        // records would compare equal and every session would look like the
+        // one before it.
+        const { el, hass } = await watchedFromStart(t, { previousId: null });
+        assert.equal(el._baselineSessionId, null, 'nothing to mark with');
+        file(el, hass, {
+            at: new Date(START.getTime() - 30_000),
+            duration_seconds: 158, routine_length_seconds: 160, session_id: null,
+        });
+        assert.equal(el._completedSource, 'device', 'adopted on its timing');
+    });
+
+    test('numbering that goes backwards falls back to the times', async (t) => {
+        // Counting cannot go down, so a lower number means the mark belongs
+        // to a different scheme than the record does - a handle that was
+        // reset, or a device that numbers sessions some other way. Judging
+        // by a mark that means nothing would hide every session from then
+        // on, so the comparison is abandoned rather than trusted.
+        const { el, hass } = await watchedFromStart(t);
+        file(el, hass, {
+            at: new Date(START.getTime() - 1000),
+            duration_seconds: 158, routine_length_seconds: 160, session_id: 2,
+        });
+        assert.equal(el._completedSource, 'device', 'the times allow it');
+        assert.equal(el._baselineSessionId, null, 'and the mark is discarded');
+    });
+
     test('the record of an earlier session does not', async (t) => {
         // A handle that files its record only when it powers off still holds
         // yesterday's until it does. That one is not this session.
@@ -421,6 +561,42 @@ describe('a record that arrives after the card watched the session', () => {
         });
         assert.ok(!el._completedSource);
         assert.equal(el._completedDuration, 160, 'still the session just watched');
+    });
+});
+
+describe('the two ways a missed session is recovered', () => {
+    // They answer one question - what was the last session - from two very
+    // different places, and used to share a single setting. Turning the
+    // reconstruction off took the handle's own record with it, which was
+    // never what it meant.
+
+    test('the record is read even with the history rebuild turned off', async () => {
+        const { el, hass } = await idleCard({
+            record: {
+                attributes: { duration_seconds: 158, routine_length_seconds: 160 },
+            },
+            config: { history_recap: false },
+        });
+        let asked = false;
+        hass.callWS = async () => { asked = true; return {}; };
+        el.hass = hass;
+        el.render();
+        assert.equal(el._completedSource, 'device');
+        assert.equal(asked, false, 'and the recorder is left alone');
+    });
+
+    test('the record can be turned off on its own', async () => {
+        const { el, hass } = await idleCard({
+            record: {
+                attributes: { duration_seconds: 158, routine_length_seconds: 160 },
+            },
+            config: { device_recap: false },
+        });
+        hass.callWS = async () => ({});
+        el.hass = hass;
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+        assert.notEqual(el._completedSource, 'device');
     });
 });
 
@@ -455,19 +631,20 @@ describe('a verdict the card works out itself', () => {
     });
 
     test('pressure lowers it', async () => {
-        // The two ends are measured, not chosen: one two-minute session
-        // pressed hard through the opening segment reported 16.2 s, the same
-        // routine brushed deliberately lightly 1.5 s. They have to land on
-        // different faces, and the light one on the best.
-        assert.equal((await verdict({ pressure: 16.2 })).tier, 'fair');
-        assert.equal((await verdict({ pressure: 1.5 })).tier, 'excellent');
+        // The two ends are measured, not chosen: counted off the pressure
+        // trace of two two-minute sessions on one handle, one pressed hard
+        // through the opening segment (19.7 s) and one brushed deliberately
+        // lightly (none at all). They have to land on different faces, and
+        // the light one on the best.
+        assert.equal((await verdict({ pressure: 19.7 })).tier, 'fair');
+        assert.equal((await verdict({ pressure: 0 })).tier, 'excellent');
         // Between them, where an ordinary session sits.
         assert.equal((await verdict({ pressure: 6 })).tier, 'good');
     });
 
     test('a session cut short reads worse than a full one', async () => {
-        assert.equal((await verdict({ duration: 40 })).tier, 'poor');
-        assert.equal((await verdict({ duration: 90 })).tier, 'fair');
+        assert.equal((await verdict({ duration: 40, pressure: 0 })).tier, 'poor');
+        assert.equal((await verdict({ duration: 90, pressure: 0 })).tier, 'fair');
     });
 
     test('it is measured against the routine, not against two minutes', async () => {
@@ -475,8 +652,32 @@ describe('a verdict the card works out itself', () => {
         // a third of one on a three-minute routine.
         assert.equal((await verdict({ duration: 60, routine: 60, pressure: 0 })).tier,
             'excellent');
-        assert.equal((await verdict({ duration: 60, routine: 180 })).tier, 'poor');
+        assert.equal((await verdict({ duration: 60, routine: 180, pressure: 0 })).tier, 'poor');
 
+    });
+
+    test('a badge with no glyph centres its text', async () => {
+        // The lines are ranged left so they line up beside a face. With no
+        // face there is nothing to line up against, and the shorter second
+        // line would hang off to one side of the first.
+        const { text } = await verdict({});
+        assert.match(text, /done-body[^"]*text-only/);
+    });
+
+    test('a badly judged session colours the whole badge', async () => {
+        // Two colours side by side that disagree read as two statements. The
+        // words say a session ended early, the face says how badly - and the
+        // badge takes the harsher of them so they read as one.
+        const { text } = await verdict({ duration: 40, pressure: 0 });
+        assert.match(text, /done-badge[^"]*severe/);
+    });
+
+    test('a session that ran its course but was brushed hard is not green', async () => {
+        // Nothing in the wording carries this one: the session was complete,
+        // so it says "done". The colour is where the pressure shows.
+        const { text } = await verdict({ duration: 120, routine: 120, pressure: 30 });
+        assert.match(text, /done-badge[^"]*aborted/,
+            'amber, the tone of the verdict, on a session the words call finished');
     });
 
     test('the badge says the verdict is the card\'s own', async () => {
@@ -485,10 +686,18 @@ describe('a verdict the card works out itself', () => {
             'a computed opinion must not read as something the handle reported');
     });
 
-    test('a handle that cannot measure pressure still gets one', async () => {
-        // A kids brush has no pressure sensor; the session length alone is
-        // still worth a face.
-        assert.equal((await verdict({})).tier, 'excellent');
+    test('a record without a pressure reading gets none', async () => {
+        // Duration alone would call every completed session flawless, which
+        // is precisely where a verdict is worth least and wrong most: a
+        // session brushed hard from start to finish would be praised for it.
+        // Not knowing is reported by showing nothing.
+        //
+        // This also costs the face on handles that genuinely cannot measure
+        // pressure - a kids brush has no sensor - because a record that
+        // omits the reading looks the same either way. Accepted deliberately
+        // while the integration has no pressure source at all; worth
+        // revisiting when it does.
+        assert.equal((await verdict({})).tier, null);
     });
 
     test('a session rebuilt from recorder rows gets none', async () => {

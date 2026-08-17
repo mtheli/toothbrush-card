@@ -25,6 +25,14 @@ export const MIN_RECAP_SECONDS = 10;
 // power off a beat before the last duration sample lands exactly on it.
 const COMPLETION_TOLERANCE = 0.9;
 
+// Faces that say nothing about the session they follow: the display asleep,
+// the handle's everyday face, and Home Assistant's own placeholders for a
+// reading it does not have. See the note further down for why the everyday
+// face belongs here.
+const NON_VERDICT_FACES = new Set([
+    'off', 'standard', 'unknown', 'unavailable',
+]);
+
 /** The state a card starts with, and what this function returns a new one of. */
 export function initialSessionState() {
     return {
@@ -43,8 +51,9 @@ export function initialSessionState() {
         completedFromStash: false,
         // Seconds of the recapped session brushed too hard, where the record
         // says so. Only ever arrives with a recap rebuilt from such a record,
-        // so it is cleared wherever one is established by another route.
-        completedPressure: 0,
+        // so it is null wherever one is established by another route - not
+        // knowing is its own answer, and a different one from none.
+        completedPressure: null,
         // The routine the recapped session was running, where the recap knows
         // it. The live reading is no substitute: by the time a recap is on
         // screen the handle may have been switched to another routine, or
@@ -55,6 +64,12 @@ export function initialSessionState() {
         // record. Part of the latch state rather than the card's own, so it
         // is dropped and restored with the recap it describes.
         completedSource: null,
+        // The session the handle had most recently filed when this one
+        // started - the mark against which a record arriving later is judged
+        // to belong to the session just watched. Handles number their
+        // sessions in order, so a higher number is a later session and needs
+        // no clock to say so. Null where the session was not seen starting.
+        baselineSessionId: null,
     };
 }
 
@@ -71,15 +86,17 @@ export function initialSessionState() {
  *   holdCompleted     - false disables the recap entirely (`hold_completed`)
  *   hasRoutineEntity  - does the device have a routine-length entity at all
  *   hasDurationEntity - likewise for elapsed time
- *   historyRecapEnabled - `history_recap` is not false
  *   durationLastChanged - when the duration entity last changed, as reported
  *   displayFace       - the face the handle's display shows now, or null
  *   displayScore      - the score the handle reports now, or null
  *   faceWindow        - is the handle in a state that shows a session face
  *
  * Returns the new state plus two flags: `sessionStarted` for the caller to
- * forget a stored dismissal and drop the visited sectors, and
- * `loadHistoryRecap` to go and ask the recorder.
+ * forget a stored dismissal and drop the visited sectors, and `needsRecap`
+ * to go and find out what the last session was. Where it looks is the
+ * caller's business - the handle's own record and the recorder are two
+ * answers to one question, and which of them is allowed is configuration,
+ * not state.
  */
 export function nextSessionState(prev, {
     active,
@@ -89,7 +106,6 @@ export function nextSessionState(prev, {
     holdCompleted,
     hasRoutineEntity = false,
     hasDurationEntity = false,
-    historyRecapEnabled = true,
     durationLastChanged = null,
     displayFace = null,
     displayScore = null,
@@ -97,7 +113,7 @@ export function nextSessionState(prev, {
 }) {
     const state = { ...prev };
     let sessionStarted = false;
-    let loadHistoryRecap = false;
+    let needsRecap = false;
 
     if (active) {
         if (!prev.wasActiveSession) {
@@ -142,8 +158,10 @@ export function nextSessionState(prev, {
             state.completedFromStash = false;
             // This session was watched, not read: whatever the last recap
             // knew about the routine and the pressure was the last one's.
+            // Watching says nothing about pressure, so it is unknown until a
+            // record says otherwise - not zero, which would read as none.
             state.completedSource = null;
-            state.completedPressure = 0;
+            state.completedPressure = null;
             state.completedTarget = state.sessionRoutineLength;
         } else if (holdCompleted && state.stashedRecap) {
             state.completed = true;
@@ -154,7 +172,7 @@ export function nextSessionState(prev, {
             // The restored session's own score, not the sensor's: the fumble
             // that was just discarded has already overwritten the sensor.
             state.completedScore = state.stashedRecap.score ?? null;
-            state.completedPressure = state.stashedRecap.pressure ?? 0;
+            state.completedPressure = state.stashedRecap.pressure ?? null;
             state.completedTarget = state.stashedRecap.target ?? 0;
             state.completedSource = state.stashedRecap.source ?? null;
             state.completedFromStash = true;
@@ -164,7 +182,7 @@ export function nextSessionState(prev, {
             state.completedDuration = 0;
             state.completedAt = 0;
             state.face = null;
-            state.completedPressure = 0;
+            state.completedPressure = null;
             state.completedTarget = 0;
             state.completedSource = null;
             state.completedFromStash = false;
@@ -193,12 +211,15 @@ export function nextSessionState(prev, {
         state.completedFromStash = false;
         // Adopted from the live reading, whatever established it before.
         state.completedSource = null;
-        state.completedPressure = 0;
+        state.completedPressure = null;
         state.completedTarget = 0;
+        // Not cleared here: the mark belongs to the session that just ended,
+        // and this is the moment a record of it is about to be waited for.
+        // It is set when a session starts and dropped with the recap.
         state.completedIsFull =
             duration >= (routineLength || BRUSHING_DURATION) * COMPLETION_TOLERANCE;
     } else if (holdCompleted && !state.holdDismissed && !state.completed
-            && historyRecapEnabled && hasDurationEntity) {
+            && hasDurationEntity) {
         // Issue #11: Oral-B wipes the reported values seconds after powering
         // off, and an aborted run can leave a frozen below-target one, so the
         // current state often proves nothing. The last session is rebuilt from
@@ -208,7 +229,7 @@ export function nextSessionState(prev, {
         // the target from history and declines the recap itself if neither
         // source can name one, so an integration whose sensors go unavailable
         // on disconnect still gets its session back.
-        loadHistoryRecap = true;
+        needsRecap = true;
     }
 
     // The result face is not shown while the motor runs: the brush switches to
@@ -219,8 +240,16 @@ export function nextSessionState(prev, {
     // and `unavailable` are Home Assistant placeholders, not values the handle
     // showed: latched, they would put a "please report this face" badge on
     // screen for what is plumbing, not data.
-    if (faceWindow && displayFace && displayFace !== 'off'
-            && displayFace !== 'unknown' && displayFace !== 'unavailable') {
+    //
+    // `standard` is the everyday face, and it is not a verdict either. It is
+    // what the display carries when it has nothing to say about a session,
+    // and it is also where a reading that was never refreshed comes to rest -
+    // one integration reads the face only over a connection it usually does
+    // not have, and its sensor then sits on this value indefinitely. Shown as
+    // praise it rated a thirty-second session as well brushed. Handles do
+    // report it after a session, so this is not a claim that it cannot
+    // happen: it is that the face means "nothing to report" either way.
+    if (faceWindow && displayFace && !NON_VERDICT_FACES.has(displayFace)) {
         state.face = displayFace;
     }
     state.completedFace = state.completed ? state.face : null;
@@ -243,5 +272,5 @@ export function nextSessionState(prev, {
     }
 
     state.wasActiveSession = active;
-    return { state, sessionStarted, loadHistoryRecap };
+    return { state, sessionStarted, needsRecap };
 }

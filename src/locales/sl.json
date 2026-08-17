@@ -10,7 +10,6 @@
   "conn_bridge_active": "Most ESP prenaša podatke v živo",
   "conn_bridge_offline": "Most ESP ni povezan",
   "conn_device_info": "Informacije o napravi",
-
   "chip_battery": "Baterija",
   "chip_pressure": "Pritisk",
   "chip_intensity": "Intenzivnost",
@@ -18,10 +17,8 @@
   "chip_score": "Ocena",
   "chip_head": "Glava",
   "chip_head_type": "Vrsta glave",
-
   "session": "Seja",
   "complete": "Končano",
-
   "done_title": "Ščetkanje končano!",
   "recap_source_live": "Konec te seje je bil opazovan",
   "recap_source_history": "Rekonstruirano iz zgodovine",
@@ -33,18 +30,15 @@
   "aborted_sextants": "{x} od {y} sekstantov končanih",
   "smiley_unknown_hint": "Neznan obraz na zaslonu — prosimo, sporočite v issue #20",
   "verdict_computed": "Izračunano iz seje, ščetka tega ne prikazuje",
-
   "pressure_low": "Nizek",
   "pressure_normal": "Normalen",
   "pressure_medium": "Srednji",
   "pressure_high": "Visok",
   "pressure_button_pressed": "Pritisnjen gumb",
   "pressure_power_button_pressed": "Pritisnjen gumb za vklop",
-
   "intensity_low": "Nizka",
   "intensity_medium": "Srednja",
   "intensity_high": "Visoka",
-
   "status_idle": "V mirovanju",
   "status_running": "Ščetkanje",
   "status_charging": "Polnjenje",
@@ -68,14 +62,12 @@
   "status_final_test": "Končni test",
   "status_pcb_test": "Test vezja",
   "status_calibration_test": "Kalibracijski test",
-
   "zone_upper_right": "Zgoraj desno",
   "zone_upper_front": "Zgoraj spredaj",
   "zone_upper_left": "Zgoraj levo",
   "zone_lower_left": "Spodaj levo",
   "zone_lower_front": "Spodaj spredaj",
   "zone_lower_right": "Spodaj desno",
-
   "mode_daily_clean": "Dnevno čiščenje",
   "mode_deep_clean": "Globinsko čiščenje",
   "mode_gum_care": "Nega dlesni",
@@ -98,13 +90,13 @@
   "mode_gum_health": "Zdravje dlesni",
   "mode_deep_clean_plus": "Globinsko čiščenje+",
   "mode_tongue_care": "Nega jezika",
-
   "config_device": "Naprava",
   "config_title": "Naslov (neobvezno)",
   "config_subtitle": "Prikaži ime naprave kot podnaslov",
-  "hold_off": "Izklopljeno",
   "config_hold_duration": "Prikaži končano sejo za",
   "config_show_verdict": "Prikaži oceno seje",
+  "config_device_recap": "Uporabi napravino lastno evidenco",
+  "config_history_recap": "Obnovi zamujene seje iz zgodovine",
   "hold_until_next_session": "Do naslednje seje",
   "completed_just_now": "pravkar",
   "completed_ago_minutes": "pred {n} min",
@@ -146,6 +138,7 @@
   "group_header": "Naslovna vrstica",
   "group_teeth": "Vizualizacija",
   "group_recap": "Povzetek seje",
+  "config_show_recap": "Prikaži povzetek seje",
   "group_sectors": "Sektorji",
   "group_value_display": "Prikaz vrednosti",
   "config_value_display_hint": "Te nastavitve učinkujejo le, kadar je vrednost dejansko prikazana, torej postavljena kot čip ali kotna oznaka.",

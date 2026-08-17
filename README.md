@@ -187,15 +187,24 @@ Where the recap comes from, in that order: the handle's own record of its last s
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
 | hold_duration | number   | 0.5     | How long to keep showing the recap banner, in hours: `0.25`–`24`, or `0` = until the next brushing session starts. |
-| hold_completed | boolean | true    | Legacy switch for the same feature: `false` disables the recap banner entirely (same as "Off" in the editor). |
-| history_recap | boolean | true    | Rebuild the recap from recorder history when the card loads with nothing else to show (fresh browser or other device, sensor values already cleared by the brush). Uses one history query for the duration sensor; `false` disables it. |
-| show_verdict  | boolean  | true    | Show the verdict on the badge — the Oral-B display face (`oralb_live`) or the Xiaomi score, whichever the device reports. On a handle that reports neither but records its own sessions, the card works one out instead, from how much of its routine the session ran and how much of it was brushed too hard; hovering that face says so. `false` keeps the banner and drops only the glyph. It is one switch rather than a choice because no handle offers more than one of them. |
+| hold_completed | boolean | true    | Whether the summary is shown at all: `false` turns the banner off, and with it everything below. |
+| device_recap  | boolean  | true    | Use the handle's own record of the session, where the integration exposes one (a Last Session sensor). `false` ignores it and leaves the card with what it watched or can rebuild. |
+| history_recap | boolean | true    | Rebuild the summary from recorder history when the card loads with nothing else to show (fresh browser or other device, sensor values already cleared by the brush). Uses one history query for the duration sensor; `false` disables it. Independent of `device_recap`: turning the reconstruction off does not refuse the handle's own account of itself. |
+| show_verdict  | boolean  | true    | Show the verdict on the badge — the Oral-B display face (`oralb_live`) or the Xiaomi score, whichever the device reports. On a handle that reports neither but records its own sessions, the card works one out instead, from how much of its routine the session ran and how much of it was brushed too hard; hovering that face says so. That needs both readings: a record without a pressure figure gets no computed face, because judging on duration alone would call every completed session flawless. `false` keeps the banner and drops only the glyph. It is one switch rather than a choice because no handle offers more than one of them. |
+
+**For integration authors:** a Last Session sensor is picked up through its
+`translation_key` (`last_session`). Its **state is the time the session began** —
+that is what handles stamp on their own records — with `duration_seconds` as an
+attribute or as a second entity (`last_session_duration`); the card works the
+ending out from the two. `routine_length_seconds` (or `target_duration_seconds`,
+whichever word the handle uses for the same thing), `session_id`, `superseded`
+and `time_source` are used where present.
 
 ### Misc
 
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
-| routine_length | number  | auto    | Override the routine length in seconds (YAML only). Normally read from the device; mainly for brushes without one (e.g. Xiaomi, default `120`) whose session timer is synthesized |
+| routine_length | number  | auto    | Override the routine length in seconds (YAML only). Normally read from the device; mainly for brushes without one (e.g. Xiaomi, default `120`) whose session timer is synthesized. Also the way out when a device *has* a routine-length reading but cannot fill it in: the card declines to judge a session against a guess, so the summary stays away until this is set. |
 | language      | string   | auto    | Force the card language (YAML only): `en`, `da`, `de`, `nl`, `ru` or `sl`. Defaults to your Home Assistant profile language. Useful for shared wall panels or trying out a translation without changing your profile. |
 
 ### YAML Example

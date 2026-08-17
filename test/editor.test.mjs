@@ -209,9 +209,22 @@ describe('the completed-session hold', () => {
         assert.equal(el._holdValue(), '0.5');
     });
 
-    test('reads as off when the recap is disabled', async () => {
+    test('the switch reads a config written before it existed', async () => {
         const { el } = await editor({ hold_completed: false });
-        assert.equal(el._holdValue(), 'off');
+        assert.equal(el._recapEnabled(), false);
+        // And the duration is still the duration: turning the summary off is
+        // not a duration, so it no longer occupies that dropdown.
+        assert.equal(el._holdValue(), '0.5');
+    });
+
+    test('the switch writes the key off and removes it back on', async () => {
+        const { el, last } = await editor();
+        el._recapEnabledChanged(false);
+        assert.equal(last().hold_completed, false);
+        const off = await editor({ hold_completed: false });
+        off.el._recapEnabledChanged(true);
+        assert.equal(off.last().hold_completed, undefined,
+            'a config that matches the default carries no key at all');
     });
 
     test('choosing the default writes neither key', async () => {
@@ -221,24 +234,59 @@ describe('the completed-session hold', () => {
         assert.equal(last().hold_completed, undefined);
     });
 
-    test('choosing off writes only hold_completed', async () => {
-        const { el, last } = await editor({ hold_duration: 4 });
-        el._holdChanged('off');
-        assert.equal(last().hold_completed, false);
-        assert.equal(last().hold_duration, undefined, 'the two keys never coexist');
-    });
-
     test('choosing a duration writes it as a number', async () => {
-        const { el, last } = await editor({ hold_completed: false });
+        const { el, last } = await editor();
         el._holdChanged('4');
         assert.equal(last().hold_duration, 4);
-        assert.equal(last().hold_completed, undefined);
+    });
+
+    test('the duration survives switching the summary off and on', async () => {
+        // The two settings answer different questions - whether, and how
+        // long - so one must not quietly discard the other. A summary
+        // switched off and back on comes back the way it was set up.
+        const { el, last } = await editor({ hold_duration: 4 });
+        el._recapEnabledChanged(false);
+        assert.equal(last().hold_duration, 4, 'still remembered');
+        assert.equal(last().hold_completed, false);
     });
 
     test('until the next session is a real choice, not the default', async () => {
         const { el, last } = await editor();
         el._holdChanged('0');
         assert.equal(last().hold_duration, 0);
+    });
+});
+
+describe('the two recovery switches', () => {
+    // Where the last session may be looked up: the handle's own record, and
+    // a reconstruction from stored readings. Each is offered only where it
+    // could do something.
+
+    test('the record switch appears only for a device that keeps one', async () => {
+        const { el } = await editor();
+        assert.equal(el._hasSessionRecord(), false, 'a plain oralb keeps none');
+        const hass = ORALB();
+        hass.entities['sensor.io_last'] = {
+            entity_id: 'sensor.io_last', device_id: 'dev1',
+            platform: 'sonicare', translation_key: 'last_session',
+        };
+        const withRecord = await editor({}, hass);
+        assert.equal(withRecord.el._hasSessionRecord(), true);
+    });
+
+    test('switching the record off writes the key, back on removes it', async () => {
+        const { el, last } = await editor();
+        el._valueChanged('device_recap', false);
+        assert.equal(last().device_recap, false);
+        const back = await editor({ device_recap: false });
+        back.el._valueChanged('device_recap', '');
+        assert.equal(back.last().device_recap, undefined);
+    });
+
+    test('switching the history rebuild off writes the key', async () => {
+        const { el, last } = await editor();
+        el._valueChanged('history_recap', false);
+        assert.equal(last().history_recap, false);
     });
 });
 

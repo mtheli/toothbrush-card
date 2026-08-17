@@ -14,6 +14,7 @@ import assert from 'node:assert/strict';
 import { loadCard } from './helpers/replay.mjs';
 import { markup } from './helpers/markup.mjs';
 import { smileyTier, SMILEY_TIERS } from '../src/icons.js';
+import { nextSessionState, initialSessionState } from '../src/session-state.js';
 
 /**
  * An oralb_live registry and its states.
@@ -79,6 +80,22 @@ async function replay(readings, config = {}) {
     }
     return el;
 }
+
+describe('the badge tone against the face', () => {
+    test('a friendly face does not paint an aborted session green', async () => {
+        // The colour may only ever be harsher than what happened, never
+        // kinder: what the badge says first is that the session was cut
+        // short, and a smile on the handle does not change that.
+        const el = await replay([
+            { status: 'running', duration: '40', smiley: 'off' },
+            { status: 'post_brushing_summary', duration: '40', smiley: 'special_5' },
+        ]);
+        const text = markup(el.render());
+        assert.equal(el._completedFace, 'special_5', 'a real result face');
+        assert.match(text, /done-badge[^"]*aborted/);
+        assert.doesNotMatch(text, /done-badge[^"]*severe/);
+    });
+});
 
 describe('the face reaching the badge', () => {
     test('a face shown only in the summary state still lands', async () => {
@@ -160,10 +177,25 @@ describe('switching the verdict off (show_verdict)', () => {
 });
 
 describe('what a face value maps to', () => {
-    test('the three decoded values carry a tier', () => {
+    test('the decoded result faces carry a tier', () => {
         assert.equal(smileyTier('special_11'), SMILEY_TIERS.perfect);
         assert.equal(smileyTier('special_10'), SMILEY_TIERS.excellent);
-        assert.equal(smileyTier('standard'), SMILEY_TIERS.good);
+        assert.equal(smileyTier('special_5'), SMILEY_TIERS.good);
+    });
+
+    test('the everyday face is not one of them', () => {
+        // `standard` is what the display shows when it is not reporting on a
+        // session. Captured advertisements have it dark while brushing and a
+        // result face afterwards - never this one. It is dropped before the
+        // latch, so it never reaches the badge at all.
+        const next = nextSessionState(
+            { ...initialSessionState(), wasActiveSession: true, peakDuration: 130 },
+            {
+                active: false, duration: 130, routineLength: 120, now: 1000,
+                holdCompleted: true, faceWindow: true, displayFace: 'standard',
+            },
+        );
+        assert.equal(next.state.completedFace, null);
     });
 
     test('undecoded values ask instead of judging', () => {

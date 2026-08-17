@@ -96,7 +96,11 @@ export const SMILEY_TIERS = {
 // like special_N, so it is treated as decoded. Reporting it too would flood the
 // channel with the one value we care least about and bury the rare ones.
 export const SMILEY_SENTIMENT = {
-    standard: 'good',
+    // `standard` is deliberately absent: it is the handle's everyday face,
+    // not a result. Captured advertisements show the display dark while
+    // brushing and a result face once the session ends - this one never
+    // appears as the outcome of anything. session-state.js drops it before
+    // it can be latched, alongside `off`.
     // 2–6 decoded 2026-08 from advertisement captures photographed against
     // the handle display, on an iO6 and an iO8 alike (issue #20): short and
     // paused runs settle on the two neutral variants, ~100 s on a half

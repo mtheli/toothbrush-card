@@ -70,6 +70,23 @@ export class ToothbrushCardEditor extends LitElement {
         return !!(ids.smiley || ids.score || ids.last_session);
     }
 
+    /** Whether this device keeps a record of its own sessions. */
+    _hasSessionRecord() {
+        if (!this.hass || !this._config?.device_id) return false;
+        return !!this._deviceIds().last_session;
+    }
+
+    /**
+     * Whether a session could be reconstructed from stored readings.
+     *
+     * The rebuild works off the elapsed-time reading, so a device without one
+     * has nothing to rebuild from and the switch would do nothing.
+     */
+    _canRebuildFromHistory() {
+        if (!this.hass || !this._config?.device_id) return false;
+        return !!this._deviceIds().duration;
+    }
+
     _fireConfig(config) {
         this.dispatchEvent(new CustomEvent('config-changed', {
             bubbles: true, composed: true,
@@ -84,10 +101,26 @@ export class ToothbrushCardEditor extends LitElement {
         this._fireConfig(newConfig);
     }
 
-    // One dropdown drives both hold keys: 'off' → hold_completed:false,
-    // '0.5' (default) → no keys, anything else → hold_duration in hours.
+    // Whether the recap is shown at all - its own switch, so that the
+    // dropdown below is only ever about how long. An off state hidden in a
+    // list of durations reads as one duration among many, which it is not.
+    _recapEnabled() {
+        return this._config.hold_completed !== false;
+    }
+
+    // Configs written before the switch existed carry `hold_completed:false`
+    // and are read by it unchanged - the key means what it always meant.
+    _recapEnabledChanged(enabled) {
+        const newConfig = { ...this._config };
+        delete newConfig.hold_completed;
+        if (!enabled) newConfig.hold_completed = false;
+        this._config = newConfig;
+        this._fireConfig(newConfig);
+    }
+
+    // The dropdown is now only the duration: '0.5' (default) writes no key,
+    // anything else `hold_duration` in hours.
     _holdValue() {
-        if (this._config.hold_completed === false) return 'off';
         return this._config.hold_duration !== undefined
             ? String(this._config.hold_duration)
             : '0.5';
@@ -95,11 +128,8 @@ export class ToothbrushCardEditor extends LitElement {
 
     _holdChanged(value) {
         const newConfig = { ...this._config };
-        delete newConfig.hold_completed;
         delete newConfig.hold_duration;
-        if (value === 'off') {
-            newConfig.hold_completed = false;
-        } else if (value !== undefined && value !== '0.5') {
+        if (value !== undefined && value !== '0.5') {
             newConfig.hold_duration = Number(value);
         }
         this._config = newConfig;
@@ -636,35 +666,60 @@ export class ToothbrushCardEditor extends LitElement {
                 ${this._config.device_id ? this._renderValueDisplaySection() : ''}
 
                 <div class="group-label">${t(this.hass, 'group_recap')}</div>
-                ${this._hasVerdictSource() ? html`
-                    <div class="field row">
-                        <ha-switch
-                            .checked=${this._config.show_verdict !== false}
-                            @change=${(ev) => this._valueChanged('show_verdict', ev.target.checked ? '' : false)}
-                        ></ha-switch>
-                        <span>${t(this.hass, 'config_show_verdict')}</span>
+                <div class="field row">
+                    <ha-switch
+                        .checked=${this._recapEnabled()}
+                        @change=${(ev) => this._recapEnabledChanged(ev.target.checked)}
+                    ></ha-switch>
+                    <span>${t(this.hass, 'config_show_recap')}</span>
+                </div>
+                ${this._recapEnabled() ? html`
+                    ${this._hasVerdictSource() ? html`
+                        <div class="field row indented">
+                            <ha-switch
+                                .checked=${this._config.show_verdict !== false}
+                                @change=${(ev) => this._valueChanged('show_verdict', ev.target.checked ? '' : false)}
+                            ></ha-switch>
+                            <span>${t(this.hass, 'config_show_verdict')}</span>
+                        </div>
+                    ` : ''}
+                    ${this._hasSessionRecord() ? html`
+                        <div class="field row indented">
+                            <ha-switch
+                                .checked=${this._config.device_recap !== false}
+                                @change=${(ev) => this._valueChanged('device_recap', ev.target.checked ? '' : false)}
+                            ></ha-switch>
+                            <span>${t(this.hass, 'config_device_recap')}</span>
+                        </div>
+                    ` : ''}
+                    ${this._canRebuildFromHistory() ? html`
+                        <div class="field row indented">
+                            <ha-switch
+                                .checked=${this._config.history_recap !== false}
+                                @change=${(ev) => this._valueChanged('history_recap', ev.target.checked ? '' : false)}
+                            ></ha-switch>
+                            <span>${t(this.hass, 'config_history_recap')}</span>
+                        </div>
+                    ` : ''}
+                    <div class="field indented">
+                        <ha-selector
+                            .hass=${this.hass}
+                            .selector=${{ select: { mode: 'dropdown', options: [
+                                { value: '0.25', label: '15 min' },
+                                { value: '0.5', label: '30 min' },
+                                { value: '1', label: '1 h' },
+                                { value: '4', label: '4 h' },
+                                { value: '8', label: '8 h' },
+                                { value: '12', label: '12 h' },
+                                { value: '24', label: '24 h' },
+                                { value: '0', label: t(this.hass, 'hold_until_next_session') },
+                            ] } }}
+                            .label=${t(this.hass, 'config_hold_duration')}
+                            .value=${this._holdValue()}
+                            @value-changed=${(ev) => this._holdChanged(ev.detail.value)}
+                        ></ha-selector>
                     </div>
                 ` : ''}
-
-                <div class="field">
-                    <ha-selector
-                        .hass=${this.hass}
-                        .selector=${{ select: { mode: 'dropdown', options: [
-                            { value: 'off', label: t(this.hass, 'hold_off') },
-                            { value: '0.25', label: '15 min' },
-                            { value: '0.5', label: '30 min' },
-                            { value: '1', label: '1 h' },
-                            { value: '4', label: '4 h' },
-                            { value: '8', label: '8 h' },
-                            { value: '12', label: '12 h' },
-                            { value: '24', label: '24 h' },
-                            { value: '0', label: t(this.hass, 'hold_until_next_session') },
-                        ] } }}
-                        .label=${t(this.hass, 'config_hold_duration')}
-                        .value=${this._holdValue()}
-                        @value-changed=${(ev) => this._holdChanged(ev.detail.value)}
-                    ></ha-selector>
-                </div>
 
                 <button class="reset-all-btn" ?disabled=${!this._hasCustomOptions}
                         @click=${this._resetAll}>
@@ -690,6 +745,11 @@ export class ToothbrushCardEditor extends LitElement {
                 display: flex;
                 align-items: center;
                 gap: 12px;
+            }
+            /* Settings that only mean anything while the summary is shown,
+               set in from the switch that governs them. */
+            .field.indented {
+                margin-left: 24px;
             }
             ha-input {
                 display: block;

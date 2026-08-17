@@ -597,6 +597,15 @@ ha-card {
 }
 .done-badge.aborted p { color: #b45309; }
 .done-badge.aborted span { color: #d97706; }
+/* The verdict outranks both where it is harsher than they are: a session
+   that ran its course but was brushed hard, or one cut so short that
+   "stopped early" understates it. The glyph and the words then read as one
+   statement instead of two colours disagreeing beside each other. */
+.done-badge.severe {
+    border-top-color: #fecaca;
+}
+.done-badge.severe p { color: #b91c1c; }
+.done-badge.severe span { color: #dc2626; }
 
 /* Oral-B display face (issue #20): the handle's own verdict, beside the text
    rather than as a chip — it is a session result, and between sessions the
@@ -609,6 +618,9 @@ ha-card {
     align-items: center;
     justify-content: center;
     gap: 11px;
+    /* Both sides, so the room kept clear for the dismiss button does not
+       pull the centred content off centre by half of it. */
+    padding-left: 16px;
     padding-right: 16px;
 }
 .done-face {
@@ -619,7 +631,13 @@ ha-card {
     flex: 0 0 auto;
 }
 .done-smiley { width: 34px; height: 34px; }
+/* Ranged against a face or a score, so the lines start on one edge beside
+   it rather than drifting around it. */
 .done-text { text-align: left; }
+/* Alone, there is nothing to range against: the text carries the middle
+   itself, and its shorter second line sits under the first instead of
+   hanging off to one side. */
+.done-body.text-only .done-text { text-align: center; }
 /* Raw sensor value under an undecoded face, so it can be reported. */
 .done-face-code {
     font-family: ui-monospace, SFMono-Regular, Consolas, monospace;

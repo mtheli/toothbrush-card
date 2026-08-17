@@ -513,6 +513,7 @@ export class ToothbrushCard extends LitElement {
             completedPressure: this._completedPressure,
             completedTarget: this._completedTarget,
             completedFromStash: this._completedFromStash,
+            baselineSessionId: this._baselineSessionId,
         };
     }
 
@@ -540,6 +541,7 @@ export class ToothbrushCard extends LitElement {
         this._completedPressure = state.completedPressure;
         this._completedTarget = state.completedTarget;
         this._completedFromStash = state.completedFromStash;
+        this._baselineSessionId = state.baselineSessionId;
     }
 
     // --- Dismiss persistence (issue #4/#5/#11) ---
@@ -603,6 +605,20 @@ export class ToothbrushCard extends LitElement {
     // rebuild's own lookback, so both sources age out together.
     static MAX_RECAP_AGE_MS = 30 * 24 * 3600 * 1000;
 
+    /**
+     * A record's session number, or null where there is none.
+     *
+     * Integrations that number their sessions report a count; those that do
+     * not report the field as `null` - and `Number(null)` is 0, a perfectly
+     * finite number that would compare equal to another record's absent one
+     * and read as "the same session" for every session ever recorded.
+     */
+    static _sessionNumber(raw) {
+        if (raw === null || raw === undefined || raw === '') return null;
+        const n = Number(raw);
+        return Number.isFinite(n) ? n : null;
+    }
+
     _recapFromLastSession(hass, config, entityIds, routineFromEntity, notBefore = 0) {
         // The handle's own record of its last session, if the integration
         // offers one. Preferred over rebuilding the session from recorder
@@ -619,13 +635,57 @@ export class ToothbrushCard extends LitElement {
         if (!stateObj || stateObj.state === 'unknown'
             || stateObj.state === 'unavailable') return false;
 
-        const endedAt = Date.parse(stateObj.state);
-        if (!Number.isFinite(endedAt)) return false;
+        const attrs = stateObj.attributes || {};
+        const startedAt = Date.parse(stateObj.state);
+        if (!Number.isFinite(startedAt)) return false;
+        // The duration lives on the record, but the integrations that expose
+        // one also expose it as a reading of its own — either will do.
+        const duration = Number(
+            attrs.duration_seconds ?? (entityIds.last_session_duration
+                ? hass.states[entityIds.last_session_duration]?.state : NaN)
+        );
+        if (!Number.isFinite(duration) || duration < MIN_RECAP_SECONDS) return false;
+        // The state is when the session BEGAN. Both handles that file a
+        // record stamp it as the session starts - it is the quantity they
+        // measure, and the end is arithmetic on top of it - so that is what
+        // the integrations report. A recap is about an ending, though: it
+        // says how long ago somebody finished brushing, and it has to be
+        // told apart from the session before it. So the end is worked out
+        // here, once, and everything below deals in it.
+        const endedAt = startedAt + duration * 1000;
         // Replacing a recap that is already on screen, rather than building
         // the first one: only a record of that same session or a later one
         // will do. A handle that files its record late still holds the
         // previous session's until it does, and that one is not this one.
-        if (notBefore && endedAt < notBefore - 60_000) return false;
+        //
+        // Sessions are numbered in order, so where both the mark taken at the
+        // start of this session and the record's own number are known, the
+        // question is settled by comparing them - a later number is a later
+        // session, and no clock is involved. The times are the fallback, and
+        // a poor one: the record's is reconstructed from the handle's own
+        // counter while the mark is taken whenever the card got round to
+        // rendering, so the two drift apart for reasons that have nothing to
+        // do with which session is which.
+        if (notBefore) {
+            const recordId = this.constructor._sessionNumber(attrs.session_id);
+            const mark = this._baselineSessionId;
+            if (mark !== null && mark !== undefined && recordId !== null) {
+                // Same number as the mark: the handle is still holding the
+                // session it had before this one, and that is not this one.
+                if (recordId === mark) return false;
+                // Lower: the numbering went backwards, which it cannot do by
+                // counting - a handle reset, or a device that numbers its
+                // sessions some other way entirely. Either way the mark says
+                // nothing about this record, so it is dropped and the times
+                // decide, as they did before there was a mark at all.
+                if (recordId < mark) {
+                    this._baselineSessionId = null;
+                    if (endedAt < notBefore - 60_000) return false;
+                }
+            } else if (endedAt < notBefore - 60_000) {
+                return false;
+            }
+        }
         // With no hold window there is nothing to expire a recap, and a
         // record outlives restarts - so an ancient one would sit there as
         // the current session forever. The same bound the history rebuild
@@ -635,7 +695,6 @@ export class ToothbrushCard extends LitElement {
             : 0.5;
         if (holdHours <= 0 && Date.now() - endedAt > this.constructor.MAX_RECAP_AGE_MS) return false;
 
-        const attrs = stateObj.attributes || {};
         // The integration says so when the handle has finished a session it
         // has not written down yet: some only file the record as they switch
         // off, a minute or more after the motor stops. Until the newer one
@@ -649,20 +708,20 @@ export class ToothbrushCard extends LitElement {
         // A recap is a when as much as a what, so without a trustworthy when
         // there is nothing honest to show.
         if (attrs.time_source === 'collection') return false;
-        // The duration lives on the record, but the integrations that expose
-        // one also expose it as a reading of its own — either will do.
-        const duration = Number(
-            attrs.duration_seconds ?? (entityIds.last_session_duration
-                ? hass.states[entityIds.last_session_duration]?.state : NaN)
-        );
-        if (!Number.isFinite(duration) || duration < MIN_RECAP_SECONDS) return false;
 
         // Same precedence as the history rebuild: an explicit setting wins,
         // then what the record itself says it was aiming for, then the
         // current reading. A device that reports a routine but cannot name
         // one right now gets no recap rather than a wrong verdict.
+        //
+        // Two names for the one thing, because the handles have two: what a
+        // Sonicare calls the routine an Oral-B calls the target duration,
+        // and each integration writes down the word its handle uses. This
+        // card settled on the first because Sonicare came first, not because
+        // it is the better word - and it never said so anywhere an
+        // integration author would look, so both are read.
         const target = Number(config.routine_length)
-            || Number(attrs.routine_length_seconds)
+            || Number(attrs.routine_length_seconds ?? attrs.target_duration_seconds)
             || routineFromEntity
             || ((entityIds.routine_length || entityIds.routine_length_number)
                 ? 0 : BRUSHING_DURATION);
@@ -674,10 +733,13 @@ export class ToothbrushCard extends LitElement {
         this._completedAt = endedAt;
         this._completedSource = 'device';
         this._completedTarget = target;
-        // Only some records carry it, and only for some handles: a kids brush
-        // has no pressure sensor at all. Absent reads as none rather than as
-        // unknown, which is what a handle that cannot measure it means.
-        this._completedPressure = Number(attrs.pressure_seconds) || 0;
+        // Not every record carries it, and a missing reading is not a
+        // reading of none: a session brushed far too hard and one where the
+        // handle simply never measured would then look identical, and the
+        // second would be praised for it. Absent stays absent, and the
+        // verdict below declines rather than guesses.
+        const pressure = Number(attrs.pressure_seconds);
+        this._completedPressure = Number.isFinite(pressure) ? pressure : null;
         this.requestUpdate();
         return true;
     }
@@ -762,7 +824,7 @@ export class ToothbrushCard extends LitElement {
         this._completedTarget = target;
         // Recorder rows are durations only; a rebuilt session knows nothing
         // about pressure and must not inherit the last one's.
-        this._completedPressure = 0;
+        this._completedPressure = null;
         this.requestUpdate();
     }
 
@@ -1269,7 +1331,6 @@ export class ToothbrushCard extends LitElement {
             holdCompleted,
             hasRoutineEntity: !!entityIds.routine_length,
             hasDurationEntity: !!entityIds.duration,
-            historyRecapEnabled: config.history_recap !== false,
             durationLastChanged: entityIds.duration
                 ? hass.states[entityIds.duration]?.last_changed
                 : null,
@@ -1293,8 +1354,18 @@ export class ToothbrushCard extends LitElement {
             // dismissal touches localStorage.
             this._visitedSectors = null;
             this._clearDismissed(config.device_id);
+            // The session the handle had filed before this one began. Read
+            // now because right now it is unambiguous: whatever record is on
+            // offer at the start of a session belongs to an earlier one. A
+            // record that later reports a higher number is this session's,
+            // and says so without either side consulting a clock.
+            this._baselineSessionId = this.constructor._sessionNumber(
+                entityIds.last_session
+                    ? hass.states[entityIds.last_session]?.attributes?.session_id
+                    : null,
+            );
         }
-        if (latch.loadHistoryRecap) {
+        if (latch.needsRecap) {
             // Deliberately the raw entity reading, not `routineLength`: its
             // defaults must not paper over a routine sensor that is currently
             // unreadable — the rebuild declines in that case (a Sonicare's
@@ -1303,10 +1374,18 @@ export class ToothbrushCard extends LitElement {
             const target = Math.round(routineFromEntity);
             // Ask the device before asking the recorder: the handle's own
             // record is both more trustworthy and available immediately.
-            if (!this._recapFromLastSession(hass, config, entityIds, target)) {
+            // Two separate settings, because they are two separate things -
+            // one reads what the handle concluded, the other reconstructs a
+            // session from readings Home Assistant happened to store, and
+            // turning the reconstruction off never meant refusing the
+            // handle's own account of itself.
+            const fromRecord = config.device_recap !== false
+                && this._recapFromLastSession(hass, config, entityIds, target);
+            if (!fromRecord && config.history_recap !== false) {
                 this._maybeLoadRecapFromHistory(hass, config, entityIds, target);
             }
         } else if (this._completed && this._completedSource !== 'device'
+                && config.device_recap !== false
                 && entityIds.last_session) {
             // A session the card watched end, on a handle that files a record
             // of it a moment later. The record is the better account of the
@@ -1601,17 +1680,22 @@ export class ToothbrushCard extends LitElement {
         // the two things a verdict needs actually are - the routine this
         // session ran and how much of it was brushed too hard - and a
         // rebuild from recorder rows knows neither.
+        // The pressure reading is required, not optional. Judging on duration
+        // alone would call every completed session flawless - which is what a
+        // verdict is least useful for, and worst at: it would praise a
+        // session brushed hard throughout. A record without the reading gets
+        // no computed face, so the badge stays honest about knowing less.
         const ownVerdict = showVerdict && this._completedSource === 'device'
                 && !this._completedFace
                 && !Number.isFinite(parseFloat(this._completedScore))
                 && this._completedDuration > 0
+                && Number.isFinite(this._completedPressure)
             ? (() => {
                 // The routine this session ran, where the recap carries it:
                 // measuring a three-minute session against whatever the
                 // handle is set to now would judge the wrong routine.
                 const ran = this._completedDuration / (this._completedTarget || targetDuration);
-                const pressed = this._completedPressure > 0
-                    ? this._completedPressure / this._completedDuration : 0;
+                const pressed = this._completedPressure / this._completedDuration;
                 if (ran < 0.5) return 'poor';
                 if (ran < 0.9) return 'fair';
                 return pressed > 0.1 ? 'fair' : pressed > 0.02 ? 'good' : 'excellent';
@@ -1629,6 +1713,22 @@ export class ToothbrushCard extends LitElement {
             color: ['red', 'amber', 'gold'][
                 recapScoreNum >= 85 ? 2 : recapScoreNum >= 60 ? 1 : 0],
         } : null;
+
+        // What the badge is coloured by: the harsher of what happened and how
+        // it was judged. A session cut short is amber whatever face it wears,
+        // and one judged badly is red even where the words only say it ended
+        // early - "1 of 6 sextants" beside a red face reads as one verdict,
+        // an amber sentence beside a red face as two that disagree.
+        //
+        // Only ever harsher: a friendly face must not paint an aborted
+        // session green, because what the badge says first is what happened,
+        // and that did not change.
+        const TONE_RANK = { green: 0, gold: 0, muted: 0, amber: 1, red: 2 };
+        const verdictTone = recapFace?.color ?? recapScore?.color ?? null;
+        const badgeTone = Math.max(
+            showAborted ? 1 : 0, TONE_RANK[verdictTone] ?? 0,
+        );
+        const badgeToneClass = ['', 'aborted', 'severe'][badgeTone];
 
         // Brush head type (issue #13): the type sensor carries the short
         // family name and the family letter (the A in "A3") as attributes —
@@ -1935,11 +2035,11 @@ export class ToothbrushCard extends LitElement {
                 </div>
 
                 <!-- Done badge -->
-                <div class="done-badge ${isSuccess || showAborted ? 'show' : ''} ${showAborted ? 'aborted' : ''}">
+                <div class="done-badge ${isSuccess || showAborted ? 'show' : ''} ${badgeToneClass}">
                     ${showRecap ? html`
                     <button class="done-dismiss"
                             @click=${() => this._dismissHold()}>&times;</button>` : ''}
-                    <div class="done-body">
+                    <div class="done-body ${recapFace || recapScore ? '' : 'text-only'}">
                         ${recapFace ? html`
                         <div class="done-face">
                             <svg class="done-smiley ${recapFace.color}" viewBox="0 0 24 24"

@@ -10,7 +10,6 @@
   "conn_bridge_active": "ESP-мост передаёт данные",
   "conn_bridge_offline": "ESP-мост не в сети",
   "conn_device_info": "Информация об устройстве",
-
   "chip_battery": "Батарея",
   "chip_pressure": "Нажим",
   "chip_intensity": "Интенсивность",
@@ -18,10 +17,8 @@
   "chip_score": "Оценка",
   "chip_head": "Насадка",
   "chip_head_type": "Тип насадки",
-
   "session": "Сеанс",
   "complete": "Готово",
-
   "done_title": "Чистка завершена!",
   "recap_source_live": "Завершение сеанса отслежено",
   "recap_source_history": "Восстановлено из истории",
@@ -33,18 +30,15 @@
   "aborted_sextants": "{x} из {y} секстантов готово",
   "smiley_unknown_hint": "Неизвестное выражение на дисплее — сообщите в issue #20",
   "verdict_computed": "Рассчитано по сеансу, а не показано щёткой",
-
   "pressure_low": "Слабый",
   "pressure_normal": "Нормальный",
   "pressure_medium": "Средний",
   "pressure_high": "Сильный",
   "pressure_button_pressed": "Нажата кнопка",
   "pressure_power_button_pressed": "Нажата кнопка питания",
-
   "intensity_low": "Низкая",
   "intensity_medium": "Средняя",
   "intensity_high": "Высокая",
-
   "status_idle": "Ожидание",
   "status_running": "Чистка",
   "status_charging": "Зарядка",
@@ -68,14 +62,12 @@
   "status_final_test": "Финальный тест",
   "status_pcb_test": "Тест платы",
   "status_calibration_test": "Тест калибровки",
-
   "zone_upper_right": "Сверху справа",
   "zone_upper_front": "Сверху спереди",
   "zone_upper_left": "Сверху слева",
   "zone_lower_left": "Снизу слева",
   "zone_lower_front": "Снизу спереди",
   "zone_lower_right": "Снизу справа",
-
   "mode_daily_clean": "Ежедневная чистка",
   "mode_deep_clean": "Глубокая чистка",
   "mode_gum_care": "Уход за дёснами",
@@ -98,13 +90,13 @@
   "mode_gum_health": "Здоровье дёсен",
   "mode_deep_clean_plus": "Глубокая чистка+",
   "mode_tongue_care": "Уход за языком",
-
   "config_device": "Устройство",
   "config_title": "Заголовок (необязательно)",
   "config_subtitle": "Показывать имя устройства как подзаголовок",
-  "hold_off": "Выкл.",
   "config_hold_duration": "Показывать завершённый сеанс",
   "config_show_verdict": "Показывать оценку сеанса",
+  "config_device_recap": "Использовать запись самого устройства",
+  "config_history_recap": "Восстанавливать пропущенные сеансы из истории",
   "hold_until_next_session": "До следующего сеанса",
   "completed_just_now": "только что",
   "completed_ago_minutes": "{n} мин назад",
@@ -146,6 +138,7 @@
   "group_header": "Шапка",
   "group_teeth": "Визуализация",
   "group_recap": "Итоги сеанса",
+  "config_show_recap": "Показывать итоги сеанса",
   "group_sectors": "Секторы",
   "group_value_display": "Отображение значений",
   "config_value_display_hint": "Эти настройки действуют, только если значение отображается — то есть размещено как чип или угловой маркер.",

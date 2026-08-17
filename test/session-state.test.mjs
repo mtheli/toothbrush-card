@@ -28,7 +28,6 @@ const reading = (over = {}) => ({
     holdCompleted: true,
     hasRoutineEntity: true,
     hasDurationEntity: true,
-    historyRecapEnabled: true,
     durationLastChanged: null,
     ...over,
 });
@@ -49,10 +48,10 @@ describe('the shape of the thing', () => {
         // An idle device with no session held is precisely the case the
         // recorder rebuild exists for, so the flag comes up on the very first
         // reading rather than after some settling period.
-        const { state, sessionStarted, loadHistoryRecap } = run([{ active: false, duration: 0 }]);
+        const { state, sessionStarted, needsRecap } = run([{ active: false, duration: 0 }]);
         assert.equal(state.completed, false);
         assert.equal(sessionStarted, false);
-        assert.equal(loadHistoryRecap, true);
+        assert.equal(needsRecap, true);
     });
 
     test('the previous state is never mutated', () => {
@@ -92,31 +91,30 @@ describe('the recorder flag', () => {
     const idle = { active: false, duration: 0 };
 
     test('is raised for an idle device with nothing to show', () => {
-        assert.equal(run([idle]).loadHistoryRecap, true);
+        assert.equal(run([idle]).needsRecap, true);
     });
 
     test('but never while something is already held', () => {
         const held = { ...initialSessionState(), completed: true, completedDuration: 120 };
-        assert.equal(run([idle], held).loadHistoryRecap, false);
+        assert.equal(run([idle], held).needsRecap, false);
     });
 
     test('nor while a dismissal stands', () => {
         const dismissed = { ...initialSessionState(), holdDismissed: true };
-        assert.equal(run([idle], dismissed).loadHistoryRecap, false);
+        assert.equal(run([idle], dismissed).needsRecap, false);
     });
 
     test('nor when it is switched off, or there is nothing to query', () => {
-        assert.equal(run([{ ...idle, historyRecapEnabled: false }]).loadHistoryRecap, false);
-        assert.equal(run([{ ...idle, hasDurationEntity: false }]).loadHistoryRecap, false);
-        assert.equal(run([{ ...idle, holdCompleted: false }]).loadHistoryRecap, false);
+        assert.equal(run([{ ...idle, hasDurationEntity: false }]).needsRecap, false);
+        assert.equal(run([{ ...idle, holdCompleted: false }]).needsRecap, false);
     });
 
     test('and never at the same time as deriving a recap from the state', () => {
         // The two are alternatives: a reading that already describes a session
         // is used directly rather than looked up.
-        const { state, loadHistoryRecap } = run([{ active: false, duration: 115 }]);
+        const { state, needsRecap } = run([{ active: false, duration: 115 }]);
         assert.equal(state.completed, true);
-        assert.equal(loadHistoryRecap, false);
+        assert.equal(needsRecap, false);
     });
 });
 
