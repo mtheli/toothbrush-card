@@ -206,11 +206,19 @@ export function nextSessionState(prev, {
         if (!state.completed || duration !== state.completedDuration) {
             state.completedAt = Date.parse(durationLastChanged) || now;
             state.completedDuration = duration;
+            // Not watched: worked out from readings the handle left standing
+            // after the session, which is a different thing to have seen it
+            // happen and has to say so - this branch runs when the card was
+            // closed while somebody brushed, or reloaded afterwards.
+            //
+            // Set only where the session is established here. This branch
+            // runs on every render once a recap is up, and a session the
+            // card did watch end would otherwise be relabelled a moment
+            // later by the reading that outlived it.
+            state.completedSource = 'reading';
         }
         state.completed = true;
         state.completedFromStash = false;
-        // Adopted from the live reading, whatever established it before.
-        state.completedSource = null;
         state.completedPressure = null;
         state.completedTarget = 0;
         // Not cleared here: the mark belongs to the session that just ended,

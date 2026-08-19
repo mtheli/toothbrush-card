@@ -571,8 +571,12 @@ describe('what the badge says when asked', () => {
         el.hass = hass;
         const markup = JSON.stringify(el.render());
         assert.equal(el._completed, true);
-        assert.ok(!el._completedSource, 'nothing reconstructed it');
-        assert.ok(markup.includes('Watched this session end'));
+        assert.equal(el._completedSource, 'reading',
+            'worked out from the reading, which is not the same as having '
+            + 'seen the session end');
+        assert.ok(markup.includes('Taken from the values left after'));
+        assert.ok(!markup.includes('Watched this session end'),
+            'that claim belongs to a session the card actually watched');
     });
 });
 
@@ -677,7 +681,8 @@ describe('a record that arrives after the card watched the session', () => {
         el.hass = hass;
         el.render();
         assert.equal(el._completed, true, 'the latch has the session');
-        assert.ok(!el._completedSource, 'and nothing read it from anywhere');
+        assert.equal(el._completedSource, 'reading',
+            'from the reading the handle left standing, not from a record');
         return { el, hass };
     }
 
@@ -787,7 +792,7 @@ describe('a record that arrives after the card watched the session', () => {
             at: new Date(START.getTime() - 1000),
             duration_seconds: 150, target_duration_seconds: 160, session_id: 341,
         });
-        assert.ok(!el._completedSource, 'not adopted');
+        assert.notEqual(el._completedSource, 'device', 'not adopted');
         assert.equal(el._completedDuration, 160, 'still the session just watched');
     });
 
@@ -827,7 +832,7 @@ describe('a record that arrives after the card watched the session', () => {
         file(el, hass, {
             at: new Date(START.getTime() - 20 * 3600_000), duration_seconds: 90,
         });
-        assert.ok(!el._completedSource);
+        assert.notEqual(el._completedSource, 'device', 'not adopted');
         assert.equal(el._completedDuration, 160, 'still the session just watched');
     });
 });

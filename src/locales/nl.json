@@ -24,6 +24,7 @@
   "recap_source_history": "Gereconstrueerd uit de geschiedenis",
   "recap_source_device": "Uit het geheugen van de borstel gelezen",
   "recap_source_counted": "Door Home Assistant meegeteld tijdens het poetsen",
+  "recap_source_reading": "Afgeleid uit de waarden die na de sessie bleven staan",
   "done_sextants": "Alle 6 sectoren afgerond",
   "done_quadrants": "Alle 4 sectoren afgerond",
   "aborted_title": "Poetsen voortijdig gestopt",

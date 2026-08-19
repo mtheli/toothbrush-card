@@ -1698,6 +1698,7 @@ export class ToothbrushCard extends LitElement {
                 device: this._completedFromStore
                     ? 'recap_source_device' : 'recap_source_counted',
                 history: 'recap_source_history',
+                reading: 'recap_source_reading',
             }[this._completedSource] || 'recap_source_live')
             : '';
 

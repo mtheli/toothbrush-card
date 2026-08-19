@@ -24,6 +24,7 @@
   "recap_source_history": "Rekonstrueret ud fra historikken",
   "recap_source_device": "Læst fra børstens egen hukommelse",
   "recap_source_counted": "Talt med af Home Assistant, mens du børstede",
+  "recap_source_reading": "Udledt af de værdier, der stod tilbage efter sessionen",
   "done_sextants": "Alle 6 sektorer færdige",
   "done_quadrants": "Alle 4 sektorer færdige",
   "aborted_title": "Børstning stoppet for tidligt",

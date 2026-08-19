@@ -24,6 +24,7 @@
   "recap_source_history": "Aus dem Verlauf rekonstruiert",
   "recap_source_device": "Aus dem Speicher der Bürste gelesen",
   "recap_source_counted": "Von Home Assistant beim Putzen mitgezählt",
+  "recap_source_reading": "Aus den nach der Sitzung stehengebliebenen Werten",
   "done_sextants": "Alle 6 Sextanten fertig",
   "done_quadrants": "Alle 4 Quadranten fertig",
   "aborted_title": "Putzen vorzeitig abgebrochen",
