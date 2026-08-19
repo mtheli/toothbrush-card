@@ -294,6 +294,36 @@ describe('which of the two answers wins', () => {
         assert.equal(el._completedSource, 'history');
         assert.equal(el._completedAt, thisMorning);
         assert.equal(el._completedDuration, 115);
+        // And it holds. The branch that lets a record take over a session
+        // the card already has runs on every render afterwards, offering
+        // yesterday's record against this morning's session - it has to lose
+        // there too, or the rebuild's answer would be taken back one render
+        // later and never asked for again.
+        el.render();
+        assert.equal(el._completedSource, 'history', 'the record did not take it back');
+        assert.equal(el._completedAt, thisMorning);
+    });
+
+    test('a rebuild that only just wins is not taken back a render later', async (t) => {
+        // The two bounds in play have to stay in step. A rebuild displaces a
+        // record by being more than the record's clock error later; the
+        // record is then offered again on the next render and turned away by
+        // a bound of its own. Were that second bound the larger, a rebuild
+        // that only just cleared the first would be handed straight back -
+        // and never rebuilt again, the query having already run. So the
+        // margin is measured from the constant rather than written out, and
+        // this fails if the two are ever set the wrong way round.
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, hass } = await idleCard();
+        const justLater = ENDED.getTime()
+            + el.constructor.RECORD_CLOCK_SLACK_MS + 1000;
+        hass.__response = { 'sensor.b_time': mountain(160, justLater) };
+
+        await settle(el, hass);
+        assert.equal(el._completedSource, 'history', 'the rebuild won');
+        el.render();
+        assert.equal(el._completedSource, 'history', 'and kept it');
+        assert.equal(el._completedAt, justLater);
     });
 
     test('but the same session twice over stays with the record', async (t) => {

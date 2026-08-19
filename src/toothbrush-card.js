@@ -609,6 +609,13 @@ export class ToothbrushCard extends LitElement {
     // same session. Only the record needs the room: it dates a session from
     // the handle's counter, to within a minute, while history dates it from
     // the reading itself.
+    //
+    // Must stay above the minute the record is given further down when it
+    // offers itself against a session already on the badge. A rebuilt
+    // session that displaces a record is offered that record again on the
+    // very next render, and only that minute turns it away; were this the
+    // smaller of the two, every rebuild would be taken back one render after
+    // it arrived - and never asked for again, the query having already run.
     static RECORD_CLOCK_SLACK_MS = 120_000;
 
     /**
