@@ -666,6 +666,16 @@ export class ToothbrushCard extends LitElement {
         // told apart from the session before it. So the end is worked out
         // here, once, and everything below deals in it.
         const endedAt = startedAt + duration * 1000;
+        const fromStore = !attrs.source || attrs.source === 'retained_session';
+        // Already on the badge, unchanged. The branch that offers a record
+        // now runs on every render for as long as a better one could still
+        // arrive, and adopting this one again would request a render from
+        // inside a render - and go round for as long as the handle takes.
+        // It passed every check below when it was first adopted.
+        if (this._completedSource === 'device'
+                && this._completedAt === endedAt
+                && this._completedDuration === duration
+                && this._completedFromStore === fromStore) return true;
         // Replacing a recap that is already on screen, rather than building
         // the first one: only a record of that same session or a later one
         // will do. A handle that files its record late still holds the
@@ -744,8 +754,7 @@ export class ToothbrushCard extends LitElement {
         // means "read": the others name how the readings reached the
         // integration, which is a different question, and a record from
         // before the field existed is from an integration that only read.
-        this._completedFromStore = !attrs.source
-            || attrs.source === 'retained_session';
+        this._completedFromStore = fromStore;
         this._completedTarget = target;
         // Not every record carries it, and a missing reading is not a
         // reading of none: a session brushed far too hard and one where the
@@ -1427,9 +1436,19 @@ export class ToothbrushCard extends LitElement {
             if (config.history_recap !== false) {
                 this._maybeLoadRecapFromHistory(hass, config, entityIds, target);
             }
-        } else if (this._completed && this._completedSource !== 'device'
-                && config.device_recap !== false
-                && entityIds.last_session) {
+        } else if (this._completed && config.device_recap !== false
+                && entityIds.last_session
+                && (this._completedSource !== 'device'
+                    || !this._completedFromStore)) {
+            // Still worth asking while the reading can improve on what the
+            // badge holds. Twice over, because a record arrives in two
+            // stages on a handle whose integration counts the session as it
+            // watches: its own account first, and the handle's - which knows
+            // the session number and how hard it was brushed - whenever the
+            // handle gets round to filing it, which can be the next time
+            // anything connects. Stopping at the first would leave the badge
+            // crediting a source it never read.
+            //
             // A session the card watched end, on a handle that files a record
             // of it a moment later. The record is the better account of the
             // same session - it knows the routine that was running and how

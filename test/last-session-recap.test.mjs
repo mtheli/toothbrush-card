@@ -239,6 +239,70 @@ describe('which source the card asks', () => {
     });
 });
 
+describe('a record that arrives in two stages', () => {
+    // An integration that watches a session end can write down what it saw
+    // straight away, and the handle's own record - with the session number
+    // and how hard it was brushed - lands later, sometimes not until the
+    // next time anything connects. Both arrive as the same reading, so the
+    // second has to be able to replace the first.
+
+    /** Put a record on the badge and hand back the card holding it. */
+    async function withRecord(t, attributes) {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, hass } = await idleCard({ record: { attributes } });
+        el.hass = hass;
+        el.render();
+        return { el, hass };
+    }
+
+    /** Replace the reading and render again. */
+    function file(el, hass, attributes) {
+        hass.states['sensor.b_last'] = {
+            state: STARTED.toISOString(),
+            attributes: { duration_seconds: RECORD_DURATION,
+                          target_duration_seconds: 160, ...attributes },
+            last_changed: START.toISOString(),
+        };
+        el.hass = hass;
+        el.render();
+    }
+
+    test('the handle\'s own record replaces the counted one', async (t) => {
+        const { el, hass } = await withRecord(t, { source: 'observed' });
+        assert.equal(el._completedFromStore, false, 'counted, to begin with');
+
+        file(el, hass, { source: 'retained_session', session_id: 349,
+                         pressure_seconds: 8 });
+
+        assert.equal(el._completedFromStore, true, 'and read, once it lands');
+        assert.equal(el._completedPressure, 8, 'with what only it knows');
+    });
+
+    test('a record already read from the handle is left alone', async (t) => {
+        // Nothing better can follow it, and the branch would otherwise go on
+        // offering it for the life of the recap.
+        const { el, hass } = await withRecord(t, { source: 'retained_session' });
+        let renders = 0;
+        const requestUpdate = el.requestUpdate;
+        el.requestUpdate = () => { renders++; requestUpdate?.call(el); };
+        el.render();
+        assert.equal(renders, 0, 'no re-adoption, so no render asked for');
+    });
+
+    test('re-offering an unchanged counted record asks for no render', async (t) => {
+        // It stays on offer until the handle files its own, which can be
+        // hours - and a render requested from inside a render would spin.
+        const { el, hass } = await withRecord(t, { source: 'observed' });
+        let renders = 0;
+        const requestUpdate = el.requestUpdate;
+        el.requestUpdate = () => { renders++; requestUpdate?.call(el); };
+        el.render();
+        el.render();
+        assert.equal(renders, 0);
+        assert.equal(el._completedFromStore, false, 'and it is still counted');
+    });
+});
+
 describe('which of the two answers wins', () => {
     // The record and the recorder answer the same question from opposite
     // ends, and neither is reliably the later one. A handle that files its
