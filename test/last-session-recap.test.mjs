@@ -928,7 +928,7 @@ describe('a verdict the card works out itself', () => {
         // The lines are ranged left so they line up beside a face. With no
         // face there is nothing to line up against, and the shorter second
         // line would hang off to one side of the first.
-        const { text } = await verdict({});
+        const { text } = await verdict({ config: { show_verdict: false } });
         assert.match(text, /done-body[^"]*text-only/);
     });
 
@@ -954,18 +954,23 @@ describe('a verdict the card works out itself', () => {
             'a computed opinion must not read as something the handle reported');
     });
 
-    test('a record without a pressure reading gets none', async () => {
-        // Duration alone would call every completed session flawless, which
-        // is precisely where a verdict is worth least and wrong most: a
-        // session brushed hard from start to finish would be praised for it.
-        // Not knowing is reported by showing nothing.
-        //
-        // This also costs the face on handles that genuinely cannot measure
-        // pressure - a kids brush has no sensor - because a record that
-        // omits the reading looks the same either way. Accepted deliberately
-        // while the integration has no pressure source at all; worth
-        // revisiting when it does.
-        assert.equal((await verdict({})).tier, null);
+    test('without a pressure reading the best face is withheld', async () => {
+        // How far the session got is a verdict on its own, and a handle that
+        // cannot measure pressure at all - a kids brush has no sensor - would
+        // otherwise never get one. But the top of the scale stays reserved:
+        // "ran its course" and "ran its course and was brushed gently" are
+        // different sessions, and only the reading tells them apart. So a
+        // full session with nothing known about pressure reads one step
+        // below the same session known to have been brushed lightly.
+        assert.equal((await verdict({})).tier, 'good');
+        assert.equal((await verdict({ pressure: 0 })).tier, 'excellent');
+    });
+
+    test('and the lower reaches are judged on time alone', async () => {
+        // Nothing about pressure changes what a session cut short is worth.
+        assert.equal((await verdict({ duration: 40 })).tier, 'poor');
+        assert.equal((await verdict({ duration: 90 })).tier, 'fair');
+        assert.equal((await verdict({ duration: 60, routine: 60 })).tier, 'good');
     });
 
     test('a session rebuilt from recorder rows gets none', async () => {

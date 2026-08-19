@@ -1743,24 +1743,29 @@ export class ToothbrushCard extends LitElement {
         // the two things a verdict needs actually are - the routine this
         // session ran and how much of it was brushed too hard - and a
         // rebuild from recorder rows knows neither.
-        // The pressure reading is required, not optional. Judging on duration
-        // alone would call every completed session flawless - which is what a
-        // verdict is least useful for, and worst at: it would praise a
-        // session brushed hard throughout. A record without the reading gets
-        // no computed face, so the badge stays honest about knowing less.
+        // How far the session got is enough for a verdict on its own; how
+        // hard it was brushed is what sharpens the top of the scale.
+        //
+        // The best face is reserved for the pressure reading, because it is
+        // the one thing the clock cannot say: "ran its course" and "ran its
+        // course and was brushed gently" are different sessions, and only
+        // the second deserves the best of four faces. Without the reading
+        // the card gives the best its data supports rather than the best
+        // there is - and never praises a session brushed hard throughout for
+        // having lasted, which is what a duration-only top mark would do.
         const ownVerdict = showVerdict && this._completedSource === 'device'
                 && !this._completedFace
                 && !Number.isFinite(parseFloat(this._completedScore))
                 && this._completedDuration > 0
-                && Number.isFinite(this._completedPressure)
             ? (() => {
                 // The routine this session ran, where the recap carries it:
                 // measuring a three-minute session against whatever the
                 // handle is set to now would judge the wrong routine.
                 const ran = this._completedDuration / (this._completedTarget || targetDuration);
-                const pressed = this._completedPressure / this._completedDuration;
                 if (ran < 0.5) return 'poor';
                 if (ran < 0.9) return 'fair';
+                if (!Number.isFinite(this._completedPressure)) return 'good';
+                const pressed = this._completedPressure / this._completedDuration;
                 return pressed > 0.1 ? 'fair' : pressed > 0.02 ? 'good' : 'excellent';
             })()
             : null;
