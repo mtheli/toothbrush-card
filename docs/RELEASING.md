@@ -38,6 +38,12 @@ a release covering four separate themes is already a big one. Prose that
 explains the reasoning belongs in the commit message, not here — if a section
 needs three paragraphs to land, it is being written for the wrong reader.
 
+**Say who it applies to.** The card serves five integrations and most changes
+reach only some of them. Name the ones a section applies to — and the ones it
+does not, where that is not obvious — so a reader can stop at the heading
+instead of working it out from the feature. Integrations differ in what they
+expose, so "the card now reads X" is only ever true of some of them.
+
 **Credit belongs in the notes.** Name whoever reported the problem, tested the
 fix or contributed a capture, with `@handle` and the issue number, in the
 bullet their work belongs to. Link the external cause when one triggered the
