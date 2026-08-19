@@ -8,6 +8,11 @@ format drifted a few times — this file exists so it stops drifting.
 Written for someone who uses the card, not for someone who reads the diff.
 What changed for them, and what they have to do about it.
 
+**Written in English.** The card is localized, the notes are not — one text
+every reader can open beats a partial set of translated ones. German belongs
+in the German-language forum threads, where a release gets announced in the
+reader's own language; the notes themselves stay English.
+
 **Structure:** `##` sections by theme, each holding bullets that open with a
 bold phrase and then explain themselves in one or two sentences.
 
