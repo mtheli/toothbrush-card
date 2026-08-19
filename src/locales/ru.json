@@ -23,6 +23,7 @@
   "recap_source_live": "Завершение сеанса отслежено",
   "recap_source_history": "Восстановлено из истории",
   "recap_source_device": "Прочитано из памяти щётки",
+  "recap_source_counted": "Подсчитано Home Assistant во время чистки",
   "done_sextants": "Все 6 секстантов готовы",
   "done_quadrants": "Все 4 квадранта готовы",
   "aborted_title": "Чистка прервана раньше времени",

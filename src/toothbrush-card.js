@@ -726,15 +726,8 @@ export class ToothbrushCard extends LitElement {
         // then what the record itself says it was aiming for, then the
         // current reading. A device that reports a routine but cannot name
         // one right now gets no recap rather than a wrong verdict.
-        //
-        // Two names for the one thing, because the handles have two: what a
-        // Sonicare calls the routine an Oral-B calls the target duration,
-        // and each integration writes down the word its handle uses. This
-        // card settled on the first because Sonicare came first, not because
-        // it is the better word - and it never said so anywhere an
-        // integration author would look, so both are read.
         const target = Number(config.routine_length)
-            || Number(attrs.routine_length_seconds ?? attrs.target_duration_seconds)
+            || Number(attrs.target_duration_seconds)
             || routineFromEntity
             || ((entityIds.routine_length || entityIds.routine_length_number)
                 ? 0 : BRUSHING_DURATION);
@@ -745,6 +738,14 @@ export class ToothbrushCard extends LitElement {
         this._completedDuration = duration;
         this._completedAt = endedAt;
         this._completedSource = 'device';
+        // Read from the handle, or added up by the integration as it watched?
+        // Both arrive as this one reading, and the badge must not credit the
+        // handle with a session Home Assistant counted itself. Only one value
+        // means "read": the others name how the readings reached the
+        // integration, which is a different question, and a record from
+        // before the field existed is from an integration that only read.
+        this._completedFromStore = !attrs.source
+            || attrs.source === 'retained_session';
         this._completedTarget = target;
         // Not every record carries it, and a missing reading is not a
         // reading of none: a session brushed far too hard and one where the
@@ -1675,7 +1676,8 @@ export class ToothbrushCard extends LitElement {
         // worth being able to find out when a reading surprises somebody.
         const completedSourceLabel = showRecap
             ? t(hass, {
-                device: 'recap_source_device',
+                device: this._completedFromStore
+                    ? 'recap_source_device' : 'recap_source_counted',
                 history: 'recap_source_history',
             }[this._completedSource] || 'recap_source_live')
             : '';

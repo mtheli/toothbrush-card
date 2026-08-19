@@ -196,9 +196,11 @@ Where the recap comes from, in that order: the handle's own record of its last s
 `translation_key` (`last_session`). Its **state is the time the session began** —
 that is what handles stamp on their own records — with `duration_seconds` as an
 attribute or as a second entity (`last_session_duration`); the card works the
-ending out from the two. `routine_length_seconds` (or `target_duration_seconds`,
-whichever word the handle uses for the same thing), `session_id`, `superseded`
-and `time_source` are used where present.
+ending out from the two. `target_duration_seconds`, `session_id`, `superseded`,
+`time_source` and `source` are used where present — `source` because a record
+read from the handle's own store (`retained_session`) and one the integration
+added up itself both arrive through this reading, and the badge says which of
+the two it is showing.
 
 ### Misc
 

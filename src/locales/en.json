@@ -23,6 +23,7 @@
   "recap_source_live": "Watched this session end",
   "recap_source_history": "Reconstructed from recorded history",
   "recap_source_device": "Read from the brush's own record",
+  "recap_source_counted": "Counted by Home Assistant as you brushed",
   "done_sextants": "All 6 sextants finished",
   "done_quadrants": "All 4 quadrants finished",
   "aborted_title": "Brushing stopped early",

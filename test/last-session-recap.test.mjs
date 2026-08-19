@@ -69,7 +69,7 @@ async function idleCard({ record = {}, routineLength = null, config = {} } = {})
             state: record.state ?? STARTED.toISOString(),
             attributes: {
                 duration_seconds: RECORD_DURATION,
-                routine_length_seconds: 160,
+                target_duration_seconds: 160,
                 ...(record.attributes || {}),
             },
             last_changed: START.toISOString(),
@@ -168,7 +168,7 @@ describe('the recap the handle remembers', () => {
         const { el, hass } = await idleCard({
             record: {
                 attributes: {
-                    routine_length_seconds: undefined,
+                    target_duration_seconds: undefined,
                     target_duration_seconds: 300,
                 },
             },
@@ -184,7 +184,7 @@ describe('the recap the handle remembers', () => {
         // Measuring against a default would announce an aborted long routine
         // as complete - the same refusal the history rebuild makes.
         const { el, hass } = await idleCard({
-            record: { attributes: { routine_length_seconds: undefined } },
+            record: { attributes: { target_duration_seconds: undefined } },
         });
         const ids = { last_session: 'sensor.b_last', routine_length: 'sensor.b_routine' };
         assert.equal(el._recapFromLastSession(hass, {}, ids, 0), false);
@@ -412,6 +412,45 @@ describe('what the badge says when asked', () => {
         return markup;
     }
 
+    test('a record read from the handle says so', async (t) => {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const markup = await badgeHtml({
+            record: { attributes: { source: 'retained_session' } },
+        });
+        assert.ok(markup.includes("Read from the brush's own record"));
+    });
+
+    test('one the integration counted itself says that instead', async (t) => {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        // Both arrive as the same reading, and one of them is not a reading
+        // of the handle at all: the integration watched the session end and
+        // added it up. Crediting that to the brush's own record would claim
+        // a source that was never consulted.
+        const markup = await badgeHtml({
+            record: { attributes: { source: 'observed' } },
+        });
+        assert.ok(markup.includes('Counted by Home Assistant'));
+        assert.ok(!markup.includes("Read from the brush's own record"));
+    });
+
+    test('every source but that one word counts as counted', async (t) => {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        // The other integration names the way its readings arrived rather
+        // than saying "counted", and there is no listing those to keep up
+        // with. Only `retained_session` means read.
+        for (const source of ['advertisement', 'charger_bridge', 'direct_brush']) {
+            const markup = await badgeHtml({ record: { attributes: { source } } });
+            assert.ok(markup.includes('Counted by Home Assistant'), source);
+        }
+    });
+
+    test('a record from before the field existed is credited to the handle', async (t) => {
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        // Those came from integrations that only ever read one.
+        const markup = await badgeHtml({});
+        assert.ok(markup.includes("Read from the brush's own record"));
+    });
+
     test('the relative time carries the exact one', async (t) => {
         // "3 h ago" answers "recently or not". Anyone who needs to know
         // whether that was this morning or last night should not have to
@@ -582,7 +621,7 @@ describe('a record that arrives after the card watched the session', () => {
     function file(el, hass, { at, ...attributes }) {
         hass.states['sensor.b_last'] = {
             state: at.toISOString(),
-            attributes: { duration_seconds: 160, routine_length_seconds: 160, ...attributes },
+            attributes: { duration_seconds: 160, target_duration_seconds: 160, ...attributes },
             last_changed: at.toISOString(),
         };
         el.hass = hass;
@@ -593,7 +632,7 @@ describe('a record that arrives after the card watched the session', () => {
         const { el, hass } = await watched(t);
         file(el, hass, {
             at: new Date(START.getTime() - 30_000),
-            duration_seconds: 158, routine_length_seconds: 180, pressure_seconds: 12,
+            duration_seconds: 158, target_duration_seconds: 180, pressure_seconds: 12,
         });
         assert.equal(el._completedSource, 'device');
         assert.equal(el._completedDuration, 158, "the handle's own count of it");
@@ -625,7 +664,7 @@ describe('a record that arrives after the card watched the session', () => {
             record: {
                 state: new Date(START.getTime() - 3600_000).toISOString(),
                 attributes: {
-                    duration_seconds: 150, routine_length_seconds: 160,
+                    duration_seconds: 150, target_duration_seconds: 160,
                     session_id: previousId,
                 },
             },
@@ -669,7 +708,7 @@ describe('a record that arrives after the card watched the session', () => {
         assert.equal(el._baselineSessionId, 341, 'the mark from the start');
         file(el, hass, {
             at: new Date(START.getTime() - 5 * 60_000),
-            duration_seconds: 158, routine_length_seconds: 160, session_id: 342,
+            duration_seconds: 158, target_duration_seconds: 160, session_id: 342,
         });
         assert.equal(el._completedSource, 'device');
         assert.equal(el._completedDuration, 158);
@@ -682,7 +721,7 @@ describe('a record that arrives after the card watched the session', () => {
         const { el, hass } = await watchedFromStart(t);
         file(el, hass, {
             at: new Date(START.getTime() - 1000),
-            duration_seconds: 150, routine_length_seconds: 160, session_id: 341,
+            duration_seconds: 150, target_duration_seconds: 160, session_id: 341,
         });
         assert.ok(!el._completedSource, 'not adopted');
         assert.equal(el._completedDuration, 160, 'still the session just watched');
@@ -697,7 +736,7 @@ describe('a record that arrives after the card watched the session', () => {
         assert.equal(el._baselineSessionId, null, 'nothing to mark with');
         file(el, hass, {
             at: new Date(START.getTime() - 30_000),
-            duration_seconds: 158, routine_length_seconds: 160, session_id: null,
+            duration_seconds: 158, target_duration_seconds: 160, session_id: null,
         });
         assert.equal(el._completedSource, 'device', 'adopted on its timing');
     });
@@ -711,7 +750,7 @@ describe('a record that arrives after the card watched the session', () => {
         const { el, hass } = await watchedFromStart(t);
         file(el, hass, {
             at: new Date(START.getTime() - 1000),
-            duration_seconds: 158, routine_length_seconds: 160, session_id: 2,
+            duration_seconds: 158, target_duration_seconds: 160, session_id: 2,
         });
         assert.equal(el._completedSource, 'device', 'the times allow it');
         assert.equal(el._baselineSessionId, null, 'and the mark is discarded');
@@ -738,7 +777,7 @@ describe('the two ways a missed session is recovered', () => {
     test('the record is read even with the history rebuild turned off', async () => {
         const { el, hass } = await idleCard({
             record: {
-                attributes: { duration_seconds: 158, routine_length_seconds: 160 },
+                attributes: { duration_seconds: 158, target_duration_seconds: 160 },
             },
             config: { history_recap: false },
         });
@@ -753,7 +792,7 @@ describe('the two ways a missed session is recovered', () => {
     test('the record can be turned off on its own', async () => {
         const { el, hass } = await idleCard({
             record: {
-                attributes: { duration_seconds: 158, routine_length_seconds: 160 },
+                attributes: { duration_seconds: 158, target_duration_seconds: 160 },
             },
             config: { device_recap: false },
         });
@@ -779,7 +818,7 @@ describe('a verdict the card works out itself', () => {
 
     /** The tier the badge draws for a stored session, found by its icon. */
     async function verdict({ duration = 120, routine = 120, pressure, config = {} } = {}) {
-        const attributes = { duration_seconds: duration, routine_length_seconds: routine };
+        const attributes = { duration_seconds: duration, target_duration_seconds: routine };
         if (pressure !== undefined) attributes.pressure_seconds = pressure;
         const { el, hass } = await idleCard({ record: { attributes }, config });
         el.hass = hass;
