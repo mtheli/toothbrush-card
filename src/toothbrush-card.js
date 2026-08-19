@@ -690,6 +690,30 @@ export class ToothbrushCard extends LitElement {
         // rendering, so the two drift apart for reasons that have nothing to
         // do with which session is which.
         if (notBefore) {
+            // How far before the mark a record may be dated and still be
+            // this session. The mark is meant to be the moment a session was
+            // seen to end - which it is where the card watched one, and
+            // where the recorder placed one, both accurate to seconds.
+            //
+            // Not where the recap was worked out from the readings left
+            // standing: there the mark is the last time the duration reading
+            // changed, and on a handle that has been away that is when it
+            // came back - minutes or hours after the session it describes.
+            // The handle's own record of that very session then reads as an
+            // older one and is thrown away, which is how a correct record
+            // went unused after a reload. So the allowance there is the
+            // window the recap is shown for at all: anything older is not
+            // this session by any reading, and anything newer cannot be
+            // ruled out.
+            //
+            // The numbers are unaffected either way - they never involve a
+            // clock, and they settle it wherever both sides have one.
+            const holdWindow = config.hold_duration !== undefined
+                ? (Number(config.hold_duration) || 0) * 3600000
+                : 0.5 * 3600000;
+            const slack = this._completedSource === 'reading'
+                ? (holdWindow || this.constructor.MAX_RECAP_AGE_MS)
+                : 60_000;
             const recordId = this.constructor._sessionNumber(attrs.session_id);
             const mark = this._baselineSessionId;
             if (mark !== null && mark !== undefined && recordId !== null) {
@@ -703,9 +727,9 @@ export class ToothbrushCard extends LitElement {
                 // decide, as they did before there was a mark at all.
                 if (recordId < mark) {
                     this._baselineSessionId = null;
-                    if (endedAt < notBefore - 60_000) return false;
+                    if (endedAt < notBefore - slack) return false;
                 }
-            } else if (endedAt < notBefore - 60_000) {
+            } else if (endedAt < notBefore - slack) {
                 return false;
             }
         }

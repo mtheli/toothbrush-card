@@ -825,6 +825,27 @@ describe('a record that arrives after the card watched the session', () => {
         assert.equal(el._baselineSessionId, null, 'and the mark is discarded');
     });
 
+    test('a record dated well before a frozen reading is still this session', async (t) => {
+        // The case that sent a correct record to waste. After a reload the
+        // recap comes from the reading the handle left standing, and what
+        // looks like the session end is the last time that reading changed -
+        // which, on a handle that had been away, is when it came back. A
+        // record of the session itself is dated minutes earlier and read as
+        // an older one.
+        //
+        // Measured on a Kids handle: session 22:26:02 to 22:28:02, the
+        // handle back at 22:34:41, and its own record of that session
+        // refused for being six minutes "too early".
+        const { el, hass } = await watched(t);
+        assert.equal(el._completedSource, 'reading', 'not watched, worked out');
+        file(el, hass, {
+            at: new Date(START.getTime() - 8 * 60_000),
+            duration_seconds: 120, session_id: 390,
+        });
+        assert.equal(el._completedSource, 'device', 'the record was taken');
+        assert.equal(el._completedDuration, 120);
+    });
+
     test('the record of an earlier session does not', async (t) => {
         // A handle that files its record only when it powers off still holds
         // yesterday's until it does. That one is not this session.
