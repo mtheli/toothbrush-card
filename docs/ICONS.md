@@ -106,8 +106,8 @@ marker cannot depend on a label beside it.
 The one exception to the chip grid. It holds a **verdict** on the session that
 just finished, latched at its end and cleared at the next start — not a live
 reading, which is why it is not a chip. There is a single slot for that
-verdict, and exactly one of two things fills it, decided by the handle rather
-than by a setting: no handle reports both.
+verdict, and exactly one of three things fills it, decided by the handle rather
+than by a setting: no handle reports more than one.
 
 **The Oral-B display face** (`FF0A`, exposed by `oralb_live` as
 `sensor.*_smiley`). Between sessions the sensor reads `off`, and while brushing
@@ -119,12 +119,37 @@ reports a score only as the handle switches off (`obj0010` / `obj3003`), so it
 describes the session that just ended — which is what the badge is for.
 `session-state.js` holds it as `completedScore`.
 
-Both are drawn at 34 px rather than the chips' 24 px — the star-eyes face
+**The card's own reading of the session**, where the handle reports neither
+but files a record of what it did — every Sonicare. Two things decide it, and
+the second is optional:
+
+| Session | Face | Tier |
+| --- | --- | --- |
+| ran its course, brushed gently (< 2 % of it too hard) | star eyes | `excellent` |
+| ran its course, pressure unknown or ordinary (< 10 %) | full smile | `good` |
+| ran 50–90 % of its routine, **or** ran fully but pressed hard | neutral | `fair` |
+| ran less than half its routine | sad | `poor` |
+
+Measured against the routine **that session** was running, which the record
+carries — measuring a three-minute session against whatever the handle is set
+to now would judge the wrong routine.
+
+The top tier is the one place the pressure figure is required. "Ran its course"
+and "ran its course and was brushed gently" are different sessions, and only
+that reading tells them apart, so a record without it reads one step below:
+the best the data supports rather than the best there is. Everything under
+`good` is decided on time alone, so a handle that cannot measure pressure at
+all — a kids brush has no sensor — is still judged.
+
+Hovering it says the card worked it out, because an opinion the card formed
+must not read as something the handle reported.
+
+All three are drawn at 34 px rather than the chips' 24 px — the star-eyes face
 collapses into plain dots below that.
 
 `show_verdict: false` empties the slot and keeps the banner. It is a plain
-on/off rather than a choice between the two, because on any given device there
-is only ever one candidate: "show the face instead of the score" would be a
+on/off rather than a choice between them, because on any given device there is
+only ever one candidate: "show the face instead of the score" would be a
 setting with nothing to switch.
 
 The face's values:

@@ -87,7 +87,8 @@ The card automatically detects the language configured in your Home Assistant in
 - Compact panel mode: hideable header and tooth ring with a large standalone timer (two cards fit side by side on a 480×480 wall panel)
 - Bluetooth connection status indicator (Pantone 285 blue)
 - Sector-segmented progress bar based on the brushing target (uses the device routine length when available)
-- Session recap banner: green when the routine was completed, amber with partial progress when brushing stopped early — rebuilt from recorder history, so it shows on any browser or device
+- Session recap banner: green when the routine was completed, amber with partial progress when brushing stopped early — read from the brush's own record where an integration exposes one, otherwise rebuilt from recorder history, so it shows on any browser or device
+- A verdict on the finished session: the Oral-B display face or the Xiaomi score where the handle reports one — and on a handle that reports neither but records its own sessions, one the card works out from how far the session got and how much of it was brushed too hard ([icon reference](docs/ICONS.md#done-badge))
 - Automatic entity discovery — no manual YAML required
 - Sector tracking: device-reported (Oral-B), integration-derived (Sonicare) or time-based calculation (Xiaomi, Laifen)
 - Configurable title, subtitle, and accent color
