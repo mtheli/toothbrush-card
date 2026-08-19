@@ -605,6 +605,12 @@ export class ToothbrushCard extends LitElement {
     // rebuild's own lookback, so both sources age out together.
     static MAX_RECAP_AGE_MS = 30 * 24 * 3600 * 1000;
 
+    // How far apart two accounts of a session may be dated and still be the
+    // same session. Only the record needs the room: it dates a session from
+    // the handle's counter, to within a minute, while history dates it from
+    // the reading itself.
+    static RECORD_CLOCK_SLACK_MS = 120_000;
+
     /**
      * A record's session number, or null where there is none.
      *
@@ -799,9 +805,30 @@ export class ToothbrushCard extends LitElement {
         // another device, whose state this stale result must not touch.
         if (this.config?.device_id !== forDevice) return;
         this._historyRecapState = 'done';
-        if (this._completed || this._wasActiveSession || this._holdDismissed) return;
+        // Somebody brushing right now, and a recap somebody has already
+        // dismissed, are both answers of their own - neither is a question a
+        // query that set off some time ago gets to reopen on arrival.
+        if (this._wasActiveSession || this._holdDismissed) return;
         const session = this._lastSessionFromHistory(rows, MIN_RECAP_SECONDS);
         if (!session) return;
+        // A record is already on the badge. It describes the same session
+        // better than a series of readings does - it knows the routine that
+        // was running, how hard it was brushed and which session it was - so
+        // it is only displaced by a session that is genuinely later, not by
+        // one that merely looks it.
+        //
+        // What "genuinely later" has to survive is the record's own clock: it
+        // times a session by the handle's counter rather than by watching one
+        // end, and lands within a minute of the truth. History has no such
+        // slack - the peak and the wipe that follows it arrive together, so
+        // its timestamp is the ending. Twice the record's worst case is
+        // therefore the mark, and it still sits below the closest two real
+        // sessions can end to one another, since a session takes minutes to
+        // brush.
+        const displacesTheRecord = this._completedSource === 'device'
+            && session.endedAt
+                > this._completedAt + this.constructor.RECORD_CLOCK_SLACK_MS;
+        if (this._completed && !displacesTheRecord) return;
         // An explicit config value wins outright — it exists because the
         // entity's reading is not to be trusted. Then history, then the
         // current entity reading; without any of them the plain default
@@ -1372,16 +1399,24 @@ export class ToothbrushCard extends LitElement {
             // aborted 3-minute routine measured against the 2-minute default
             // would read as complete).
             const target = Math.round(routineFromEntity);
-            // Ask the device before asking the recorder: the handle's own
-            // record is both more trustworthy and available immediately.
             // Two separate settings, because they are two separate things -
             // one reads what the handle concluded, the other reconstructs a
             // session from readings Home Assistant happened to store, and
             // turning the reconstruction off never meant refusing the
             // handle's own account of itself.
-            const fromRecord = config.device_recap !== false
-                && this._recapFromLastSession(hass, config, entityIds, target);
-            if (!fromRecord && config.history_recap !== false) {
+            if (config.device_recap !== false) {
+                this._recapFromLastSession(hass, config, entityIds, target);
+            }
+            // Both, rather than the recorder only if the record declined.
+            // Neither source is reliably the later one: a handle that files
+            // its record late still holds the session before this one, while
+            // a session brushed out of range left no rows to find. Asking
+            // only one of them means missing whichever session the other
+            // was holding. The record is read first because it is already
+            // in hand - the badge appears at once - and the query below
+            // settles which of the two sessions is the more recent when it
+            // returns.
+            if (config.history_recap !== false) {
                 this._maybeLoadRecapFromHistory(hass, config, entityIds, target);
             }
         } else if (this._completed && this._completedSource !== 'device'

@@ -92,7 +92,7 @@ async function idleCard({ record = {}, routineLength = null, config = {} } = {})
         devices: { dev1: { id: 'dev1', name: 'Prestige', manufacturer: 'Philips', config_entries: ['ce1'] } },
         entities,
         states,
-        callWS: async (msg) => { calls.push(msg); return {}; },
+        callWS: async (msg) => { calls.push(msg); return hass.__response ?? {}; },
     };
     el.setConfig({ type: 'custom:toothbrush-card', device_id: 'dev1', ...config });
     return { el, hass, calls };
@@ -192,19 +192,23 @@ describe('the recap the handle remembers', () => {
 });
 
 describe('which source the card asks', () => {
-    test('the handle is asked instead of the recorder', async (t) => {
-        // The point of the whole exercise: no query, no waiting, and an
-        // answer that does not depend on Home Assistant having watched.
+    test('the handle answers first, without being waited for', async (t) => {
+        // The point of the whole exercise: the badge is filled in from the
+        // record as the card renders, with no query to wait on and no
+        // dependence on Home Assistant having watched. The recorder is asked
+        // as well - see the suite below for which of the two answers wins -
+        // but nothing about the badge waits for it.
         t.mock.timers.enable({ apis: ['Date'], now: START });
         const { el, hass, calls } = await idleCard();
         el.hass = hass;
         el.render();
-        await new Promise(resolve => setImmediate(resolve));
 
-        assert.equal(calls.length, 0, 'the recorder was not queried');
-        assert.equal(el._completed, true);
+        assert.equal(el._completed, true, 'filled in synchronously');
         assert.equal(el._completedDuration, 160);
         assert.equal(el._completedAt, ENDED.getTime());
+        assert.equal(el._completedSource, 'device');
+        await new Promise(resolve => setImmediate(resolve));
+        assert.equal(calls.length, 1, 'and the recorder was asked too');
     });
 
     test('without a record the recorder is still asked', async (t) => {
@@ -232,6 +236,137 @@ describe('which source the card asks', () => {
         await new Promise(resolve => setImmediate(resolve));
 
         assert.equal(calls.length, 1, 'fell back to the recorder query');
+    });
+});
+
+describe('which of the two answers wins', () => {
+    // The record and the recorder answer the same question from opposite
+    // ends, and neither is reliably the later one. A handle that files its
+    // record late - some only write it as they switch off, and one waits for
+    // the next time somebody connects - is still holding the session before
+    // this one, and the recorder has the newer session all along. The other
+    // way round, a session brushed while Home Assistant was out of range
+    // left no rows at all, and only the handle remembers it.
+    //
+    // So both are asked and the later session wins, with a tie going to the
+    // record: it describes the same session better than a series of readings
+    // does.
+
+    /** A history row in the WebSocket's compressed form. */
+    const ws = (state, epochMs) => ({ s: String(state), lu: epochMs / 1000 });
+
+    /**
+     * A rise to `duration` peaking at `endedAt`, then the wipe back to zero -
+     * the shape the rebuild looks for.
+     */
+    const mountain = (duration, endedAt) => [
+        ws(0, endedAt - duration * 1000 - 1000),
+        ws(Math.round(duration / 2), endedAt - duration * 500),
+        ws(duration, endedAt),
+        ws(0, endedAt + 1000),
+    ];
+
+    /**
+     * Render, then let the query that render started come back.
+     *
+     * Deliberately no second render: the branch that lets a record take over
+     * a session the card has already got would run again there and could
+     * mask what the query itself decided. Tests that care about the settled
+     * state render again themselves.
+     */
+    async function settle(el, hass) {
+        el.hass = hass;
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+    }
+
+    test('a session the recorder saw and the record has not caught up with', async (t) => {
+        // The handle is still holding yesterday's session. Somebody brushed
+        // this morning with the dashboard closed, and the recorder has it.
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const yesterday = new Date(STARTED.getTime() - 24 * 3600_000);
+        const { el, hass } = await idleCard({ record: { state: yesterday.toISOString() } });
+        const thisMorning = START.getTime() - 10 * 60_000;
+        hass.__response = { 'sensor.b_time': mountain(115, thisMorning) };
+
+        await settle(el, hass);
+
+        assert.equal(el._completedSource, 'history');
+        assert.equal(el._completedAt, thisMorning);
+        assert.equal(el._completedDuration, 115);
+    });
+
+    test('but the same session twice over stays with the record', async (t) => {
+        // Both describe the session that ended a few minutes ago. The
+        // recorder dates it from the reading and the handle from its own
+        // counter, so the two disagree by a little - and a little must not
+        // read as a later session, or the badge would lose the verdict and
+        // the pressure the record carries and the rebuild knows nothing of.
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, hass } = await idleCard({
+            record: { attributes: { pressure_seconds: 12 } },
+        });
+        hass.__response = {
+            'sensor.b_time': mountain(160, ENDED.getTime() + 30_000),
+        };
+
+        await settle(el, hass);
+
+        assert.equal(el._completedSource, 'device', 'the query left it alone');
+        assert.equal(el._completedAt, ENDED.getTime());
+        assert.equal(el._completedPressure, 12, 'which the rebuild could not have supplied');
+        el.render();
+        assert.equal(el._completedSource, 'device', 'and it stays that way');
+        assert.equal(el._completedPressure, 12);
+    });
+
+    test('a session brushed out of range leaves the record standing', async (t) => {
+        // Nothing reached the recorder while it happened, so there is no
+        // mountain to find. The handle is the only account of it there is.
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, hass } = await idleCard();
+        hass.__response = { 'sensor.b_time': [] };
+
+        await settle(el, hass);
+
+        assert.equal(el._completedSource, 'device');
+        assert.equal(el._completedAt, ENDED.getTime());
+    });
+
+    test('history_recap: false means the record is the only answer', async (t) => {
+        // Turning the rebuild off still turns it off - including the part
+        // that would have corrected the record.
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const yesterday = new Date(STARTED.getTime() - 24 * 3600_000);
+        const { el, hass, calls } = await idleCard({
+            record: { state: yesterday.toISOString() },
+            config: { history_recap: false },
+        });
+        hass.__response = { 'sensor.b_time': mountain(115, START.getTime() - 10 * 60_000) };
+
+        await settle(el, hass);
+
+        assert.equal(calls.length, 0, 'no query at all');
+        assert.equal(el._completedSource, 'device');
+    });
+
+    test('a query that lands mid-session is dropped', async (t) => {
+        // The rebuild is about a session that is over. If somebody has
+        // started brushing by the time it answers, the card is showing that
+        // instead and the answer is stale on arrival.
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, hass } = await idleCard({ record: null });
+        hass.__response = { 'sensor.b_time': mountain(115, START.getTime() - 10 * 60_000) };
+        el.hass = hass;
+        el.render();
+        hass.states['sensor.b_state'] = {
+            state: 'running', attributes: {}, last_changed: START.toISOString(),
+        };
+        el.hass = hass;
+        el.render();
+        await new Promise(resolve => setImmediate(resolve));
+
+        assert.ok(!el._completed, 'the finished-session badge stayed away');
     });
 });
 
