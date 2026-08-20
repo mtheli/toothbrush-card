@@ -13,49 +13,42 @@ every reader can open beats a partial set of translated ones. German belongs
 in the German-language forum threads, where a release gets announced in the
 reader's own language; the notes themselves stay English.
 
-**Plain language.** In the notes and in commit messages. No literary voice, no
-marketing tone, no idiom where a verb will do ("the data is written at the end
-of the session", not "the sensor fills in"). Reasoning belongs in the commit
+**One section per feature.** The bullets underneath carry the details.
+
+**One sentence per bullet,** opening with two to five bold words that run into
+the sentence. No labels, no whole sentence in bold. Write what the user sees,
+with the previous behaviour as a short trailing clause where one is needed.
+
+**Plain language.** No literary voice, no marketing tone, no idiom where a verb
+will do. This holds for commit messages too. Reasoning belongs in the commit
 message, not in the notes.
 
-**No hard line breaks in the notes.** GitHub renders a single newline as a line
-break and tears prose apart mid-sentence. One paragraph, one line.
-
-**Structure:** `##` sections by theme, each holding bullets that open with a short
-bold title, followed by one or two short sentences.
+**No hard line breaks.** GitHub renders a single newline as a line break and
+tears prose apart mid-sentence. One paragraph, one line.
 
 ```markdown
-## Ready for Home Assistant 2026.8
+## Interrupted sessions
 
-Optional lead-in paragraph — only when the bullets need context to make
-sense, e.g. an external cause the reader could not know about.
+- **Finished zones** are marked on the tooth ring. The text already counted them.
+- **The zones survive** a page reload.
 
-- **The reported sector is used as it is** wherever the integration can name
-  every sector of the brush. Detected from the entity's enum options rather
-  than a version string, so beta channels resolve correctly too.
-- **Home Assistant 2026.7 and older are untouched** — the workaround stays
-  exactly as it was.
+## Source of the summary
 
-## Laifen Wave
+Only for `philips_sonicare_ble` and `oralb_live`.
 
-- **The routine length is read from the number entity.** `laifen_ble` 3.0.3
-  drops the Brushing Time sensor on the Wave, which left the card without a
-  routine there.
+- **The tooltip distinguishes** "read from the brush" from "counted by Home Assistant". Both used to claim the first.
+- **Late records** are accepted. A Sonicare for Kids delivers only on the next connection.
 ```
 
 **Title:** `vX.Y.Z — what it is about`, e.g.
 *v0.28.0 — Home Assistant 2026.8, Oral-B Live, Laifen Wave*.
 
-**Length is a signal.** Stable notes have run between 400 and 2000 characters;
-a release covering four separate themes is already a big one. Prose that
-explains the reasoning belongs in the commit message, not here — if a section
-needs three paragraphs to land, it is being written for the wrong reader.
+**Length is a signal.** Stable notes rarely run over 1000 characters; a
+release covering four separate themes is already a big one.
 
 **Say who it applies to.** The card serves five integrations and most changes
-reach only some of them. Name the ones a section applies to — and the ones it
-does not, where that is not obvious — so a reader can stop at the heading
-instead of working it out from the feature. Integrations differ in what they
-expose, so "the card now reads X" is only ever true of some of them.
+reach only some of them, so "the card now reads X" is never true of all. Name
+them under the heading, including the ones where nothing changes.
 
 **Credit belongs in the notes.** Name whoever reported the problem, tested the
 fix or contributed a capture, with `@handle` and the issue number, in the
