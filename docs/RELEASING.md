@@ -13,8 +13,16 @@ every reader can open beats a partial set of translated ones. German belongs
 in the German-language forum threads, where a release gets announced in the
 reader's own language; the notes themselves stay English.
 
-**Structure:** `##` sections by theme, each holding bullets that open with a
-bold phrase and then explain themselves in one or two sentences.
+**Plain language.** In the notes and in commit messages. No literary voice, no
+marketing tone, no idiom where a verb will do ("the data is written at the end
+of the session", not "the sensor fills in"). Reasoning belongs in the commit
+message, not in the notes.
+
+**No hard line breaks in the notes.** GitHub renders a single newline as a line
+break and tears prose apart mid-sentence. One paragraph, one line.
+
+**Structure:** `##` sections by theme, each holding bullets that open with a short
+bold title, followed by one or two short sentences.
 
 ```markdown
 ## Ready for Home Assistant 2026.8
