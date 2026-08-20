@@ -1087,6 +1087,15 @@ export class ToothbrushCard extends LitElement {
         }
 
         if (activeIndex === -1 || activeIndex >= sectorOrder.length) {
+            // No zone is being brushed - idle, or a finished session being
+            // held. A count can still be known there: a recap that stopped
+            // early carries how far it got, and the ring is where that shows
+            // as something other than a number in a sentence.
+            if (doneCount) {
+                sectorOrder.forEach((name, index) => {
+                    if (index < doneCount) sectorClassMaps[name].done = true;
+                });
+            }
             return sectorClassMaps;
         }
 
@@ -1641,7 +1650,23 @@ export class ToothbrushCard extends LitElement {
         });
         this._applySectorState(resolved.state);
         const correctedIndex = resolved.index;
-        const doneCount = resolved.doneCount;
+        const targetDuration = routineLength || BRUSHING_DURATION;
+        // A session that stopped early, with no zones to show for it. The
+        // card only knows which zones were brushed if it was open at the
+        // time - reload the page and that is gone, while the recap itself
+        // survives in the reading or the record. The badge then said "4 of 6
+        // sextants finished" over a ring with nothing marked at all.
+        //
+        // The count is the one the badge prints, worked out the same way, so
+        // the two cannot disagree. Which zones those were is the routine's
+        // order, which is what the card already assumes for every handle
+        // that reports no sectors of its own. Only where nothing was
+        // observed: a session the card did watch keeps what it saw, revisits
+        // and all.
+        const doneCount = showAborted && !resolved.doneCount
+            ? Math.min(sectorOrder.length,
+                Math.floor(displayDuration / (targetDuration / sectorOrder.length)))
+            : resolved.doneCount;
         const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder, doneCount);
         const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
         const isSuccess = sector === 'success';
@@ -1654,7 +1679,6 @@ export class ToothbrushCard extends LitElement {
         const modeUnavailable = mode === 'unavailable' || mode === 'unknown' || mode === 'N/A';
         const modeIcon = modeUnavailable ? 'mdi:brush-variant' : this._getModeIcon(mode);
         const modeLabel = modeUnavailable ? '–' : this._getModeLabel(mode);
-        const targetDuration = routineLength || BRUSHING_DURATION;
         const progressPct = showCompleted
             ? 100
             : Math.min(100, Math.round(displayDuration / targetDuration * 100));

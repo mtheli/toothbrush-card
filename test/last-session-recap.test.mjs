@@ -1024,3 +1024,89 @@ describe('a verdict the card works out itself', () => {
             null);
     });
 });
+
+describe('the ring under a session that stopped early', () => {
+    // The badge says "4 of 6 sextants finished" over a set of teeth with
+    // nothing marked on it at all. Which zones were brushed is something the
+    // card only knows while it is watching - reload the page and that is
+    // gone - but the recap itself survives, in the record or in the reading,
+    // and it carries how far the session got.
+    //
+    // So the ring is filled in from the recap the same way the badge text is.
+    // Both numbers are worked out from one duration against one routine, and
+    // the tests below assert that they agree rather than asserting each
+    // against a literal: a count that drifts on one side only is the failure
+    // being guarded against.
+
+    beforeEach((t) => t.mock.timers.enable({ apis: ['Date'], now: START }));
+
+    /** Render a stored session and read the badge and the teeth off it. */
+    async function stoppedEarly({ duration, routine = 160, numSectors = 6 } = {}) {
+        const { el, hass } = await idleCard({
+            record: {
+                attributes: { duration_seconds: duration, target_duration_seconds: routine },
+            },
+            // The routine is reported as a reading as well as sitting in the
+            // record: the badge measures against the first, the record's own
+            // target only reaches the verdict. Where the two differ the count
+            // is the reading's - see the note in the suite below.
+            routineLength: String(routine),
+            config: { num_sectors: numSectors },
+        });
+
+        // classMap is a directive and carries no text into the template, so
+        // what the teeth were told is taken where the card works it out -
+        // the same wrapper the replay helpers use.
+        let zones = null;
+        const base = Object.getPrototypeOf(el)._getSectorData;
+        el._getSectorData = function (...args) {
+            zones = base.apply(this, args);
+            return zones;
+        };
+
+        el.hass = hass;
+        const text = markup(el.render());
+        const badge = text.match(/(\d+) of (\d+) sextants finished/);
+        return {
+            el,
+            done: Object.values(zones).filter(zone => zone.done).length,
+            badge: badge ? Number(badge[1]) : null,
+        };
+    }
+
+    test('marks the zones the badge counts', async () => {
+        const { el, done, badge } = await stoppedEarly({ duration: 110 });
+        assert.equal(el._completedIsFull, false, 'this is the stopped-early badge');
+        assert.equal(badge, 4, '110 s of a 160 s routine is four sextants in');
+        assert.equal(done, badge, 'and the teeth show what the badge counts');
+    });
+
+    test('and no more than that', async () => {
+        // The zone being brushed when the session stopped is not a finished
+        // one. Rounding it up would credit the session with a zone nobody
+        // got to the end of.
+        const { done, badge } = await stoppedEarly({ duration: 130 });
+        assert.equal(badge, 4, '130 s is most of the way through the fifth');
+        assert.equal(done, 4);
+    });
+
+    test('a session too short for one zone marks none', async () => {
+        const { done, badge } = await stoppedEarly({ duration: 22 });
+        assert.equal(badge, 0);
+        assert.equal(done, 0, 'nothing was finished, so nothing is marked');
+    });
+
+    test('a full routine still marks every zone', async () => {
+        // Guarding the other side of the branch: a complete session takes the
+        // success path, which has nothing to do with the count.
+        const { el, done } = await stoppedEarly({ duration: 160 });
+        assert.equal(el._completedIsFull, true);
+        assert.equal(done, 6);
+    });
+
+    test('quadrants are counted against four, not six', async () => {
+        const { el, done } = await stoppedEarly({ duration: 110, numSectors: 4 });
+        assert.equal(el._completedIsFull, false);
+        assert.equal(done, 2, '110 s of a 160 s routine is two quadrants in');
+    });
+});
