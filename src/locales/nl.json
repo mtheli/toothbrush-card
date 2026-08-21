@@ -104,6 +104,7 @@
   "completed_ago_minutes": "{n} min geleden",
   "completed_ago_hours": "{n} u geleden",
   "config_accent_color": "Accentkleur",
+  "config_accent_color_ring": "Laat leeg om de ringkleur van de borstel te volgen:",
   "config_tooth_color": "Tandkleur",
   "config_tooth_colors": "Tandkleuren",
   "color_tooth": "Tanden",

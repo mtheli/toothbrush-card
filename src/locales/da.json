@@ -104,6 +104,7 @@
   "completed_ago_minutes": "for {n} min. siden",
   "completed_ago_hours": "for {n} t. siden",
   "config_accent_color": "Accentfarve",
+  "config_accent_color_ring": "Lad stå tomt for at følge børstens ringfarve:",
   "config_tooth_color": "Tandfarve",
   "config_tooth_colors": "Tandfarver",
   "color_tooth": "Tænder",

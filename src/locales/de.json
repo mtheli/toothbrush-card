@@ -104,6 +104,7 @@
   "completed_ago_minutes": "vor {n} min",
   "completed_ago_hours": "vor {n} Std.",
   "config_accent_color": "Akzentfarbe",
+  "config_accent_color_ring": "Leer lassen, um der Ringfarbe der Bürste zu folgen:",
   "config_tooth_color": "Zahnfarbe",
   "config_tooth_colors": "Zahn-Farben",
   "color_tooth": "Zähne",

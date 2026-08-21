@@ -104,6 +104,7 @@
   "completed_ago_minutes": "{n} мин назад",
   "completed_ago_hours": "{n} ч назад",
   "config_accent_color": "Акцентный цвет",
+  "config_accent_color_ring": "Оставьте пустым, чтобы использовать цвет кольца щётки:",
   "config_tooth_color": "Цвет зубов",
   "config_tooth_colors": "Цвета зубов",
   "color_tooth": "Зубы",

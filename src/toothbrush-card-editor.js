@@ -1,7 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { QUADRANT_ZONES, SEXTANT_ZONES, ACCENT_COLORS, isMainStateEntity,
          LAYOUT_PROPS, CORNER_SLOTS, normalizeLayout, resolveLayoutForDevice,
-         findDeviceEntities, CARD_VERSION, BUILD_DATE } from './toothbrush-card.js';
+         findDeviceEntities, readRingColor,
+         CARD_VERSION, BUILD_DATE } from './toothbrush-card.js';
 import { t } from './translations.js';
 
 export class ToothbrushCardEditor extends LitElement {
@@ -56,6 +57,16 @@ export class ToothbrushCardEditor extends LitElement {
         return Object.values(this.hass.entities).some(
             e => e.device_id === this._config.device_id && e.translation_key === 'sector'
         );
+    }
+
+    /**
+     * The handle's own ring colour, if this device reports one. Read through
+     * the card's own reader, so the hint can never promise an accent the card
+     * would not paint.
+     */
+    _ringColor() {
+        if (!this.hass || !this._config?.device_id) return null;
+        return readRingColor(this.hass, this._deviceIds());
     }
 
     _hasVerdictSource() {
@@ -570,6 +581,13 @@ export class ToothbrushCardEditor extends LitElement {
                             </button>
                         `)}
                     </div>
+                    ${this._ringColor() ? html`
+                        <div class="sector-mode-hint">
+                            ${t(this.hass, 'config_accent_color_ring')}
+                            <span class="ring-swatch" style="background: ${this._ringColor()}"></span>
+                            ${this._ringColor()}
+                        </div>
+                    ` : ''}
                 </div>` : ''}
 
                 <div class="group-label">${t(this.hass, 'group_teeth')}</div>
@@ -830,6 +848,15 @@ export class ToothbrushCardEditor extends LitElement {
                 color: var(--secondary-text-color, #888);
                 font-style: italic;
                 margin-bottom: 8px;
+            }
+            /* Shows the colour the hint names, beside the value itself. */
+            .ring-swatch {
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                border: 1px solid var(--divider-color, #e0e0e0);
+                vertical-align: baseline;
             }
             .sub-label {
                 font-size: 13px;

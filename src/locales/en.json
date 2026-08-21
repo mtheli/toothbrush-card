@@ -104,6 +104,7 @@
   "completed_ago_minutes": "{n} min ago",
   "completed_ago_hours": "{n} h ago",
   "config_accent_color": "Accent color",
+  "config_accent_color_ring": "Leave empty to follow the brush's own ring color:",
   "config_tooth_color": "Tooth color",
   "config_tooth_colors": "Tooth colors",
   "color_tooth": "Teeth",

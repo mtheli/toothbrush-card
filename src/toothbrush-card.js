@@ -148,6 +148,38 @@ export const ACCENT_COLORS = [
     { name: 'White',        color: '#FFFFFF' },
 ];
 
+// The colour the card paints with when neither the configuration nor the
+// handle names one.
+export const DEFAULT_ACCENT_COLOR = '#FFFFFF';
+
+// The `#RRGGBB` an integration reports for the handle's own light ring.
+const RING_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
+
+/**
+ * The colour the device says its own ring is set to, or null.
+ *
+ * Only a six-digit hex colour counts, so `unknown`, `unavailable` and an
+ * integration that reports something else read as "no colour" rather than
+ * reaching the stylesheet.
+ */
+export function readRingColor(hass, entityIds) {
+    const ringEntityId = entityIds?.ring_color;
+    const ring = ringEntityId ? hass?.states?.[ringEntityId]?.state : null;
+    if (typeof ring !== 'string') return null;
+    const value = ring.trim();
+    return RING_COLOR_PATTERN.test(value) ? value : null;
+}
+
+/**
+ * The accent colour for a card: a colour set in the configuration wins, then
+ * the handle's own ring colour, then the card default.
+ */
+export function resolveAccentColor(config, hass, entityIds) {
+    const configured = (config?.accent_color || '').trim();
+    if (configured) return configured;
+    return readRingColor(hass, entityIds) || DEFAULT_ACCENT_COLOR;
+}
+
 // Placeable readings and the four corner slots — shared by the card renderer
 // and the editor so both agree on what can go where.
 export const LAYOUT_PROPS = ['battery', 'pressure', 'intensity', 'mode', 'score', 'brush_head', 'head_type'];
@@ -245,7 +277,8 @@ export function findDeviceEntities(hass, deviceId) {
         brushhead_sessions: null, activity: null,
         mode_select: null, esp_bridge_alive: null,
         ble_connected: null, score: null, pacer_30s: null,
-        smiley: null, last_session: null, last_session_duration: null
+        smiley: null, last_session: null, last_session_duration: null,
+        ring_color: null
     };
 
     const allEntities = hass.entities;
@@ -376,6 +409,12 @@ export function findDeviceEntities(hass, deviceId) {
             entityKeys.last_session = entity.entity_id;
         } else if (entity.translation_key === 'last_session_duration') {
             entityKeys.last_session_duration = entity.entity_id;
+        } else if (entity.translation_key === 'ring_color') {
+            // The colour the handle's own light ring is set to, which the card
+            // can adopt as its accent. Only the selected device's is read: a
+            // charging station publishes the colour of its own ring under a
+            // key of its own, and that one belongs to a different device.
+            entityKeys.ring_color = entity.entity_id;
         }
 
         // Sonicare translation_keys
@@ -994,11 +1033,13 @@ export class ToothbrushCard extends LitElement {
     /**
      * Inline style for the <ha-card>, exposing the accent color plus the
      * optional tooth/active/done color overrides (issue #6). Colors left
-     * unset fall back to the CSS defaults.
+     * unset fall back to the CSS defaults; an accent left unset follows the
+     * handle's own ring colour where the device reports one.
      */
     _cardStyle() {
         const c = this.config || {};
-        let style = `--accent-color: ${c.accent_color || '#FFFFFF'}`;
+        const accent = resolveAccentColor(c, this._hass, this._entityIds);
+        let style = `--accent-color: ${accent}`;
         if (c.tooth_color) style += `; --tb-tooth-color: ${c.tooth_color}`;
         if (c.active_color) style += `; --tb-active-color: ${c.active_color}`;
         if (c.done_color) style += `; --tb-done-color: ${c.done_color}`;

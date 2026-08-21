@@ -104,6 +104,7 @@
   "completed_ago_minutes": "pred {n} min",
   "completed_ago_hours": "pred {n} h",
   "config_accent_color": "Barva poudarka",
+  "config_accent_color_ring": "Pustite prazno, da sledi barvi obročka ščetke:",
   "config_tooth_color": "Barva zob",
   "config_tooth_colors": "Barve zob",
   "color_tooth": "Zobje",
