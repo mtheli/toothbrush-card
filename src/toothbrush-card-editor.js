@@ -582,7 +582,7 @@ export class ToothbrushCardEditor extends LitElement {
                         `)}
                     </div>
                     ${this._ringColor() ? html`
-                        <div class="sector-mode-hint">
+                        <div class="sector-mode-hint ring-hint">
                             ${t(this.hass, 'config_accent_color_ring')}
                             <span class="ring-swatch" style="background: ${this._ringColor()}"></span>
                             ${this._ringColor()}
@@ -848,6 +848,10 @@ export class ToothbrushCardEditor extends LitElement {
                 color: var(--secondary-text-color, #888);
                 font-style: italic;
                 margin-bottom: 8px;
+            }
+            /* The hint sits under the swatch grid and needs room from it. */
+            .ring-hint {
+                margin-top: 10px;
             }
             /* Shows the colour the hint names, beside the value itself. */
             .ring-swatch {
