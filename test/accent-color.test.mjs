@@ -10,6 +10,12 @@
 // colour has to be rejected here rather than downstream: a sensor reads
 // `unknown` before its first connection and `unavailable` whenever the
 // integration drops out, and both would otherwise reach the stylesheet.
+//
+// What an Oral-B handle reports is not a screen colour but three LED drive
+// levels, so it is converted before it is painted. The palette below was read
+// off a handle, one value per name, and it is the evidence that the conversion
+// is right: the factors come from white alone, and the other five land on
+// their own names.
 
 import test, { describe } from 'node:test';
 import assert from 'node:assert/strict';
@@ -78,15 +84,40 @@ describe('the ring colour entity', () => {
     });
 });
 
+// What the handle stores for each name it shows on its own display, read back
+// one colour at a time, and what that has to look like on screen.
+const PALETTE = [
+    ['white', '#44CF63', '#FFFFFF'],
+    ['yellow', '#80FF00', '#FFFF00'],
+    ['orange', '#FC7000', '#FF8A00'],
+    ['blue', '#0F5BCC', '#3870FF'],
+    ['turquoise', '#00FF3D', '#00FF9D'],
+    ['pink', '#B2091A', '#FF0B43'],
+];
+
 describe('reading the ring colour', () => {
-    test('takes a six-digit hex colour', () => {
-        assert.equal(readRingColor(withRing('#0F5BCC'), { ring_color: 'sensor.io_ring' }),
-            '#0F5BCC');
+    for (const [name, stored, shown] of PALETTE) {
+        test(`turns the drive levels the handle stores for ${name} into ${shown}`, () => {
+            assert.equal(readRingColor(withRing(stored), { ring_color: 'sensor.io_ring' }),
+                shown);
+        });
+    }
+
+    test('takes the value however the integration cased it', () => {
+        assert.equal(readRingColor(withRing('#b2091a'), { ring_color: 'sensor.io_ring' }),
+            '#FF0B43');
     });
 
-    test('takes it however the integration cased it', () => {
-        assert.equal(readRingColor(withRing('#b2091a'), { ring_color: 'sensor.io_ring' }),
-            '#b2091a');
+    // The conversion belongs to handles that report drive levels. A device
+    // that reports a colour meant for a screen has to arrive unchanged, or the
+    // card would stretch a value that was already right.
+    test('leaves another integration\'s colour alone', () => {
+        const hass = hassWith([
+            ['sensor.other_ring', {
+                platform: 'some_ble', translation_key: 'ring_color', state: '#0F5BCC',
+            }],
+        ]);
+        assert.equal(readRingColor(hass, { ring_color: 'sensor.other_ring' }), '#0F5BCC');
     });
 
     for (const state of ['unknown', 'unavailable', '', 'none', '#FFF', '#GGGGGG',
@@ -105,7 +136,7 @@ describe('the accent colour', () => {
     const ids = { ring_color: 'sensor.io_ring' };
 
     test('follows the ring when the configuration names none', () => {
-        assert.equal(resolveAccentColor({}, withRing('#0F5BCC'), ids), '#0F5BCC');
+        assert.equal(resolveAccentColor({}, withRing('#0F5BCC'), ids), '#3870FF');
     });
 
     test('keeps a configured colour even when the brush reports one', () => {
@@ -117,9 +148,9 @@ describe('the accent colour', () => {
     // dropping the key, and that means "follow the brush", not "paint ''".
     test('treats an empty configured colour as unset', () => {
         assert.equal(resolveAccentColor({ accent_color: '' }, withRing('#0F5BCC'), ids),
-            '#0F5BCC');
+            '#3870FF');
         assert.equal(resolveAccentColor({ accent_color: '   ' }, withRing('#0F5BCC'), ids),
-            '#0F5BCC');
+            '#3870FF');
     });
 
     test('falls back to the default when the ring reads nothing usable', () => {
@@ -141,7 +172,7 @@ describe('the card', () => {
     test('paints the ring colour', async () => {
         const el = await card();
         el.hass = withRing('#0F5BCC');
-        assert.match(el._cardStyle(), /--accent-color: #0F5BCC/);
+        assert.match(el._cardStyle(), /--accent-color: #3870FF/);
     });
 
     test('paints the configured colour instead', async () => {
@@ -162,9 +193,9 @@ describe('the card', () => {
     test('follows a colour the handle changes later', async () => {
         const el = await card();
         el.hass = withRing('#0F5BCC');
-        assert.match(el._cardStyle(), /--accent-color: #0F5BCC/);
+        assert.match(el._cardStyle(), /--accent-color: #3870FF/);
         el.hass = withRing('#B2091A');
-        assert.match(el._cardStyle(), /--accent-color: #B2091A/);
+        assert.match(el._cardStyle(), /--accent-color: #FF0B43/);
     });
 
     test('survives the sensor going unavailable', async () => {
@@ -187,7 +218,7 @@ describe('the editor', () => {
 
     test('offers the ring colour as the hint under the swatches', async () => {
         const el = await editor(withRing('#0F5BCC'));
-        assert.equal(el._ringColor(), '#0F5BCC');
+        assert.equal(el._ringColor(), '#3870FF');
     });
 
     // The hint promises the card will follow a colour, so it may only appear
@@ -202,7 +233,7 @@ describe('the editor', () => {
     test('puts the colour under the swatches, and nothing there without one',
         async () => {
             assert.match(markup((await editor(withRing('#0F5BCC'))).render()),
-                /ring-swatch[\s\S]*#0F5BCC/);
+                /ring-swatch[\s\S]*#3870FF/);
             assert.doesNotMatch(markup((await editor(hassWith())).render()),
                 /ring-swatch/);
         });

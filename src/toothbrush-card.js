@@ -155,6 +155,37 @@ export const DEFAULT_ACCENT_COLOR = '#FFFFFF';
 // The `#RRGGBB` an integration reports for the handle's own light ring.
 const RING_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 
+// What an Oral-B handle stores for its ring is not a screen colour but the
+// drive level of three LEDs behind a diffuser, and the three are not equally
+// bright per unit of drive. The handle's own "white" is the calibration: the
+// drive that makes the ring look white says how much each channel is worth.
+//
+// Measured on two iO handles by stepping through the colour menu and reading
+// the value back for each name (21 August 2026):
+//
+//   white   44CF63     yellow  80FF00     blue   0F5BCC
+//   pink    B2091A     orange  FC7000     turquoise 00FF3D
+//
+// Scaling each channel by 255/white and clamping turns white into white by
+// construction - and then puts yellow at hue 60 and orange at hue 32, exactly
+// where their names say. Five colours the factors were not derived from land
+// on their own names, which is what makes this a measurement rather than a
+// fit.
+const RING_LED_WHITE = [0x44, 0xCF, 0x63];
+
+// Only Oral-B handles are known to report drive levels. Another integration
+// that one day reports a real screen colour must not have it stretched.
+const RING_LED_PLATFORM = /^oralb/;
+
+/** A drive-level triple as the colour the ring shows. */
+function correctRingDrive(value) {
+    const channels = [1, 3, 5].map((i) => parseInt(value.slice(i, i + 2), 16));
+    return '#' + channels
+        .map((channel, i) => Math.min(255, Math.round(channel * 255 / RING_LED_WHITE[i])))
+        .map((channel) => channel.toString(16).padStart(2, '0').toUpperCase())
+        .join('');
+}
+
 /**
  * The colour the device says its own ring is set to, or null.
  *
@@ -167,7 +198,9 @@ export function readRingColor(hass, entityIds) {
     const ring = ringEntityId ? hass?.states?.[ringEntityId]?.state : null;
     if (typeof ring !== 'string') return null;
     const value = ring.trim();
-    return RING_COLOR_PATTERN.test(value) ? value : null;
+    if (!RING_COLOR_PATTERN.test(value)) return null;
+    const platform = hass?.entities?.[ringEntityId]?.platform || '';
+    return RING_LED_PLATFORM.test(platform) ? correctRingDrive(value) : value;
 }
 
 /**

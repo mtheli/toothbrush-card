@@ -91,7 +91,7 @@ The card automatically detects the language configured in your Home Assistant in
 - A verdict on the finished session: the Oral-B display face or the Xiaomi score where the handle reports one — and on a handle that reports neither but records its own sessions, one the card works out from how far the session got and how much of it was brushed too hard ([icon reference](docs/ICONS.md#done-badge))
 - Automatic entity discovery — no manual YAML required
 - Sector tracking: device-reported (Oral-B), integration-derived (Sonicare) or time-based calculation (Xiaomi, Laifen)
-- Configurable title, subtitle, and accent color — left unset, the accent follows the color the brush's own light ring is set to, so the card matches the handle it belongs to
+- Configurable title, subtitle, and accent color — left unset, the accent follows the color the brush's own light ring is set to, converted from the handle's LED drive levels so it matches what the ring shows
 - Configurable tooth, active-sector, and completed-sector colors
 - Configurable sector order with drag & drop and up/down buttons
 - Responsive layout with container queries (icon-only chips on narrow cards)
@@ -163,11 +163,23 @@ next to the swatches clears the choice and hands the accent back to the brush.
 Where no color is reported — or while the sensor reads `unknown` or
 `unavailable` — the card stays with its own default.
 
+What an Oral-B handle stores is not a screen color but the drive level of the
+three LEDs behind its ring, and they are not equally bright per unit of drive —
+which is why the handle's own "white" reads as `#44CF63`. The card converts
+before it paints, scaling each channel by what white says it is worth. The
+factors come from white alone, and they put the handle's yellow at hue 60° and
+its orange at hue 32°, exactly where those names belong; the values were read
+off two handles by stepping through the colour menu one name at a time. Values
+from an integration that reports an ordinary screen color are painted
+unchanged.
+
 **For integration authors:** the ring color is picked up through its
 `translation_key` (`ring_color`) on the toothbrush device, and its state must be
 a six-digit hex color with the leading `#` (`#0F5BCC`). Anything else is
 ignored. The entity has to be enabled by default to be visible to the card at
-all; `entity_category: diagnostic` is fine.
+all; `entity_category: diagnostic` is fine. Report what the device stores — the
+card owns the conversion to a screen color, so a value corrected on the
+integration side would be corrected twice.
 
 ### Visualization
 
