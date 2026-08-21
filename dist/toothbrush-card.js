@@ -1352,7 +1352,7 @@ $7bfe0f8b5ad5b7ee$exports = "ha-card {\n  overflow: visible;\n  container-type: 
 const $de15c9db4b7b9358$export$17b81730949de002 = "2026-08-21T20:07Z";
 
 
-const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.32.0";
+const $930552a63f9e9686$export$d5e7ce6d07daf10f = "0.33.0";
 const $930552a63f9e9686$export$1a6ef95039f86f17 = {
     oralb: {
         translationKey: 'toothbrush_state',
