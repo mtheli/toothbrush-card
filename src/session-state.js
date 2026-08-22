@@ -43,6 +43,11 @@ export function initialSessionState() {
         completedIsFull: false,
         wasActiveSession: false,
         sessionRoutineLength: 0,
+        // The pacing of the routine this session is running, one entry per
+        // step. Latched for the same reason as its length: a recap is read
+        // after the fact, and by then the handle may be set to another mode
+        // whose steps are neither as many nor as long.
+        sessionStepSeconds: null,
         holdDismissed: false,
         stashedRecap: null,
         face: null,
@@ -59,6 +64,7 @@ export function initialSessionState() {
         // screen the handle may have been switched to another routine, or
         // report none at all.
         completedTarget: 0,
+        completedStepSeconds: null,
         // Which route established the recap on screen: the latch watching a
         // session end (null), a rebuild from history, or the handle's own
         // record. Part of the latch state rather than the card's own, so it
@@ -110,6 +116,7 @@ export function nextSessionState(prev, {
     displayFace = null,
     displayScore = null,
     faceWindow = false,
+    stepSeconds = null,
 }) {
     const state = { ...prev };
     let sessionStarted = false;
@@ -129,6 +136,7 @@ export function nextSessionState(prev, {
                     score: prev.completedScore,
                     pressure: prev.completedPressure,
                     target: prev.completedTarget,
+                    steps: prev.completedStepSeconds,
                     source: prev.completedSource,
                 }
                 : null;
@@ -137,6 +145,7 @@ export function nextSessionState(prev, {
             state.completedAt = 0;
             state.holdDismissed = false;
             state.sessionRoutineLength = 0;
+            state.sessionStepSeconds = null;
             state.face = null;
             state.completedFromStash = false;
         }
@@ -145,6 +154,12 @@ export function nextSessionState(prev, {
             // Snapshot the routine governing THIS session: by the time it ends
             // the routine_length sensor may already read unavailable.
             state.sessionRoutineLength = routineLength;
+        }
+        if (Array.isArray(stepSeconds) && stepSeconds.length) {
+            // Same snapshot, for how the routine paces itself. Kept beside
+            // the length rather than derived from it, because the number of
+            // steps is the mode's business and not the clock's.
+            state.sessionStepSeconds = stepSeconds;
         }
     } else if (prev.wasActiveSession) {
         // The session just ended. Full and aborted runs both get a recap,
@@ -163,6 +178,7 @@ export function nextSessionState(prev, {
             state.completedSource = null;
             state.completedPressure = null;
             state.completedTarget = state.sessionRoutineLength;
+            state.completedStepSeconds = state.sessionStepSeconds;
         } else if (holdCompleted && state.stashedRecap) {
             state.completed = true;
             state.completedIsFull = state.stashedRecap.full;
@@ -174,6 +190,7 @@ export function nextSessionState(prev, {
             state.completedScore = state.stashedRecap.score ?? null;
             state.completedPressure = state.stashedRecap.pressure ?? null;
             state.completedTarget = state.stashedRecap.target ?? 0;
+            state.completedStepSeconds = state.stashedRecap.steps ?? null;
             state.completedSource = state.stashedRecap.source ?? null;
             state.completedFromStash = true;
         } else {
@@ -184,6 +201,7 @@ export function nextSessionState(prev, {
             state.face = null;
             state.completedPressure = null;
             state.completedTarget = 0;
+        state.completedStepSeconds = null;
             state.completedSource = null;
             state.completedFromStash = false;
         }

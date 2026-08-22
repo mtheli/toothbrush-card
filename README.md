@@ -38,7 +38,7 @@ The readings the card can show depend on what each integration provides:
 ¹ the Xiaomi broadcast has no live timer/sectors — the card synthesizes a session timer with time-based quadrants\
 ² aligned with the handle's 30s pacer when enabled; the routine length comes from Brushing Duration — the sensor on Wave Pro, the number entity on Wave (needs laifen_ble 3.0.3+)\
 ³ pressure warning, Wave Pro only (needs laifen_ble 3.0.2+)\
-⁴ anatomical sectors provided by the integration's sector sensor, including revisit modes (e.g. White+); the card falls back to its own time-based calculation if the sensor is absent\
+⁴ anatomical sectors provided by the integration's sector sensor, including revisit modes (e.g. White+); the card falls back to its own time-based calculation if the sensor is absent. Where the integration also publishes how the routine paces itself, the progress bar is divided into one segment per pacing step rather than per zone — a mode that revisits takes more steps than it has zones (Gum Health: ten over six), so a segment per zone would put every boundary in the wrong place\
 ⁵ applies to both `oralb` and `oralb_live` — the latter mirrors the built-in integration's entities, so the card reads it identically. Its smiley sensor is shown in the done badge as the handle's own verdict on the finished session ([icon reference](docs/ICONS.md#done-badge)); values that are not decoded yet display their raw name so they can be reported in [#20](https://github.com/mtheli/toothbrush-card/issues/20). Its remaining extra sensors (battery time remaining, refill/brush-head counters) are not shown yet, same issue\
 ⁶ `oralb_live` 0.7.22+ only — the color the handle's own light ring is set to; the card paints it as the accent when no accent color is configured (see [Header](#header))
 
@@ -188,7 +188,7 @@ integration side would be corrected twice.
 
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
-| tooth_style   | `teeth` \| `none` | `teeth` | `none` hides the tooth ring and shows a large standalone timer instead; the sector-segmented progress bar still shows where you are |
+| tooth_style   | `teeth` \| `none` | `teeth` | `none` hides the tooth ring and shows a large standalone timer instead; the segmented progress bar still shows where you are |
 | tooth_color   | string   | divider color | Idle tooth color (hex). Set this if the teeth are invisible against your theme background |
 | active_color  | string   | `#93c5fd` | Color of the currently-brushing sector (hex) |
 | done_color    | string   | `#bbf7d0` | Color of completed sectors (hex)           |

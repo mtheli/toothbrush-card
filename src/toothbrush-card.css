@@ -511,8 +511,10 @@ ha-card {
     height: auto;
     padding: 0 14px 10px;
 }
-/* The track is sliced into one sub-bar per sector (small gaps mark the
-   boundaries); the time-based fill runs across them as before. */
+/* The track is sliced into one sub-bar per pacing step (small gaps mark the
+   boundaries), so the divisions fall where the handle moves the user on -
+   which is not the zone count in a mode that revisits. Sub-bar widths are set
+   inline from the step lengths; the time-based fill runs across them. */
 .progress-track {
     height: calc(var(--tb-bar-height, 4px) * var(--tb-scale, 1));
     display: flex;

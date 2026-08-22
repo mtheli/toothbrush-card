@@ -585,6 +585,7 @@ export class ToothbrushCard extends LitElement {
             completedIsFull: this._completedIsFull,
             wasActiveSession: this._wasActiveSession,
             sessionRoutineLength: this._sessionRoutineLength,
+            sessionStepSeconds: this._sessionStepSeconds,
             holdDismissed: this._holdDismissed,
             stashedRecap: this._stashedRecap,
             face: this._face,
@@ -593,6 +594,7 @@ export class ToothbrushCard extends LitElement {
             completedSource: this._completedSource,
             completedPressure: this._completedPressure,
             completedTarget: this._completedTarget,
+            completedStepSeconds: this._completedStepSeconds,
             completedFromStash: this._completedFromStash,
             baselineSessionId: this._baselineSessionId,
         };
@@ -613,6 +615,7 @@ export class ToothbrushCard extends LitElement {
         this._completedIsFull = state.completedIsFull;
         this._wasActiveSession = state.wasActiveSession;
         this._sessionRoutineLength = state.sessionRoutineLength;
+        this._sessionStepSeconds = state.sessionStepSeconds;
         this._holdDismissed = state.holdDismissed;
         this._stashedRecap = state.stashedRecap;
         this._face = state.face;
@@ -621,6 +624,7 @@ export class ToothbrushCard extends LitElement {
         this._completedSource = state.completedSource;
         this._completedPressure = state.completedPressure;
         this._completedTarget = state.completedTarget;
+        this._completedStepSeconds = state.completedStepSeconds;
         this._completedFromStash = state.completedFromStash;
         this._baselineSessionId = state.baselineSessionId;
     }
@@ -868,6 +872,16 @@ export class ToothbrushCard extends LitElement {
         // verdict below declines rather than guesses.
         const pressure = Number(attrs.pressure_seconds);
         this._completedPressure = Number.isFinite(pressure) ? pressure : null;
+        // The record knows how the routine it describes was paced, which the
+        // handle no longer does once somebody switches mode. Only from the
+        // record: a session rebuilt from readings has no claim on it.
+        const steps = Array.isArray(attrs.step_times_seconds)
+            ? attrs.step_times_seconds.map(Number)
+            : null;
+        this._completedStepSeconds = steps
+            && steps.length
+            && steps.every((value) => Number.isFinite(value) && value > 0)
+            ? steps : null;
         this.requestUpdate();
         return true;
     }
@@ -1334,6 +1348,53 @@ export class ToothbrushCard extends LitElement {
         return normalizeLayout(config);
     }
 
+    /**
+     * How long each pacing step of the running routine lasts, in seconds,
+     * where the integration says so (`sector_times_seconds`).
+     *
+     * A step is one buzz of the handle, not one zone, and the two are not
+     * the same number: the Sonicare modes that revisit sectors take eight
+     * (White+) or ten (Gum Health) steps over six zones. Dividing the
+     * routine by the zone count therefore draws the boundaries where
+     * nothing happens - by the end of a Gum Health routine, a third of a
+     * step out.
+     *
+     * Two names, because the integrations mean subtly different things by
+     * their lists. `step_times_seconds` is one entry per buzz and is what
+     * this wants; `sector_times_seconds` is oralb_live's, one entry per
+     * zone, which is the same thing there and only there - its own sector
+     * reading says `supports_revisits: false`, so a zone cannot come round
+     * twice. Should a handle ever revisit and publish only per-zone times,
+     * the per-step list is the one that would have to arrive; hence the
+     * order.
+     *
+     * Read from whichever entity carries it: Sonicare puts it on the mode,
+     * where the pacing belongs - it changes when somebody switches routine,
+     * not while brushing, and it is there before a session starts. oralb_live
+     * puts its own list on the sector count and the routine length, because
+     * there the division is a setting of the handle rather than of the mode.
+     * Only
+     * a list of positive numbers counts; an integration that has the field
+     * but no value for it (oralb_live before the pacer has been read) says
+     * `null`, and the bar falls back to equal segments.
+     */
+    _routineStepSeconds(hass, entityIds) {
+        for (const attribute of ['step_times_seconds', 'sector_times_seconds']) {
+            for (const key of ['mode', 'sector', 'number_of_sectors', 'routine_length']) {
+                const entityId = entityIds[key];
+                const raw = entityId
+                    ? hass.states[entityId]?.attributes?.[attribute]
+                    : null;
+                if (!Array.isArray(raw) || !raw.length) continue;
+                const seconds = raw.map(Number);
+                if (seconds.every((value) => Number.isFinite(value) && value > 0)) {
+                    return seconds;
+                }
+            }
+        }
+        return null;
+    }
+
     _isActive(status) {
         // Case-insensitive: laifen_ble reports capitalized states.
         const s = String(status).toLowerCase();
@@ -1399,6 +1460,10 @@ export class ToothbrushCard extends LitElement {
         // ("post brushing statistics"), oralb_live underscored — the slug is
         // the one spelling locale keys and status sets are written in.
         const statusSlug = status.replace(/ /g, '_');
+        // How the running routine paces itself, where the integration says
+        // so. Read here rather than at the bar, because the latch needs it
+        // too - it belongs to the session, and the session ends first.
+        const liveStepSeconds = this._routineStepSeconds(hass, entityIds);
         const active = this._isActive(status);
         // Without a duration entity (Xiaomi broadcasts no live timer) the
         // session time is how long the state entity has been on — the card's
@@ -1500,6 +1565,9 @@ export class ToothbrushCard extends LitElement {
                 ? hass.states[entityIds.smiley]?.state
                 : null,
             faceWindow: active || FACE_STATUSES.has(statusSlug),
+            // Snapshotted with the session, so a recap keeps the pacing of
+            // the routine that ran rather than of whatever is set later.
+            stepSeconds: liveStepSeconds,
             // Xiaomi reports a score only when the handle switches off, so it
             // describes the session that just ended rather than the one in
             // progress - which is what makes it belong on the badge.
@@ -1734,6 +1802,12 @@ export class ToothbrushCard extends LitElement {
         this._applySectorState(resolved.state);
         const correctedIndex = resolved.index;
         const targetDuration = routineLength || BRUSHING_DURATION;
+        // What a recap is measured against: the routine that ran, not the one
+        // set now. Switching mode after brushing would otherwise redraw the
+        // session against a different length - a 3:20 Gum Health run suddenly
+        // reported as 32% of a 2:00 Clean. Falls back to the live reading
+        // where the session never recorded one.
+        const recapTarget = (showRecap && this._completedTarget) || targetDuration;
         // A session that stopped early, with no zones to show for it. The
         // card only knows which zones were brushed if it was open at the
         // time - reload the page and that is gone, while the recap itself
@@ -1748,7 +1822,7 @@ export class ToothbrushCard extends LitElement {
         // and all.
         const doneCount = showAborted && !resolved.doneCount
             ? Math.min(sectorOrder.length,
-                Math.floor(displayDuration / (targetDuration / sectorOrder.length)))
+                Math.floor(displayDuration / (recapTarget / sectorOrder.length)))
             : resolved.doneCount;
         const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder, doneCount);
         const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
@@ -1764,7 +1838,19 @@ export class ToothbrushCard extends LitElement {
         const modeLabel = modeUnavailable ? '–' : this._getModeLabel(mode);
         const progressPct = showCompleted
             ? 100
-            : Math.min(100, Math.round(displayDuration / targetDuration * 100));
+            : Math.min(100, Math.round(displayDuration / recapTarget * 100));
+        // The bar is divided by the routine's own steps where they are
+        // known, and by the zone count everywhere else. Deliberately not
+        // `numSectors`, which counts zones and is right for the ring, the
+        // zone order and the "x of y" sentence - only the bar is about
+        // pacing. `num_sectors` in the configuration overrides the zone
+        // count for those, not this: how often the handle buzzes is the
+        // handle's business, not a display setting.
+        const segmentSeconds = (showRecap
+            ? this._completedStepSeconds || liveStepSeconds
+            : liveStepSeconds)
+            || Array.from({ length: numSectors || 1 }, () => 1);
+        const segmentTotal = segmentSeconds.reduce((sum, value) => sum + value, 0);
         const statusKey = 'status_' + statusSlug;
         const displayStatus = t(hass, statusKey) !== statusKey
             ? t(hass, statusKey)
@@ -2213,20 +2299,28 @@ export class ToothbrushCard extends LitElement {
 
                     <div class="progress-wrap ${active || isSuccess || showAborted ? 'visible' : ''} ${config.progress_size === 'bold' ? 'bar-bold' : config.progress_size === 'xl' ? 'bar-xl' : ''}">
                         <div class="progress-track">
-                            ${Array.from({ length: numSectors || 1 }, (_, i) => {
+                            ${(() => {
                                 // Same time-based fill as before, sliced into one
-                                // sub-bar per sector so the boundaries are visible.
-                                const n = numSectors || 1;
-                                const segPct = Math.max(0, Math.min(100, (progressPct / 100 * n - i) * 100));
-                                const fill = `width: ${segPct}%; background: linear-gradient(90deg, ${progressColorAt(i / n)}, ${progressColorAt((i + segPct / 100) / n)})`;
-                                return html`<div class="progress-seg">
-                                    <div class="progress-fill" style="${fill}"></div>
-                                </div>`;
-                            })}
+                                // sub-bar per step so the boundaries are visible -
+                                // and each sub-bar as wide as its step is long, so
+                                // an uneven routine would draw uneven segments.
+                                let elapsedShare = 0;
+                                return segmentSeconds.map((seconds) => {
+                                    const start = elapsedShare / segmentTotal;
+                                    elapsedShare += seconds;
+                                    const end = elapsedShare / segmentTotal;
+                                    const segPct = Math.max(0, Math.min(100,
+                                        (progressPct / 100 - start) / (end - start) * 100));
+                                    const fill = `width: ${segPct}%; background: linear-gradient(90deg, ${progressColorAt(start)}, ${progressColorAt(start + (end - start) * segPct / 100)})`;
+                                    return html`<div class="progress-seg" style="flex-grow: ${seconds}">
+                                        <div class="progress-fill" style="${fill}"></div>
+                                    </div>`;
+                                });
+                            })()}
                         </div>
                         <div class="progress-labels">
                             <span>${sectorLabel || ''}</span>
-                            <span>${targetDuration > 0 ? html`${this._formatTime(displayDuration)} / ${this._formatTime(targetDuration)}` : ''}</span>
+                            <span>${recapTarget > 0 ? html`${this._formatTime(displayDuration)} / ${this._formatTime(recapTarget)}` : ''}</span>
                             <span>${progressPct}%</span>
                         </div>
                     </div>
@@ -2264,7 +2358,7 @@ export class ToothbrushCard extends LitElement {
                                 ? html` <span class="done-age" title="${completedAtLabel}">(${completedAgo})</span>` : ''}</p>
                             <span>${t(hass, numSectors === 6 ? 'aborted_sextants' : 'aborted_quadrants')
                                 .replace('{x}', Math.min(numSectors || 4, Math.floor(
-                                    displayDuration / (targetDuration / (numSectors || 4)))))
+                                    displayDuration / (recapTarget / (numSectors || 4)))))
                                 .replace('{y}', numSectors || 4)}</span>` : html`
                             <p><span title="${completedSourceLabel}">&#10003; ${t(hass, 'done_title')}</span>${completedAgo
                                 ? html` <span class="done-age" title="${completedAtLabel}">(${completedAgo})</span>` : ''}</p>
