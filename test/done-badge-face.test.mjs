@@ -118,6 +118,44 @@ describe('the face reaching the badge', () => {
         assert.equal(el._completedFace, 'special_10');
     });
 
+    test('an iO shows its face in plain idle, and that still lands', async () => {
+        // Captured from the handle itself (2D64, 22.08.): the motor stops, the
+        // state goes straight to `idle` - never to a summary state, which this
+        // model does not use - and the face appears in that same reading. Only
+        // `running` and the summary states used to open the window, so the one
+        // face an iO ever shows was dropped in the render it arrived in.
+        const el = await replay([
+            { status: 'running', duration: '136', smiley: 'off' },
+            { status: 'idle', duration: '140', smiley: 'special_5' },
+        ]);
+        assert.equal(el._completed, true);
+        assert.equal(el._completedFace, 'special_5');
+    });
+
+    test('the face outlives the display going dark', async () => {
+        // A minute later the handle wakes its menu and the display sleeps:
+        // `off` must not take the verdict off the badge with it, or the recap
+        // would lose its face while still on screen.
+        const el = await replay([
+            { status: 'running', duration: '136', smiley: 'off' },
+            { status: 'idle', duration: '140', smiley: 'special_5' },
+            { status: 'selection_menu', duration: '0', smiley: 'off' },
+        ]);
+        assert.equal(el._completedFace, 'special_5');
+    });
+
+    test('a fumble in idle is not given a face', async () => {
+        // The window is open in `idle` now, so a face seen there must still
+        // not turn a few seconds of buzzing into a verdict: the recap decides
+        // that, and it declines below the floor.
+        const el = await replay([
+            { status: 'running', duration: '4', smiley: 'off' },
+            { status: 'idle', duration: '4', smiley: 'special_5' },
+        ]);
+        assert.equal(el._completed, false, 'too short to be a session');
+        assert.equal(el._completedFace, null);
+    });
+
     test('a handle without the sensor leaves the badge alone', async () => {
         const el = await replay([
             { status: 'running', duration: '130', smiley: null },

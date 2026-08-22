@@ -66,11 +66,20 @@ export const SUPPORTED_INTEGRATIONS = {
 // still readable - was the alternative.
 const BROADCAST_SILENCE_SECONDS = 120;
 
-// The states in which a handle presents a finished session — its display face
-// arrives in them (oralb_live), and they are the only states in which a
-// finished routine may be derived from the frozen timer: a mid-session pause
-// reads `idle` and must not flash a completed view.
-export const SUMMARY_STATUSES = new Set([
+// The states a result face may be adopted in, beside the motor actually
+// running. The handle stops before it shows its verdict, so the face arrives
+// in whatever state follows the session - and which state that is differs by
+// model. The Sonicare-style handles announce a summary; an iO drops straight
+// back to plain `idle` and shows its face there, for about a minute, which is
+// why `idle` belongs here: without it the face of every iO session was thrown
+// away in the same render it appeared in.
+//
+// `idle` is safe to open the window on because a face is only ever adopted
+// when the smiley sensor actually names one: between sessions it reads `off`,
+// which never latches. It says nothing about whether a session is finished -
+// that is decided in session-state.js from the session having been active.
+export const FACE_STATUSES = new Set([
+    'idle',
     'session_summary',
     'post_brushing_summary',
     'post_brushing_statistics',
@@ -1490,7 +1499,7 @@ export class ToothbrushCard extends LitElement {
             displayFace: entityIds.smiley
                 ? hass.states[entityIds.smiley]?.state
                 : null,
-            faceWindow: active || SUMMARY_STATUSES.has(statusSlug),
+            faceWindow: active || FACE_STATUSES.has(statusSlug),
             // Xiaomi reports a score only when the handle switches off, so it
             // describes the session that just ended rather than the one in
             // progress - which is what makes it belong on the badge.
