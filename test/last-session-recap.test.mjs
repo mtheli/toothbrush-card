@@ -521,8 +521,12 @@ describe('what the badge says when asked', () => {
         // work it out.
         t.mock.timers.enable({ apis: ['Date'], now: START });
         const markup = await badgeHtml({});
+        // Which clock that is written on belongs to the profile, not to this
+        // test - locale-format.test.mjs is where that rule is proved. An
+        // English profile that has not been changed reads am/pm.
         const exact = new Date(ENDED).toLocaleString('en', {
-            dateStyle: 'medium', timeStyle: 'short',
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: 'numeric', minute: '2-digit', hourCycle: 'h12',
         });
         assert.ok(markup.includes(exact),
             `the exact time ${exact} should be on the badge as a tooltip`);

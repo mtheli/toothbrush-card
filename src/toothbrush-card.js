@@ -3,6 +3,7 @@ import { classMap } from 'lit-html/directives/class-map.js';
 import { ToothSVG } from './toothbrush-svg.js';
 import { MODE_ICONS, CONN_ICONS, smileyTier, SMILEY_TIERS } from './icons.js';
 import { t } from './translations.js';
+import { formatDateTime } from './locale.js';
 import { nextSessionState, initialSessionState,
          BRUSHING_DURATION, MIN_RECAP_SECONDS } from './session-state.js';
 import { resolveSector, initialSectorState, resetCorrection, correctSectorIndex,
@@ -1902,9 +1903,7 @@ export class ToothbrushCard extends LitElement {
         // last night - the exact time is one hover away rather than a
         // second line nobody reads.
         const completedAtLabel = showRecap && this._completedAt > 0
-            ? new Date(this._completedAt).toLocaleString(
-                hass.locale?.language || hass.language || undefined,
-                { dateStyle: 'medium', timeStyle: 'short' })
+            ? formatDateTime(hass, this._completedAt)
             : '';
         // Where the recap came from. The three sources differ in what they
         // are worth - one was watched happening, one was worked out from
