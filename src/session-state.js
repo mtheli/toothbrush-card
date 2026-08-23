@@ -25,13 +25,37 @@ export const MIN_RECAP_SECONDS = 10;
 // power off a beat before the last duration sample lands exactly on it.
 const COMPLETION_TOLERANCE = 0.9;
 
-// Faces that say nothing about the session they follow: the display asleep,
-// the handle's everyday face, and Home Assistant's own placeholders for a
-// reading it does not have. See the note further down for why the everyday
-// face belongs here.
+// Readings that are not a face at all: the display asleep, and Home
+// Assistant's own placeholders for a reading it does not have. Latched, the
+// last two would put a "please report this face" badge on screen for what is
+// plumbing, not data.
+//
+// `standard` is deliberately NOT here. It reads like a resting value and was
+// taken for one, but it is the bottom rung of the scale - the frown a handle
+// shows after a session barely begun, climbing from there with the brushing
+// time. Measured on two handles: it appears in the second a session ends,
+// holds the ~30 s the display stays lit and then sleeps to `off`, exactly as
+// every other result face does.
+//
+// Known cost of reading it: a face sensor refreshed only over a connection
+// can come to rest on it, and a resting frown latched onto a later session
+// would condemn one nobody has finished. That exposure is not particular to
+// this value - a resting `special_5` would praise the same session - so it is
+// carried here rather than paid for with a rule for one face.
 const NON_VERDICT_FACES = new Set([
-    'off', 'standard', 'unknown', 'unavailable',
+    'off', 'unknown', 'unavailable',
 ]);
+
+/**
+ * Whether a face names a verdict on the session it follows.
+ *
+ * Exported because the live display is no longer the only place one arrives:
+ * a handle's own record of a session can carry the face it showed at the end,
+ * and the same readings mean nothing there for the same reasons.
+ */
+export function isVerdictFace(face) {
+    return !!face && !NON_VERDICT_FACES.has(face);
+}
 
 /** The state a card starts with, and what this function returns a new one of. */
 export function initialSessionState() {
@@ -267,15 +291,10 @@ export function nextSessionState(prev, {
     // showed: latched, they would put a "please report this face" badge on
     // screen for what is plumbing, not data.
     //
-    // `standard` is the everyday face, and it is not a verdict either. It is
-    // what the display carries when it has nothing to say about a session,
-    // and it is also where a reading that was never refreshed comes to rest -
-    // one integration reads the face only over a connection it usually does
-    // not have, and its sensor then sits on this value indefinitely. Shown as
-    // praise it rated a thirty-second session as well brushed. Handles do
-    // report it after a session, so this is not a claim that it cannot
-    // happen: it is that the face means "nothing to report" either way.
-    if (faceWindow && displayFace && !NON_VERDICT_FACES.has(displayFace)) {
+    // `standard` is adopted like any other face. It is the bottom of the
+    // scale, not the everyday face an earlier reading of this file assumed -
+    // see the note beside NON_VERDICT_FACES, including what that costs.
+    if (faceWindow && isVerdictFace(displayFace)) {
         state.face = displayFace;
     }
     state.completedFace = state.completed ? state.face : null;

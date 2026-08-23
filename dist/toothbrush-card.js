@@ -896,11 +896,16 @@ const $3cb0a15594fd43d6$export$51416f8ac832a017 = {
     }
 };
 const $3cb0a15594fd43d6$export$8dd0e14f6e3f7b38 = {
-    // `standard` is deliberately absent: it is the handle's everyday face,
-    // not a result. Captured advertisements show the display dark while
-    // brushing and a result face once the session ends - this one never
-    // appears as the outcome of anything. session-state.js drops it before
-    // it can be latched, alongside `off`.
+    // `standard` is the bottom of the scale, not the everyday face it was
+    // taken for. Measured 2026-08 on both handles: the value appears in the
+    // second a session ends, holds the ~30 s the display stays lit and then
+    // sleeps to `off`, exactly as every other result face does - and between
+    // sessions the reading is `off`, never this. Two sessions of ~25 s
+    // produced it on an iO6 and an iO8 alike, each with a frowning handle
+    // display. A capture from an earlier night shows why: the face climbs
+    // with the brushing time (34 s -> 1, 70 s -> 2, 106 s -> 4, 136 s -> 5),
+    // so where a session stops is which face it keeps.
+    standard: 'poor',
     // 2–6 decoded 2026-08 from advertisement captures photographed against
     // the handle display, on an iO6 and an iO8 alike (issue #20): short and
     // paused runs settle on the two neutral variants, ~100 s on a half
@@ -1041,16 +1046,31 @@ const $b973a26f761c9c78$export$2a3bc4b7d268e4d6 = 10;
 // A session counts as finished slightly short of its target: a handle can
 // power off a beat before the last duration sample lands exactly on it.
 const $b973a26f761c9c78$var$COMPLETION_TOLERANCE = 0.9;
-// Faces that say nothing about the session they follow: the display asleep,
-// the handle's everyday face, and Home Assistant's own placeholders for a
-// reading it does not have. See the note further down for why the everyday
-// face belongs here.
+// Readings that are not a face at all: the display asleep, and Home
+// Assistant's own placeholders for a reading it does not have. Latched, the
+// last two would put a "please report this face" badge on screen for what is
+// plumbing, not data.
+//
+// `standard` is deliberately NOT here. It reads like a resting value and was
+// taken for one, but it is the bottom rung of the scale - the frown a handle
+// shows after a session barely begun, climbing from there with the brushing
+// time. Measured on two handles: it appears in the second a session ends,
+// holds the ~30 s the display stays lit and then sleeps to `off`, exactly as
+// every other result face does.
+//
+// Known cost of reading it: a face sensor refreshed only over a connection
+// can come to rest on it, and a resting frown latched onto a later session
+// would condemn one nobody has finished. That exposure is not particular to
+// this value - a resting `special_5` would praise the same session - so it is
+// carried here rather than paid for with a rule for one face.
 const $b973a26f761c9c78$var$NON_VERDICT_FACES = new Set([
     'off',
-    'standard',
     'unknown',
     'unavailable'
 ]);
+function $b973a26f761c9c78$export$efabde77493fd6f1(face) {
+    return !!face && !$b973a26f761c9c78$var$NON_VERDICT_FACES.has(face);
+}
 function $b973a26f761c9c78$export$45f28d9c2b1af70() {
     return {
         peakDuration: 0,
@@ -1233,15 +1253,10 @@ function $b973a26f761c9c78$export$912b1850c5c72a40(prev, { active: active, durat
     // showed: latched, they would put a "please report this face" badge on
     // screen for what is plumbing, not data.
     //
-    // `standard` is the everyday face, and it is not a verdict either. It is
-    // what the display carries when it has nothing to say about a session,
-    // and it is also where a reading that was never refreshed comes to rest -
-    // one integration reads the face only over a connection it usually does
-    // not have, and its sensor then sits on this value indefinitely. Shown as
-    // praise it rated a thirty-second session as well brushed. Handles do
-    // report it after a session, so this is not a claim that it cannot
-    // happen: it is that the face means "nothing to report" either way.
-    if (faceWindow && displayFace && !$b973a26f761c9c78$var$NON_VERDICT_FACES.has(displayFace)) state.face = displayFace;
+    // `standard` is adopted like any other face. It is the bottom of the
+    // scale, not the everyday face an earlier reading of this file assumed -
+    // see the note beside NON_VERDICT_FACES, including what that costs.
+    if (faceWindow && $b973a26f761c9c78$export$efabde77493fd6f1(displayFace)) state.face = displayFace;
     state.completedFace = state.completed ? state.face : null;
     // The score arrives with the switch-off itself rather than after a summary
     // state, so it needs no window of its own - but it can still land a render
@@ -2059,12 +2074,38 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         // here, once, and everything below deals in it.
         const endedAt = startedAt + duration * 1000;
         const fromStore = !attrs.source || attrs.source === 'retained_session';
+        // The verdict the handle showed when this session ended, as the
+        // record filed it. The live face sensor is no substitute: the display
+        // goes back to sleep about a minute later, so a dashboard opened
+        // afterwards - or a Home Assistant that restarted in between - never
+        // sees one. The record outlives both.
+        //
+        // Whether the field is there at all separates two different silences.
+        // An integration that does not file faces says nothing about the
+        // session's verdict, and whatever the card watched the display show
+        // still stands. One that files the field and leaves it empty is
+        // saying it captured no verdict for this session - which is a
+        // reading, and the reason the field is never filled with a stand-in.
+        const recordFace = (0, $b973a26f761c9c78$export$efabde77493fd6f1)(attrs.display_face) ? attrs.display_face : null;
+        const recordFilesFace = attrs.display_face !== undefined;
         // Already on the badge, unchanged. The branch that offers a record
         // now runs on every render for as long as a better one could still
         // arrive, and adopting this one again would request a render from
         // inside a render - and go round for as long as the handle takes.
         // It passed every check below when it was first adopted.
-        if (this._completedSource === 'device' && this._completedAt === endedAt && this._completedDuration === duration && this._completedFromStore === fromStore) return true;
+        if (this._completedSource === 'device' && this._completedAt === endedAt && this._completedDuration === duration && this._completedFromStore === fromStore) {
+            // Except for the face, which arrives after the record it belongs
+            // to. A handle is switched off before it shows its verdict, so
+            // the integration files the session first and fills the face in
+            // over the seconds that follow - by which point everything above
+            // matches and this recap would otherwise be left as it was.
+            if (recordFace && this._face !== recordFace) {
+                this._face = recordFace;
+                this._completedFace = recordFace;
+                this.requestUpdate();
+            }
+            return true;
+        }
         // Replacing a recap that is already on screen, rather than building
         // the first one: only a record of that same session or a later one
         // will do. A handle that files its record late still holds the
@@ -2141,6 +2182,14 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         // one right now gets no recap rather than a wrong verdict.
         const target = Number(config.routine_length) || Number(attrs.target_duration_seconds) || routineFromEntity || (entityIds.routine_length || entityIds.routine_length_number ? 0 : (0, $b973a26f761c9c78$export$918b2e620e4fca36));
         if (!target) return false;
+        // Whether the recap on screen is another account of this same
+        // session or of a different one, decided before the fields below
+        // overwrite it. Two accounts of one session are dated apart: the
+        // record works its ending out from the handle's counter, while a
+        // watched one is stamped whenever the card got round to noticing -
+        // so the slack the rest of the file already uses for that question
+        // settles this one too.
+        const sameSessionAsBadge = this._completed && this._completedAt > 0 && Math.abs(this._completedAt - endedAt) <= this.constructor.RECORD_CLOCK_SLACK_MS;
         this._completed = true;
         this._completedIsFull = duration >= target * 0.9;
         this._completedDuration = duration;
@@ -2153,6 +2202,18 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         // integration, which is a different question, and a record from
         // before the field existed is from an integration that only read.
         this._completedFromStore = fromStore;
+        // The record's verdict, where it has one. Latched rather than only
+        // shown, so it stays put once the handle's display goes back to
+        // sleep and the live face reads as nothing again.
+        //
+        // With no verdict on the record, a face the card watched the display
+        // show is kept - but only for the session it was watching. A record
+        // of a different session arrives with its own verdict or with none,
+        // and neither is the one still on screen, so that face goes with the
+        // recap it belonged to. Nothing is put in its place.
+        if (recordFace) this._face = recordFace;
+        else if (recordFilesFace && !sameSessionAsBadge) this._face = null;
+        this._completedFace = this._face;
         this._completedTarget = target;
         // Not every record carries it, and a missing reading is not a
         // reading of none: a session brushed far too hard and one where the
@@ -2260,6 +2321,13 @@ class $930552a63f9e9686$export$e2f41388bb2b94a0 extends (0, $528e4332d1e3099e$ex
         // Recorder rows are durations only; a rebuilt session knows nothing
         // about pressure and must not inherit the last one's.
         this._completedPressure = null;
+        // Nor its verdict. This branch only ever runs for a session later
+        // than the one on the badge, and the face there was that session's -
+        // read from its record or watched on the display. Recorder history
+        // has no face of its own to put in its place, and none is the honest
+        // answer: the session it rebuilt was one nobody was there to see.
+        this._face = null;
+        this._completedFace = null;
         this.requestUpdate();
     }
     _lastSessionFromHistory(rows, minDuration) {

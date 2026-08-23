@@ -4,7 +4,7 @@ import { ToothSVG } from './toothbrush-svg.js';
 import { MODE_ICONS, CONN_ICONS, smileyTier, SMILEY_TIERS } from './icons.js';
 import { t } from './translations.js';
 import { formatDateTime } from './locale.js';
-import { nextSessionState, initialSessionState,
+import { nextSessionState, initialSessionState, isVerdictFace,
          BRUSHING_DURATION, MIN_RECAP_SECONDS } from './session-state.js';
 import { resolveSector, initialSectorState, resetCorrection, correctSectorIndex,
          trackVisitedSector, parseRawSectorIndex, decodesAllSectors } from './sector-state.js';
@@ -753,6 +753,21 @@ export class ToothbrushCard extends LitElement {
         // here, once, and everything below deals in it.
         const endedAt = startedAt + duration * 1000;
         const fromStore = !attrs.source || attrs.source === 'retained_session';
+        // The verdict the handle showed when this session ended, as the
+        // record filed it. The live face sensor is no substitute: the display
+        // goes back to sleep about a minute later, so a dashboard opened
+        // afterwards - or a Home Assistant that restarted in between - never
+        // sees one. The record outlives both.
+        //
+        // Whether the field is there at all separates two different silences.
+        // An integration that does not file faces says nothing about the
+        // session's verdict, and whatever the card watched the display show
+        // still stands. One that files the field and leaves it empty is
+        // saying it captured no verdict for this session - which is a
+        // reading, and the reason the field is never filled with a stand-in.
+        const recordFace = isVerdictFace(attrs.display_face)
+            ? attrs.display_face : null;
+        const recordFilesFace = attrs.display_face !== undefined;
         // Already on the badge, unchanged. The branch that offers a record
         // now runs on every render for as long as a better one could still
         // arrive, and adopting this one again would request a render from
@@ -761,7 +776,19 @@ export class ToothbrushCard extends LitElement {
         if (this._completedSource === 'device'
                 && this._completedAt === endedAt
                 && this._completedDuration === duration
-                && this._completedFromStore === fromStore) return true;
+                && this._completedFromStore === fromStore) {
+            // Except for the face, which arrives after the record it belongs
+            // to. A handle is switched off before it shows its verdict, so
+            // the integration files the session first and fills the face in
+            // over the seconds that follow - by which point everything above
+            // matches and this recap would otherwise be left as it was.
+            if (recordFace && this._face !== recordFace) {
+                this._face = recordFace;
+                this._completedFace = recordFace;
+                this.requestUpdate();
+            }
+            return true;
+        }
         // Replacing a recap that is already on screen, rather than building
         // the first one: only a record of that same session or a later one
         // will do. A handle that files its record late still holds the
@@ -853,6 +880,17 @@ export class ToothbrushCard extends LitElement {
                 ? 0 : BRUSHING_DURATION);
         if (!target) return false;
 
+        // Whether the recap on screen is another account of this same
+        // session or of a different one, decided before the fields below
+        // overwrite it. Two accounts of one session are dated apart: the
+        // record works its ending out from the handle's counter, while a
+        // watched one is stamped whenever the card got round to noticing -
+        // so the slack the rest of the file already uses for that question
+        // settles this one too.
+        const sameSessionAsBadge = this._completed && this._completedAt > 0
+            && Math.abs(this._completedAt - endedAt)
+                <= this.constructor.RECORD_CLOCK_SLACK_MS;
+
         this._completed = true;
         this._completedIsFull = duration >= target * 0.9;
         this._completedDuration = duration;
@@ -865,6 +903,21 @@ export class ToothbrushCard extends LitElement {
         // integration, which is a different question, and a record from
         // before the field existed is from an integration that only read.
         this._completedFromStore = fromStore;
+        // The record's verdict, where it has one. Latched rather than only
+        // shown, so it stays put once the handle's display goes back to
+        // sleep and the live face reads as nothing again.
+        //
+        // With no verdict on the record, a face the card watched the display
+        // show is kept - but only for the session it was watching. A record
+        // of a different session arrives with its own verdict or with none,
+        // and neither is the one still on screen, so that face goes with the
+        // recap it belonged to. Nothing is put in its place.
+        if (recordFace) {
+            this._face = recordFace;
+        } else if (recordFilesFace && !sameSessionAsBadge) {
+            this._face = null;
+        }
+        this._completedFace = this._face;
         this._completedTarget = target;
         // Not every record carries it, and a missing reading is not a
         // reading of none: a session brushed far too hard and one where the
@@ -989,6 +1042,13 @@ export class ToothbrushCard extends LitElement {
         // Recorder rows are durations only; a rebuilt session knows nothing
         // about pressure and must not inherit the last one's.
         this._completedPressure = null;
+        // Nor its verdict. This branch only ever runs for a session later
+        // than the one on the badge, and the face there was that session's -
+        // read from its record or watched on the display. Recorder history
+        // has no face of its own to put in its place, and none is the honest
+        // answer: the session it rebuilt was one nobody was there to see.
+        this._face = null;
+        this._completedFace = null;
         this.requestUpdate();
     }
 

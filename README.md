@@ -221,17 +221,28 @@ Where the recap comes from, in that order: the handle's own record of its last s
 | hold_completed | boolean | true    | Whether the summary is shown at all: `false` turns the banner off, and with it everything below. |
 | device_recap  | boolean  | true    | Use the handle's own record of the session, where the integration exposes one (a Last Session sensor). `false` ignores it and leaves the card with what it watched or can rebuild. |
 | history_recap | boolean | true    | Rebuild the summary from recorder history when the card loads with nothing else to show (fresh browser or other device, sensor values already cleared by the brush). Uses one history query for the duration sensor; `false` disables it. Independent of `device_recap`: turning the reconstruction off does not refuse the handle's own account of itself. |
-| show_verdict  | boolean  | true    | Show the verdict on the badge — the Oral-B display face (`oralb_live`) or the Xiaomi score, whichever the device reports. On a handle that reports neither but records its own sessions, the card works one out instead, from how much of its routine the session ran and — where the record carries it — how much of it was brushed too hard; hovering that face says so. The best of the four faces needs the pressure figure: without it a full session reads one step below, since "ran its course" and "ran its course and was brushed gently" are different sessions and only that reading tells them apart. `false` keeps the banner and drops only the glyph. It is one switch rather than a choice because no handle offers more than one of them. |
+| show_verdict  | boolean  | true    | Show the verdict on the badge — the Oral-B display face (`oralb_live`), read from the session record where it carries one and otherwise from the live display, or the Xiaomi score, whichever the device reports. On a handle that reports neither but records its own sessions, the card works one out instead, from how much of its routine the session ran and — where the record carries it — how much of it was brushed too hard; hovering that face says so. The best of the four faces needs the pressure figure: without it a full session reads one step below, since "ran its course" and "ran its course and was brushed gently" are different sessions and only that reading tells them apart. `false` keeps the banner and drops only the glyph. It is one switch rather than a choice because no handle offers more than one of them. |
 
 **For integration authors:** a Last Session sensor is picked up through its
 `translation_key` (`last_session`). Its **state is the time the session began** —
 that is what handles stamp on their own records — with `duration_seconds` as an
 attribute or as a second entity (`last_session_duration`); the card works the
 ending out from the two. `target_duration_seconds`, `session_id`, `superseded`,
-`time_source` and `source` are used where present — `source` because a record
-read from the handle's own store (`retained_session`) and one the integration
-added up itself both arrive through this reading, and the badge says which of
-the two it is showing.
+`time_source`, `display_face` and `source` are used where present — `source`
+because a record read from the handle's own store (`retained_session`) and one
+the integration added up itself both arrive through this reading, and the badge
+says which of the two it is showing.
+
+`display_face` is the verdict the handle's display showed when the session
+ended, in the same values as a live face reading. It is worth filing: the
+display sleeps about a minute later, so a dashboard opened after that — or one
+loaded after a restart — has no other way to the result. The card reads a
+missing attribute and an empty one differently, so please leave it empty rather
+than filling it in: absent means the integration does not report faces at all,
+and a face the card watched the display show still stands; empty means this
+session was recorded and no verdict was captured for it, and nothing is put in
+its place. A face that only arrives a moment after the record is picked up when
+it does.
 
 ### Misc
 

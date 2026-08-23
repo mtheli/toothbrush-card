@@ -368,6 +368,34 @@ describe('which of the two answers wins', () => {
         assert.equal(el._completedAt, thisMorning);
     });
 
+    test('and the displaced record\'s verdict goes with it', async (t) => {
+        // The same handover, with a face on the record. The rebuild is of a
+        // different session, and history has no verdict of its own - so the
+        // one on screen has to go rather than be handed to a session it was
+        // never about. Reachable only since records started carrying faces:
+        // before that the badge was displaced with nothing on it anyway.
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const yesterday = new Date(STARTED.getTime() - 24 * 3600_000);
+        const { el, hass } = await idleCard({
+            record: {
+                state: yesterday.toISOString(),
+                attributes: { display_face: 'special_5' },
+            },
+        });
+        const thisMorning = START.getTime() - 10 * 60_000;
+        hass.__response = { 'sensor.b_time': mountain(115, thisMorning) };
+
+        el.hass = hass;
+        el.render();
+        assert.equal(el._completedFace, 'special_5', "yesterday's verdict, first");
+        await new Promise(resolve => setImmediate(resolve));
+
+        assert.equal(el._completedSource, 'history');
+        assert.equal(el._completedFace, null, 'and not carried over');
+        el.render();
+        assert.equal(el._completedFace, null, 'nor put back by the next render');
+    });
+
     test('a rebuild that only just wins is not taken back a render later', async (t) => {
         // The two bounds in play have to stay in step. A rebuild displaces a
         // record by being more than the record's clock error later; the
@@ -1112,5 +1140,84 @@ describe('the ring under a session that stopped early', () => {
         const { el, done } = await stoppedEarly({ duration: 110, numSectors: 4 });
         assert.equal(el._completedIsFull, false);
         assert.equal(done, 2, '110 s of a 160 s routine is two quadrants in');
+    });
+});
+
+describe('the verdict the record carries', () => {
+    // The handle shows its face for about a minute and then sleeps, so the
+    // live reading is only ever a verdict to whoever was watching. The record
+    // keeps it, and that is the only account left for a dashboard opened
+    // later or a Home Assistant that restarted in between (oralb-ha#18).
+    //
+    // done-badge-face.test.mjs proves the wiring end to end. These are the
+    // rules about which of two accounts of a face wins.
+
+    test('the record\'s face becomes the recap\'s', async () => {
+        const { el, hass } = await idleCard({
+            record: { attributes: { display_face: 'special_5' } },
+        });
+        assert.equal(el._recapFromLastSession(hass, {}, { last_session: 'sensor.b_last' }, 0), true);
+        assert.equal(el._completedFace, 'special_5');
+    });
+
+    test('a record that files no face leaves a watched one alone', async () => {
+        // Most integrations have no such field. Their records say nothing
+        // about the verdict, and a face the card saw the display show is
+        // still the best account of it there is.
+        const { el, hass } = await idleCard();
+        el._completed = true;
+        el._completedAt = ENDED.getTime();
+        el._face = 'special_5';
+        assert.equal(el._recapFromLastSession(hass, {}, { last_session: 'sensor.b_last' }, 0), true);
+        assert.equal(el._completedFace, 'special_5');
+    });
+
+    test('an empty face on a record of the same session keeps the watched one',
+        async () => {
+            // Both accounts are of one session - the card watched it end, the
+            // integration wrote it down and captured nothing. Watching it is
+            // not nothing, so the face stands.
+            const { el, hass } = await idleCard({
+                record: { attributes: { display_face: null } },
+            });
+            el._completed = true;
+            // Stamped when the card noticed, seconds off the ending the record
+            // works out from the handle's counter.
+            el._completedAt = ENDED.getTime() + 4000;
+            el._face = 'special_5';
+            assert.equal(
+                el._recapFromLastSession(hass, {}, { last_session: 'sensor.b_last' }, 0), true);
+            assert.equal(el._completedFace, 'special_5');
+        });
+
+    test('an empty face on a record of another session drops the old one',
+        async () => {
+            // A different session, and this one has no verdict. The face on
+            // screen belongs to the session being replaced, and carrying it
+            // over would credit this session with someone else's result.
+            const { el, hass } = await idleCard({
+                record: { attributes: { display_face: null } },
+            });
+            el._completed = true;
+            el._completedAt = ENDED.getTime() - 10 * 60 * 1000;
+            el._face = 'special_5';
+            assert.equal(
+                el._recapFromLastSession(hass, {}, { last_session: 'sensor.b_last' }, 0), true);
+            assert.equal(el._completedFace, null);
+            assert.equal(el._face, null, 'and it is not left to reappear either');
+        });
+
+    test('a face that arrives after its record is picked up', async () => {
+        // The same record, one attribute later: everything the "already on
+        // the badge" check compares is unchanged, and only the face is new.
+        const { el, hass } = await idleCard({
+            record: { attributes: { display_face: null } },
+        });
+        const ids = { last_session: 'sensor.b_last' };
+        assert.equal(el._recapFromLastSession(hass, {}, ids, 0), true);
+        assert.equal(el._completedFace, null);
+        hass.states['sensor.b_last'].attributes.display_face = 'special_3';
+        assert.equal(el._recapFromLastSession(hass, {}, ids, 0), true);
+        assert.equal(el._completedFace, 'special_3');
     });
 });

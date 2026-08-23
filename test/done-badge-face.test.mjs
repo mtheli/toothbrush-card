@@ -23,7 +23,7 @@ import { nextSessionState, initialSessionState } from '../src/session-state.js';
  * and every other integration.
  */
 function oralbHass({ status = 'idle', duration = '0', smiley = 'off', sector,
-    baseAttrs = {} } = {}) {
+    lastSession, baseAttrs = {} } = {}) {
     const entity = (id, translation_key) => ({
         entity_id: id, device_id: 'dev1', platform: 'oralb_live', translation_key,
     });
@@ -38,6 +38,21 @@ function oralbHass({ status = 'idle', duration = '0', smiley = 'off', sector,
     if (smiley !== null) {
         entities['sensor.io_smiley'] = entity('sensor.io_smiley', 'smiley');
         states['sensor.io_smiley'] = { state: smiley, attributes: {}, last_changed: null };
+    }
+    if (lastSession !== undefined) {
+        entities['sensor.io_last_session'] = entity('sensor.io_last_session', 'last_session');
+        states['sensor.io_last_session'] = {
+            // A minute ago, so the recap is inside the default hold window
+            // however long after this file was written the suite runs.
+            state: lastSession.state
+                ?? new Date(Date.now() - 194 * 1000).toISOString(),
+            attributes: {
+                duration_seconds: 134,
+                source: 'direct_brush',
+                ...lastSession.attributes,
+            },
+            last_changed: null,
+        };
     }
     if (sector !== undefined) {
         entities['sensor.io_sector'] = entity('sensor.io_sector', 'sector');
@@ -221,11 +236,13 @@ describe('what a face value maps to', () => {
         assert.equal(smileyTier('special_5'), SMILEY_TIERS.good);
     });
 
-    test('the everyday face is not one of them', () => {
-        // `standard` is what the display shows when it is not reporting on a
-        // session. Captured advertisements have it dark while brushing and a
-        // result face afterwards - never this one. It is dropped before the
-        // latch, so it never reaches the badge at all.
+    test('and so does the one that looks like a resting value', () => {
+        // `standard` was read as the display's everyday face and dropped
+        // before the latch. It is the bottom of the scale: measured on two
+        // handles, it arrives in the second a short session ends and the
+        // handle frowns, and an earlier capture shows the face climbing from
+        // it with the brushing time.
+        assert.equal(smileyTier('standard'), SMILEY_TIERS.poor);
         const next = nextSessionState(
             { ...initialSessionState(), wasActiveSession: true, peakDuration: 130 },
             {
@@ -233,7 +250,7 @@ describe('what a face value maps to', () => {
                 holdCompleted: true, faceWindow: true, displayFace: 'standard',
             },
         );
-        assert.equal(next.state.completedFace, null);
+        assert.equal(next.state.completedFace, 'standard');
     });
 
     test('undecoded values ask instead of judging', () => {
@@ -315,5 +332,107 @@ describe('the faces decoded from the August captures', () => {
         for (const code of ['special_7', 'special_8', 'special_9']) {
             assert.equal(smileyTier(code).code, code, `${code} must stay undecoded`);
         }
+    });
+});
+
+describe('the face the record remembers', () => {
+    // The display is dark within about a minute of a session ending, and the
+    // smiley sensor reads `off` again from then on. So a dashboard opened
+    // afterwards, or one loaded after a restart, has no live face to latch -
+    // which is why the integrations that keep a record of the session now
+    // file the verdict alongside it (oralb-ha#18). The card had no way in
+    // for that value, and every one of these sessions showed no verdict at
+    // all or a computed stand-in.
+
+    test('is used when the display has long gone dark', async () => {
+        const el = await replay([{
+            status: 'idle', duration: '0', smiley: 'off',
+            lastSession: { attributes: { display_face: 'special_5' } },
+        }]);
+        assert.equal(el._completed, true);
+        assert.equal(el._completedSource, 'device');
+        assert.equal(el._completedFace, 'special_5',
+            'the verdict the handle showed, read back from its record');
+    });
+
+    test('and reaches the badge as the handle\'s own verdict', async () => {
+        const el = await replay([{
+            status: 'idle', duration: '0', smiley: 'off',
+            lastSession: { attributes: { display_face: 'special_11' } },
+        }]);
+        // Rendered twice: the record is adopted during the first render, so
+        // the badge carries it from the second one onwards.
+        el.render();
+        const text = markup(el.render());
+        assert.ok(text.includes(SMILEY_TIERS.perfect.path),
+            'the medal glyph is drawn');
+    });
+
+    test('a record with no verdict of its own leaves the badge without one',
+        async () => {
+            // The integration files the field empty when the handle showed
+            // nothing it could capture. That is a reading, and the card
+            // neither invents a face for it nor keeps an older one.
+            const el = await replay([{
+                status: 'idle', duration: '0', smiley: 'off',
+                lastSession: { attributes: { display_face: null } },
+            }]);
+            assert.equal(el._completed, true);
+            assert.equal(el._completedFace, null);
+        });
+
+    test('a sleeping display and a placeholder are not faces', async () => {
+        for (const face of ['off', 'unknown', 'unavailable']) {
+            const el = await replay([{
+                status: 'idle', duration: '0', smiley: 'off',
+                lastSession: { attributes: { display_face: face } },
+            }]);
+            assert.equal(el._completedFace, null, `${face} is not a reading of a face`);
+        }
+    });
+
+    test('but standard is - it is the bottom of the scale', async () => {
+        // Measured on both handles: `standard` appears in the second a
+        // session ends and the display frowns. It reads like a resting value
+        // and was taken for one; it is the frown of a session barely begun.
+        const el = await replay([{
+            status: 'idle', duration: '0', smiley: 'off',
+            lastSession: { attributes: { display_face: 'standard' } },
+        }]);
+        assert.equal(el._completedFace, 'standard');
+        el.render();
+        const text = markup(el.render());
+        assert.ok(text.includes(SMILEY_TIERS.poor.path),
+            'and it is drawn as the frown it is, not as a question mark');
+    });
+
+    test('the live display reports it the same way', async () => {
+        // The other end of the same rule: one face, one meaning, whichever
+        // reading carries it.
+        const el = await replay([
+            { status: 'running', duration: '25', smiley: 'off' },
+            { status: 'idle', duration: '25', smiley: 'standard' },
+        ]);
+        assert.equal(el._completed, true);
+        assert.equal(el._completedFace, 'standard');
+    });
+
+    test('a face filed after the record it belongs to still lands', async () => {
+        // The handle is switched off before it shows its verdict, so the
+        // integration writes the session down first and fills the face in
+        // over the seconds that follow. The record is otherwise unchanged by
+        // then, and the card used to have nothing left to notice.
+        const started = new Date(Date.now() - 194 * 1000).toISOString();
+        const el = await oralbCard();
+        el.hass = oralbHass({
+            lastSession: { state: started, attributes: { display_face: null } },
+        });
+        el.render();
+        assert.equal(el._completedFace, null, 'nothing to show yet');
+        el.hass = oralbHass({
+            lastSession: { state: started, attributes: { display_face: 'special_3' } },
+        });
+        el.render();
+        assert.equal(el._completedFace, 'special_3');
     });
 });

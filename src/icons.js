@@ -92,15 +92,19 @@ export const SMILEY_TIERS = {
     poor:      { path: SMILEY_SAD,       color: 'red'   },
 };
 
-// `standard` is the handle's own name for its everyday face, not a placeholder
-// like special_N, so it is treated as decoded. Reporting it too would flood the
-// channel with the one value we care least about and bury the rare ones.
+// `standard` is the handle's own name for a face rather than a placeholder
+// like special_N, so it is treated as decoded and never asks to be reported.
 export const SMILEY_SENTIMENT = {
-    // `standard` is deliberately absent: it is the handle's everyday face,
-    // not a result. Captured advertisements show the display dark while
-    // brushing and a result face once the session ends - this one never
-    // appears as the outcome of anything. session-state.js drops it before
-    // it can be latched, alongside `off`.
+    // `standard` is the bottom of the scale, not the everyday face it was
+    // taken for. Measured 2026-08 on both handles: the value appears in the
+    // second a session ends, holds the ~30 s the display stays lit and then
+    // sleeps to `off`, exactly as every other result face does - and between
+    // sessions the reading is `off`, never this. Two sessions of ~25 s
+    // produced it on an iO6 and an iO8 alike, each with a frowning handle
+    // display. A capture from an earlier night shows why: the face climbs
+    // with the brushing time (34 s -> 1, 70 s -> 2, 106 s -> 4, 136 s -> 5),
+    // so where a session stops is which face it keeps.
+    standard: 'poor',         // frown — a session barely begun (<~30 s)
     // 2–6 decoded 2026-08 from advertisement captures photographed against
     // the handle display, on an iO6 and an iO8 alike (issue #20): short and
     // paused runs settle on the two neutral variants, ~100 s on a half
