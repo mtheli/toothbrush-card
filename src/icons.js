@@ -59,10 +59,13 @@ export const MODE_ICONS = {
 // `standard` and `special_2`..`special_11`. Raw paths rather than `mdi:` names
 // so @mdi/js stays out of the bundle, matching CONN_ICONS above.
 //
-// Only three values are decoded. The rest render a question mark plus their raw
-// value, which is what turns every installed card into a reporter for issue #20
-// — a face would have to pick a mouth, and every mouth is a verdict we cannot
-// back yet.
+// The glyphs are standard MDI emoticons, not copies of what the handle draws.
+// They name the tier a value falls into; the handle's own drawing for the same
+// value differs between generations, so tracing one would be wrong on the
+// other. Values still undecoded render a question mark plus their raw name,
+// which is what turns every installed card into a reporter for issue #20 — a
+// face would have to pick a mouth, and every mouth is a verdict we cannot back
+// yet.
 
 // MDI has no face with star eyes (mdi:star-face is a star-SHAPED face), so
 // special_10 is drawn here: the standard outline ring and happy mouth with the
@@ -74,9 +77,9 @@ const SMILEY_STAR_EYES = 'M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22C17.53,2
 const SMILEY_MEDAL = 'M20,2H4V4L9.81,8.36C6.14,9.57 4.14,13.53 5.35,17.2C6.56,20.87 10.5,22.87 14.19,21.66C17.86,20.45 19.86,16.5 18.65,12.82C17.95,10.71 16.3,9.05 14.19,8.36L20,4V2M14.94,19.5L12,17.78L9.06,19.5L9.84,16.17L7.25,13.93L10.66,13.64L12,10.5L13.34,13.64L16.75,13.93L14.16,16.17L14.94,19.5Z';
 // mdi:emoticon-happy-outline
 const SMILEY_HAPPY = 'M20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12M22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12M10,9.5C10,10.3 9.3,11 8.5,11C7.7,11 7,10.3 7,9.5C7,8.7 7.7,8 8.5,8C9.3,8 10,8.7 10,9.5M17,9.5C17,10.3 16.3,11 15.5,11C14.7,11 14,10.3 14,9.5C14,8.7 14.7,8 15.5,8C16.3,8 17,8.7 17,9.5M12,17.23C10.25,17.23 8.71,16.5 7.81,15.42L9.23,14C9.68,14.72 10.75,15.23 12,15.23C13.25,15.23 14.32,14.72 14.77,14L16.19,15.42C15.29,16.5 13.75,17.23 12,17.23Z';
-// mdi:emoticon-neutral-outline — reserved, no value maps here yet
+// mdi:emoticon-neutral-outline
 const SMILEY_NEUTRAL = 'M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M8.5,11A1.5,1.5 0 0,1 7,9.5A1.5,1.5 0 0,1 8.5,8A1.5,1.5 0 0,1 10,9.5A1.5,1.5 0 0,1 8.5,11M17,9.5A1.5,1.5 0 0,1 15.5,11A1.5,1.5 0 0,1 14,9.5A1.5,1.5 0 0,1 15.5,8A1.5,1.5 0 0,1 17,9.5M16,14V16H8V14H16Z';
-// mdi:emoticon-sad-outline — reserved, no value maps here yet
+// mdi:emoticon-sad-outline
 const SMILEY_SAD = 'M20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12M22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12M15.5,8C16.3,8 17,8.7 17,9.5C17,10.3 16.3,11 15.5,11C14.7,11 14,10.3 14,9.5C14,8.7 14.7,8 15.5,8M10,9.5C10,10.3 9.3,11 8.5,11C7.7,11 7,10.3 7,9.5C7,8.7 7.7,8 8.5,8C9.3,8 10,8.7 10,9.5M12,14C13.75,14 15.29,14.72 16.19,15.81L14.77,17.23C14.32,16.5 13.25,16 12,16C10.75,16 9.68,16.5 9.23,17.23L7.81,15.81C8.71,14.72 10.25,14 12,14Z';
 // mdi:help-circle-outline — the undecoded marker
 const SMILEY_UNKNOWN = 'M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z';
@@ -99,23 +102,26 @@ export const SMILEY_SENTIMENT = {
     // taken for. Measured 2026-08 on both handles: the value appears in the
     // second a session ends, holds the ~30 s the display stays lit and then
     // sleeps to `off`, exactly as every other result face does - and between
-    // sessions the reading is `off`, never this. Two sessions of ~25 s
+    // sessions the reading is `off`, never this. Three sessions under 30 s
     // produced it on an iO6 and an iO8 alike, each with a frowning handle
-    // display. A capture from an earlier night shows why: the face climbs
-    // with the brushing time (34 s -> 1, 70 s -> 2, 106 s -> 4, 136 s -> 5),
-    // so where a session stops is which face it keeps.
-    standard: 'poor',         // frown — a session barely begun (<~30 s)
+    // display. A capture from an earlier night shows it as the first rung
+    // rather than a value beside the scale: within one session the face went
+    // 0, 1, 2, 4, 5, 6 and never back.
+    standard: 'poor',         // frown — a session barely begun
     // 2–6 decoded 2026-08 from advertisement captures photographed against
-    // the handle display, on an iO6 and an iO8 alike (issue #20): short and
-    // paused runs settle on the two neutral variants, ~100 s on a half
-    // smile, a completed two-minute run on the full smile, and a run pushed
-    // past ~2:15 on the same star-eyed face the newest handles report as
-    // special_10.
-    special_2: 'fair',        // neutral face — an 81 s run
-    special_3: 'fair',        // the same tier's second neutral variant
-    special_4: 'good',        // half smile — 100–115 s
+    // the handle display, on an iO6 and an iO8 alike (issue #20). The value
+    // only ever climbs within a session - six recorded sessions, not one step
+    // back - so what is decoded is the order, and the tiers below follow it.
+    //
+    // Deliberately no seconds: the captures put the same value at 70 s and at
+    // 81 s and two different values at 70 s on the two handles, so the handle
+    // is weighing more than the clock. How far somebody got is what the value
+    // reports; how long that took is not the same question.
+    special_2: 'fair',        // neutral
+    special_3: 'fair',        // the same tier's second variant
+    special_4: 'good',        // half smile
     special_5: 'good',        // full smile — a completed run
-    special_6: 'excellent',   // star eyes — overtime runs, both generations
+    special_6: 'excellent',   // star eyes — the top of this generation's scale
     special_10: 'excellent',  // star eyes, full smile — hipp0o, issue #20
     special_11: 'perfect',    // "everything regarding cleaning time and
                               //  pressure is fulfilled" — hipp0o, issue #20
