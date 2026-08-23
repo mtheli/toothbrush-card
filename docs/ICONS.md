@@ -110,9 +110,10 @@ verdict, and exactly one of three things fills it, decided by the handle rather
 than by a setting: no handle reports more than one.
 
 **The Oral-B display face** (`FF0A`, exposed by `oralb_live` as
-`sensor.*_smiley`). Between sessions the sensor reads `off`, and while brushing
-the face follows the pressure sensor, so only the latched end-of-session value
-says anything. `session-state.js` holds it as `completedFace`.
+`sensor.*_smiley`). Between sessions the sensor reads `off`. During a session
+the face is the handle's running assessment and climbs as the session goes on,
+so only the value it settles on at the end is a verdict on the whole of it.
+`session-state.js` holds that one as `completedFace`.
 
 **The Xiaomi score**, same star and same tiers as the score chip. Xiaomi
 reports a score only as the handle switches off (`obj0010` / `obj3003`), so it
@@ -160,13 +161,12 @@ The face's values:
 | `special_10` | star eyes, full smile | card-own SVG | green `#16a34a` |
 | `special_6` | star eyes on an overtime run | card-own SVG | green `#16a34a` |
 | `special_5` | full smile, a completed run | `mdi:emoticon-happy-outline` | green `#16a34a` |
-| `special_4` | half smile, ~100 s | `mdi:emoticon-happy-outline` | green `#16a34a` |
-| `standard` | the everyday face | `mdi:emoticon-happy-outline` | green `#16a34a` |
+| `special_4` | half smile | `mdi:emoticon-happy-outline` | green `#16a34a` |
 | `special_2`, `special_3` | the two neutral variants | `mdi:emoticon-neutral-outline` | amber `#d97706` |
-| — | *reserved* | `mdi:emoticon-sad-outline` | red `#dc2626` |
+| `standard` | the frown, a session barely begun | `mdi:emoticon-sad-outline` | red `#dc2626` |
 | `special_7` … `special_9` | undecoded | `mdi:help-circle-outline` + raw value | muted `#9ca3af` |
 
-Four deliberate choices here:
+Six notes on the table above:
 
 **No gold in the face.** Gold belongs to the score, and a third accent colour
 clashes with a badge that is already green (complete) or amber (aborted).
@@ -187,13 +187,25 @@ every mouth is a verdict; a grey smile would claim a mildly positive result we
 cannot back. So they render a question mark plus the raw sensor value, which
 makes every installed card a reporter for
 [#20](https://github.com/mtheli/toothbrush-card/issues/20). `standard` is
-excluded from this: it is the handle's own name for its everyday face, not a
-placeholder like `special_N`, and reporting the most common value would bury
-the rare ones.
+excluded from this: it is the handle's own name for a face, not a placeholder
+like `special_N`.
+
+**The values are an order, not a set of durations.** The face climbs within a
+session and never steps back — one capture ran 0, 1, 2, 4, 5, 6 — but the same
+value turns up at 70 s and at 81 s, and 70 s gives `special_2` on one handle
+and `special_3` on the other, so the handle is weighing more than the clock.
+The table above ranks them; it does not date them.
+
+**The glyphs are MDI emoticons, not copies of the display.** The two
+generations draw the same value differently, so tracing one would be wrong on
+the other. Only the star-eyes face is card-drawn, because MDI has none.
 
 `special_10` and `special_11` were identified by @hipp0o in that issue.
 `special_2` … `special_6` were decoded in August 2026 from advertisement
 captures photographed against the handle display, on an iO6 and an iO8 alike.
+`standard` was decoded the same way in August 2026: sessions of 21–25 s on
+both handles produced it with the display frowning, and it holds while the
+display is lit and then goes to `off`, exactly as the other result faces do.
 `special_7` … `special_9` are still open.
 
 ## Regenerating
