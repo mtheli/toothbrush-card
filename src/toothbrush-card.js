@@ -225,7 +225,13 @@ export function resolveAccentColor(config, hass, entityIds) {
 
 // Placeable readings and the four corner slots — shared by the card renderer
 // and the editor so both agree on what can go where.
-export const LAYOUT_PROPS = ['battery', 'pressure', 'intensity', 'mode', 'score', 'brush_head', 'head_type'];
+// The three tier colours, as hex for anything the card paints itself.
+// Kept beside the classes rather than inline, because the glyph fill and the
+// value text have to agree on them.
+export const TIER_HEX = { green: '#16a34a', amber: '#d97706', red: '#dc2626' };
+
+
+export const LAYOUT_PROPS = ['battery', 'pressure', 'intensity', 'mode', 'score', 'brush_head', 'head_time', 'head_type'];
 export const CORNER_SLOTS = ['top_left', 'top_right', 'bottom_left', 'bottom_right'];
 
 /**
@@ -317,6 +323,7 @@ export function findDeviceEntities(hass, deviceId) {
         number_of_sectors: null, model_number: null,
         routine_length: null, routine_length_number: null, integration: null,
         brushhead_wear: null, brushhead_type: null,
+        refill_days: null, refill_brushing_time: null,
         brushhead_sessions: null, activity: null,
         mode_select: null, esp_bridge_alive: null,
         ble_connected: null, score: null, pacer_30s: null,
@@ -444,6 +451,16 @@ export function findDeviceEntities(hass, deviceId) {
             // done badge rather than as a chip — it is a session result, and
             // between sessions the sensor reads `off`.
             entityKeys.smiley = entity.entity_id;
+        } else if (entity.translation_key === 'refill_days'
+                || entity.translation_key === 'refill_brushing_time') {
+            // Oral-B counts a brush head down rather than up: days left and
+            // brushing hours left, both absolute remainders with no lifetime
+            // total behind them, so neither can honestly become a wear
+            // percentage. They also sit on the toothbrush itself rather than
+            // on a brush-head device of their own, which is why they are
+            // matched here and not in the related-device pass below.
+            entityKeys[entity.translation_key === 'refill_days'
+                ? 'refill_days' : 'refill_brushing_time'] = entity.entity_id;
         } else if (entity.translation_key === 'last_session') {
             // The handle's own record of the session it last finished, read
             // back from the device rather than watched happening. It is the
@@ -1602,6 +1619,23 @@ export class ToothbrushCard extends LitElement {
             brushheadWear = 100 - brushheadWear;
         }
 
+        // Oral-B's brush-head counters. Absolute remainders, so there is no
+        // fill level to draw and no percentage to derive: FF2D carries no
+        // lifetime total and no head type. Read straight and shown straight.
+        //
+        // `refill_state: off` means the handle is not counting at all. A
+        // number that never moves is worse than no chip, so it is dropped.
+        const refillCounter = (entityId) => {
+            if (!entityId) return null;
+            const st = hass.states[entityId];
+            if (!st || st.state === 'unknown' || st.state === 'unavailable') return null;
+            if (st.attributes?.refill_state === 'off') return null;
+            const value = parseFloat(st.state);
+            return Number.isFinite(value) ? value : null;
+        };
+        const refillDays = refillCounter(entityIds.refill_days);
+        const refillHours = refillCounter(entityIds.refill_brushing_time);
+
         // Completion latch (issues #4, #5): keep showing the finished session
         // after it ends. Neither integration keeps reporting a completed
         // session — Oral-B freezes its last advertised values once the brush
@@ -2148,21 +2182,64 @@ export class ToothbrushCard extends LitElement {
         const bhSteps = brushheadPct > 75 ? 4 : brushheadPct > 50 ? 3 : brushheadPct > 25 ? 2 : 1;
         const bhClipY = 30 - bhSteps * 7.5;
         const bhColor = this._getBrushheadColor(brushheadWear);
-        const bhFillHex = { green: '#16a34a', amber: '#d97706', red: '#dc2626' }[bhColor];
-        const headSvg = () => html`
+        const bhFillHex = TIER_HEX[bhColor];
+        // Both shapes of the head glyph, told apart by what fills it. The wear
+        // reading fills to its percentage; a countdown fills to its tier,
+        // because Oral-B reports no lifetime total to take a proportion of.
+        // `fillHex` of null would draw the bare capsule, which nothing asks
+        // for: an unfilled glyph reads as a worn head.
+        const headSvg = (fillHex = bhFillHex, steps = bhSteps) => html`
             <svg viewBox="0 0 24 30" class="brushhead-svg">
                 <defs>
-                    <clipPath id="bh-fill-${this._bhClipId}">
-                        <rect x="0" y="${bhClipY}" width="24" height="${30 - bhClipY}"/>
+                    <clipPath id="bh-fill-${this._bhClipId}-${steps}">
+                        <rect x="0" y="${30 - steps * 7.5}" width="24" height="${steps * 7.5}"/>
                     </clipPath>
                 </defs>
                 <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="none" stroke="var(--secondary-text-color, #888)" stroke-width="2"/>
-                <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="${bhFillHex}" opacity="0.8" clip-path="url(#bh-fill-${this._bhClipId})"/>
+                <path d="M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z" fill="${fillHex || 'none'}" opacity="0.8" clip-path="url(#bh-fill-${this._bhClipId}-${steps})"/>
                 <line x1="10.5" y1="4" x2="3" y2="4" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
                 <line x1="10.5" y1="8" x2="2.5" y2="8" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
                 <line x1="10.5" y1="12" x2="3" y2="12" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
                 <line x1="10.5" y1="16" x2="4.5" y2="16" stroke="var(--secondary-text-color, #888)" stroke-width="1.7"/>
             </svg>`;
+
+        // What the two counters show and how urgently. The thresholds are on
+        // the remainder itself, not on a percentage of anything: "under three
+        // days left" is a statement about what is left and needs no lifetime
+        // total, which is exactly what makes it honest here.
+        // Inclusive at both edges of the warning band: exactly fourteen days
+        // left is the last day of the fortnight, not the first day past it,
+        // and exactly three is the day the warning is for.
+        const refillColor = (value, warn, bad) =>
+            value < bad ? 'red' : value <= warn ? 'amber' : 'green';
+        const daysColor = refillDays === null ? 'green' : refillColor(refillDays, 14, 3);
+        const hoursColor = refillHours === null ? 'green' : refillColor(refillHours, 2, 0.5);
+        // The handle reports fractions the sensor passes through untouched
+        // (4.98916666666667 h). One decimal while that still says something,
+        // whole hours once it does not.
+        const daysValue = refillDays === null ? '' : `${Math.round(refillDays)} d`;
+        const hoursValue = refillHours === null
+            ? ''
+            : `${refillHours < 10 ? refillHours.toFixed(1) : Math.round(refillHours)} h`;
+        // One slot, two shapes: a wear percentage where the handle reports
+        // one, otherwise Oral-B's day counter. Never both — no handle offers
+        // both, and the label says which is on screen.
+        const headIsCountdown = brushheadPct === null && refillDays !== null;
+        const headEntity = headIsCountdown ? entityIds.refill_days : entityIds.brushhead_wear;
+        const headLabel = t(hass, headIsCountdown ? 'chip_head_days' : 'chip_head');
+        const headShown = headIsCountdown ? daysValue : headValue;
+        const headColor = headIsCountdown ? daysColor : bhColor;
+        // The countdown fills to its tier: three quarters, two, one. The
+        // handle reports only what is left, never the total, so a proportion
+        // would need a scale invented for it - and the tiers are the scale
+        // the card already stands behind, stated once as colour and once as
+        // height. Never full, which would read as a fresh head, and never
+        // empty, which would read as a spent one.
+        const countdownSteps = { green: 3, amber: 2, red: 1 };
+        const headGlyph = () => (headIsCountdown
+            ? headSvg(TIER_HEX[daysColor], countdownSteps[daysColor])
+            : headSvg(bhFillHex));
+        const headAvailable = headIsCountdown || brushheadPct !== null;
 
         // A property rendered as a full chip. Returns '' when the reading is
         // absent on this device, so the slot collapses instead of showing '–'.
@@ -2219,11 +2296,18 @@ export class ToothbrushCard extends LitElement {
                         <div class="chip-value ${scoreColor}">${scoreState}</div>
                     </div>`;
                 case 'brush_head':
-                    if (brushheadPct === null) return '';
-                    return html`<div class="chip" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
-                        <div class="chip-icon">${headSvg()}</div>
-                        <span class="chip-label">${t(hass, 'chip_head')}</span>
-                        <div class="chip-value ${bhColor}">${headValue}</div>
+                    if (!headAvailable) return '';
+                    return html`<div class="chip" @click="${() => this._showMoreInfo(headEntity)}">
+                        <div class="chip-icon">${headGlyph()}</div>
+                        <span class="chip-label">${headLabel}</span>
+                        <div class="chip-value ${headColor}">${headShown}</div>
+                    </div>`;
+                case 'head_time':
+                    if (refillHours === null) return '';
+                    return html`<div class="chip" @click="${() => this._showMoreInfo(entityIds.refill_brushing_time)}">
+                        <div class="chip-icon">${headSvg(TIER_HEX[hoursColor], countdownSteps[hoursColor])}</div>
+                        <span class="chip-label">${t(hass, 'chip_head_time')}</span>
+                        <div class="chip-value ${hoursColor}">${hoursValue}</div>
                     </div>`;
                 case 'head_type':
                     if (!headTypeLabel) return '';
@@ -2247,11 +2331,19 @@ export class ToothbrushCard extends LitElement {
         const cornerEl = (pos, prop) => {
             const cls = POS_CLASS[pos];
             if (prop === 'brush_head') {
-                if (brushheadPct === null) return '';
-                return html`<div class="card-corner ${cls} brushhead-indicator" @click="${() => this._showMoreInfo(entityIds.brushhead_wear)}">
-                    ${headSvg()}
-                    <span class="corner-lbl">${t(hass, 'chip_head')}</span>
-                    <span class="corner-val ${bhColor}">${headValue}</span>
+                if (!headAvailable) return '';
+                return html`<div class="card-corner ${cls} brushhead-indicator" @click="${() => this._showMoreInfo(headEntity)}">
+                    ${headGlyph()}
+                    <span class="corner-lbl">${headLabel}</span>
+                    <span class="corner-val ${headColor}">${headShown}</span>
+                </div>`;
+            }
+            if (prop === 'head_time') {
+                if (refillHours === null) return '';
+                return html`<div class="card-corner ${cls} brushhead-indicator" @click="${() => this._showMoreInfo(entityIds.refill_brushing_time)}">
+                    ${headSvg(TIER_HEX[hoursColor], countdownSteps[hoursColor])}
+                    <span class="corner-lbl">${t(hass, 'chip_head_time')}</span>
+                    <span class="corner-val ${hoursColor}">${hoursValue}</span>
                 </div>`;
             }
             const marker = (entityId, icon, colorClass, label, value) => html`

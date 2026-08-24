@@ -16,6 +16,8 @@
   "chip_mode": "Način",
   "chip_score": "Ocena",
   "chip_head": "Glava",
+  "chip_head_days": "Glava · dnevi",
+  "chip_head_time": "Glava · čas",
   "chip_head_type": "Vrsta glave",
   "session": "Seja",
   "complete": "Končano",

@@ -16,6 +16,8 @@
   "chip_mode": "Tilstand",
   "chip_score": "Score",
   "chip_head": "Børstehoved",
+  "chip_head_days": "Hoved · dage",
+  "chip_head_time": "Hoved · tid",
   "chip_head_type": "Børstehovedtype",
   "session": "Session",
   "complete": "Færdig",

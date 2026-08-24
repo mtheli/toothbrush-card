@@ -286,13 +286,25 @@ export class ToothbrushCardEditor extends LitElement {
         if (ids.intensity) a.add('intensity');
         if (ids.mode || ids.mode_select) a.add('mode');
         if (ids.score) a.add('score');
-        if (ids.brushhead_wear) a.add('brush_head');
+        // Oral-B fills the same slot with its day counter where there is no
+        // wear reading, and offers brushing time as a second placeable one.
+        if (ids.brushhead_wear || ids.refill_days) a.add('brush_head');
+        if (ids.refill_brushing_time) a.add('head_time');
         if (ids.brushhead_type) a.add('head_type');
         return a;
     }
 
     _propLabel(prop) {
-        return t(this.hass, 'chip_' + (prop === 'brush_head' ? 'head' : prop)) || prop;
+        // The head slot is named for what it will actually show: a wear
+        // percentage on a handle that reports one, Oral-B's day counter
+        // otherwise. Picking the wrong name would make the editor describe a
+        // reading the card is not going to draw.
+        if (prop === 'brush_head') {
+            const ids = this._deviceIds();
+            return t(this.hass, !ids.brushhead_wear && ids.refill_days
+                ? 'chip_head_days' : 'chip_head') || prop;
+        }
+        return t(this.hass, 'chip_' + prop) || prop;
     }
 
     _propOptions(current, usedElsewhere, avail) {

@@ -16,6 +16,8 @@
   "chip_mode": "Modus",
   "chip_score": "Score",
   "chip_head": "Kopf",
+  "chip_head_days": "Kopf · Tage",
+  "chip_head_time": "Kopf · Zeit",
   "chip_head_type": "Kopftyp",
   "session": "Sitzung",
   "complete": "Fertig",

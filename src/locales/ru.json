@@ -16,6 +16,8 @@
   "chip_mode": "Режим",
   "chip_score": "Оценка",
   "chip_head": "Насадка",
+  "chip_head_days": "Насадка · дни",
+  "chip_head_time": "Насадка · время",
   "chip_head_type": "Тип насадки",
   "session": "Сеанс",
   "complete": "Готово",
