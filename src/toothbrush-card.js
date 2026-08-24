@@ -653,7 +653,13 @@ export class ToothbrushCard extends LitElement {
         this._completed = false;
         this._completedAt = 0;
         this._completedDuration = 0;
+        this._completedIsFull = false;
         this._holdDismissed = true;
+        // The zones belong to the session, not to the card, so they go with
+        // it: on a handle that reports revisits the visited set is what holds
+        // a zone finished, and kept it would mark the ring for a session no
+        // longer on screen.
+        this._applySectorState(initialSectorState());
         const deviceId = this.config?.device_id;
         if (deviceId) {
             try {
@@ -1838,7 +1844,30 @@ export class ToothbrushCard extends LitElement {
         if (showCompleted) {
             sector = 'success';
         }
-        const displayDuration = showRecap ? this._completedDuration : duration;
+        // A recap that is not on screen takes the session with it. A Sonicare
+        // freezes its duration once a session ends and keeps reporting it, so
+        // every reading derived from that duration outlives the session it
+        // belongs to: the branches above read it as "all zones done", and the
+        // timer goes on showing the time the handle stopped at. Both stayed
+        // after the × cleared the badge, once the hold window ran out, and on
+        // a card opened fresh with that reading already standing.
+        //
+        // Asked of the recap itself rather than of the reason it is gone, so
+        // that every way of losing it is covered. `hold_completed: false` is
+        // not one of them: that switches the banner off and says nothing
+        // about the session, which the card still shows.
+        const sessionWithheld = holdCompleted && !active && !showRecap;
+        if (sessionWithheld) {
+            sector = 'no_sector';
+        }
+        // The timer is the one place this shows a reading straight from an
+        // entity, so for a few seconds the card prints 0:00 while the sensor
+        // behind it still reads 51 - until the handle zeroes it itself. The
+        // card is early there, not wrong: the session is not on screen, and
+        // nothing else about it is either.
+        const displayDuration = sessionWithheld
+            ? 0
+            : showRecap ? this._completedDuration : duration;
 
         // Computed values
         const defaultOrder = numSectors === 6 ? SEXTANT_ZONES : QUADRANT_ZONES;
@@ -1881,10 +1910,18 @@ export class ToothbrushCard extends LitElement {
         // that reports no sectors of its own. Only where nothing was
         // observed: a session the card did watch keeps what it saw, revisits
         // and all.
-        const doneCount = showAborted && !resolved.doneCount
-            ? Math.min(sectorOrder.length,
-                Math.floor(displayDuration / (recapTarget / sectorOrder.length)))
-            : resolved.doneCount;
+        //
+        // Zeroed where the session is withheld: on a handle that allows
+        // revisits the count is worked out from the running duration and not
+        // from `sector`, so clearing the sector alone left every zone marked.
+        // The two cases cannot overlap - `showAborted` needs a recap on
+        // screen, `sessionWithheld` needs none.
+        const doneCount = sessionWithheld
+            ? 0
+            : showAborted && !resolved.doneCount
+                ? Math.min(sectorOrder.length,
+                    Math.floor(displayDuration / (recapTarget / sectorOrder.length)))
+                : resolved.doneCount;
         const sectorClassData = this._getSectorData(sector, correctedIndex, sectorOrder, doneCount);
         const sectorLabel = this._getSectorLabel(sector, correctedIndex, sectorOrder);
         const isSuccess = sector === 'success';

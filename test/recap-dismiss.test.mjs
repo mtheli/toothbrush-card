@@ -16,6 +16,7 @@ import test, { describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { resetStorage, breakStorage } from './helpers/dom-shim.mjs';
 import { loadCard } from './helpers/replay.mjs';
+import { markup } from './helpers/markup.mjs';
 import { laifenHass } from './helpers/laifen-integration.mjs';
 
 const START = new Date('2026-08-11T06:00:00Z');
@@ -210,5 +211,137 @@ describe('when the browser refuses to store anything', () => {
         localStorage.setItem(KEY, 'not json at all');
         const { el } = await afterASession();
         assert.equal(el._holdDismissed, false);
+    });
+});
+
+/**
+ * A handle that leaves its timer standing at the routine length.
+ *
+ * Sonicare does exactly this: the session ends, the duration reading freezes
+ * at what it reached and stays there until the next one. Laifen zeroes it, so
+ * the helper above cannot show what that leftover does to the ring.
+ */
+function frozenHass(seconds = 160, routine = 160) {
+    const entity = (id, translation_key) => ({
+        entity_id: id, device_id: 'dev1', platform: 'philips_sonicare_ble', translation_key,
+    });
+    return {
+        language: 'en',
+        locale: { language: 'en' },
+        devices: { dev1: { id: 'dev1', name: 'Prestige', manufacturer: 'Philips', config_entries: ['ce1'] } },
+        entities: {
+            'sensor.s_handle': entity('sensor.s_handle', 'handle_state'),
+            'sensor.s_time': entity('sensor.s_time', 'time'),
+            'sensor.s_routine': entity('sensor.s_routine', 'routine_length'),
+        },
+        states: {
+            'sensor.s_handle': { state: 'idle', attributes: {}, last_changed: null },
+            'sensor.s_time': {
+                state: String(seconds), attributes: { device_class: 'duration' },
+                last_changed: new Date().toISOString(),
+            },
+            'sensor.s_routine': { state: String(routine), attributes: {}, last_changed: null },
+        },
+        callWS: async () => ({}),
+    };
+}
+
+async function frozenCard(config = {}) {
+    const Card = await loadCard();
+    const el = new Card();
+    el.requestUpdate = () => {};
+    el.setConfig({
+        type: 'custom:toothbrush-card', device_id: 'dev1', history_recap: false, ...config,
+    });
+    // The zones as the ring draws them, not the sector value on the way in:
+    // the sector says which zone is being brushed, while what is marked done
+    // comes from the count beside it. Asserting the argument passed the fix
+    // that left every zone green.
+    let seen = null;
+    let count = null;
+    const base = Object.getPrototypeOf(el)._getSectorData;
+    el._getSectorData = function (...args) {
+        const map = base.call(this, ...args);
+        seen = map;
+        count = args[3];
+        return map;
+    };
+    el.hass = frozenHass();
+    el.render();
+    const zones = () => { seen = null; el.render(); return seen; };
+    const marked = () => Object.values(zones()).filter((z) => z.done).length;
+    return {
+        el,
+        zones,
+        marked,
+        allMarked: () => marked() === Object.keys(zones()).length,
+        // The count `_getSectorData` was handed. Once the sector is cleared,
+        // a handle that allows revisits works this out from the running
+        // duration - which is the reading still standing at the routine
+        // length, and the reason clearing the sector alone changed nothing.
+        // `null` would mean the test never reached that path at all.
+        countPassed: () => { zones(); return count; },
+        // What the timer prints. Read off the markup rather than off the
+        // duration entity, because the point is exactly that the two are
+        // allowed to disagree while the handle catches up.
+        timer: () => markup(el.render())
+            .match(/class="timer-display[\s\S]*?>\s*(\d+:\d{2})/)?.[1] ?? null,
+    };
+}
+
+describe('the ring after the recap is gone', () => {
+    // A reading left standing at the routine length reads as "all zones
+    // done" on its own, with no recap involved. So taking the recap away has
+    // to take the ring with it, or the badge disappears and a full green ring
+    // stays behind - which is what happened on a Sonicare, twice: once on the
+    // × and once when the hold window ran out.
+
+    test('the × clears the ring, not just the badge', async (t) => {
+        resetStorage();
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { el, marked, allMarked, countPassed, timer } = await frozenCard();
+        assert.ok(allMarked(), 'the finished session is up');
+        assert.equal(timer(), '2:40');
+
+        el._dismissHold();
+        assert.equal(marked(), 0);
+        assert.equal(timer(), '0:00', 'and the timer goes with it');
+        assert.equal(countPassed(), 0,
+            'the count was withheld, not merely absent - left to the duration '
+            + 'it would have been four');
+    });
+
+    test('and so does the hold window running out', async (t) => {
+        resetStorage();
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { marked, allMarked, timer } = await frozenCard({ hold_duration: 0.5 });
+        assert.ok(allMarked());
+
+        t.mock.timers.setTime(START.getTime() + 31 * 60_000);
+        assert.equal(marked(), 0, 'nothing on screen says this session any more');
+        assert.equal(timer(), '0:00');
+    });
+
+    test('and a card built fresh while the dismissal stands', async (t) => {
+        // Reopening the dashboard must not put the ring back either. The
+        // handle is still reporting the same frozen duration, and the marker
+        // in storage is all that says the session is done with.
+        resetStorage();
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const first = await frozenCard();
+        first.el._dismissHold();
+
+        const { marked } = await frozenCard();
+        assert.equal(marked(), 0);
+    });
+
+    test('but switching the banner off leaves the ring alone', async (t) => {
+        // hold_completed: false is about the banner. It says nothing about
+        // the session, and the ring still shows a finished routine.
+        resetStorage();
+        t.mock.timers.enable({ apis: ['Date'], now: START });
+        const { allMarked, timer } = await frozenCard({ hold_completed: false });
+        assert.ok(allMarked());
+        assert.equal(timer(), '2:40', 'and the timer still reads the session');
     });
 });
