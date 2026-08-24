@@ -31,7 +31,7 @@ The readings the card can show depend on what each integration provides:
 | Intensity | — | ✓ | — | — |
 | Mode | ✓ | ✓ + select | — | ✓ + select |
 | Score | — | — | ✓ | — |
-| Brush head | — | wear · type · sessions | wear | — |
+| Brush head | days · brushing hours left ⁷ | wear · type · sessions | wear | — |
 | Ring color | ✓ ⁶ | — | — | — |
 | Connection | ✓ | ✓ + ESP bridge | ✓ | ✓ |
 
@@ -39,8 +39,9 @@ The readings the card can show depend on what each integration provides:
 ² aligned with the handle's 30s pacer when enabled; the routine length comes from Brushing Duration — the sensor on Wave Pro, the number entity on Wave (needs laifen_ble 3.0.3+)\
 ³ pressure warning, Wave Pro only (needs laifen_ble 3.0.2+)\
 ⁴ anatomical sectors provided by the integration's sector sensor, including revisit modes (e.g. White+); the card falls back to its own time-based calculation if the sensor is absent. Where the integration also publishes how the routine paces itself, the progress bar is divided into one segment per pacing step rather than per zone — a mode that revisits takes more steps than it has zones (Gum Health: ten over six), so a segment per zone would put every boundary in the wrong place\
-⁵ applies to both `oralb` and `oralb_live` — the latter mirrors the built-in integration's entities, so the card reads it identically. Its smiley sensor is shown in the done badge as the handle's own verdict on the finished session ([icon reference](docs/ICONS.md#done-badge)); values that are not decoded yet display their raw name so they can be reported in [#20](https://github.com/mtheli/toothbrush-card/issues/20). Its remaining extra sensors (battery time remaining, refill/brush-head counters) are not shown yet, same issue\
-⁶ `oralb_live` 0.7.22+ only — the color the handle's own light ring is set to; the card paints it as the accent when no accent color is configured (see [Header](#header))
+⁵ applies to both `oralb` and `oralb_live` — the latter mirrors the built-in integration's entities, so the card reads it identically. Its smiley sensor is shown in the done badge as the handle's own verdict on the finished session ([icon reference](docs/ICONS.md#done-badge)); values that are not decoded yet display their raw name so they can be reported in [#20](https://github.com/mtheli/toothbrush-card/issues/20). Its battery time remaining is not shown yet, same issue\
+⁶ `oralb_live` 0.7.22+ only — the color the handle's own light ring is set to; the card paints it as the accent when no accent color is configured (see [Header](#header))\
+⁷ `oralb_live` only — the handle counts a brush head down rather than up, in days and in brushing hours, and reports no lifetime total behind either, so the card shows the remainder itself instead of deriving a wear percentage from it ([icon reference](docs/ICONS.md#chips-and-corner-markers))
 
 **Tested devices**
 
@@ -84,7 +85,7 @@ The card automatically detects the language configured in your Home Assistant in
 ## Features
 
 - Real-time brushing visualization with animated tooth SVG (4 or 6 sectors)
-- Chip-based display for battery, pressure/intensity, brushing mode, score and brush head
+- Chip-based display for battery, pressure/intensity, brushing mode, score, brush head and head time
 - Configurable layout: place every reading as a chip or a corner marker — or hide it
 - Compact panel mode: hideable header and tooth ring with a large standalone timer (two cards fit side by side on a 480×480 wall panel)
 - Bluetooth connection status indicator (Pantone 285 blue)
@@ -207,7 +208,7 @@ integration side would be corrected twice.
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
 | head_display  | string   | `remaining` | What the brush-head reading shows: `remaining` (% left), `used` (% worn), or `sessions` (estimated sessions left — needs the integration's Sessions Left sensor, falls back to `remaining` without it). |
-| layout        | object   | —       | Place the readings (`battery`, `pressure`, `intensity`, `mode`, `score`, `brush_head`, `head_type`) freely: up to four chips in the top row (`layout.chips`) and four corner markers (`layout.corners.top_left` … `bottom_right`). Each reading can be used once; omitting `layout` keeps the classic arrangement. Editable in the UI. |
+| layout        | object   | —       | Place the readings (`battery`, `pressure`, `intensity`, `mode`, `score`, `brush_head`, `head_time`, `head_type`) freely: up to four chips in the top row (`layout.chips`) and four corner markers (`layout.corners.top_left` … `bottom_right`). Each reading can be used once; omitting `layout` keeps the classic arrangement. Editable in the UI. |
 
 ### Session recap
 

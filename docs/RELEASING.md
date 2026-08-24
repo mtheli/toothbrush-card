@@ -102,14 +102,48 @@ rebuilding without changing a line of source still produces a one-line diff.
 That single `BUILD_DATE` line is the only difference a rebuild may show — any
 other change means `dist/` was out of sync with `src/`.
 
+## The icon reference travels with the icons
+
+`docs/ICONS.md` and the overview beside it are documentation of behaviour, not
+a gallery, so they go stale the moment the card draws something they do not
+describe. Anything that changes what a user sees has to reach them in the same
+release: a new icon or chip, a different glyph, a moved threshold, a changed
+colour, or a reading arriving from one more integration.
+
+There are three places, and they drift apart in exactly that order:
+
+| File | Holds |
+| :--- | :--- |
+| `docs/ICONS.md` | the integration matrix and the prose, hand-written. |
+| `scripts/gen_icon_overview.mjs` | the state conditions and the palette, mirroring `src/toothbrush-card.js`. |
+| `docs/icon-overview.html`, `.png` | generated — never edited by hand. |
+
+Regenerate after touching the script:
+
+```sh
+node scripts/gen_icon_overview.mjs
+chromium --headless --screenshot=docs/icon-overview.png \
+  --window-size=1120,5000 --hide-scrollbars docs/icon-overview.html
+```
+
+The window height has to cover the whole page, and it grows as sections are
+added; a clipped last section means raising it. Erring high is free.
+
+The failure this prevents has already happened: v0.35.0 corrected which face
+`standard` maps to in `ICONS.md` and left the generator saying the old thing,
+so the picture a reader looks at first kept the mapping the release had just
+replaced.
+
 ## Cutting the release
 
 1. Content commits first, pushed, `npm test` green.
-2. Bump `version` in `package.json` and `CARD_VERSION` in
+2. Icon reference regenerated where anything visible changed, per the section
+   above.
+3. Bump `version` in `package.json` and `CARD_VERSION` in
    `src/toothbrush-card.js` to the new version.
-3. `npm run build`, then `npm test` again — the tests drive the built bundle,
+4. `npm run build`, then `npm test` again — the tests drive the built bundle,
    so they only speak for the artifact once it has been rebuilt.
-4. Commit `Release vX.Y.Z`.
-5. Tag `vX.Y.Z` and push the tag with it.
-6. `gh release create vX.Y.Z dist/toothbrush-card.js --title … --notes-file …`,
+5. Commit `Release vX.Y.Z`.
+6. Tag `vX.Y.Z` and push the tag with it.
+7. `gh release create vX.Y.Z dist/toothbrush-card.js --title … --notes-file …`,
    with `--latest` for a stable release or `--prerelease` for a beta.

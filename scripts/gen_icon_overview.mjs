@@ -99,10 +99,14 @@ const badge = [];
 const other = [];
 
 // Brush-head glyph: capsule with quarter-step fill, as drawn by headSvg()
-const headSvg = (steps, color, size = 28) => {
+// `tag` keeps the clip-path id unique where the same step/colour pair is drawn
+// twice - the wear scale and the countdown share several of them, and two
+// elements answering to one id is invalid markup even where it happens to
+// render.
+const headSvg = (steps, color, size = 28, tag = '') => {
     const clipY = 30 - steps * 7.5;
     const cap = 'M11,5 C11,1.5 13,0 15.5,0 C18,0 20,1.5 20,5 L20,25 C20,28.5 18,30 15.5,30 C13,30 11,28.5 11,25 Z';
-    const id = `hf${steps}${color.slice(1)}`;
+    const id = `hf${steps}${color.slice(1)}${tag}`;
     return `<svg width="${Math.round(size * 0.8)}" height="${size}" viewBox="0 0 24 30">
       <defs><clipPath id="${id}"><rect x="0" y="${clipY}" width="24" height="${30 - clipY}"/></clipPath></defs>
       <path d="${cap}" fill="${color}" opacity=".8" clip-path="url(#${id})"/>
@@ -210,20 +214,37 @@ chips.push(section('Mode', ['oralb', 'oralb_live', 'philips_sonicare_ble · sett
     modes.map(([s, p, n]) => cell(svg(p, C.blue), s, `mdi:${n}`, '#2563eb'))
         .concat([cell(svg(mdiBrushVariant, C.muted), 'unavailable', 'mdi:brush-variant', '#9ca3af (muted)')])));
 
-chips.push(section('Score', ['xiaomi_ble'], 'Star step + traffic-light colour; the value text takes the same colour. Non-numeric scores keep the full gold star. The same star also fills the verdict slot on the done badge - Xiaomi reports a score only when the handle switches off, so it describes the session that just ended. It shares that slot with the Oral-B display face, which the two can do because no handle reports both.', [
+chips.push(section('Score', ['xiaomi_ble'], 'Star step + traffic-light colour; the value text takes the same colour. Non-numeric scores keep the full gold star. The same star also fills the verdict slot on the done badge - Xiaomi reports a score only when the handle switches off, so it describes the session that just ended. It shares that slot with the Oral-B display face and the verdict the card forms itself, which the three can do because no handle reports more than one.', [
     cell(svg(mdiStarOutline, C.red), '&lt; 60', 'mdi:star-outline', '#dc2626'),
     cell(svg(mdiStarHalfFull, C.amber), '60–84', 'mdi:star-half-full', '#d97706'),
     cell(svg(mdiStar, C.gold), '≥ 85', 'mdi:star', '#c47f16'),
     cell(svg(mdiStar, C.gold), 'non-numeric', 'mdi:star', '#c47f16'),
 ]));
 
-chips.push(section('Brush head', ['philips_sonicare_ble · sub-device', 'xiaomi_ble · % left'], 'Card-own glyph. Fill steps in quarters (by % remaining); colour follows wear (_getBrushheadColor): &gt;40 green, 21–40 amber, ≤20 red → 6 visible states. The value text takes the same colour (like battery).', [
+chips.push(section('Brush head', ['philips_sonicare_ble · sub-device', 'xiaomi_ble · % left', 'oralb_live · days left'], 'Card-own glyph. Fill steps in quarters (by % remaining); colour follows wear (_getBrushheadColor): &gt;40 green, 21–40 amber, ≤20 red → 6 visible states. The value text takes the same colour (like battery).', [
     cell(headSvg(4, C.green), '100–76 %', '4/4 segments', '#16a34a'),
     cell(headSvg(3, C.green), '75–51 %', '3/4 segments', '#16a34a'),
     cell(headSvg(2, C.green), '50–41 %', '2/4 segments', '#16a34a'),
     cell(headSvg(2, C.amber), '40–26 %', '2/4 segments', '#d97706'),
     cell(headSvg(1, C.amber), '25–21 %', '1/4 segments', '#d97706'),
     cell(headSvg(1, C.red), '20–0 %', '1/4 segments', '#dc2626'),
+]));
+
+// The same slot, filled by a countdown instead of a wear reading. Oral-B
+// reports what is left and never the total, so there is no percentage behind
+// the fill height: the three tiers are the scale, said once as colour and once
+// as height. Never 4/4, which would read as a fresh head, and never empty,
+// which would read as a spent one.
+chips.push(section('Brush head · countdown', ['oralb_live · days left'], 'Same glyph, different scale: the handle counts a head down in days and never reports a lifetime total, so the fill height is the tier rather than a proportion. Thresholds are on the remainder itself — &gt;14 d green, 14–3 d amber, &lt;3 d red. The chip label says "Head · days" so the two shapes cannot be confused, and the value carries the unit.', [
+    cell(headSvg(3, C.green, 28, 'd'), 'more than 14 d', '3/4 segments', '#16a34a'),
+    cell(headSvg(2, C.amber, 28, 'd'), '14–3 d', '2/4 segments', '#d97706'),
+    cell(headSvg(1, C.red, 28, 'd'), 'under 3 d', '1/4 segments', '#dc2626'),
+]));
+
+chips.push(section('Head time', ['oralb_live · hours left'], 'The second Oral-B counter, placeable in its own slot: brushing hours left on the head. Same glyph and the same tier-as-height rule as the day counter, with its own thresholds — &gt;2 h green, 2–0.5 h amber, &lt;0.5 h red. Shown with one decimal below 10 h, whole hours above. Both counters are hidden while the handle reports refill tracking as off, because a number that never moves is worse than no chip.', [
+    cell(headSvg(3, C.green, 28, 'h'), 'more than 2 h', '3/4 segments', '#16a34a'),
+    cell(headSvg(2, C.amber, 28, 'h'), '2–0.5 h', '2/4 segments', '#d97706'),
+    cell(headSvg(1, C.red, 28, 'h'), 'under 0.5 h', '1/4 segments', '#dc2626'),
 ]));
 
 const letterGlyph = (letter) =>
@@ -257,15 +278,14 @@ const faceCell = (path, color, hexLabel, state, name, code) => `
     </div>`;
 
 badge.push(section('Oral-B display face', ['oralb_live'],
-    'Shares the verdict slot on the badge with the Xiaomi score - no handle reports both. The handle\'s own verdict (FF0A), latched at the end of a session and shown beside the badge text — never as a chip, because the sensor reads "off" between sessions and changes with pressure while brushing. 34px, well above the 24px chip size: the star-eyes face collapses to dots below that. Gold is deliberately absent — it belongs to the score chip, and a third accent clashes with a badge that is already green or amber; "perfect" and "excellent" share green and are told apart by shape. Values 2–6 were decoded in August 2026 from advertisement captures photographed against the handle display (issue #20); special_7 to 9 still show a question mark plus their raw name so users can report what their handle displayed.', [
+    'One of three things that can fill the verdict slot - no handle reports more than one. The handle\'s own verdict (FF0A), latched at the end of a session and shown beside the badge text, never as a chip: between sessions the sensor reads "off", and during a session the face is a running assessment that climbs as the session goes on, so only the value it settles on is a verdict on the whole of it. Read from the last-session record where the integration files it (oralb_live 0.7.30+), so it outlives the display, which sleeps about a minute after the session. 34px, well above the 24px chip size: the star-eyes face collapses to dots below that. Gold is deliberately absent — it belongs to the score chip, and a third accent clashes with a badge that is already green or amber; "perfect" and "excellent" share green and are told apart by shape. Values 2–6 were decoded in August 2026 from advertisement captures photographed against the handle display (issue #20); special_7 to 9 still show a question mark plus their raw name so users can report what their handle displayed.', [
     faceCell(smiley.SMILEY_MEDAL, C.green, '#16a34a', 'special_11 — perfect', 'mdi:medal — time AND pressure fulfilled'),
     faceCell(smiley.SMILEY_STAR_EYES, C.green, '#16a34a', 'special_10 — excellent', 'card-own SVG — star eyes, full smile'),
     faceCell(smiley.SMILEY_STAR_EYES, C.green, '#16a34a', 'special_6 — excellent', 'card-own SVG — star eyes on an overtime run'),
     faceCell(smiley.SMILEY_HAPPY, C.green, '#16a34a', 'special_5 — good', 'mdi:emoticon-happy-outline — a completed run'),
-    faceCell(smiley.SMILEY_HAPPY, C.green, '#16a34a', 'special_4 — good', 'mdi:emoticon-happy-outline — half smile, ~100 s'),
-    faceCell(smiley.SMILEY_HAPPY, C.green, '#16a34a', 'standard — good', 'mdi:emoticon-happy-outline'),
+    faceCell(smiley.SMILEY_HAPPY, C.green, '#16a34a', 'special_4 — good', 'mdi:emoticon-happy-outline — half smile'),
     faceCell(smiley.SMILEY_NEUTRAL, C.amber, '#d97706', 'special_2, special_3 — fair', 'mdi:emoticon-neutral-outline — the two neutral variants'),
-    faceCell(smiley.SMILEY_SAD, C.red, '#dc2626', 'reserved — poor', 'mdi:emoticon-sad-outline (no value yet)'),
+    faceCell(smiley.SMILEY_SAD, C.red, '#dc2626', 'standard — poor', 'mdi:emoticon-sad-outline — the frown, a session barely begun'),
     faceCell(smiley.SMILEY_UNKNOWN, C.muted, '#9ca3af (muted)', 'special_7 … special_9', 'mdi:help-circle-outline + raw value', 'special_7'),
     faceCell(smiley.SMILEY_UNKNOWN, C.muted, '#9ca3af (muted)', 'any future value', 'mdi:help-circle-outline + raw value', 'special_12'),
 ]));
@@ -274,7 +294,18 @@ badge.push(section('Oral-B display face', ['oralb_live'],
 // because the question this group answers is "what can appear on my badge" -
 // and a reader who only saw the Oral-B face above would conclude, wrongly,
 // that a badge without one is broken.
-badge.push(section('Xiaomi score', ['xiaomi_ble'], 'Same star and same tiers as the score chip, drawn at badge size. Xiaomi reports a score only as the handle switches off, so it describes the session that just ended - which is what the badge is for. A handle reports either this or the Oral-B face, never both, so the slot never has to choose. Unlike the chip, only a numeric score reaches the badge: the chip can show a full gold star for a value it cannot rank, but a verdict slot showing the best possible star for an unranked value would be a claim, not a reading.', [
+// The third thing that can fill the slot, and the only one the card forms
+// itself. It belongs on this page for the same reason as the other two: a
+// reader who sees a face on their badge wants to know what it means, and on a
+// Sonicare no sensor anywhere reports it.
+badge.push(section('Verdict the card forms', ['philips_sonicare_ble · every model'], 'Where the handle reports neither a face nor a score but files a record of what it did, the card reads the session out of that record and forms the verdict itself. Two things decide it: how much of its routine the session ran, measured against the routine <em>that session</em> was running, and - where the record carries it - how much of that time was brushed too hard. Ran less than half → sad; 50–90 %, or a full run pressed hard (&gt;10 %) → neutral; a full run with the pressure unknown or ordinary (&lt;10 %) → smile; a full run brushed gently (&lt;2 %) → star eyes. The top tier is the one place the pressure figure is required, so a record without it reads one step below - the best the data supports rather than the best there is. A handle with no pressure sensor at all, a kids brush, is still judged, because everything under the smile is decided on time alone. Hovering it says the card worked it out: an opinion the card formed must not read as something the handle reported.', [
+    faceCell(smiley.SMILEY_STAR_EYES, C.green, '#16a34a', 'excellent', 'card-own SVG — full run, brushed gently'),
+    faceCell(smiley.SMILEY_HAPPY, C.green, '#16a34a', 'good', 'mdi:emoticon-happy-outline — full run, pressure unknown or ordinary'),
+    faceCell(smiley.SMILEY_NEUTRAL, C.amber, '#d97706', 'fair', 'mdi:emoticon-neutral-outline — 50–90 %, or full but pressed hard'),
+    faceCell(smiley.SMILEY_SAD, C.red, '#dc2626', 'poor', 'mdi:emoticon-sad-outline — under half the routine'),
+]));
+
+badge.push(section('Xiaomi score', ['xiaomi_ble'], 'Same star and same tiers as the score chip, drawn at badge size. Xiaomi reports a score only as the handle switches off, so it describes the session that just ended - which is what the badge is for. No handle reports more than one of the three, so the slot never has to choose between them. Unlike the chip, only a numeric score reaches the badge: the chip can show a full gold star for a value it cannot rank, but a verdict slot showing the best possible star for an unranked value would be a claim, not a reading.', [
     faceCell(mdiStarOutline, C.red, '#dc2626', '&lt; 60', 'mdi:star-outline'),
     faceCell(mdiStarHalfFull, C.amber, '#d97706', '60–84', 'mdi:star-half-full'),
     faceCell(mdiStar, C.gold, '#c47f16', '≥ 85', 'mdi:star'),

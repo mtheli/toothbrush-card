@@ -50,19 +50,24 @@ integration documents.
 | Intensity | — | — | ● | — | ● |
 | Mode | ● | ● | ● settable | — | ● settable |
 | Score | — | — | — | ● | — |
-| Brush head | — | — | ● sub-device | ● % left | — |
+| Brush head | — | ● days left | ● sub-device | ● % left | — |
+| Head time | — | ● hours left | — | — | — |
 | Head type | — | — | ● sub-device | — | — |
 | Sector | reported | reported | derived | from time | from time |
 | ESP bridge icon | — | — | ● | — | — |
 | Charger icon | — | ● | — | — | — |
 | Display face | — | ● | — | — | — |
+| Badge verdict | — | ● the face | ● card-formed | ● the score | — |
 
-Two entries are worth reading twice. Xiaomi reports the percentage **left** on
-the brush head where every other integration reports wear, so the card inverts
-it. And a sector is only *reported* by the Oral-B integrations — Sonicare
-derives it from elapsed time and the mode's visit sequence, while Xiaomi and
-Laifen have none at all and the card spreads the routine over four zones by
-time.
+Three entries are worth reading twice. Xiaomi reports the percentage **left**
+on the brush head where every other integration reports wear, so the card
+inverts it. Oral-B does neither: it counts a head **down**, in days and in
+brushing hours, and reports no lifetime total behind either — so there is no
+percentage to derive, and the head slot takes a second shape rather than a
+made-up one. And a sector is only *reported* by the Oral-B integrations —
+Sonicare derives it from elapsed time and the mode's visit sequence, while
+Xiaomi and Laifen have none at all and the card spreads the routine over four
+zones by time.
 
 ![Icon overview](icon-overview.png)
 
@@ -92,7 +97,7 @@ charger icon likewise appears only once `oralb_live` reports a
 ## Chips and corner markers
 
 One reading each — battery, pressure, intensity, mode, score, brush head, head
-type. In the wide layout they sit in the chip row as icon + label + value. In
+time, head type. In the wide layout they sit in the chip row as icon + label + value. In
 the compact layout the label and value go and the icon alone carries the state,
 either in the row or as a corner marker on the tooth diagram.
 
@@ -215,8 +220,10 @@ The overview is generated from `@mdi/js` and the card's own SVG paths:
 ```sh
 node scripts/gen_icon_overview.mjs
 chromium --headless --screenshot=docs/icon-overview.png \
-  --window-size=1120,4400 --hide-scrollbars docs/icon-overview.html
+  --window-size=1120,5000 --hide-scrollbars docs/icon-overview.html
 ```
 
 The state conditions and palette in the script mirror the card logic in
 `src/toothbrush-card.js` and must be kept in sync when that logic changes.
+[RELEASING.md](RELEASING.md) makes that part of cutting a release: this page
+and the overview travel with the icons they describe.
