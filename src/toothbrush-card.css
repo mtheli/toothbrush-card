@@ -162,8 +162,8 @@ ha-card {
     gap: 8px;
     padding: 12px 14px;
 }
-/* Direct children, not .chip: the mode chip sits inside .mode-chip-wrap,
-   and the wrapper is what must share the row evenly. */
+/* Every chip is a direct child, including the mode chip that anchors its
+   dropdown, so padding and borders take part in the same flex calculation. */
 .chips-row > * {
     flex: 1;
     min-width: 0;
