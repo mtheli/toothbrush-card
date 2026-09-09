@@ -21,10 +21,16 @@ function sonicareHass() {
         },
         entities: {
             'sensor.s_state': entity('sensor.s_state', 'handle_state'),
+            'sensor.s_battery': entity('sensor.s_battery', 'battery'),
+            'sensor.s_pressure': entity('sensor.s_pressure', 'pressure_state'),
+            'sensor.s_intensity': entity('sensor.s_intensity', 'intensity'),
             'select.s_mode': entity('select.s_mode', 'brushing_mode_select'),
         },
         states: {
             'sensor.s_state': { state: 'idle', attributes: {}, last_changed: null },
+            'sensor.s_battery': { state: '93', attributes: { device_class: 'battery' }, last_changed: null },
+            'sensor.s_pressure': { state: 'optimal', attributes: {}, last_changed: null },
+            'sensor.s_intensity': { state: 'high', attributes: {}, last_changed: null },
             'select.s_mode': {
                 state: 'clean', attributes: { options: ['clean', 'white_plus'] }, last_changed: null,
             },
@@ -33,13 +39,13 @@ function sonicareHass() {
     };
 }
 
-async function renderMode({ dropdown = false } = {}) {
+async function renderMode({ dropdown = false, chips = ['mode'] } = {}) {
     const Card = await loadCard();
     const el = new Card();
     el.requestUpdate = () => {};
     el.setConfig({
         type: 'custom:toothbrush-card', device_id: 'dev1', history_recap: false,
-        layout: { chips: ['mode'] },
+        layout: { chips },
     });
     el.hass = sonicareHass();
     el._showModeDropdown = dropdown;
@@ -86,5 +92,23 @@ describe('the selectable mode chip', () => {
         handler({ stopPropagation: () => { stopped = true; } });
         assert.equal(stopped, true, 'otherwise the chip click opens the dropdown again');
         assert.equal(el._showModeDropdown, false);
+    });
+
+    test('marks a four-chip row for its intermediate phone layout', async () => {
+        const { result } = await renderMode({
+            chips: ['battery', 'pressure', 'mode', 'intensity'],
+        });
+        assert.match(markup(result), /class="chips-row four-chips"/);
+    });
+
+    test('keeps shrinking labels inside each equal-width chip', async () => {
+        const Card = await loadCard();
+        const css = Card.styles.cssText;
+        assert.match(css, /grid-template-columns:\s*auto minmax\(0, 1fr\)/);
+        assert.match(css, /\.chip-label\s*\{[\s\S]*?overflow:\s*hidden;[\s\S]*?text-overflow:\s*ellipsis;[\s\S]*?white-space:\s*nowrap;/);
+        const fourChipRule = /\.chips-row\.four-chips \.chip\s*\{[^}]*grid-template-columns:\s*1fr;/;
+        const threeRowRule = /\.chips-row\.four-chips \.chip\s*\{[^}]*grid-template-rows:\s*auto auto auto;/;
+        assert.match(css, fourChipRule);
+        assert.match(css, threeRowRule);
     });
 });

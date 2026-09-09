@@ -2455,7 +2455,7 @@ export class ToothbrushCard extends LitElement {
                 </div>` : ''}
 
                 <!-- Chips: configurable via layout.chips (omitted when empty) -->
-                ${chipEls.length ? html`<div class="chips-row">${chipEls}</div>` : ''}
+                ${chipEls.length ? html`<div class="chips-row${chipEls.length === 4 ? ' four-chips' : ''}">${chipEls}</div>` : ''}
 
                 <!-- Tooth visual -->
                 <div class="visual-area">
