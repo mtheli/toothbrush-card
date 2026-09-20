@@ -52,8 +52,10 @@ The readings the card can show depend on what each integration provides:
 
 #### Not yet sensible
 
-- **Oclean** (`oclean_ble`) — rich per-zone statistics, but only after a session ends; no live brushing state the card could animate. Will revisit if a live status entity becomes available.
-- **Playbrush** — no Home Assistant integration available yet.
+- **Oclean** (`oclean_ble`) — rich per-zone statistics, but only after a session ends; no live brushing state the card could animate. Will revisit if a live status entity becomes available. *Last checked against v1.4.0 (2026-09-20): still no binary sensor platform.*
+- **Playbrush** — no Home Assistant integration available yet. *Last checked 2026-09-20.*
+
+These entries are only as current as the version they were read against, so each one says which that was. A newer release may well have added what is missing here — if you are looking at one, please say so in an issue rather than assuming the table is still right.
 
 Want support for another brush? [Open an issue](https://github.com/mtheli/toothbrush-card/issues) — an integration with a live brushing state is the main requirement.
 
