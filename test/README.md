@@ -35,6 +35,13 @@ are imported from src/ and called directly. That import happens in both targets
 — index.js does not re-export them, so they cannot be reached through the
 bundle, and exercising the same code twice would prove nothing.
 
+`mode-chip.test.mjs` covers the one chip whose dropdown needs positioning. It
+keeps the chip itself as the flex-row item so its padding and border are sized
+like every neighbour, and calls the backdrop handler directly to prove closing
+the dropdown cannot bubble back to the chip and reopen it. It also guards the
+four-chip phone layout and the text-track constraints that keep labels inside
+those equal-width boxes.
+
 `editor.test.mjs` never renders the editor. Every control ends in a handler
 that builds a new config and dispatches `config-changed`, so the handlers are
 called directly and the emitted config is what gets asserted — the same object

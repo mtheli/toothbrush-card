@@ -2268,15 +2268,16 @@ export class ToothbrushCard extends LitElement {
                     </div>`;
                 case 'mode':
                     if (!entityIds.mode && !entityIds.mode_select) return '';
-                    return html`<div class="mode-chip-wrap">
-                        <div class="chip ${canSelectMode ? 'selectable' : ''}" @click="${() => this._handleModeChipClick()}">
-                            <div class="chip-icon ${modeUnavailable ? 'muted' : 'blue'}"><ha-icon icon="${modeIcon}"></ha-icon></div>
-                            <span class="chip-label">${t(hass, 'chip_mode')}</span>
-                            <div class="chip-value ${modeUnavailable ? '' : 'blue'}">${modeLabel}${canSelectMode ? html`<span class="mode-caret"> ▾</span>` : ''}</div>
-                            ${canSelectMode ? html`<ha-icon class="chip-select-hint" icon="mdi:chevron-down"></ha-icon>` : ''}
-                        </div>
+                    return html`<div class="chip mode-chip-wrap ${canSelectMode ? 'selectable' : ''}" @click="${() => this._handleModeChipClick()}">
+                        <div class="chip-icon ${modeUnavailable ? 'muted' : 'blue'}"><ha-icon icon="${modeIcon}"></ha-icon></div>
+                        <span class="chip-label">${t(hass, 'chip_mode')}</span>
+                        <div class="chip-value ${modeUnavailable ? '' : 'blue'}">${modeLabel}${canSelectMode ? html`<span class="mode-caret"> ▾</span>` : ''}</div>
+                        ${canSelectMode ? html`<ha-icon class="chip-select-hint" icon="mdi:chevron-down"></ha-icon>` : ''}
                         ${this._showModeDropdown && canSelectMode ? html`
-                            <div class="dropdown-backdrop" @click="${() => this._closeModeDropdown()}"></div>
+                            <div class="dropdown-backdrop" @click="${(e) => {
+                                e.stopPropagation();
+                                this._closeModeDropdown();
+                            }}"></div>
                             <div class="mode-dropdown">
                                 ${modeOptions.map(opt => html`
                                     <div class="mode-option ${opt === mode ? 'active' : ''}"
@@ -2454,7 +2455,7 @@ export class ToothbrushCard extends LitElement {
                 </div>` : ''}
 
                 <!-- Chips: configurable via layout.chips (omitted when empty) -->
-                ${chipEls.length ? html`<div class="chips-row">${chipEls}</div>` : ''}
+                ${chipEls.length ? html`<div class="chips-row${chipEls.length === 4 ? ' four-chips' : ''}">${chipEls}</div>` : ''}
 
                 <!-- Tooth visual -->
                 <div class="visual-area">

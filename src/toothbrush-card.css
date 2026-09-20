@@ -162,8 +162,8 @@ ha-card {
     gap: 8px;
     padding: 12px 14px;
 }
-/* Direct children, not .chip: the mode chip sits inside .mode-chip-wrap,
-   and the wrapper is what must share the row evenly. */
+/* Every chip is a direct child, including the mode chip that anchors its
+   dropdown, so padding and borders take part in the same flex calculation. */
 .chips-row > * {
     flex: 1;
     min-width: 0;
@@ -175,7 +175,10 @@ ha-card {
     padding: 8px 10px;
     cursor: pointer;
     display: grid;
-    grid-template-columns: auto 1fr;
+    /* The text track must be allowed to shrink below its contents. Without
+       minmax(0, ...), an unbreakable label can make the grid wider than the
+       chip even though the chip itself is allowed to shrink in the flex row. */
+    grid-template-columns: auto minmax(0, 1fr);
     grid-template-rows: auto auto;
     column-gap: 8px;
     row-gap: 1px;
@@ -216,6 +219,10 @@ ha-card {
     color: var(--secondary-text-color);
     text-transform: uppercase;
     letter-spacing: 0.06em;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .chip-value {
     font-size: 12px;
@@ -733,6 +740,28 @@ ha-card {
 }
 
 /* ── RESPONSIVE ── */
+/* Four readings leave too little room for icon + text side by side at phone
+   widths. Stack only that dense row until the ordinary two-column chips have
+   enough room again. The existing <=350px icon-only layout still wins below. */
+@container (min-width: 351px) and (max-width: 450px) {
+    .chips-row.four-chips .chip {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        justify-items: center;
+        padding: 8px 4px;
+        row-gap: 2px;
+    }
+    .chips-row.four-chips .chip-icon,
+    .chips-row.four-chips .pressure-bars {
+        grid-row: auto;
+    }
+    .chips-row.four-chips .chip-label,
+    .chips-row.four-chips .chip-value {
+        max-width: 100%;
+        text-align: center;
+    }
+}
+
 @container (max-width: 350px) {
     .chip {
         grid-template-columns: 1fr;
