@@ -76,6 +76,7 @@ Wondering what a specific icon or colour means? The [icon & colour reference](do
 | English     | en | |
 | Dansk       | da | |
 | Deutsch     | de | |
+| Español     | es | |
 | Nederlands  | nl | |
 | Русский     | ru | |
 | Slovenščina | sl | |
@@ -252,7 +253,7 @@ it does.
 | Option        | Type     | Default | Description                                  |
 |---------------|----------|---------|----------------------------------------------|
 | routine_length | number  | auto    | Override the routine length in seconds (YAML only). Normally read from the device; mainly for brushes without one (e.g. Xiaomi, default `120`) whose session timer is synthesized. Also the way out when a device *has* a routine-length reading but cannot fill it in: the card declines to judge a session against a guess, so the summary stays away until this is set. |
-| language      | string   | auto    | Force the card language (YAML only): `en`, `da`, `de`, `nl`, `ru` or `sl`. Defaults to your Home Assistant profile language. Useful for shared wall panels or trying out a translation without changing your profile. |
+| language      | string   | auto    | Force the card language (YAML only): `en`, `da`, `de`, `es`, `nl`, `ru` or `sl`. Defaults to your Home Assistant profile language. Useful for shared wall panels or trying out a translation without changing your profile. |
 
 ### YAML Example
 ```yaml
