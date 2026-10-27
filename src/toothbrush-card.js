@@ -1529,14 +1529,16 @@ export class ToothbrushCard extends LitElement {
             // and leave a dead card — show a hint instead.
             return html`<ha-card><div class="device-not-found">${t(hass, 'device_not_found')}</div></ha-card>`;
         }
-        const deviceName = device.name;
+        // The name the user gave the device wins: it tells two brushes of
+        // the same model apart, which the model number cannot.
+        const deviceName = device.name_by_user || device.name;
         const manufacturer = device.manufacturer || '';
         const modelNumber = entityIds.model_number
             ? hass.states[entityIds.model_number]?.state || ''
             : '';
         const headerTitle = config.title || manufacturer || deviceName;
         const rawSub = config.show_subtitle !== false
-            ? (modelNumber || deviceName)
+            ? (deviceName || modelNumber)
             : '';
         const headerSub = rawSub && headerTitle && rawSub.startsWith(headerTitle)
             ? rawSub.slice(headerTitle.length).trim()
