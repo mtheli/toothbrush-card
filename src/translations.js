@@ -9,8 +9,11 @@ import zh from './locales/zh.json';
 
 const LOCALES = { en, de, nl, ru, da, sl, es, zh };
 
+// Home Assistant reports Simplified Chinese as `zh-Hans`.
+const ALIASES = { 'zh-Hans': 'zh' };
+
 export function t(hass, key) {
   const lang = hass?.language || 'en';
-  const locale = LOCALES[lang] || LOCALES.en;
+  const locale = LOCALES[lang] || LOCALES[ALIASES[lang]] || LOCALES.en;
   return locale[key] || LOCALES.en[key] || key;
 }
