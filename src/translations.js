@@ -5,8 +5,9 @@ import ru from './locales/ru.json';
 import da from './locales/da.json';
 import sl from './locales/sl.json';
 import es from './locales/es.json';
+import zh from './locales/zh.json';
 
-const LOCALES = { en, de, nl, ru, da, sl, es };
+const LOCALES = { en, de, nl, ru, da, sl, es, zh };
 
 export function t(hass, key) {
   const lang = hass?.language || 'en';

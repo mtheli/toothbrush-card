@@ -80,6 +80,7 @@ Wondering what a specific icon or colour means? The [icon & colour reference](do
 | Nederlands  | nl | |
 | Русский     | ru | |
 | Slovenščina | sl | |
+| 简体中文    | zh | |
 
 The card automatically detects the language configured in your Home Assistant instance (per-user profile setting). A specific language can also be forced per card with the `language` YAML option. If your language is not yet supported, it falls back to English. Contributions for additional languages are welcome — just add a new JSON file in `src/locales/`.
 
