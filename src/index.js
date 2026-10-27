@@ -1,4 +1,7 @@
-import { ToothbrushCard, CARD_VERSION, BUILD_DATE, isMainStateEntity } from "./toothbrush-card";
+import {
+    ToothbrushCard, CARD_VERSION, BUILD_DATE, isMainStateEntity,
+    deviceConfigEntries, deviceParentId,
+} from "./toothbrush-card";
 import { ToothbrushCardEditor } from "./toothbrush-card-editor";
 
 customElements.define('toothbrush-card', ToothbrushCard);
@@ -31,9 +34,11 @@ window.customCards.push({
         const picked = devices[entity.device_id];
         if (!picked) return null;
         const candidates = new Set([entity.device_id]);
-        if (picked.via_device_id) candidates.add(picked.via_device_id);
+        const parentId = deviceParentId(picked);
+        if (parentId) candidates.add(parentId);
+        const pickedEntries = deviceConfigEntries(picked);
         for (const d of Object.values(devices)) {
-            if (d.config_entries?.some((ce) => picked.config_entries?.includes(ce))) {
+            if (deviceConfigEntries(d).some((ce) => pickedEntries.includes(ce))) {
                 candidates.add(d.id);
             }
         }

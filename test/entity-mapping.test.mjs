@@ -286,6 +286,32 @@ describe('entities on sub-devices', () => {
         assert.equal(ids.brushhead_wear, null);
     });
 
+    test('the device registry of HA 2026.8 and later is read the same way', () => {
+        // One `config_entry_id` per device instead of the `config_entries`
+        // list, and child devices that name their parent in
+        // `parent_device_id` rather than `via_device_id`.
+        const ids = findDeviceEntities(hassWith(
+            [['sensor.s_handle', { platform: 'philips_sonicare_ble', translation_key: 'handle_state' }]],
+            {
+                devices: {
+                    dev1: { id: 'dev1', config_entry_id: 'ce1' },
+                    head: { id: 'head', parent_device_id: 'dev1', config_entry_id: 'ce9' },
+                    conn: { id: 'conn', config_entry_id: 'ce1' },
+                    alien: { id: 'alien', config_entry_id: 'ce2' },
+                },
+                extraEntities: [
+                    ['sensor.head_wear', { platform: 'philips_sonicare_ble', translation_key: 'brushhead_wear', device_id: 'head' }],
+                    ['binary_sensor.conn_ble', { platform: 'philips_sonicare_ble', translation_key: 'ble_connected', device_id: 'conn' }],
+                    ['sensor.alien_type', { platform: 'philips_sonicare_ble', translation_key: 'brushhead_type', device_id: 'alien' }],
+                ],
+            },
+        ), 'dev1');
+
+        assert.equal(ids.brushhead_wear, 'sensor.head_wear', 'found as a child');
+        assert.equal(ids.ble_connected, 'binary_sensor.conn_ble', 'found on the same entry');
+        assert.equal(ids.brushhead_type, null);
+    });
+
     test('a registry without devices is not a crash', () => {
         const hass = hassWith([
             ['sensor.io_state', { platform: 'oralb', translation_key: 'toothbrush_state' }],

@@ -124,6 +124,19 @@ export function isMainStateEntity(entity) {
         || false;
 }
 
+// The config entries a device belongs to. HA 2026.8 gives every device one
+// `config_entry_id`; the old `config_entries` list goes away in 2027.8.
+export function deviceConfigEntries(device) {
+    if (device?.config_entry_id) return [device.config_entry_id];
+    return device?.config_entries || [];
+}
+
+// The device a sub-device hangs off: `via_device_id`, or `parent_device_id`
+// on the child devices HA 2026.9 added, which have no `via_device_id`.
+export function deviceParentId(device) {
+    return device?.via_device_id ?? device?.parent_device_id ?? null;
+}
+
 // Progress-bar gradient endpoints (blue → green across the full track).
 // The track is sliced into one sub-bar per sector, so each sub-bar gets
 // its slice of this gradient instead of restarting it per segment.
@@ -536,11 +549,11 @@ export function findDeviceEntities(hass, deviceId) {
     // Search related devices (child + same config entry) for additional entities
     if (hass.devices) {
         const mainDevice = hass.devices[deviceId];
-        const configEntries = mainDevice?.config_entries || [];
+        const configEntries = deviceConfigEntries(mainDevice);
         const relatedDevices = Object.values(hass.devices).filter(d =>
             d.id !== deviceId && (
-                d.via_device_id === deviceId ||
-                d.config_entries?.some(ce => configEntries.includes(ce))
+                deviceParentId(d) === deviceId ||
+                deviceConfigEntries(d).some(ce => configEntries.includes(ce))
             )
         );
         for (const related of relatedDevices) {
