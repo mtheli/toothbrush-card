@@ -1,6 +1,6 @@
 # Toothbrush Card
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/default)
+[![Home Assistant Marketplace](https://img.shields.io/badge/Marketplace-listed-41BDF5.svg)](https://www.home-assistant.io/integrations/marketplace/)
 [![GitHub Release](https://img.shields.io/github/v/release/mtheli/toothbrush-card)](https://github.com/mtheli/toothbrush-card/releases)
 [![License: MIT](https://img.shields.io/github/license/mtheli/toothbrush-card)](LICENSE)
 
@@ -120,13 +120,13 @@ The card automatically detects the language configured in your Home Assistant in
 
 ## Installation
 
-### HACS (Recommended)
+### Marketplace (recommended)
 
-This card is available in the **default HACS store** — just click the button below, or search HACS for "Toothbrush Card".
+This card is listed in the Home Assistant **Marketplace**. Click the button below, or go to **Settings → Marketplace** and search for "Toothbrush Card". After installing, refresh your dashboard.
 
-[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mtheli&repository=toothbrush-card&category=plugin)
+[![Open in the Marketplace](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=mtheli&repository=toothbrush-card&category=plugin)
 
-Then refresh your Home Assistant dashboard.
+On Home Assistant before 2026.11, the button opens the repository in [HACS](https://hacs.xyz/docs/use/) instead.
 
 <details>
 <summary>Manual installation</summary>
