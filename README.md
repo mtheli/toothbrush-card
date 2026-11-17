@@ -77,6 +77,7 @@ Wondering what a specific icon or colour means? The [icon & colour reference](do
 | Dansk       | da | |
 | Deutsch     | de | |
 | Español     | es | |
+| 日本語      | ja | |
 | Nederlands  | nl | |
 | Русский     | ru | |
 | Slovenščina | sl | |
