@@ -61,11 +61,11 @@ Want support for another brush? [Open an issue](https://github.com/mtheli/toothb
 
 ## Screenshots
 
-[![Oral-B](screenshots/OralB.png)](screenshots/OralB.png) [![Sonicare](screenshots/Sonicare.png)](screenshots/Sonicare.png)
+<a href="screenshots/OralB.png"><img src="screenshots/OralB.png" alt="Oral-B" width="500"></a> <a href="screenshots/Sonicare.png"><img src="screenshots/Sonicare.png" alt="Sonicare" width="424"></a>
 
 The compact view (`tooth_style: none`) — shown here with the header and chips still enabled:
 
-[![Compact](screenshots/Compact.png)](screenshots/Compact.png)
+<a href="screenshots/Compact.png"><img src="screenshots/Compact.png" alt="Compact" width="424"></a>
 
 During a session — sectors fill in as you brush, the pressure chip turns red when you press too hard, and the card follows the dark theme:
 
