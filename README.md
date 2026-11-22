@@ -71,7 +71,7 @@ During a session — sectors fill in as you brush, the pressure chip turns red w
 
 | Brushing | Too much pressure | Dark theme | Compact |
 | :---: | :---: | :---: | :---: |
-| [![Brushing](screenshots/SonicareBrushing.png)](screenshots/SonicareBrushing.png) | [![Pressure high](screenshots/SonicarePressureHigh.png)](screenshots/SonicarePressureHigh.png) | [![Dark theme](screenshots/SonicareDark.png)](screenshots/SonicareDark.png) | [![Compact while brushing](screenshots/CompactRunning.png)](screenshots/CompactRunning.png) |
+| <a href="screenshots/SonicareBrushing.png"><img src="screenshots/SonicareBrushing.png" alt="Brushing" width="199"></a> | <a href="screenshots/SonicarePressureHigh.png"><img src="screenshots/SonicarePressureHigh.png" alt="Pressure high" width="199"></a> | <a href="screenshots/SonicareDark.png"><img src="screenshots/SonicareDark.png" alt="Dark theme" width="199"></a> | <a href="screenshots/CompactRunning.png"><img src="screenshots/CompactRunning.png" alt="Compact while brushing" width="199"></a> |
 
 Wondering what a specific icon or colour means? The [icon & colour reference](docs/ICONS.md) shows every state icon the card can display, with its trigger condition and colour.
 
