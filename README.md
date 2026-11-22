@@ -67,6 +67,12 @@ The compact view (`tooth_style: none`) — shown here with the header and chips 
 
 ![Compact](screenshots/Compact.png)
 
+During a session — sectors fill in as you brush, the pressure chip turns red when you press too hard, and the card follows the dark theme:
+
+| Brushing | Too much pressure | Dark theme | Compact |
+| :---: | :---: | :---: | :---: |
+| ![Brushing](screenshots/SonicareBrushing.png) | ![Pressure high](screenshots/SonicarePressureHigh.png) | ![Dark theme](screenshots/SonicareDark.png) | ![Compact while brushing](screenshots/CompactRunning.png) |
+
 Wondering what a specific icon or colour means? The [icon & colour reference](docs/ICONS.md) shows every state icon the card can display, with its trigger condition and colour.
 
 ## Supported Languages
