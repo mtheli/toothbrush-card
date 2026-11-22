@@ -6,8 +6,9 @@ import da from './locales/da.json';
 import sl from './locales/sl.json';
 import es from './locales/es.json';
 import zh from './locales/zh.json';
+import ja from './locales/ja.json';
 
-const LOCALES = { en, de, nl, ru, da, sl, es, zh };
+const LOCALES = { en, de, nl, ru, da, sl, es, zh, ja };
 
 // Home Assistant reports Simplified Chinese as `zh-Hans`.
 const ALIASES = { 'zh-Hans': 'zh' };
