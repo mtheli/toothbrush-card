@@ -122,9 +122,19 @@ The card automatically detects the language configured in your Home Assistant in
 
 [Smartes Badezimmer? So hilft dir ein Shelly Wall Display beim Zähneputzen & Rasieren!](https://www.youtube.com/watch?v=ROI91x2Swv8) — Video by [@smartmatic](https://github.com/smartmatic) showing the card on a Shelly Wall Display alongside the Philips Shaver integration (German)
 
-### Blueprints
+### Articles
+
+[Oral-B Zahnbürste in Home Assistant mit Toothbrush Card](https://smart-live.net/oral-b-zahnbuerste-in-home-assistant-mit-toothbrush-card/) — step-by-step guide on smart-live.net for setting up the card with the built-in Oral-B integration (German)
+
+### Blueprints and recipes
 
 [Toothbrushing Notification System (Morning/Evening)](https://community.home-assistant.io/t/adhd-friendly-toothbrushing-notification-system-morning-evening/1017326) — a blueprint by [@CoatsyJnr](https://github.com/CoatsyJnr) that reminds you to brush morning and evening, at deliberately unpredictable times so the reminder does not fade into background noise. It triggers on the same live brushing state this card visualizes, so the two go well together: the blueprint reminds, the card shows what is going on. On the Sonicare side, point it at the **Brushing** binary sensor — the other sensors its description suggests never fire, see [CoatsyJnr/home-assistant-blueprints#1](https://github.com/CoatsyJnr/home-assistant-blueprints/issues/1).
+
+[Oral-B: Kids' Brushing Check](https://selorahomes.com/recipes/bathroom/kids-brushing-check/) — a [Selora AI](https://github.com/SeloraHomes/ha-selora-ai) recipe that checks whether the kids brushed and installs this card to show the session.
+
+### Other displays
+
+[tessera-toothbrush](https://github.com/Heronimonimo/tessera-toothbrush) by [@Heronimonimo](https://github.com/Heronimonimo) brings the card's brushing ring to [Tessera](https://github.com/MaxGramser/homeassistant_espscreen) touch screens on ESP32 panels, for example a small display in the bathroom. It supports the same integrations as this card.
 
 ## Installation
 
