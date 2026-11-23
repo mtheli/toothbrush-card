@@ -3,6 +3,7 @@
 [![Home Assistant Marketplace](https://img.shields.io/badge/Marketplace-listed-41BDF5.svg)](https://www.home-assistant.io/integrations/marketplace/)
 [![GitHub Release](https://img.shields.io/github/v/release/mtheli/toothbrush-card)](https://github.com/mtheli/toothbrush-card/releases)
 [![License: MIT](https://img.shields.io/github/license/mtheli/toothbrush-card)](LICENSE)
+[![nixpkgs](https://img.shields.io/badge/nixpkgs-packaged-5277C3?logo=nixos&logoColor=white)](https://search.nixos.org/packages?channel=unstable&query=toothbrush-card)
 
 A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) designed to visualize **electric toothbrushes** via Bluetooth LE integrations.
 
@@ -145,6 +146,19 @@ On Home Assistant before 2026.11, the button opens the repository in [HACS](http
 resources:
   - url: /local/community/toothbrush-card/toothbrush-card.js
     type: module
+```
+
+</details>
+
+<details>
+<summary>NixOS</summary>
+
+The card is packaged in nixpkgs as `home-assistant-custom-lovelace-modules.toothbrush-card` (maintained by the nixpkgs community, so the version there can lag behind the latest release):
+
+```nix
+services.home-assistant.customLovelaceModules = [
+  pkgs.home-assistant-custom-lovelace-modules.toothbrush-card
+];
 ```
 
 </details>
