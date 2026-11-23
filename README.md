@@ -7,6 +7,26 @@
 
 A **Custom Lovelace Card** for [Home Assistant](https://www.home-assistant.io/) designed to visualize **electric toothbrushes** via Bluetooth LE integrations.
 
+## Table of Contents
+
+- [Toothbrush Integrations](#toothbrush-integrations)
+- [Screenshots](#screenshots)
+- [Supported Languages](#supported-languages)
+- [Features](#features)
+- [Community](#community)
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [Device](#device)
+  - [Header](#header)
+  - [Visualization](#visualization)
+  - [Sectors](#sectors)
+  - [Layout](#layout)
+  - [Session recap](#session-recap)
+  - [Misc](#misc)
+  - [YAML Example](#yaml-example)
+- [Known Issues](#known-issues)
+- [Development](#development)
+
 ### Toothbrush Integrations
 
 | Brand | Integration | Status |
