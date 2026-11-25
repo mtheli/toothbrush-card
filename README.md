@@ -54,7 +54,7 @@ The readings the card can show depend on what each integration provides:
 | Score | — | — | ✓ | — |
 | Brush head | days · brushing hours left ⁷ | wear · type · sessions | wear | — |
 | Ring color | ✓ ⁶ | — | — | — |
-| Connection | ✓ | ✓ + ESP bridge | ✓ | ✓ |
+| Connection | ✓ | ✓ + ESP bridge / MQTT gateway | ✓ | ✓ |
 
 ¹ the Xiaomi broadcast has no live timer/sectors — the card synthesizes a session timer with time-based quadrants\
 ² aligned with the handle's 30s pacer when enabled; the routine length comes from Brushing Duration — the sensor on Wave Pro, the number entity on Wave (needs laifen_ble 3.0.3+)\
@@ -120,7 +120,7 @@ The card automatically detects the language configured in your Home Assistant in
 - Chip-based display for battery, pressure/intensity, brushing mode, score, brush head and head time
 - Configurable layout: place every reading as a chip or a corner marker — or hide it
 - Compact panel mode: hideable header and tooth ring with a large standalone timer (two cards fit side by side on a 480×480 wall panel)
-- Bluetooth connection status indicator (Pantone 285 blue)
+- Connection status in the header: Bluetooth, plus the ESP bridge or MQTT gateway where the brush is reached through one ([icon reference](docs/ICONS.md#header))
 - Sector-segmented progress bar based on the brushing target (uses the device routine length when available)
 - Session recap banner: green when the routine was completed, amber with partial progress when brushing stopped early — read from the brush's own record where an integration exposes one, otherwise rebuilt from recorder history, so it shows on any browser or device
 - A verdict on the finished session: the Oral-B display face or the Xiaomi score where the handle reports one — and on a handle that reports neither but records its own sessions, one the card works out from how far the session got and how much of it was brushed too hard ([icon reference](docs/ICONS.md#done-badge))
