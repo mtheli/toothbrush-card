@@ -338,7 +338,7 @@ export function findDeviceEntities(hass, deviceId) {
         brushhead_wear: null, brushhead_type: null,
         refill_days: null, refill_brushing_time: null,
         brushhead_sessions: null, activity: null,
-        mode_select: null, esp_bridge_alive: null,
+        mode_select: null, esp_bridge_alive: null, gateway_online: null,
         ble_connected: null, score: null, pacer_30s: null,
         smiley: null, last_session: null, last_session_duration: null,
         ring_color: null
@@ -522,6 +522,8 @@ export function findDeviceEntities(hass, deviceId) {
             entityKeys.mode_select = entity.entity_id;
         } else if (entity.translation_key === 'esp_bridge_alive') {
             entityKeys.esp_bridge_alive = entity.entity_id;
+        } else if (entity.translation_key === 'mqtt_gateway_online') {
+            entityKeys.gateway_online = entity.entity_id;
         } else if (entity.translation_key === 'routine_length') {
             entityKeys.routine_length = entity.entity_id;
         }
@@ -570,6 +572,8 @@ export function findDeviceEntities(hass, deviceId) {
                     entityKeys.esp_bridge_alive = entity.entity_id;
                 } else if (entity.translation_key === 'ble_connected') {
                     entityKeys.ble_connected = entity.entity_id;
+                } else if (entity.translation_key === 'mqtt_gateway_online') {
+                    entityKeys.gateway_online = entity.entity_id;
                 }
             }
         }
@@ -1785,6 +1789,13 @@ export class ToothbrushCard extends LitElement {
             ? hass.states[entityIds.esp_bridge_alive]?.state === 'on'
             : false;
 
+        // MQTT gateway (philips_sonicare_ble, e.g. a phone app holding the
+        // BLE link): shown like the ESP bridge, next to the Bluetooth icon,
+        // which then stands for the brush's link to the gateway.
+        const gatewayOnline = entityIds.gateway_online
+            ? hass.states[entityIds.gateway_online]?.state === 'on'
+            : false;
+
         // Sonicare: show initializing screen while connecting
         const activity = entityIds.activity ? hass.states[entityIds.activity]?.state : null;
         if (activity === 'initializing') {
@@ -1807,6 +1818,12 @@ export class ToothbrushCard extends LitElement {
                                  @click="${() => this._showMoreInfo(entityIds.esp_bridge_alive)}">
                                 <title>${espConnected ? t(hass, 'conn_bridge_online') : t(hass, 'conn_bridge_offline')}</title>
                                 <path d="${espConnected ? CONN_ICONS.network : CONN_ICONS.network_off}"/>
+                            </svg>` : ''}
+                            ${entityIds.gateway_online ? html`
+                            <svg class="conn-icon ${gatewayOnline ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
+                                 @click="${() => this._showMoreInfo(entityIds.gateway_online)}">
+                                <title>${gatewayOnline ? t(hass, 'conn_gateway_online') : t(hass, 'conn_gateway_offline')}</title>
+                                <path d="${gatewayOnline ? CONN_ICONS.gateway : CONN_ICONS.gateway_off}"/>
                             </svg>` : ''}
                             <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
                                  @click="${() => this._showDeviceInfo()}">
@@ -2458,6 +2475,15 @@ export class ToothbrushCard extends LitElement {
                             <path d="${!espConnected ? CONN_ICONS.network_off
                                 : btActive ? CONN_ICONS.network_active
                                 : CONN_ICONS.network}"/>
+                        </svg>` : ''}
+                        ${entityIds.gateway_online ? html`
+                        <svg class="conn-icon ${gatewayOnline && btConnected && btActive ? 'active' : ''} ${gatewayOnline ? '' : 'disconnected'}"
+                             viewBox="0 0 24 24" fill="currentColor"
+                             @click="${() => this._showMoreInfo(entityIds.gateway_online)}">
+                            <title>${!gatewayOnline ? t(hass, 'conn_gateway_offline')
+                                : btConnected && btActive ? t(hass, 'conn_gateway_active')
+                                : t(hass, 'conn_gateway_online')}</title>
+                            <path d="${gatewayOnline ? CONN_ICONS.gateway : CONN_ICONS.gateway_off}"/>
                         </svg>` : ''}
                         <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
                              @click="${() => this._showDeviceInfo()}">
