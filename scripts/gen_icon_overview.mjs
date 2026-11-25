@@ -30,7 +30,7 @@ const version = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'))
 const generated = new Date().toISOString().slice(0, 10);
 const iconsJs = readFileSync(join(repoRoot, 'src/icons.js'), 'utf8');
 const conn = {};
-for (const key of ['bluetooth', 'bluetooth_transfer', 'bluetooth_off', 'network', 'network_active', 'network_off', 'charger']) {
+for (const key of ['bluetooth', 'bluetooth_transfer', 'bluetooth_off', 'network', 'network_active', 'network_off', 'gateway', 'gateway_active', 'gateway_off', 'charger']) {
     conn[key] = iconsJs.match(new RegExp(`${key}: '([^']+)'`))[1];
 }
 // Smiley paths are card-own constants (raw paths, not mdi: names) — read them
@@ -151,6 +151,12 @@ header.push(section('ESP bridge', ['philips_sonicare_ble'], 'Shown only where th
     cell(svg(conn.network, C.primary, 0.55), 'bridge online, idle', 'network', 'var(--primary-color) op.0.55'),
     cell(svg(conn.network_active, C.btActive), 'carrying live data', 'network_active', '#0082fc op.1'),
     cell(svg(conn.network_off, C.muted, 0.3), 'bridge offline', 'network_off', '#9ca3af op.0.3'),
+]));
+
+header.push(section('MQTT gateway', ['philips_sonicare_ble'], 'Shown only where the handle is reached through an MQTT gateway, for example a phone app holding the Bluetooth link. The gateway reports its own availability, so it is online or offline independently of the Bluetooth icon beside it, which then stands for the link between handle and gateway. Same weight and shape treatment as the ESP bridge.', [
+    cell(svg(conn.gateway, C.primary, 0.55), 'gateway online, idle', 'gateway (mdiRouterWireless)', 'var(--primary-color) op.0.55'),
+    cell(svg(conn.gateway_active, C.btActive), 'carrying live data', 'gateway_active (mdiRouterNetworkWireless)', '#0082fc op.1'),
+    cell(svg(conn.gateway_off, C.muted, 0.3), 'gateway offline', 'gateway_off (mdiRouterWirelessOff)', '#9ca3af op.0.3'),
 ]));
 
 header.push(section('Charger', ['oralb_live'], 'Shown only when the handle is paired with a charging station (charger_address on the main entity). Full strength while the data actually arrives through it (data_source = charger_bridge), quieter otherwise — an idle station is the normal state between sessions, not a fault.', [

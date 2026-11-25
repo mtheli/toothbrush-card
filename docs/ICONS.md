@@ -55,6 +55,7 @@ integration documents.
 | Head type | — | — | ● sub-device | — | — |
 | Sector | reported | reported | derived | from time | from time |
 | ESP bridge icon | — | — | ● | — | — |
+| MQTT gateway icon | — | — | ● | — | — |
 | Charger icon | — | ● | — | — | — |
 | Display face | — | ● | — | — | — |
 | Badge verdict | — | ● the face | ● card-formed | ● the score | — |
@@ -76,8 +77,8 @@ An interactive version with copyable hex values is in
 
 ## Header
 
-The strip along the top: Bluetooth, the ESP bridge, the charging station and
-the way into the device page. These are **transport** states — they say how the
+The strip along the top: Bluetooth, the ESP bridge or MQTT gateway, the
+charging station and the way into the device page. These are **transport** states — they say how the
 card is hearing from the handle, never what the handle is doing, which is why
 they are the only icons that stay put while a session runs.
 
@@ -90,9 +91,11 @@ but is idle; a faded one means it is gone.
 Which of them a card shows depends on the transport, not on a setting. The
 bridge icon only exists where `philips_sonicare_ble` created the entity, and it
 creates it for no other transport — which is what makes its third state honest:
-if the bridge is there at all, a running session is data crossing it. The
-charger icon likewise appears only once `oralb_live` reports a
-`charger_address`.
+if the bridge is there at all, a running session is data crossing it. The MQTT
+gateway icon follows the same rule for a handle reached through a gateway such
+as a phone app; the gateway reports its own availability, so the Bluetooth icon
+beside it stands for the link between handle and gateway. The charger icon
+likewise appears only once `oralb_live` reports a `charger_address`.
 
 ## Chips and corner markers
 

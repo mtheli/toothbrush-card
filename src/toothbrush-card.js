@@ -2488,7 +2488,9 @@ export class ToothbrushCard extends LitElement {
                             <title>${!gatewayOnline ? t(hass, 'conn_gateway_offline')
                                 : btConnected && btActive ? t(hass, 'conn_gateway_active')
                                 : t(hass, 'conn_gateway_online')}</title>
-                            <path d="${gatewayOnline ? CONN_ICONS.gateway : CONN_ICONS.gateway_off}"/>
+                            <path d="${!gatewayOnline ? CONN_ICONS.gateway_off
+                                : btConnected && btActive ? CONN_ICONS.gateway_active
+                                : CONN_ICONS.gateway}"/>
                         </svg>` : ''}
                         <svg class="more-info-btn" viewBox="0 0 24 24" fill="currentColor" stroke="none"
                              @click="${() => this._showDeviceInfo()}">
