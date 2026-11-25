@@ -1799,6 +1799,11 @@ export class ToothbrushCard extends LitElement {
         // Sonicare: show initializing screen while connecting
         const activity = entityIds.activity ? hass.states[entityIds.activity]?.state : null;
         if (activity === 'initializing') {
+            // The link is up while the integration reads the handle; show
+            // what the connection sensor says instead of a fixed "off".
+            const initBtConnected = entityIds.ble_connected
+                ? hass.states[entityIds.ble_connected]?.state === 'on'
+                : false;
             return html`
                 <ha-card style="${this._cardStyle()}">
                     ${config.show_header === false ? '' : html`
@@ -1809,9 +1814,9 @@ export class ToothbrushCard extends LitElement {
                             ${headerSub ? html`<span class="header-sub">${headerSub}</span>` : ''}
                         </div>
                         <div class="header-icons">
-                            <svg class="conn-icon disconnected" viewBox="0 0 24 24" fill="currentColor">
-                                <title>${t(hass, 'conn_bt_disconnected')}</title>
-                                <path d="${CONN_ICONS.bluetooth_off}"/>
+                            <svg class="conn-icon ${initBtConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor">
+                                <title>${initBtConnected ? t(hass, 'conn_bt_connected') : t(hass, 'conn_bt_disconnected')}</title>
+                                <path d="${initBtConnected ? CONN_ICONS.bluetooth : CONN_ICONS.bluetooth_off}"/>
                             </svg>
                             ${entityIds.esp_bridge_alive ? html`
                             <svg class="conn-icon ${espConnected ? '' : 'disconnected'}" viewBox="0 0 24 24" fill="currentColor"
