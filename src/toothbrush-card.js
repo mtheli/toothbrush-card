@@ -403,16 +403,16 @@ export function findDeviceEntities(hass, deviceId) {
                 entityKeys.routine_length = entityId;
                 entityKeys.routine_length_minutes = false;
             } else if (match('number', 'brushing_duration', '_brushing_duration_adjustment')) {
-                // The adjustable session length, in minutes. On the Wave (V1)
-                // this is the only source: 3.0.3 drops the Brushing Time sensor
-                // there, and the Brushing Duration sensor above is registered
-                // on every device but stays unavailable unless the handle
-                // reports the key (Wave Pro does, Wave does not). Kept beside
-                // the sensor instead of replacing it, so the mapping stays a
-                // pure registry lookup and the value side takes whichever of
-                // the two actually reads. Neither handle reports the duration
-                // back, so this reads "unknown" until it has been set once —
-                // then the default applies, as it did before.
+                // The adjustable session length, in minutes. Fallback for the
+                // Wave (V1) before laifen_ble 3.0.5: 3.0.3 drops the Brushing
+                // Time sensor there, and the Brushing Duration sensor above is
+                // registered on every device but stays unavailable until the
+                // handle reports the key (Wave Pro always, Wave from 3.0.5 on).
+                // Kept beside the sensor instead of replacing it, so the
+                // mapping stays a pure registry lookup and the value side takes
+                // whichever of the two actually reads. Before 3.0.5 the Wave
+                // value is only tracked after a write, so it reads "unknown"
+                // until it has been set once — then the default applies.
                 entityKeys.routine_length_number = entityId;
             } else if (match('sensor', 'brushing_time', '_brushing_time')
                 && entityKeys.routine_length === null) {
@@ -1607,8 +1607,8 @@ export class ToothbrushCard extends LitElement {
                 * (entityIds.routine_length_minutes ? 60 : 1)
             : 0;
         // A settable routine (Laifen number entity, minutes) stands in when no
-        // sensor reports one — on the Wave the sensor exists but never leaves
-        // "unavailable", so the number is all there is.
+        // sensor reports one — on the Wave before laifen_ble 3.0.5 the sensor
+        // exists but never leaves "unavailable", so the number is all there is.
         const routineFromEntity = routineFromSensor || (entityIds.routine_length_number
             ? (parseFloat(hass.states[entityIds.routine_length_number]?.state) || 0) * 60
             : 0);

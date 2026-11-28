@@ -57,7 +57,7 @@ The readings the card can show depend on what each integration provides:
 | Connection | ✓ | ✓ + ESP bridge / MQTT gateway | ✓ | ✓ |
 
 ¹ the Xiaomi broadcast has no live timer/sectors — the card synthesizes a session timer with time-based quadrants\
-² aligned with the handle's 30s pacer when enabled; the routine length comes from Brushing Duration — the sensor on Wave Pro, the number entity on Wave (needs laifen_ble 3.0.3+)\
+² aligned with the handle's 30s pacer when enabled; the routine length comes from the Brushing Duration sensor (Wave Pro; Wave with laifen_ble 3.0.5+), on older Wave releases from the number entity (3.0.3+)\
 ³ pressure warning, Wave Pro only (needs laifen_ble 3.0.2+)\
 ⁴ anatomical sectors provided by the integration's sector sensor, including revisit modes (e.g. White+); the card falls back to its own time-based calculation if the sensor is absent. Where the integration also publishes how the routine paces itself, the progress bar is divided into one segment per pacing step rather than per zone — a mode that revisits takes more steps than it has zones (Gum Health: ten over six), so a segment per zone would put every boundary in the wrong place\
 ⁵ applies to both `oralb` and `oralb_live` — the latter mirrors the built-in integration's entities, so the card reads it identically. Its smiley sensor is shown in the done badge as the handle's own verdict on the finished session ([icon reference](docs/ICONS.md#done-badge)); values that are not decoded yet display their raw name so they can be reported in [#20](https://github.com/mtheli/toothbrush-card/issues/20). Its battery time remaining is not shown yet, same issue\
